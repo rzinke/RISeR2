@@ -223,7 +223,7 @@ def pdf_mode(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Args    pdf - PDF to analyse
     Returns mode - float, mode of PDF
     """
-    return pdf.x[pdf.px == pdf.px.max()]
+    return pdf.x[pdf.px == pdf.px.max()].item()
 
 
 def pdf_median(pdf:PDFs.ProbabilityDensityFunction) -> float:
@@ -232,8 +232,35 @@ def pdf_median(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Args    pdf - PDF to analyse
     Returns median - float, median of PDF
     """
-    return pdf.compute_cdf_value(0.5)
+    return pdf.pit(0.5).item()
 
+
+#################### STATISTICAL SUMMARIES ####################
+class PDFstatistics:
+    def __init__(self, pdf:PDFs.ProbabilityDensityFunction):
+        """Compute basic statistical properties of a PDF.
+        """
+        # Compute location statistics
+        self.mode = pdf_mode(pdf)
+        self.median = pdf_median(pdf)
+
+        # Compute moments
+        self.mean = pdf_mean(pdf)
+        self.std = pdf_std(pdf)
+        self.variance = pdf_variance(pdf)
+        self.skewness = pdf_skewness(pdf)
+        self.kurtosis = pdf_kurtosis(pdf)
+
+    def __str__(self):
+        print_str = (f"  mode: {self.mode:.3f}"
+                     f"\nmedian: {self.median:.3f}"
+                     f"\n  mean: {self.mode:.3f}"
+                     f"\n   std: {self.std:.3f}"
+                     f"\n   var: {self.variance:.3f}"
+                     f"\n  skew: {self.skewness:.3f}"
+                     f"\nkurtos: {self.kurtosis:.3f}")
+
+        return print_str
 
 
 #################### CONFIDENCE RANGES ####################
@@ -291,11 +318,13 @@ def compute_interquantile_range(pdf:PDFs.ProbabilityDensityFunction,
     return confidences
 
 
-#################### STATISTICAL SUMMARIES ####################
-class PDFstatistics:
+def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
+                                confidence_levels:list[float],
+                                pdf_name:str=None,
+                                verbose=False) -> "ConfidenceValues":
     """
     """
-    pass
+    return
 
 
 # end of file
