@@ -43,6 +43,9 @@ class ProbabilityDensityFunction:
         self.x = x
         self.px = px
 
+        # Check that array sizes are equal
+        self.__check_array_lengths__()
+
         # Normalize area under curve
         if normalize_area == True:
             self.__normalize_area__()
@@ -52,6 +55,20 @@ class ProbabilityDensityFunction:
 
         # Compute CDF
         self.__compute_cdf__()
+
+
+    def __check_array_lengths__(self):
+        """Check that the number of points is x is the same as the number of
+        points in px.
+        """
+        # Number of points in arrays
+        nx = len(self.x)
+        npx = len(self.px)
+
+        # Check that array lengths are equal
+        if nx != npx:
+            raise Exception(f"Number of points in x ({nx}) must equal the "
+                            f"number of points in px ({npx})")
 
 
     def __compute_area__(self):
@@ -115,6 +132,15 @@ class ProbabilityDensityFunction:
         Note: PIT interpolation requires a strictly increasing function.
         """
         return np.interp(y, self.Px, self.x)
+
+
+    def __len__(self):
+        """Return the length of the PDF array.
+        """
+        # Check that array sizes are equal
+        self.__check_array_lengths__()
+
+        return len(self.x)
 
 
 #################### MEASUREMENT CLASSES ####################
