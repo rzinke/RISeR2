@@ -5,6 +5,8 @@
 
 
 # Import modules
+import copy
+
 import numpy as np
 
 from riser.probability_functions import ProbabilityDensityFunctions as PDFs
@@ -223,7 +225,7 @@ def pdf_mode(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Args    pdf - PDF to analyse
     Returns mode - float, mode of PDF
     """
-    return pdf.x[pdf.px == pdf.px.max()].item()
+    return np.mean(pdf.x[pdf.px == pdf.px.max()])
 
 
 def pdf_median(pdf:PDFs.ProbabilityDensityFunction) -> float:
@@ -258,73 +260,93 @@ class PDFstatistics:
                      f"\n   std: {self.std:.3f}"
                      f"\n   var: {self.variance:.3f}"
                      f"\n  skew: {self.skewness:.3f}"
-                     f"\nkurtos: {self.kurtosis:.3f}")
+                     f"\n  kurt: {self.kurtosis:.3f}")
 
         return print_str
 
 
 #################### CONFIDENCE RANGES ####################
-class ConfidenceValues:
-    """Class to conveniently hold confidence statistics.
-    """
-    def __init__(self, confidences:list[(float, float)],
-                 method:str, pdf_name:str=None):
-        """
-        """
-        # Record confidence level-value pairs
-        self.confidences = confidences
-
-        # Record descriptive parameters
-        self.pdf_name = pdf_name
-        self.method = method
-
-    def __str__(self):
-        print_str = "Confidence values:"
-
-        if self.pdf_name is not None:
-            print_str += f"\nPDF: {self.pdf_name}"
-
-        if self.method is not None:
-            print_str += f" ({self.method})"
-
-        for level, value in self.confidences:
-            print_str += f"\n\t{level:.3f}: {value:.3f}"
-
-        return print_str
-
-
 def compute_interquantile_range(pdf:PDFs.ProbabilityDensityFunction,
-                                confidence_levels:list[float],
-                                pdf_name:str=None,
-                                verbose=False) -> "ConfidenceValues":
+        confidence:float=0.6828) -> (float, float):
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
-            confidence - list[float], confidence levels
-    Returns confidences - ConfidenceValues
+            confidence - float, confidence level
+    Returns
     """
+    # Determine the lower and upper confidence levels
+    half_confidence = confidence / 2
+    lower = 0.5 - half_confidence
+    upper = 0.5 + half_confidence
+
     # Compute the CDF value for each confidence level
-    values = [pdf.pit(conf) for conf in confidence_levels]
+    values = (pdf.pit(lower), pdf.pit(upper))
 
-    # Format in ConfidenceValues object
-    confidences = ConfidenceValues(zip(confidence_levels, values),
-                                   method="IQR",
-                                   pdf_name=pdf_name)
-
-    # Report if requested
-    if verbose == True:
-        print(confidences)
-
-    return confidences
+    return values
 
 
 def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
-                                confidence_levels:list[float],
-                                pdf_name:str=None,
-                                verbose=False) -> "ConfidenceValues":
+        confidence:float=0.6828) -> list[tuple[float]]:
+    """Compute the highest posterior density (HPD) values of a PDF.
+
+    Args    pdf - PDF to analyse
+            confidence - list[float], confidence levels
+    Returns
     """
-    """
-    return
+    # Value index numbers
+    val_nbs = np.array([*range(len(pdf))])
+
+    # Compute probabilities
+    dx = pdf_dx(pdf)
+    p_i = pdf.px * dx
+
+    # Sort the probabilities from largest to smallest
+    sort_ndx = np.argsort(p_i)
+    sort_ndx = sort_ndx[::-1]
+
+    vals_sort = val_nbs[sort_ndx]
+    x_sort = pdf.x[sort_ndx]
+    px_sort = pdf.px[sort_ndx]
+    p_i_sort = p_i[sort_ndx]
+
+    # Sum probabilities until they reach the specified confidence limit
+    P_sort = np.cumsum(p_i_sort)
+
+    # Determine which values meet confidence bounds
+    conf_ndxs = (P_sort <= confidence)
+
+    # Keep x, px value probability pairs within confidence limits
+    x_sort_conf = x_sort[conf_ndxs]
+    px_sort_conf = px_sort[conf_ndxs]
+    vals_sort_conf = vals_sort[conf_ndxs]
+
+    # Un-sort values in confidence limit by x-value
+    unsort_ndx = np.argsort(x_sort_conf)
+
+    x_conf = x_sort_conf[unsort_ndx]
+    px_conf = px_sort_conf[unsort_ndx]
+    vals_conf = vals_sort_conf[unsort_ndx]
+
+    # Number of values in confidence limit
+    n_conf = len(x_conf)
+    print(n_conf)
+
+    # Group values by continuity
+    clusters = []
+    cluster_start = x_conf[0]
+    for i in range(1, n_conf):
+        if any([(vals_conf[i] - vals_conf[i-1]) > 1,
+                (i == n_conf-1)]):
+            # Cluster end
+            cluster_end = x_conf[i-1]
+
+            # Record cluster
+            clusters.append((cluster_start, cluster_end))
+
+            # Start next cluster
+            cluster_start = x_conf[i]
+
+    return clusters
 
 
 # end of file
