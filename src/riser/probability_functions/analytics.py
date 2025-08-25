@@ -9,7 +9,7 @@ import copy
 
 import numpy as np
 
-from riser.probability_functions import ProbabilityDensityFunctions as PDFs
+from riser.probability_functions import PDFs
 
 
 #################### MOMENTS ####################
@@ -266,6 +266,28 @@ class PDFstatistics:
 
 
 #################### CONFIDENCE RANGES ####################
+class ConfidenceInterval:
+    """Convenience class to store and report confidence intervals of a PDF.
+    """
+    def __init__(self, pdf_name:str, confidence:float,
+                 values:tuple|list[tuple], method:str=None):
+        # Record arguments
+        self.pdf_name = pdf_name
+        self.method = method
+
+        self.confidence = confidence
+        self.values = values
+
+    def __str__(self):
+        print_str = f"{self.pdf_name}"
+
+        print_str += f"\n{self.confidence * 100} % confidence"
+        if self.method is not None:
+            print_str += f" ({method})"
+
+        return print_str
+
+
 def compute_interquantile_range(pdf:PDFs.ProbabilityDensityFunction,
         confidence:float=0.6828) -> (float, float):
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.

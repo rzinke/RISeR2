@@ -4,6 +4,15 @@
 # (c) 2025 all rights reserved
 
 
+# Supported functions
+PARAMETRIC_FUNCTIONS = [
+    'boxcar',
+    'triangular',
+    'trapezoidal',
+    'gaussian',
+]
+
+
 # Import modules
 import numpy as np
 import scipy as sp
@@ -107,6 +116,34 @@ def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
 def cumulative_gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
     """ Cumulative Gaussian function with unit area. """
     return 0.5 + 0.5 * sp.special.erf((x - mu) / (np.sqrt(2) * sigma))
+
+
+#################### FUNCTION RETRIEVAL ####################
+def get_function_by_name(fcn_name:str):
+    """Retrieve one of the parametric functions defined above by name.
+
+    Args    fcn_name - str, function name
+    Returns fcn - parameteric function
+    """
+    # Check that the desired function is defined here
+    if fcn_name not in PARAMETRIC_FUNCTIONS:
+        raise ValueError(f"Function {fcn_name} is not defined")
+
+    # Return function
+    if fcn_name == "boxcar":
+        return boxcar
+
+    elif fcn_name == "triangular":
+        return triangular
+
+    elif fcn_name == "trapezoidal":
+        return trapezoidal
+
+    elif fcn_name == "gaussian":
+        return gaussian
+
+    else:
+        return None
 
 
 # end of file
