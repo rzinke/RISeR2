@@ -4,6 +4,20 @@
 # (c) 2025 all rights reserved
 
 
+# Constants
+PDF_METADATA_ITEMS = [
+    "name",
+    "unit",
+]
+
+PDF_TYPES = [
+    "ProbabilityDensityFunction",
+    "Age",
+    "Displacement",
+    "SlipRate",
+]
+
+
 # Import modules
 import numpy as np
 import scipy as sp
@@ -28,20 +42,27 @@ class ProbabilityDensityFunction:
 
     Every PDF has a corresponding Cumulative Distribution Function (CDF),
     which is the probability that the random variable will take a value less
-    than or equal to domain value x.
+    than or equal to value x.
     """
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False):
+    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=True,
+                 name:str=None, unit:str=None):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
 
         Args    x - np.ndarray, domain values of the random variable
                 px - np.ndarray, probability density values
-                normalize_area - bool, normalize the area to 1.0
+                normalize_area - bool, scale px value to so the area = 1.0
+
+                name - str, brief descriptive identifier
+                unit - str, value unit
         """
         # Record domain and probability density values
         self.x = x
         self.px = px
+
+        # Check that array sizes are equal
+        self.__check_array_lengths__()
 
         # Normalize area under curve
         if normalize_area == True:
@@ -52,6 +73,24 @@ class ProbabilityDensityFunction:
 
         # Compute CDF
         self.__compute_cdf__()
+
+        # Record metadata
+        self.name = name
+        self.unit = unit
+
+
+    def __check_array_lengths__(self):
+        """Check that the number of points is x is the same as the number of
+        points in px.
+        """
+        # Number of points in arrays
+        nx = len(self.x)
+        npx = len(self.px)
+
+        # Check that array lengths are equal
+        if nx != npx:
+            raise Exception(f"Number of points in x ({nx}) must equal the "
+                            f"number of points in px ({npx})")
 
 
     def __compute_area__(self):
@@ -117,12 +156,20 @@ class ProbabilityDensityFunction:
         return np.interp(y, self.Px, self.x)
 
 
+    def __len__(self):
+        """Return the length of the PDF array.
+        """
+        # Check that array sizes are equal
+        self.__check_array_lengths__()
+
+        return len(self.x)
+
+
 #################### MEASUREMENT CLASSES ####################
 class Age(ProbabilityDensityFunction):
     """Represent a sample age as a PDF.
     """
     sampled_quantity = "age"
-    unit = "ky"
 
     def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
             name:str=None):
@@ -130,18 +177,15 @@ class Age(ProbabilityDensityFunction):
 
         Args    name - str, sample name
         """
-        # Sample name
-        self.name = name
-
         # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area)
+        super().__init__(x, px, normalize_area=normalize_area,
+                         name=name, unit=unit)
 
 
 class Displacement(ProbabilityDensityFunction):
     """Represent a displacement measurement as a PDF.
     """
     sampled_quantity = "disp"
-    unit = "m"
 
     def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
             name:str=None):
@@ -149,18 +193,15 @@ class Displacement(ProbabilityDensityFunction):
 
         Args    name - str, measurement name
         """
-        # Sample name
-        self.name = name
-
         # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area)
+        super().__init__(x, px, normalize_area=normalize_area,
+                         name=name, unit=unit)
 
 
 class SlipRate(ProbabilityDensityFunction):
     """Represent a slip rate measurement as a PDF.
     """
     sampled_quantity = "slip rate"
-    unit = "m/ky"
 
     def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
             name:str=None):
@@ -168,11 +209,9 @@ class SlipRate(ProbabilityDensityFunction):
 
         Args    name - str, measurement name
         """
-        # Sample name
-        self.name = name
-
         # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area)
+        super().__init__(x, px, normalize_area=normalize_area,
+                         name=name, unit=unit)
 
 
 # end of file
