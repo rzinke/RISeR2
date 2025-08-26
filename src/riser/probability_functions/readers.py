@@ -5,20 +5,36 @@
 
 
 # Constants
-from riser.probability_functions.PDFs import PDF_METADATA_ITEMS, PDF_TYPES
+from riser.probability_functions.ProbabilityDensityFunction import \
+    PDF_METADATA_ITEMS
 
 
 # Import modules
 import numpy as np
 
-from riser.probability_functions import PDFs
+from riser.probability_functions import PDF
+
+
+#################### CHECKS ####################
+def check_extension(fname:str, ext:str):
+    """Check that the filename has the appropriate extension.
+
+    Args    fname - str, filename
+            ext - str, required extension
+    """
+    # Get filename extension
+    fname_ext = fname.split(".")[-1]
+
+    # Check filename has required extension
+    if fname_ext != ext:
+        raise ValueError(f"Filename must have extension: {ext}")
 
 
 #################### PDF READERS ####################
 def parse_metadata_from_header(header_lines:list[str], verbose=False) -> dict:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
-    those listed in PDFs.PDF_METADATA_ITEMS, and are demarkated by the item
+    those listed in PDF_METADATA_ITEMS, and are demarkated by the item
     name, a colon, and a space.
 
     Args    header_lines - list[str], file header lines
@@ -116,24 +132,17 @@ def parse_data_lines(data_lines:list[str], verbose=False) -> \
     return x, px
 
 
-def read_pdf(fname:str, pdf_type:str=None, normalize_area:bool=True,
-        verbose=False) -> PDFs.ProbabilityDensityFunction:
+def read_pdf(pdf_name:str, normalize_area:bool=True, verbose=False) -> PDF:
     """Read a PDF from a file.
 
-    Args    fname - str, file name
+    Args    pdf_name - str, file name
             pdf_type - str, type
             normalize_area - bool, scale px value to so the area = 1.0
 
     Returns PDF - ProbabilityDensityFunction
     """
-    # Check if pdf_type if valid
-    pdf_types = [pdftype.lower() for pdftype in PDF_TYPES]
-
-    if pdf_type is not None and pdf_type.lower() not in pdf_types:
-        raise ValueError(f"PDF type {pdf_type} not valid")
-
     # Open file and read contents
-    with open(fname, 'r') as raw_file:
+    with open(pdf_name, 'r') as raw_file:
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
@@ -156,20 +165,6 @@ def read_pdf(fname:str, pdf_type:str=None, normalize_area:bool=True,
     if verbose == True:
         print(f"{len(data_lines)} data lines")
 
-    # Determine appropriate PDF class to use
-    if pdf_type is None:
-        # Generic
-        PDF = PDFs.ProbabilityDensityFunction
-
-    elif pdf_type.lower() == "age":
-        PDF = PDFs.Age
-
-    elif pdf_type.lower() == "displacement":
-        PDF = PDFs.Displacement
-
-    elif pdf_type.lower() == "sliprate":
-        PDF = PDFs.SlipRate
-
     # Instatiate PDF object
     pdf = PDF(x, px, normalize_area=normalize_area, **metadata)
 
@@ -177,21 +172,7 @@ def read_pdf(fname:str, pdf_type:str=None, normalize_area:bool=True,
 
 
 #################### PDF SAVERS ####################
-def check_extension(fname:str, ext:str):
-    """Check that the filename has the appropriate extension.
-
-    Args    fname - str, filename
-            ext - str, required extension
-    """
-    # Get filename extension
-    fname_ext = fname.split(".")[-1]
-
-    # Check filename has required extension
-    if fname_ext != ext:
-        raise ValueError(f"Filename must have extension: {ext}")
-
-
-def create_header_from_pdf(pdf:PDFs.ProbabilityDensityFunction) -> str:
+def create_header_from_pdf(pdf:PDF) -> str:
     """Create the header of a PDF file.
 
     Args    pdf - PDF
@@ -219,7 +200,7 @@ def create_header_from_pdf(pdf:PDFs.ProbabilityDensityFunction) -> str:
     return header
 
 
-def pdf_data_to_str(pdf:PDFs.ProbabilityDensityFunction) -> str:
+def pdf_data_to_str(pdf:PDF) -> str:
     """Format the data of a PDF into string format.
 
     Args    pdf - PDF
@@ -228,7 +209,7 @@ def pdf_data_to_str(pdf:PDFs.ProbabilityDensityFunction) -> str:
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
 
 
-def save_pdf(outname:str, pdf:PDFs.ProbabilityDensityFunction, verbose=False):
+def save_pdf(outname:str, pdf:PDF, verbose=False):
     """Save a PDF to a file.
 
     Args    outname - str, output file name

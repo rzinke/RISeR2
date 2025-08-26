@@ -7,14 +7,8 @@
 # Constants
 PDF_METADATA_ITEMS = [
     "name",
+    "variable_type",
     "unit",
-]
-
-PDF_TYPES = [
-    "ProbabilityDensityFunction",
-    "Age",
-    "Displacement",
-    "SlipRate",
 ]
 
 
@@ -45,7 +39,7 @@ class ProbabilityDensityFunction:
     than or equal to value x.
     """
     def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=True,
-                 name:str=None, unit:str=None):
+                 name:str=None, variable_type:str=None, unit:str=None):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
@@ -55,6 +49,7 @@ class ProbabilityDensityFunction:
                 normalize_area - bool, scale px value to so the area = 1.0
 
                 name - str, brief descriptive identifier
+                variable_type - str, sampled quantity, e.g., age, displacement
                 unit - str, value unit
         """
         # Record domain and probability density values
@@ -76,6 +71,7 @@ class ProbabilityDensityFunction:
 
         # Record metadata
         self.name = name
+        self.variable_type = variable_type
         self.unit = unit
 
 
@@ -149,7 +145,7 @@ class ProbabilityDensityFunction:
         return self.compute_cdf_value(x2) - self.compute_cdf_value(x1)
 
 
-    def pit(self, y:float|np.ndarray) -> float|np.ndarray:
+    def inverse_transform(self, y:float|np.ndarray) -> float|np.ndarray:
         """Compute probability inverse transform (PIT).
         Note: PIT interpolation requires a strictly increasing function.
         """
@@ -165,53 +161,18 @@ class ProbabilityDensityFunction:
         return len(self.x)
 
 
-#################### MEASUREMENT CLASSES ####################
-class Age(ProbabilityDensityFunction):
-    """Represent a sample age as a PDF.
-    """
-    sampled_quantity = "age"
+    def __str__(self):
+        print_str = "PDF"
 
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
-            name:str=None):
-        """Initialize object.
+        # Add metadata to print string
+        if self.name is not None:
+            print_str += f": {self.name}"
+        if self.variable_type is not None:
+            print_str += f" - {self.variable_type}"
+        if self.unit is not None:
+            print_str += f" ({self.unit})"
 
-        Args    name - str, sample name
-        """
-        # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area,
-                         name=name, unit=unit)
-
-
-class Displacement(ProbabilityDensityFunction):
-    """Represent a displacement measurement as a PDF.
-    """
-    sampled_quantity = "disp"
-
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
-            name:str=None):
-        """Initialize object.
-
-        Args    name - str, measurement name
-        """
-        # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area,
-                         name=name, unit=unit)
-
-
-class SlipRate(ProbabilityDensityFunction):
-    """Represent a slip rate measurement as a PDF.
-    """
-    sampled_quantity = "slip rate"
-
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=False,
-            name:str=None):
-        """Initialize object.
-
-        Args    name - str, measurement name
-        """
-        # Pass domain and probability density values to base class
-        super().__init__(x, px, normalize_area=normalize_area,
-                         name=name, unit=unit)
+        return print_str
 
 
 # end of file

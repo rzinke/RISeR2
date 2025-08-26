@@ -11,12 +11,14 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser.probability_functions.readers import read_pdf
+from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """."""
+Description = """View the PDF of a random variable and its properties."""
 
 Examples = """Examples:
+view_pdf.py pdf_file.txt
 """
 
 def create_parser():
@@ -29,7 +31,7 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='fname',
+    input_args.add_argument(dest='pdf_name',
         type=str,
         help="PDF file name.")
 
@@ -48,14 +50,14 @@ def main():
 
 
     # Read PDF from file
-    pdf = read_pdf(inps.fname, verbose=inps.verbose)
+    pdf = read_pdf(inps.pdf_name, verbose=inps.verbose)
 
 
     # Initialize figure and axis
     fig, ax = plt.subplots()
 
     # Plot PDF
-    ax.plot(pdf.x, pdf.px, color="k", linewidth=3)
+    plotting.plot_pdf(fig, ax, pdf)
 
 
     plt.show()

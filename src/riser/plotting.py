@@ -7,11 +7,11 @@
 # Import modules
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import PDFs
+from riser.probability_functions import PDF
 
 
 #################### PDF PLOTTING ####################
-def plot_pdf(fig, ax, pdf:PDFs.ProbabilityDensityFunction,
+def plot_pdf(fig, ax, pdf:PDF,
              color="k", linewidth=3):
     """Basic plot of a probability density function (PDF).
     """
