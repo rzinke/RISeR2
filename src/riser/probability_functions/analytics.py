@@ -9,7 +9,8 @@ import copy
 
 import numpy as np
 
-from riser.probability_functions import PDFs
+from riser.probability_functions import PDF
+from riser import precision
 
 
 #################### MOMENTS ####################
@@ -90,7 +91,7 @@ def compute_standardized_moment(
 
 
 #################### PDF STATISTICS ####################
-def pdf_dx(pdf:PDFs.ProbabilityDensityFunction) -> np.ndarray:
+def find_dx(pdf:PDF) -> np.ndarray:
     """Determine the change in x (dx) for a discrete PDF.
     In classical calculus, dx is a scalar number, which assumes that the
     function is regularly sampled.
@@ -114,15 +115,15 @@ def pdf_dx(pdf:PDFs.ProbabilityDensityFunction) -> np.ndarray:
     diff_x_std = np.std(diff_x)
 
     # Check regularity against machine error
-    if diff_x_std > 1E-12:
+    if diff_x_std > precision.RISER_PRECISION:
         # Irregular sampling of PDF
-        return np.diff(pdf.x, append=0)
+        return precision.fix_precision(np.diff(pdf.x, append=0))
     else:
         # Regular sampling
-        return np.diff(pdf.x, append=np.mean(diff_x))
+        return precision.fix_precision(np.diff(pdf.x, append=np.mean(diff_x)))
 
 
-def pdf_mean(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_mean(pdf:PDF) -> float:
     """Compute the mean of a PDF by integrating x * f(x).
     (Essentially a weighted average for the discrete PDF).
 
@@ -135,7 +136,7 @@ def pdf_mean(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Returns mean - float, mean of PDF
     """
     # Change in x
-    dx = pdf_dx(pdf)
+    dx = find_dx(pdf)
 
     # Compute expected value
     mu = expected_value(pdf.x, pdf.px, dx)
@@ -143,7 +144,7 @@ def pdf_mean(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return mu
 
 
-def pdf_variance(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_variance(pdf:PDF) -> float:
     """Compute the variance of a PDF.
 
     sigma2 = E[(X - mu)^2] = integral((x - mu)^2 * f(x) * dx)
@@ -152,7 +153,7 @@ def pdf_variance(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Returns variance - float, variance of PDF
     """
     # Change in x
-    dx = pdf_dx(pdf)
+    dx = find_dx(pdf)
 
     # Compute expected value
     mu = pdf_mean(pdf)
@@ -163,7 +164,7 @@ def pdf_variance(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return sigma2
 
 
-def pdf_std(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_std(pdf:PDF) -> float:
     """Compute the standard deviation (sigma) of a PDF.
     Standard deviation is the square root of the variance.
 
@@ -181,7 +182,7 @@ def pdf_std(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return sigma
 
 
-def pdf_skewness(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_skewness(pdf:PDF) -> float:
     """Compute the skewness of a PDF.
 
     This is the standardized third central moment of a PDF.
@@ -192,7 +193,7 @@ def pdf_skewness(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Returns gamma - float, skewness of PDF
     """
     # Change in x
-    dx = pdf_dx(pdf)
+    dx = find_dx(pdf)
 
     # Compute third standardized moment
     gamma = compute_standardized_moment(pdf.x, pdf.px, dx, n=3)
@@ -200,7 +201,7 @@ def pdf_skewness(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return gamma
 
 
-def pdf_kurtosis(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_kurtosis(pdf:PDF) -> float:
     """Compute the kurtosis, or "tailedness"/"peakiness", of a PDF.
 
     This is the standardized fourth central moment of a PDF.
@@ -211,7 +212,7 @@ def pdf_kurtosis(pdf:PDFs.ProbabilityDensityFunction) -> float:
     Returns kappa - float, kurtosis of PDF
     """
     # Change in x
-    dx = pdf_dx(pdf)
+    dx = find_dx(pdf)
 
     # Compute third standardized moment
     kappa = compute_standardized_moment(pdf.x, pdf.px, dx, n=4)
@@ -219,7 +220,7 @@ def pdf_kurtosis(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return kappa
 
 
-def pdf_mode(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_mode(pdf:PDF) -> float:
     """Determine the mode (peak value) of a PDF.
 
     Args    pdf - PDF to analyse
@@ -228,18 +229,18 @@ def pdf_mode(pdf:PDFs.ProbabilityDensityFunction) -> float:
     return np.mean(pdf.x[pdf.px == pdf.px.max()])
 
 
-def pdf_median(pdf:PDFs.ProbabilityDensityFunction) -> float:
+def pdf_median(pdf:PDF) -> float:
     """Compute the median of a PDF based on the value where the CDF is 0.5.
 
     Args    pdf - PDF to analyse
     Returns median - float, median of PDF
     """
-    return pdf.pit(0.5).item()
+    return pdf.inversse_transform(0.5).item()
 
 
 #################### STATISTICAL SUMMARIES ####################
 class PDFstatistics:
-    def __init__(self, pdf:PDFs.ProbabilityDensityFunction):
+    def __init__(self, pdf:PDF):
         """Compute basic statistical properties of a PDF.
         """
         # Compute location statistics
@@ -288,7 +289,7 @@ class ConfidenceInterval:
         return print_str
 
 
-def compute_interquantile_range(pdf:PDFs.ProbabilityDensityFunction,
+def compute_interquantile_range(pdf:PDF,
         confidence:float=0.6828) -> (float, float):
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
@@ -302,12 +303,12 @@ def compute_interquantile_range(pdf:PDFs.ProbabilityDensityFunction,
     upper = 0.5 + half_confidence
 
     # Compute the CDF value for each confidence level
-    values = (pdf.pit(lower), pdf.pit(upper))
+    values = (pdf.inversse_transform(lower), pdf.inversse_transform(upper))
 
     return values
 
 
-def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
+def compute_highest_posterior_density(pdf:PDF,
         confidence:float=0.6828) -> list[tuple[float]]:
     """Compute the highest posterior density (HPD) values of a PDF.
 
@@ -319,7 +320,7 @@ def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
     val_nbs = np.array([*range(len(pdf))])
 
     # Compute probabilities
-    dx = pdf_dx(pdf)
+    dx = find_dx(pdf)
     p_i = pdf.px * dx
 
     # Sort the probabilities from largest to smallest
@@ -337,7 +338,7 @@ def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
     # Determine which values meet confidence bounds
     conf_ndxs = (P_sort <= confidence)
 
-    # Keep x, px value probability pairs within confidence limits
+    # Keep x, px value probability pairs that are within confidence limits
     x_sort_conf = x_sort[conf_ndxs]
     px_sort_conf = px_sort[conf_ndxs]
     vals_sort_conf = vals_sort[conf_ndxs]
@@ -351,7 +352,6 @@ def compute_highest_posterior_density(pdf:PDFs.ProbabilityDensityFunction,
 
     # Number of values in confidence limit
     n_conf = len(x_conf)
-    print(n_conf)
 
     # Group values by continuity
     clusters = []
