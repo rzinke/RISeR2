@@ -182,6 +182,9 @@ def main():
     pdf = PDFs.ProbabilityDensityFunction(x, px, normalize_area=True,
                                           name=inps.name, unit=inps.unit)
 
+    # Save to file
+    save_pdf(inps.outname, pdf, verbose=inps.verbose)
+
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
