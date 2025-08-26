@@ -6,7 +6,8 @@
 
 
 # Constants
-from riser.probability_functions.parametric_functions import PARAMETRIC_FUNCTIONS
+from riser.probability_functions.parametric_functions import \
+    PARAMETRIC_FUNCTIONS
 
 
 # Import modules
@@ -15,20 +16,22 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
+from riser import precision
 from riser.probability_functions.readers import save_pdf
+from riser.probability_functions.value_arrays import create_precise_value_array
 from riser.probability_functions.parametric_functions import\
     get_function_by_name
-from riser.probability_functions import PDFs
+from riser.probability_functions import PDF
 from riser.plotting import plot_pdf
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Make a PDF based on a parametric distribution."""
+Description = """Make a PDF for a random variable based on a parametric distribution."""
 
 Examples = """Examples:
 make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
 make_pdf.py -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
-make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 -o T3.txt
+make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable age --unit ky -o T3.txt
 """
 
 def create_parser():
@@ -49,10 +52,14 @@ def cmd_parser(iargs=None):
         help="Parameter values.")
     input_args.add_argument('-dx', '--dx', dest='dx',
         type=float, required=True,
-        help="X-step.")
+        help="x-step.")
+
     input_args.add_argument('--name', dest='name',
         type=str,
         help="PDF name. [None]")
+    input_args.add_argument('--variable-type', dest='variable_type',
+        type=str,
+        help="PDF variable type, e.g., age, displacement, slip rate. [None]")
     input_args.add_argument('--unit', dest='unit',
         type=str,
         help="Value unit. [None]")
@@ -138,22 +145,6 @@ def determine_min_max_limits(distribution:str, values:list[float],
     return xmin, xmax
 
 
-def create_value_array(xmin:float, xmax:float, dx:float, verbose=False):
-    """Create an array (vector) of values over the PDF domain.
-
-    Args    xmin, xmax - float, min/max values
-            dx - float, value-step
-    """
-    # Create value array
-    x = np.arange(xmin, xmax+dx, dx)
-
-    # Report if requested
-    if verbose == True:
-        print(f"{len(x)} discrete values")
-
-    return x
-
-
 #################### MAIN ####################
 def main():
     # Parse arguments
@@ -161,13 +152,14 @@ def main():
 
     # Check inputs
     check_number_inputs(inps.distribution, inps.values)
+    precision.check_precision(inps.dx)
 
     # Determine min/max values
     xmin, xmax = determine_min_max_limits(inps.distribution, inps.values,
                                           verbose=inps.verbose)
 
     # Create x-array
-    x = create_value_array(xmin, xmax, inps.dx, verbose=inps.verbose)
+    x = create_precise_value_array(xmin, xmax, inps.dx, verbose=inps.verbose)
 
     # Retrieve parameteric function
     para_fcn = get_function_by_name(inps.distribution)
@@ -179,8 +171,8 @@ def main():
     px = para_fcn(x, *inps.values)
 
     # Instantiate PDF
-    pdf = PDFs.ProbabilityDensityFunction(x, px, normalize_area=True,
-                                          name=inps.name, unit=inps.unit)
+    pdf = PDF(x, px, normalize_area=True,
+              name=inps.name, variable_type=inps.variable_type, unit=inps.unit)
 
     # Save to file
     save_pdf(inps.outname, pdf, verbose=inps.verbose)
