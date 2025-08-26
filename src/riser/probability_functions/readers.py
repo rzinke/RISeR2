@@ -177,6 +177,14 @@ def read_pdf(fname:str, pdf_type:str=None, normalize_area:bool=True,
 
 
 #################### PDF SAVERS ####################
+def save_pdf(outname:str, pdf:PDFs.ProbabilityDensityFunction, verbose=False):
+    """Save a PDF to a file.
+
+    Args    outname - str, output file name
+            pdf - PDF to save
+    """
+
+    return
 
 
 # end of file
