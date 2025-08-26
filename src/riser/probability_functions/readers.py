@@ -177,14 +177,88 @@ def read_pdf(fname:str, pdf_type:str=None, normalize_area:bool=True,
 
 
 #################### PDF SAVERS ####################
+def check_extension(fname:str, ext:str):
+    """Check that the filename has the appropriate extension.
+
+    Args    fname - str, filename
+            ext - str, required extension
+    """
+    # Get filename extension
+    fname_ext = fname.split(".")[-1]
+
+    # Check filename has required extension
+    if fname_ext != ext:
+        raise ValueError(f"Filename must have extension: {ext}")
+
+
+def create_header_from_pdf(pdf:PDFs.ProbabilityDensityFunction) -> str:
+    """Create the header of a PDF file.
+
+    Args    pdf - PDF
+    Returns header - str, block of header text
+    """
+    # Empty header lines
+    header_lines = []
+
+    # Loop through header items
+    for meta_item in PDF_METADATA_ITEMS:
+        # Determine if PDF contains a metadata item
+        if hasattr(pdf, meta_item) and getattr(pdf, meta_item) is not None:
+            # Get metadata item
+            meta_value = getattr(pdf, meta_item)
+
+            # Format metadata item in header string
+            header_str = f"# {meta_item.title()}: {meta_value}\n"
+
+            # Append to list
+            header_lines.append(header_str)
+
+    # Format list into text block
+    header = "".join(header_lines)
+
+    return header
+
+
+def pdf_data_to_str(pdf:PDFs.ProbabilityDensityFunction) -> str:
+    """Format the data of a PDF into string format.
+
+    Args    pdf - PDF
+    Returns block of PDF data
+    """
+    return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
+
+
 def save_pdf(outname:str, pdf:PDFs.ProbabilityDensityFunction, verbose=False):
     """Save a PDF to a file.
 
     Args    outname - str, output file name
             pdf - PDF to save
     """
+    if verbose == True:
+        print("Saving PDF to file")
 
-    return
+    # Check that outname is a text file
+    check_extension(outname, "txt")
+
+    # Create header
+    header = create_header_from_pdf(pdf)
+
+    # Format data to string
+    data = pdf_data_to_str(pdf)
+
+    # Write to file
+    with open(outname, 'w') as outfile:
+        # Write header
+        for header_line in header:
+            outfile.write(header_line)
+
+        # Write data
+        for datum in data:
+            outfile.write(datum)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Wrote PDF to file: {outname}")
 
 
 # end of file
