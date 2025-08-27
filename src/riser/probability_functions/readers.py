@@ -51,7 +51,7 @@ def parse_metadata_from_header(header_lines:list[str], verbose=False) -> dict:
         # Loop through header items
         for meta_item in PDF_METADATA_ITEMS:
             # Determine if header line contains a metadata item
-            if line.startswith(f"# {meta_item}"):
+            if line.startswith(f"# {meta_item.capitalize()}"):
                 # Strip newline character
                 line = line.strip("\n")
 
@@ -132,17 +132,15 @@ def parse_data_lines(data_lines:list[str], verbose=False) -> \
     return x, px
 
 
-def read_pdf(pdf_name:str, normalize_area:bool=True, verbose=False) -> PDF:
+def read_pdf(fname:str, normalize_area:bool=True, verbose=False) -> PDF:
     """Read a PDF from a file.
 
-    Args    pdf_name - str, file name
-            pdf_type - str, type
+    Args    fname - str, file name
             normalize_area - bool, scale px value to so the area = 1.0
-
     Returns PDF - ProbabilityDensityFunction
     """
     # Open file and read contents
-    with open(pdf_name, 'r') as raw_file:
+    with open(fname, 'r') as raw_file:
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
@@ -171,6 +169,22 @@ def read_pdf(pdf_name:str, normalize_area:bool=True, verbose=False) -> PDF:
     return pdf
 
 
+def read_pdfs(fnames:list[str], pdf_names:list[str], normalize_area:bool=True,
+        verbose=False) -> list[PDF]:
+    """Read multiple PDFs from files.
+
+    Args    fnames - list[str], file names
+            normalize_area - bool, scale px value to so the area = 1.0
+    Returns pdfs - list[PDF], list of PDFs
+    """
+    if verbose == True:
+        print(f"Reading {len(fnames)} PDF names")
+
+    # Check names
+
+    return pdfs
+
+
 #################### PDF SAVERS ####################
 def create_header_from_pdf(pdf:PDF) -> str:
     """Create the header of a PDF file.
@@ -189,7 +203,7 @@ def create_header_from_pdf(pdf:PDF) -> str:
             meta_value = getattr(pdf, meta_item)
 
             # Format metadata item in header string
-            header_str = f"# {meta_item.title()}: {meta_value}\n"
+            header_str = f"# {meta_item.capitalize()}: {meta_value}\n"
 
             # Append to list
             header_lines.append(header_str)
@@ -215,9 +229,6 @@ def save_pdf(outname:str, pdf:PDF, verbose=False):
     Args    outname - str, output file name
             pdf - PDF to save
     """
-    if verbose == True:
-        print("Saving PDF to file")
-
     # Check that outname is a text file
     check_extension(outname, "txt")
 
