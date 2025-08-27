@@ -4,13 +4,16 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Constants
+from riser import constants
+
 
 # Import modules
 import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions.readers import read_pdf
+from riser.probability_functions import readers, analytics
 from riser import plotting
 
 
@@ -19,6 +22,8 @@ Description = """View the PDF of a random variable and its properties."""
 
 Examples = """Examples:
 view_pdf.py pdf_file.txt
+view_pdf.py pdf_file.txt --show-confidence --confidence-limits 0.9545 --confidence-methods IQR
+view_pdf.py pdf_file.txt -o pdf_fig.png --no-show
 """
 
 def create_parser():
@@ -31,14 +36,30 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='pdf_name',
+    input_args.add_argument(dest='fname',
         type=str,
         help="PDF file name.")
+
+    input_args.add_argument('--show-confidence', dest='show_confidence',
+        action='store_true',
+        help="Show confidence range on PDF and print as text.")
+    input_args.add_argument('--confidence-limits', dest='confidence_limits',
+        type=float, default=constants.Psigma['1'],
+        help="Confidence limits. [0.682...]")
+    input_args.add_argument('--confidence-method', dest='confidence_method',
+        type=str, default="HPD",
+        help="Method for determining confidence limits. [HPD]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-v', '--verbose', dest='verbose',
         action='store_true',
         help="Verbose mode.")
+    output_args.add_argument('-o', '--outname', dest='outname',
+        type=str,
+        help="Output file.")
+    output_args.add_argument('--no-show', dest='no_show',
+        action='store_true',
+        help="Forego showing plot")
 
     return parser.parse_args(args=iargs)
 
@@ -48,19 +69,45 @@ def main():
     # Parse arguments
     inps = cmd_parser()
 
-
     # Read PDF from file
-    pdf = read_pdf(inps.pdf_name, verbose=inps.verbose)
+    pdf = readers.read_pdf(inps.fname, verbose=inps.verbose)
 
+    # Report stats if requested
+    if inps.verbose == True:
+        stats = analytics.PDFstatistics(pdf)
+        print(stats)
 
     # Initialize figure and axis
     fig, ax = plt.subplots()
 
     # Plot PDF
-    plotting.plot_pdf(fig, ax, pdf)
+    plotting.plot_pdf_labeled(fig, ax, pdf)
 
+    # Compute and plot confidence range
+    if inps.show_confidence == True:
+        # Retrieve confidence range function
+        conf_fcn = analytics.get_confidence_function(inps.confidence_method,
+                                                     verbose=inps.verbose)
 
-    plt.show()
+        # Compute confidence range
+        conf_range = conf_fcn(pdf, inps.confidence_limits)
+        if inps.verbose == True:
+            print(conf_range)
+
+        # Plot confidence range(s)
+        plotting.plot_confidence_range(fig, ax, pdf, conf_range)
+
+    # Check output filename
+    if inps.outname[-4:] != ".png":
+        raise ValueError("File output name must end in .png")
+
+    # Save figure to file
+    if inps.outname is not None:
+        fig.savefig(inps.outname)
+
+    # Show unless specified not to
+    if inps.no_show == False:
+        plt.show()
 
 
 if __name__ == '__main__':

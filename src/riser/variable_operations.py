@@ -6,11 +6,12 @@
 # Import modules
 import numpy as np
 
+from riser import units
 from riser.probability_functions import PDF, value_arrays
 
 
 #################### VARIABLE COMBINATION ####################
-def join_pdfs(pdfs:list[PDF], verbose=False) -> PDF:
+def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
     """Compute the joint probability mass function of two or more discrete
     random variables.
     Note: Treating the PDFs as discrete greatly simplifies the calculations.
@@ -23,10 +24,13 @@ def join_pdfs(pdfs:list[PDF], verbose=False) -> PDF:
     Returns joint_pdf - PDF, joint pdf
     """
     if verbose == True:
-        print("Computing intersection of PDFs")
+        print(f"Combining {len(pdfs)} PDFs")
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
+
+    # Check units
+    unit = units.check_units(pdfs)
 
     # Base PDF
     px = pdfs[0].px
@@ -37,12 +41,12 @@ def join_pdfs(pdfs:list[PDF], verbose=False) -> PDF:
         px *= pdf.px
 
     # Form results into PDF
-    joint_pdf = PDF(pdfs[0].x, px, normalize_area=True)
+    joint_pdf = PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
 
     return joint_pdf
 
 
-def blend_variables(pdfs:list[PDF], verbose=False) -> PDF:
+def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
     """Combine two or more probability mass functions by summing them
 
     p = f_X(x) + f_Y(y)
@@ -59,13 +63,16 @@ def blend_variables(pdfs:list[PDF], verbose=False) -> PDF:
     95% sure all of the events took place.'
 
     Args    pdfs - list[PDF], list of PDFs to combine
-    Returns blended_pdf - PDF, blended PDF
+    Returns merged_pdf - PDF, merged PDF
     """
     if verbose == True:
-        print("Computing average of PDFs")
+        print(f"Merging {len(pdfs)} PDFs")
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
+
+    # Check units
+    unit = units.check_units(pdfs)
 
     # Base PDF
     px = pdfs[0].px
@@ -76,9 +83,9 @@ def blend_variables(pdfs:list[PDF], verbose=False) -> PDF:
         px += pdf.px
 
     # Form results into PDF
-    blended_pdf = PDF(pdfs[0].x, px, normalize_area=True)
+    merged_pdf = PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
 
-    return blended_pdf
+    return merged_pdf
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
@@ -93,6 +100,9 @@ def add_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
 
     # Parameters
     x_min = pdf1.x[0]
@@ -118,7 +128,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
                 pxx[i] += pdf1.px[j] * pdf2.px[i - j]
 
     # Form results into PDF
-    sum_pdf = PDF(xx, pxx)
+    sum_pdf = PDF(xx, pxx, normalize_area=True, unit=unit)
 
     return sum_pdf
 
@@ -134,6 +144,9 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units(pdfs)
 
     # Parameters
     x_min = pdf1.x[0]
@@ -158,7 +171,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
         break
 
     # Form results into PDF
-    diff_pdf = PDF(xx, pxx)
+    diff_pdf = PDF(xx, pxx, normalize_area=True, unit=unit)
 
     return diff_pdf
 

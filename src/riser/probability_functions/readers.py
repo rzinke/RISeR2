@@ -169,8 +169,8 @@ def read_pdf(fname:str, normalize_area:bool=True, verbose=False) -> PDF:
     return pdf
 
 
-def read_pdfs(fnames:list[str], pdf_names:list[str], normalize_area:bool=True,
-        verbose=False) -> list[PDF]:
+def read_pdfs(fnames:list[str], normalize_area:bool=True,
+              verbose=False) -> list[PDF]:
     """Read multiple PDFs from files.
 
     Args    fnames - list[str], file names
@@ -180,7 +180,8 @@ def read_pdfs(fnames:list[str], pdf_names:list[str], normalize_area:bool=True,
     if verbose == True:
         print(f"Reading {len(fnames)} PDF names")
 
-    # Check names
+    # Read PDFs
+    pdfs = [read_pdf(fname, verbose=verbose) for fname in fnames]
 
     return pdfs
 
