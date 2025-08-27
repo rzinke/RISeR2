@@ -17,12 +17,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import precision
-from riser.probability_functions.readers import save_pdf
-from riser.probability_functions.value_arrays import create_precise_value_array
-from riser.probability_functions.parametric_functions import\
-    get_function_by_name
-from riser.probability_functions import PDF
-from riser.plotting import plot_pdf
+from riser.probability_functions import PDF, readers, value_arrays, \
+    parametric_functions
+from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
@@ -159,10 +156,11 @@ def main():
                                           verbose=inps.verbose)
 
     # Create x-array
-    x = create_precise_value_array(xmin, xmax, inps.dx, verbose=inps.verbose)
+    x = value_arrays.create_precise_value_array(xmin, xmax, inps.dx,
+                                                verbose=inps.verbose)
 
     # Retrieve parameteric function
-    para_fcn = get_function_by_name(inps.distribution)
+    para_fcn = parametric_functions.get_function_by_name(inps.distribution)
 
     # Create PDF
     if inps.verbose == True:
@@ -175,7 +173,7 @@ def main():
               name=inps.name, variable_type=inps.variable_type, unit=inps.unit)
 
     # Save to file
-    save_pdf(inps.outname, pdf, verbose=inps.verbose)
+    readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -183,7 +181,7 @@ def main():
         fig, ax = plt.subplots()
 
         # Plot PDF
-        plot_pdf(fig, ax, pdf)
+        plotting.plot_pdf_labeled(fig, ax, pdf)
 
         plt.show()
 

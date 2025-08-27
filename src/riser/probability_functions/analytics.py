@@ -3,13 +3,21 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Constants
+from riser import constants
+
+CONFIDENCE_FUNCTIONS = [
+    "IQR",
+    "HPD",
+]
+
 
 # Import modules
 import copy
 
 import numpy as np
 
-from riser.probability_functions import PDF
+from riser.probability_functions import PDF, value_arrays
 from riser import precision
 
 
@@ -91,38 +99,6 @@ def compute_standardized_moment(
 
 
 #################### PDF STATISTICS ####################
-def find_dx(pdf:PDF) -> np.ndarray:
-    """Determine the change in x (dx) for a discrete PDF.
-    In classical calculus, dx is a scalar number, which assumes that the
-    function is regularly sampled.
-    For the discrete PDFs used in practical applications, that might not be
-    the case, i.e., the bin sizes may vary and a vector of bin sizes (dx's) is
-    necessary.
-
-    This routine returns a vector of bin sizes for all n-values in a PDF.
-    The first n - 1 bin sizes are based on the differences from one x-value to
-    the next. If the PDF is regularly sampled, the final bin size will be the
-    same as the average bin size. If the PDF is irregularly sampled, the final
-    bin size will be zero (excluding the final measurement).
-
-    Args    pdf - PDF for which to determine dx
-    Returns dx - np.ndarray
-    """
-    # Deteremine differences between x-samples
-    diff_x = np.diff(pdf.x)
-
-    # Determine regularity of sampling
-    diff_x_std = np.std(diff_x)
-
-    # Check regularity against machine error
-    if diff_x_std > precision.RISER_PRECISION:
-        # Irregular sampling of PDF
-        return precision.fix_precision(np.diff(pdf.x, append=0))
-    else:
-        # Regular sampling
-        return precision.fix_precision(np.diff(pdf.x, append=np.mean(diff_x)))
-
-
 def pdf_mean(pdf:PDF) -> float:
     """Compute the mean of a PDF by integrating x * f(x).
     (Essentially a weighted average for the discrete PDF).
@@ -136,7 +112,7 @@ def pdf_mean(pdf:PDF) -> float:
     Returns mean - float, mean of PDF
     """
     # Change in x
-    dx = find_dx(pdf)
+    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute expected value
     mu = expected_value(pdf.x, pdf.px, dx)
@@ -153,7 +129,7 @@ def pdf_variance(pdf:PDF) -> float:
     Returns variance - float, variance of PDF
     """
     # Change in x
-    dx = find_dx(pdf)
+    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute expected value
     mu = pdf_mean(pdf)
@@ -193,7 +169,7 @@ def pdf_skewness(pdf:PDF) -> float:
     Returns gamma - float, skewness of PDF
     """
     # Change in x
-    dx = find_dx(pdf)
+    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute third standardized moment
     gamma = compute_standardized_moment(pdf.x, pdf.px, dx, n=3)
@@ -212,7 +188,7 @@ def pdf_kurtosis(pdf:PDF) -> float:
     Returns kappa - float, kurtosis of PDF
     """
     # Change in x
-    dx = find_dx(pdf)
+    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute third standardized moment
     kappa = compute_standardized_moment(pdf.x, pdf.px, dx, n=4)
@@ -235,7 +211,7 @@ def pdf_median(pdf:PDF) -> float:
     Args    pdf - PDF to analyse
     Returns median - float, median of PDF
     """
-    return pdf.inversse_transform(0.5).item()
+    return pdf.inverse_transform(0.5).item()
 
 
 #################### STATISTICAL SUMMARIES ####################
@@ -243,6 +219,10 @@ class PDFstatistics:
     def __init__(self, pdf:PDF):
         """Compute basic statistical properties of a PDF.
         """
+        # PDF metadata
+        self.name = pdf.name if pdf.name is not None else ""
+        self.unit = pdf.unit if pdf.unit is not None else ""
+
         # Compute location statistics
         self.mode = pdf_mode(pdf)
         self.median = pdf_median(pdf)
@@ -255,7 +235,8 @@ class PDFstatistics:
         self.kurtosis = pdf_kurtosis(pdf)
 
     def __str__(self):
-        print_str = (f"  mode: {self.mode:.3f}"
+        print_str = (f"PDF: {self.name} ({self.unit})"
+                     f"\n  mode: {self.mode:.3f}"
                      f"\nmedian: {self.median:.3f}"
                      f"\n  mean: {self.mode:.3f}"
                      f"\n   std: {self.std:.3f}"
@@ -267,30 +248,44 @@ class PDFstatistics:
 
 
 #################### CONFIDENCE RANGES ####################
-class ConfidenceInterval:
-    """Convenience class to store and report confidence intervals of a PDF.
-    """
-    def __init__(self, pdf_name:str, confidence:float,
-                 values:tuple|list[tuple], method:str=None):
-        # Record arguments
-        self.pdf_name = pdf_name
-        self.method = method
+class ConfidenceRange:
+    def __init__(self, confidence:float, range_values:tuple[tuple[float]],
+                 method:str=None, pdf_name:str=None, unit:str=None):
+        """Store confidence ranges.
 
+        Args    range_values - sets of confidence values
+        """
+        # Record confidence values
         self.confidence = confidence
-        self.values = values
+        self.range_values = range_values
+
+        # Record metadata
+        self.method = method
+        self.pdf_name = pdf_name
+        self.unit = unit
+
+
+    def __iter__(self):
+        yield from self.range_values
+
 
     def __str__(self):
-        print_str = f"{self.pdf_name}"
+        print_str = "Confidence range:"
+        if self.pdf_name is not None:
+            print_str += f" {self.pdf_name}"
 
-        print_str += f"\n{self.confidence * 100} % confidence"
-        if self.method is not None:
-            print_str += f" ({method})"
+        if self.unit is not None:
+            print_str += f" ({self.unit})"
+
+        print_str += f"\n{self.method} {100 * self.confidence:.2f} %"
+        for rng in self.range_values:
+            print_str += f"\n\t({rng[0]:.3f} - {rng[1]:.3f})"
 
         return print_str
 
 
 def compute_interquantile_range(pdf:PDF,
-        confidence:float=0.6828) -> (float, float):
+        confidence:float=constants.Psigma['1']) -> "ConfidenceRange":
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
@@ -303,13 +298,23 @@ def compute_interquantile_range(pdf:PDF,
     upper = 0.5 + half_confidence
 
     # Compute the CDF value for each confidence level
-    values = (pdf.inversse_transform(lower), pdf.inversse_transform(upper))
+    values = (pdf.inverse_transform(lower), pdf.inverse_transform(upper))
 
-    return values
+    # Format values into ConfidenceRange object
+    conf_args = {
+        'confidence': confidence,
+        'range_values': (values),
+        'method': "IQR",
+        'pdf_name': pdf.name,
+        'unit': pdf.unit,
+    }
+    conf_range = ConfidenceRange(**conf_args)
+
+    return conf_range
 
 
 def compute_highest_posterior_density(pdf:PDF,
-        confidence:float=0.6828) -> list[tuple[float]]:
+        confidence:float=constants.Psigma['1']) -> "ConfidenceRange":
     """Compute the highest posterior density (HPD) values of a PDF.
 
     Args    pdf - PDF to analyse
@@ -320,7 +325,7 @@ def compute_highest_posterior_density(pdf:PDF,
     val_nbs = np.array([*range(len(pdf))])
 
     # Compute probabilities
-    dx = find_dx(pdf)
+    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
     p_i = pdf.px * dx
 
     # Sort the probabilities from largest to smallest
@@ -368,7 +373,39 @@ def compute_highest_posterior_density(pdf:PDF,
             # Start next cluster
             cluster_start = x_conf[i]
 
-    return clusters
+    # Format values into ConfidenceRange object
+    conf_args = {
+        'confidence': confidence,
+        'range_values': tuple(clusters),
+        'method': "HPD",
+        'pdf_name': pdf.name,
+        'unit': pdf.unit,
+    }
+    conf_range = ConfidenceRange(**conf_args)
+
+    return conf_range
+
+
+def get_confidence_function(method:str, verbose=False):
+    """Retrieve a confidence function by name.
+    """
+    # Format method input
+    method = method.upper()
+
+    # Check that method is valid
+    if method not in CONFIDENCE_FUNCTIONS:
+        raise ValueError(f"Method {method} not supported. "
+                         f"Must be one of {', '.join(CONFIDENCE_FUNCTIONS)}")
+
+    # Report if requested
+    if verbose == True:
+        print(f"Confidence method: {method}")
+
+    # Return method
+    if method == "IQR":
+        return compute_interquantile_range
+    elif method == "HPD":
+        return compute_highest_posterior_density
 
 
 # end of file

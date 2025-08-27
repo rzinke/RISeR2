@@ -95,7 +95,7 @@ def main():
         fig, ax = plt.subplots()
 
         # Plot PDF
-        plotting.plot_pdf(fig, ax, pdf_resamp)
+        plotting.plot_pdf_line(fig, ax, pdf_resamp)
 
         plt.show()
 

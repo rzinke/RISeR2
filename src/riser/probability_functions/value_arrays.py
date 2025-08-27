@@ -40,6 +40,42 @@ def sample_spacing_from_pdf(pdf:PDF, verbose=False) -> float:
     return dx
 
 
+def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
+    """Return an array of the changes in x (dx) for a discrete PDF.
+    In classical calculus, dx is a single scalar number, which assumes that the
+    function is regularly sampled.
+    For the discrete PDFs used in practical applications, that might not be
+    the case, i.e., the bin sizes may vary and a vector of bin sizes (dx's) is
+    necessary.
+
+    This routine returns a vector of bin sizes for all n-values in a PDF.
+    The first n - 1 bin sizes are based on the differences from one x-value to
+    the next. If the PDF is regularly sampled, the final bin size will be the
+    same as the average bin size. If the PDF is irregularly sampled, the final
+    bin size will be zero (excluding the final measurement).
+
+    Args    pdf - PDF for which to determine dx
+    Returns dx - np.ndarray
+    """
+    # Deteremine differences between x-samples
+    diff_x = np.diff(pdf.x)
+
+    # Determine regularity of sampling
+    diff_x_std = np.std(diff_x)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Sample spacing mean {np.mean(diff_x)}, std {diff_x_std}")
+
+    # Check regularity against machine error
+    if diff_x_std > precision.RISER_PRECISION:
+        # Irregular sampling of PDF
+        return precision.fix_precision(np.diff(pdf.x, append=0))
+    else:
+        # Regular sampling
+        return precision.fix_precision(np.diff(pdf.x, append=np.mean(diff_x)))
+
+
 def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False) -> \
         (float, float, float):
     """Determine the value limits for a set of PDFs.

@@ -5,6 +5,8 @@
 
 
 # Constants
+from riser import precision
+
 PDF_METADATA_ITEMS = [
     "name",
     "variable_type",
@@ -116,7 +118,7 @@ class ProbabilityDensityFunction:
 
         # Total probability is 1.0
         area = self.__compute_area__()
-        if np.abs(1.0 - area) > 1E-12:
+        if np.abs(1.0 - area) > precision.RISER_PRECISION:
             raise Exception(f"Area is {area}; should be 1.0. "
                             f"Suggest setting normalize_area to True.")
 
