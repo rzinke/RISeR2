@@ -40,17 +40,22 @@ def cmd_parser(iargs=None):
         type=str,
         help="PDF file name.")
 
-    input_args.add_argument('--show-confidence', dest='show_confidence',
+    output_args = parser.add_argument_group("Outputs")
+
+    output_args.add_argument('--show-confidence', dest='show_confidence',
         action='store_true',
         help="Show confidence range on PDF and print as text.")
-    input_args.add_argument('--confidence-limits', dest='confidence_limits',
+    output_args.add_argument('--confidence-limits', dest='confidence_limits',
         type=float, default=constants.Psigma['1'],
         help="Confidence limits. [0.682...]")
-    input_args.add_argument('--confidence-method', dest='confidence_method',
+    output_args.add_argument('--confidence-method', dest='confidence_method',
         type=str, default="HPD",
         help="Method for determining confidence limits. [HPD]")
 
-    output_args = parser.add_argument_group("Outputs")
+    output_args.add_argument('--show-cdf', dest='show_cdf',
+        action='store_true',
+        help="Show the cumulative distribution function.")
+
     output_args.add_argument('-v', '--verbose', dest='verbose',
         action='store_true',
         help="Verbose mode.")
@@ -78,10 +83,10 @@ def main():
         print(stats)
 
     # Initialize figure and axis
-    fig, ax = plt.subplots()
+    pdf_fig, pdf_ax = plt.subplots()
 
     # Plot PDF
-    plotting.plot_pdf_labeled(fig, ax, pdf)
+    plotting.plot_pdf_labeled(pdf_fig, pdf_ax, pdf)
 
     # Compute and plot confidence range
     if inps.show_confidence == True:
@@ -95,15 +100,24 @@ def main():
             print(conf_range)
 
         # Plot confidence range(s)
-        plotting.plot_confidence_range(fig, ax, pdf, conf_range)
+        plotting.plot_pdf_confidence_range(pdf_fig, pdf_ax, pdf, conf_range)
 
-    # Check output filename
-    if inps.outname[-4:] != ".png":
-        raise ValueError("File output name must end in .png")
+    # Show CDF
+    if inps.show_cdf == True:
+        # Initialize figure and axis
+        cdf_fig, cdf_ax = plt.subplots()
+
+        # Plot CDF
+        plotting.plot_cdf_labeled(cdf_fig, cdf_ax, pdf)
 
     # Save figure to file
     if inps.outname is not None:
-        fig.savefig(inps.outname)
+        # Check output filename
+        if inps.outname[-4:] != ".png":
+            raise ValueError("File output name must end in .png")
+
+        # Save figure
+        pdf_fig.savefig(inps.outname)
 
     # Show unless specified not to
     if inps.no_show == False:

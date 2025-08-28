@@ -10,8 +10,8 @@ make_pdf.py -d gaussian -s 4.0 1.0 -dx 0.01 --name "pdf2" -o $X2name
 
 
 # Compute joint probability
-X12name="tmp/pdf12.txt"
-add_variables.py $X1name $X2name -o $X12name -v -p
+X1_2name="tmp/pdf1_2.txt"
+subtract_variables.py $X1name $X2name -o $X1_2name -v -p
 
 # # Examine output
-# view_pdf.py $X12name -v
+# view_pdf.py $X1_2name -v

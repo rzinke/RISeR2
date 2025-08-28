@@ -11,15 +11,15 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser.probability_functions import readers, interpolation
-from riser.variable_operations import add_variables
+from riser.variable_operations import subtract_variables
 from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Add two random variables expressed as PDFs."""
+Description = """Subtract two random variables expressed as PDFs."""
 
 Examples = """Examples:
-add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
+subtract_variables.py pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():
@@ -39,9 +39,14 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of second PDF.")
 
+    input_args.add_argument('--limit-positive', dest='limit_positive',
+        action='store_true',
+        help="Enforce the condition that values are greater than or equal to "
+             "0.")
+
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="Name of summed PDF. [None]")
+        help="Name of differenced PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -71,10 +76,12 @@ def main():
                                                 verbose=inps.verbose)
 
     # Compute summed PDF
-    sum_pdf = add_variables(pdf1, pdf2, name=inps.name, verbose=inps.verbose)
+    diff_pdf = subtract_variables(
+            pdf1, pdf2, limit_positive=inps.limit_positive, name=inps.name,
+            verbose=inps.verbose)
 
     # Save to file
-    readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)
+    readers.save_pdf(inps.outname, diff_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -86,12 +93,12 @@ def main():
         plotting.plot_pdf_filled(fig, axes[0], pdf2)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], sum_pdf)
+        plotting.plot_pdf_labeled(fig, axes[1], diff_pdf)
 
         # Format figure
         axes[0].legend()
         axes[0].set_title("Inputs")
-        axes[1].set_title("Summed PDF")
+        axes[1].set_title("Differenced PDF")
         fig.tight_layout()
 
         plt.show()

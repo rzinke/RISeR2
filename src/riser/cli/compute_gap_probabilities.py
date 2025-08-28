@@ -11,15 +11,15 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser.probability_functions import readers, interpolation
-from riser.variable_operations import add_variables
+from riser.variable_operations import compute_probability_between_variables
 from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Add two random variables expressed as PDFs."""
+Description = """Compute the probabilties of values between two PDFs."""
 
 Examples = """Examples:
-add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
+compute_gap_probabilities.py pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():
@@ -41,7 +41,7 @@ def cmd_parser(iargs=None):
 
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="Name of summed PDF. [None]")
+        help="Name of differenced PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -71,27 +71,25 @@ def main():
                                                 verbose=inps.verbose)
 
     # Compute summed PDF
-    sum_pdf = add_variables(pdf1, pdf2, name=inps.name, verbose=inps.verbose)
+    gap_pdf = compute_probability_between_variables(pdf1, pdf2, name=inps.name,
+                                                    verbose=inps.verbose)
 
     # Save to file
-    readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)
+    readers.save_pdf(inps.outname, gap_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
-
-        # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], pdf1)
-        plotting.plot_pdf_filled(fig, axes[0], pdf2)
+        fig, ax = plt.subplots()
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], sum_pdf)
+        plotting.plot_pdf_line(fig, ax, pdf1)
+        plotting.plot_pdf_line(fig, ax, pdf2)
+        plotting.plot_pdf_labeled(fig, ax, gap_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("Summed PDF")
+        ax.legend()
+        ax.set_title("Gap PDF")
         fig.tight_layout()
 
         plt.show()
