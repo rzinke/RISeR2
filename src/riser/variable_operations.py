@@ -3,18 +3,20 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+"""
+These functions quantify relationships or interactions between two random
+variables.
+"""
+
+
 # Import modules
 import copy
 
 import numpy as np
+import scipy as sp
 
 from riser import precision, units
 from riser.probability_functions import PDF, value_arrays
-
-
-"""
-In RISeR, random variables are represented as discrete PDFs.
-"""
 
 
 #################### GENERIC FUNCTIONS ####################
@@ -361,11 +363,87 @@ def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
 
 
 #################### SIMILARITY ####################
-def cross_correlate_variables(pdf1:PDF, pdf2:PDF):
-    """
-    """
+def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
+    """Compute the Pearson correlation coefficient between two PDFs.
 
-    return
+        r = sum[(xi - xbar)(yi - ybar)]
+            / [ sqrt sum[(xi - xbar)^2] . sqrt sum[(yi - ybar)^2]^1/2 ]
+
+    Because PDFs are never negative, the coefficient here is computed without
+    subtracting the mean (centering).
+    This is essentially a normalized dot product.
+
+    Args    pdf1, pdf2 - PDFs to correlate
+    Returns r - float, Pearson correlation coefficient
+    """
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
+
+    # Centered arrays
+    px1_cntr = pdf1.px
+    px2_cntr = pdf2.px
+
+    # Compute coefficient
+    numer = np.sum(px1_cntr * px2_cntr)
+    denom = np.sqrt(np.sum(px1_cntr**2)) * np.sqrt(np.sum(px2_cntr**2))
+    r = numer / denom
+
+    # Report if requested
+    if verbose == True:
+        print(f"Pearson correlation coefficient: {r}")
+
+    return r
+
+
+def cross_correlate_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> \
+        (np.ndarray, np.ndarray):
+    """
+    """
+    # Array lengths
+    n1 = len(pdf1)
+    n2 = len(pdf2)
+    n_lags = n1 + n2 - 1
+
+    # Define lags
+    n_lags = []
+
+    return lags, corr
+
+
+def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
+        (np.ndarray, float):
+    """Compute the overlap index for two or more PDFs according to
+    (Pastore and Calcgni, 2019):
+
+        n(A, B) = integral(min[fA(x), fB(x)] dx)
+
+    Args    pdfs - list[PDF], list of PDFs
+    Returns eta - float, overlap metric
+            px_min - np.ndarray
+    """
+    if verbose == True:
+        print(f"Computing overlap metric for {len(pdfs)} PDFs")
+
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling(pdfs)
+
+    # Check units
+    unit = units.check_units(pdfs)
+
+    # Arrange PDFs into matrix
+    pxs = np.vstack([pdf.px for pdf in pdfs])
+
+    # Determine minimum of PDF curves
+    min_ndxs = np.argmin(pxs, axis=0)
+    px_min = np.array([pxs[min_ndx, i] for i, min_ndx in enumerate(min_ndxs)])
+
+    # Integrate over overlapping region
+    eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
+
+    return px_min, eta
 
 
 # end of file
