@@ -135,7 +135,7 @@ class ProbabilityDensityFunction:
         self.Px /= self.Px[-1]
 
 
-    def compute_cdf_value(self, x:float) -> float:
+    def compute_cdf_at_value(self, x:float) -> float:
         """Compute the value of the CDF at x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
