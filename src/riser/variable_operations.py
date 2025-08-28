@@ -33,7 +33,7 @@ def convolve_input_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
     # Loop through first array
     for i in range(nx):
         for j in range(nh):
-            y[i + j] += x[i] + h[j]
+            y[i + j] += x[i] * h[j]
 
     return y
 
@@ -58,7 +58,7 @@ def convolve_output_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
         for j in range(nh):
             # Check if valid
             if (i - j >= 0) and (i - j < nx):
-                y[i] += x[j] + h[i - j]
+                y[i] += x[j] * h[i - j]
 
     return y
 
@@ -321,11 +321,41 @@ def divide_variables(numerator:PDF, denominator:PDF, verbose=False) -> PDF:
 
 
 #################### GAP BETWEEN VARIABLES ####################
-def compute_pdf_gap(pdf1:PDF, pdf2:PDF) -> PDF:
-    """
-    """
+def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
+            name:str=None, verbose=False) -> PDF:
+    """Compute a PDF representing the domain and probability densities of
+    values between two random variables.
 
-    return
+    Theory: The probability of a value being between two uncertain values is
+    equal to the probability that a value is larger than the first value
+    (P(X <= x)) and smaller than the second value (1 - P(Y <= y)):
+
+        P(X < x < Y) = CDF_X . (1 - CDF_Y) = P(X <= x) * (1 - P(Y <= y))
+
+    Machinery: The CDFs of the first and second PDFs are pre-computed during
+    PDF instantiation. Leverage these to compute the "between-PDF".
+
+    Args    pdf1 - smaller PDF
+            pdf2 - larger PDF
+            name - str, name of "between" PDF
+    Returns gap_pdf - PDF describing values between the two input variables
+    """
+    if verbose == True:
+        print("Computing probability of a value between two variables.")
+
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
+
+    # Compute probabilities between variables
+    px = pdf1.Px * (1 - pdf2.Px)
+
+    # Form results into PDF
+    gap_pdf = PDF(pdf1.x, px, normalize_area=True, name=name, unit=unit)
+
+    return gap_pdf
 
 
 #################### SIMILARITY ####################
