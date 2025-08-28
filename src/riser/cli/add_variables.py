@@ -19,6 +19,7 @@ from riser import plotting
 Description = """Add two random variables expressed as PDFs."""
 
 Examples = """Examples:
+add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():
@@ -38,9 +39,9 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of second PDF.")
 
-    input_args.add_argument('-dx', '--dx', dest='dx',
-        type=float, default=None,
-        help="x-step. [inferred from inputs]")
+    input_args.add_argument('--name', dest='name',
+        type=str,
+        help="Name of summed PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -61,7 +62,6 @@ def main():
     # Parse arguments
     inps = cmd_parser()
 
-
     # Read PDFs from files
     pdf1 = readers.read_pdf(inps.fname1, verbose=inps.verbose)
     pdf2 = readers.read_pdf(inps.fname2, verbose=inps.verbose)
@@ -71,7 +71,7 @@ def main():
                                                 verbose=inps.verbose)
 
     # Compute summed PDF
-    sum_pdf = add_variables(pdf1, pdf2, verbose=inps.verbose)
+    sum_pdf = add_variables(pdf1, pdf2, name=inps.name, verbose=inps.verbose)
 
     # Save to file
     readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)

@@ -6,8 +6,61 @@
 # Import modules
 import numpy as np
 
-from riser import units
+from riser import precision, units
 from riser.probability_functions import PDF, value_arrays
+
+
+"""
+In RISeR, random variables are represented as discrete PDFs.
+"""
+
+
+#################### GENERIC FUNCTIONS ####################
+def convolve_input_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
+    """Convolution operator formulated from the input side.
+
+    Args    x, h - np.ndarray, arrays to convolve
+    Returns y - np.ndarray, convolved array
+    """
+    # Array lengths
+    nx = len(x)
+    nh = len(h)
+    ny = nx + nh - 1
+
+    # Pre-allocate output array
+    y = np.zeros(ny)
+
+    # Loop through first array
+    for i in range(nx):
+        for j in range(nh):
+            y[i + j] += x[i] + h[j]
+
+    return y
+
+
+def convolve_output_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
+    """Convolution operator formulated from the output side.
+
+    Args    x, h - np.ndarray, arrays to convolve
+    Returns y - np.ndarray, convolved array
+    """
+    # Array lengths
+    nx = len(x)
+    nh = len(h)
+    ny = nx + nh - 1
+
+    # Pre-allocate output array
+    y = np.zeros(ny)
+
+    # Loop through output array
+    for i in range(ny):
+        # Loop through filter array
+        for j in range(nh):
+            # Check if valid
+            if (i - j >= 0) and (i - j < nx):
+                y[i] += x[j] + h[i - j]
+
+    return y
 
 
 #################### VARIABLE COMBINATION ####################
@@ -53,6 +106,8 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
 
     and normalizing the area.
 
+    Note that "merging" has no formal definition in the context of probability
+    theory.
     This is similar to the OxCal sum function, and should not be confused with
     either compute_joint_pdf (which combines PDFs by multiplying them element-
     wise) or add_variables (which computes the sum of two independent random
@@ -89,10 +144,62 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
-def add_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
-    """Add PDF1 and PDF2.
+def negate_variable(pdf:PDF, verbose=False) -> PDF:
+    """Negate a random variable by negating the x-values, and flipping the
+    probability densities left for right.
+
+    Args    pdf, PDF to negate
+    Returns neg_pdf, negated PDF
+    """
+    if verbose == True:
+        print("Negate PDF")
+
+    # Negate values
+    neg_x = -pdf.x[::-1]
+
+    # Flip probability densities
+    neg_px = pdf.px[::-1]
+
+    # Formulate output name
+    neg_name = f"(negative) {pdf.name}" if pdf.name is not None else None
+
+    # Form results into PDF
+    args = {
+        'x': neg_x,
+        'px': neg_px,
+        'name': neg_name,
+        'variable_type': pdf.variable_type,
+        'unit': pdf.unit,
+    }
+    neg_pdf = PDF(**args)
+
+    return neg_pdf
+
+
+def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
+        PDF:
+    """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
+    their values (Z).
+
+    Theory: For discrete PDFs, think of variable addition as a sum of joint
+    probabilties as a function of values. This is exactly convolution, and is
+    mathematically best expressed from the "output side".
+
+        P(Z = z) = sum(P(X = k).P(Y = z - k))
+        or
+        fZ(z) = integral(fX(x).fY(z - x) dx)
+
+    Machinery: This function takes two PDFs that will be sampled on the same
+    value axis.
+    It creates an output array based on the input PDFs values, with the
+    minimum sum being twice the minimum input, and the maximum sum being twice
+    the maximum input.
+    It then computes the probability density at each summed value using output
+    side convolution: that is, looping over the summed value array (iterator
+    z or i) and the input value arrays (iterator k or j).
 
     Args    pdf1, pdf2 - PDFs to add
+            name - str, name of summed PDF
     Returns sum_pdf - PDF, summed PDF
     """
     if verbose == True:
@@ -110,34 +217,53 @@ def add_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
     dx = value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
-    # Value array
+    # Output array length
+    nxx = 2 * nx - 1
+
+    # Summed value array
     xx_start = x_min + x_min
     xx_final = x_max + x_max
-    xx = np.arange(xx_start, xx_final + dx, dx)
-
-    # Pre-allocate output array
-    nxx = 2 * nx - 1
-    pxx = np.zeros(nxx)
+    xx = np.linspace(xx_start, xx_final, nxx)
 
     # Loop through output array
-    for i in range(nxx):
-        # Loop through points in PDF
-        for j in range(nx):
-            # Check in-bounds
-            if (i - j >= 0) and (i - j < nx):
-                pxx[i] += pdf1.px[j] * pdf2.px[i - j]
+    pxx = np.convolve(pdf1.px, pdf2.px, mode="full")
 
     # Form results into PDF
-    sum_pdf = PDF(xx, pxx, normalize_area=True, unit=unit)
+    sum_pdf = PDF(xx, pxx, normalize_area=True, name=name, unit=unit)
 
     return sum_pdf
 
 
-def subtract_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
-    """Subtract PDF2 from PDF1.
+def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
+        name:str=None, verbose=False) -> PDF:
+    """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
+    their values (Z).
 
-    Args
-    Returns - PDF
+    Theory: Subtraction of random variables is equivalent to the addition of
+    the negated second variable:
+
+        Z = X + (-Y)
+
+    A random variable can be negated by flipping the PDF of the variable.
+    Addition is carried out by convolution, as above, i.e.,
+
+        P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
+
+    Machinery: This function takes two PDFs that will be sampled on the same
+    value axis.
+    It creates an output array based on the input PDFs values, with the
+    minimum difference being the minimum input value minus the maximum input
+    value, and the maximum difference being the maximum input minus the
+    minimum input.
+    It then computes the probability density at each difference value by
+    flipping negating the second PDF and adding it to the first.
+
+    Args    pdf1 - PDF from which to subtract pdf2
+            pdf2 - PDF to subtract from pdf1
+            limit_positive - bool, enforce condition that values must be
+                positive
+            name - str, name of differenced PDF
+    Returns difference_pdf - PDF, differenced PDF
     """
     if verbose == True:
         print("Subtracting variables")
@@ -146,7 +272,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
-    unit = units.check_units(pdfs)
+    unit = units.check_units([pdf1, pdf2])
 
     # Parameters
     x_min = pdf1.x[0]
@@ -154,24 +280,27 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> PDF:
     dx = value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
-    # Value array
+    # Output array length
+    nxx = 2 * nx - 1
+
+    # Differenced value array
     xx_start = x_min - x_max
     xx_final = x_max - x_min
-    xx = np.arange(xx_start, xx_final + dx, dx)
+    xx = np.linspace(xx_start, xx_final, nxx)
 
-    # Pre-allocate output array
-    nxx = 2 * nx - 1
-    pxx = np.zeros(nxx)
+    # Negate variable to be subtracted
+    neg_pdf2 = negate_variable(pdf2)
 
-    # Loop through output array
-    for i in range(nxx):
-        # Loop through points in PDF
-        for j in range(nx):
-            break
-        break
+    # Add negated PDF2 to PDF1
+    pxx = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
+
+    # Enforce condition that values must be positive
+    if limit_positive == True:
+        # Squash probability density of values less than zero
+        pxx[xx < 0] = 0
 
     # Form results into PDF
-    diff_pdf = PDF(xx, pxx, normalize_area=True, unit=unit)
+    diff_pdf = PDF(xx, pxx, normalize_area=True, name=name, unit=unit)
 
     return diff_pdf
 
@@ -187,6 +316,22 @@ def divide_variables(numerator:PDF, denominator:PDF, verbose=False) -> PDF:
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
+
+    return
+
+
+#################### GAP BETWEEN VARIABLES ####################
+def compute_pdf_gap(pdf1:PDF, pdf2:PDF) -> PDF:
+    """
+    """
+
+    return
+
+
+#################### SIMILARITY ####################
+def cross_correlate_variables(pdf1:PDF, pdf2:PDF):
+    """
+    """
 
     return
 
