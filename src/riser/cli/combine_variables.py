@@ -62,7 +62,7 @@ def main():
     pdfs = readers.read_pdfs(inps.fnames)
 
     # Sample PDFs on same axis
-    pdfs = interpolation.interpolate_pdfs(pdfs, verbose=True)
+    pdfs = interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
     # Compute joint PDF
     joint_pdf = combine_variables(pdfs, verbose=inps.verbose)
