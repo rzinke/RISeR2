@@ -3,6 +3,11 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+"""
+These functions quantify properities of a random variable.
+"""
+
+
 # Constants
 from riser import constants
 
