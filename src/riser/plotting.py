@@ -47,8 +47,29 @@ def plot_pdf_labeled(fig, ax, pdf:PDF,
     xlabel += f"({pdf.unit})" if pdf.unit is not None else ""
     ax.set_xlabel(xlabel)
 
+def plot_pdf_labeled(fig, ax, pdf:PDF,
+                     color="k", linewidth=2, alpha=0.3):
+    """Labeled plot of a PDF.
+    """
+    # Plot filled PDF
+    plot_pdf_filled(fig, ax, pdf,
+                    color=color, linewidth=linewidth, alpha=alpha)
 
-def plot_confidence_range(
+    # Set title
+    title = pdf.name if pdf.name is not None else "PDF"
+    ax.set_title(title)
+
+    # Set value label
+    xlabel = f"{pdf.variable_type.capitalize()} " \
+            if pdf.variable_type is not None else ""
+    xlabel += f"({pdf.unit})" if pdf.unit is not None else ""
+    ax.set_xlabel(xlabel)
+
+    # Set probability density label
+    ax.set_ylabel("Probability density")
+
+# PDF Confidence
+def plot_pdf_confidence_range(
         fig, ax, pdf:PDF, conf_range:analytics.ConfidenceRange,
         color="royalblue", alpha=0.3):
     """Plot confidence ranges as fields overlying a PDF.
@@ -62,6 +83,48 @@ def plot_confidence_range(
 
     # Format plot
     ax.legend()
+
+
+#################### CDF PLOTTING ####################
+def plot_cdf_line(fig, ax, pdf:PDF,
+                  color="k", linewidth=2):
+    """Basic plot of a cumulative distribution function (CDF).
+    """
+    # Plot PDF
+    ax.plot(pdf.x, pdf.Px, color=color, linewidth=linewidth, label=pdf.name)
+
+
+def plot_cdf_filled(fig, ax, pdf:PDF,
+                    color="k", linewidth=2, alpha=0.3):
+    """Filled plot of a cumulative distribution function (CDF).
+    """
+    # Plot filled PDF
+    ax.fill_between(pdf.x, pdf.Px, color=color, alpha=alpha)
+
+    # Plot PDF outline
+    plot_cdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
+
+
+def plot_cdf_labeled(fig, ax, pdf:PDF,
+                     color="k", linewidth=2, alpha=0.3):
+    """Labeled plot of a CDF.
+    """
+    # Plot filled PDF
+    plot_cdf_filled(fig, ax, pdf,
+                    color=color, linewidth=linewidth, alpha=alpha)
+
+    # Set title
+    title = pdf.name if pdf.name is not None else "CDF"
+    ax.set_title(title)
+
+    # Set value label
+    xlabel = f"{pdf.variable_type.capitalize()} " \
+            if pdf.variable_type is not None else ""
+    xlabel += f"({pdf.unit})" if pdf.unit is not None else ""
+    ax.set_xlabel(xlabel)
+
+    # Set probability density label
+    ax.set_ylabel("P(X <= x)")
 
 
 # end of file
