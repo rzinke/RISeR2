@@ -318,8 +318,9 @@ def divide_variables(numerator:PDF, denominator:PDF, verbose=False) -> PDF:
     if verbose == True:
         print("Dividing variables")
 
-    # Check for consistent sampling
-    value_arrays.check_pdfs_sampling(pdfs)
+    #
+
+    # Loop through
 
     return
 
@@ -400,15 +401,26 @@ def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
 
 def cross_correlate_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> \
         (np.ndarray, np.ndarray):
+    """Compute the cross correlation of the second variable against the first.
+    Note: Unlike in classical cross correlation, which assumes infinite
+    stationary signals and wraps the shifted part of the signal back around,
+    this function zero-pads the second signal outside the defined portion.
+
+    Args    pdf1, pdf2 - PDFs to be cross-correlated
     """
-    """
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
+
     # Array lengths
     n1 = len(pdf1)
     n2 = len(pdf2)
     n_lags = n1 + n2 - 1
 
     # Define lags
-    n_lags = []
+    n_lags = np.linspace()
 
     return lags, corr
 
@@ -420,13 +432,14 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
 
         n(A, B) = integral(min[fA(x), fB(x)] dx)
 
+    An alternative formulation is
+
+        n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
+
     Args    pdfs - list[PDF], list of PDFs
     Returns eta - float, overlap metric
             px_min - np.ndarray
     """
-    if verbose == True:
-        print(f"Computing overlap metric for {len(pdfs)} PDFs")
-
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
 
@@ -442,6 +455,10 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
 
     # Integrate over overlapping region
     eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
 
     return px_min, eta
 
