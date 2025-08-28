@@ -4,6 +4,8 @@
 # (c) 2025 all rights reserved
 
 # Import modules
+import copy
+
 import numpy as np
 
 from riser import precision, units
@@ -86,7 +88,7 @@ def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
     unit = units.check_units(pdfs)
 
     # Base PDF
-    px = pdfs[0].px
+    px = copy.deepcopy(pdfs[0].px)
 
     # Loop through subsequent variables
     for pdf in pdfs[1:]:
@@ -130,7 +132,7 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
     unit = units.check_units(pdfs)
 
     # Base PDF
-    px = pdfs[0].px
+    px = copy.deepcopy(pdfs[0].px)
 
     # Loop through subsequent variables
     for pdf in pdfs[1:]:
