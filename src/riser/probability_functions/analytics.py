@@ -211,7 +211,7 @@ def pdf_median(pdf:PDF) -> float:
     Args    pdf - PDF to analyse
     Returns median - float, median of PDF
     """
-    return pdf.inverse_transform(0.5).item()
+    return pdf.pit(0.5).item()
 
 
 #################### STATISTICAL SUMMARIES ####################
@@ -298,7 +298,7 @@ def compute_interquantile_range(pdf:PDF,
     upper = 0.5 + half_confidence
 
     # Compute the CDF value for each confidence level
-    values = (pdf.inverse_transform(lower), pdf.inverse_transform(upper))
+    values = (pdf.pit(lower), pdf.pit(upper))
 
     # Format values into ConfidenceRange object
     conf_args = {

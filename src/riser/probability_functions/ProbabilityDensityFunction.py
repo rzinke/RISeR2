@@ -135,7 +135,13 @@ class ProbabilityDensityFunction:
         self.Px /= self.Px[-1]
 
 
-    def compute_cdf_at_value(self, x:float) -> float:
+    def pdf_at_value(self, x:float) -> float:
+        """Compute the value of the PDF at x.
+        """
+        return np.interp(x, self.x, self.px, left=0.0, right=1.0)
+
+
+    def cdf_at_value(self, x:float) -> float:
         """Compute the value of the CDF at x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
@@ -147,7 +153,7 @@ class ProbabilityDensityFunction:
         return self.compute_cdf_value(x2) - self.compute_cdf_value(x1)
 
 
-    def inverse_transform(self, y:float|np.ndarray) -> float|np.ndarray:
+    def pit(self, y:float|np.ndarray) -> float|np.ndarray:
         """Compute probability inverse transform (PIT).
         Note: PIT interpolation requires a strictly increasing function.
         """
