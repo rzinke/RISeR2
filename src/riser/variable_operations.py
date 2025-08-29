@@ -3,18 +3,20 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+"""
+These functions quantify relationships or interactions between two random
+variables.
+"""
+
+
 # Import modules
 import copy
 
 import numpy as np
+import scipy as sp
 
 from riser import precision, units
 from riser.probability_functions import PDF, value_arrays
-
-
-"""
-In RISeR, random variables are represented as discrete PDFs.
-"""
 
 
 #################### GENERIC FUNCTIONS ####################
@@ -183,7 +185,8 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
 
-    Theory: For discrete PDFs, think of variable addition as a sum of joint
+    Theory:
+    For discrete PDFs, think of variable addition as a sum of joint
     probabilties as a function of values. This is exactly convolution, and is
     mathematically best expressed from the "output side".
 
@@ -191,8 +194,8 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
         or
         fZ(z) = integral(fX(x).fY(z - x) dx)
 
-    Machinery: This function takes two PDFs that will be sampled on the same
-    value axis.
+    Machinery:
+    This function takes two PDFs that will be sampled on the same value axis.
     It creates an output array based on the input PDFs values, with the
     minimum sum being twice the minimum input, and the maximum sum being twice
     the maximum input.
@@ -202,7 +205,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
 
     Args    pdf1, pdf2 - PDFs to add
             name - str, name of summed PDF
-    Returns sum_pdf - PDF, summed PDF
+    Returns sum_pdf - summed PDF
     """
     if verbose == True:
         print("Adding variables")
@@ -241,8 +244,9 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
     their values (Z).
 
-    Theory: Subtraction of random variables is equivalent to the addition of
-    the negated second variable:
+    Theory:
+    Subtraction of random variables is equivalent to the addition of the
+    negated second variable:
 
         Z = X + (-Y)
 
@@ -251,7 +255,8 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
 
         P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
 
-    Machinery: This function takes two PDFs that will be sampled on the same
+    Machinery:
+    This function takes two PDFs that will be sampled on the same
     value axis.
     It creates an output array based on the input PDFs values, with the
     minimum difference being the minimum input value minus the maximum input
@@ -265,7 +270,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
             limit_positive - bool, enforce condition that values must be
                 positive
             name - str, name of differenced PDF
-    Returns difference_pdf - PDF, differenced PDF
+    Returns difference_pdf - differenced PDF
     """
     if verbose == True:
         print("Subtracting variables")
@@ -307,19 +312,83 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     return diff_pdf
 
 
-def divide_variables(numerator:PDF, denominator:PDF, verbose=False) -> PDF:
+def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
+        dq:float=0.01, name:str=None, verbose=False) -> PDF:
     """Divide numerator by denominator.
 
-    Args
-    Returns - PDF
+    Thoery:
+    The equation for division of PDFs comes from Bird (2007) and later from
+    Zechar and Frankel (2009):
+
+        fV(v) = integral(fT(t).fX(x=vt).t dt)
+
+    where v is velocity, T is time, and X is distance.
+    This equation follows the same intuition for using output-side convolution
+    to carry out addition and subtraction:
+    For each value of the output axis, compute something like a sum of joint
+    probabilities. In this case, the distance-time joint probabilities are
+    scaled by time.
+
+    Machinery:
+    Loop over the values in output array.
+    An explicit nested for loop over each input variable is saved by using the
+    interpolation function. Namely, the corresponding pX value to each vt
+    value is interpolated along the distance (numerator) PDF. The interpolated
+    numerator values can then be scaled by the corresponding time probability
+    and time value, and summed directly.
+    This results in slightly incrased accuracy over Zechar and Frankel's
+    implementation, and greatly increased speed.
+
+    Args    numerator - PDF
+            denominator - PDF
+            max_quotient - float, maximum-allowable quotient to consider
+            dq - float, quotient sample spacing
+            name - str, name of quotient PDF
+    Returns quot_pdf - divided PDF
     """
     if verbose == True:
         print("Dividing variables")
 
-    # Check for consistent sampling
-    value_arrays.check_pdfs_sampling(pdfs)
+    # Parameters
+    n_numer = len(numerator)
+    n_denom = len(denominator)
 
-    return
+    numer_min = numerator.x[0]
+    numer_max = numerator.x[-1]
+    denom_min = denominator.x[0]
+    denom_max = denominator.x[-1]
+
+    # Quotient value parameters
+    quot_min = numer_min / denom_max
+    quot_max = np.min([max_quotient, numer_max / denom_min])
+
+    # Create quotient value array
+    q = value_arrays.create_precise_value_array(quot_min, quot_max, dq)
+
+    # Create quotient probability density array
+    nq = len(q)
+    pq = np.zeros(nq)
+
+    # Loop through values in quotient
+    for i in range(nq):
+        # Compute target numerator values (rate * denominator values)
+        numer_x = q[i] * denominator.x
+
+        # Equivalent numerator density at each target numator value
+        numer_px = numerator.pdf_at_value(numer_x)
+
+        # Sum numerator densities
+        pq[i] = np.sum(denominator.px * numer_px * denominator.x)
+
+    # Determine quotient unit
+    unit = None
+    if all([numerator.unit is not None, denominator.unit is not None]):
+        unit = f"{numerator.unit}/{denominator.unit}"
+
+    # Form results into PDF
+    quot_pdf = PDF(q, pq, normalize_area=True, name=name, unit=unit)
+
+    return quot_pdf
 
 
 #################### GAP BETWEEN VARIABLES ####################
@@ -361,11 +430,103 @@ def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
 
 
 #################### SIMILARITY ####################
-def cross_correlate_variables(pdf1:PDF, pdf2:PDF):
-    """
-    """
+def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
+    """Compute the Pearson correlation coefficient between two PDFs.
 
-    return
+        r = sum[(xi - xbar)(yi - ybar)]
+            / [ sqrt sum[(xi - xbar)^2] . sqrt sum[(yi - ybar)^2]^1/2 ]
+
+    Because PDFs are never negative, the coefficient here is computed without
+    subtracting the mean (centering).
+    This is essentially a normalized dot product.
+
+    Args    pdf1, pdf2 - PDFs to correlate
+    Returns r - float, Pearson correlation coefficient
+    """
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
+
+    # Centered arrays
+    px1_cntr = pdf1.px
+    px2_cntr = pdf2.px
+
+    # Compute coefficient
+    numer = np.sum(px1_cntr * px2_cntr)
+    denom = np.sqrt(np.sum(px1_cntr**2)) * np.sqrt(np.sum(px2_cntr**2))
+    r = numer / denom
+
+    # Report if requested
+    if verbose == True:
+        print(f"Pearson correlation coefficient: {r}")
+
+    return r
+
+
+def cross_correlate_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> \
+        (np.ndarray, np.ndarray):
+    """Compute the cross correlation of the second variable against the first.
+    Note: Unlike in classical cross correlation, which assumes infinite
+    stationary signals and wraps the shifted part of the signal back around,
+    this function zero-pads the second signal outside the defined portion.
+
+    Args    pdf1, pdf2 - PDFs to be cross-correlated
+    """
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Check units
+    unit = units.check_units([pdf1, pdf2])
+
+    # Array lengths
+    n1 = len(pdf1)
+    n2 = len(pdf2)
+    n_lags = n1 + n2 - 1
+
+    # Define lags
+    n_lags = np.linspace()
+
+    return lags, corr
+
+
+def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
+        (np.ndarray, float):
+    """Compute the overlap index for two or more PDFs according to
+    (Pastore and Calcgni, 2019):
+
+        n(A, B) = integral(min[fA(x), fB(x)] dx)
+
+    An alternative formulation is
+
+        n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
+
+    Args    pdfs - list[PDF], list of PDFs
+    Returns eta - float, overlap metric
+            px_min - np.ndarray
+    """
+    # Check for consistent sampling
+    value_arrays.check_pdfs_sampling(pdfs)
+
+    # Check units
+    unit = units.check_units(pdfs)
+
+    # Arrange PDFs into matrix
+    pxs = np.vstack([pdf.px for pdf in pdfs])
+
+    # Determine minimum of PDF curves
+    min_ndxs = np.argmin(pxs, axis=0)
+    px_min = np.array([pxs[min_ndx, i] for i, min_ndx in enumerate(min_ndxs)])
+
+    # Integrate over overlapping region
+    eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
+
+    return px_min, eta
 
 
 # end of file

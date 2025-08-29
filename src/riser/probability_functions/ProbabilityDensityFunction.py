@@ -138,7 +138,7 @@ class ProbabilityDensityFunction:
     def pdf_at_value(self, x:float) -> float:
         """Compute the value of the PDF at x.
         """
-        return np.interp(x, self.x, self.px, left=0.0, right=1.0)
+        return np.interp(x, self.x, self.px, left=0.0, right=0.0)
 
 
     def cdf_at_value(self, x:float) -> float:

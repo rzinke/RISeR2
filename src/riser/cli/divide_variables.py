@@ -4,8 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-
 
 # Import modules
 import argparse
@@ -13,16 +11,15 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser.probability_functions import readers, interpolation
-from riser.variable_operations import combine_variables
+from riser.variable_operations import divide_variables
 from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the joint PDF of two or more functions."""
+Description = """Divide two random variables expressed as PDFs."""
 
 Examples = """Examples:
-combine_variables.py pdf1.txt pdf2.txt -o joint_pdf.txt
-combine_variables.py pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
+divide_variables.py displacement.txt age.txt -o sliprate.txt
 """
 
 def create_parser():
@@ -35,9 +32,16 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='fnames',
-        type=str, nargs='+',
-        help="PDF file names.")
+    input_args.add_argument(dest='numer_fname',
+        type=str,
+        help="File name of the numerator PDF.")
+    input_args.add_argument(dest='denom_fname',
+        type=str,
+        help="File name of the denominator PDF.")
+
+    input_args.add_argument('--name', dest='name',
+        type=str,
+        help="Name of summed PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -59,16 +63,20 @@ def main():
     inps = cmd_parser()
 
     # Read PDFs from files
-    pdfs = readers.read_pdfs(inps.fnames)
+    numer_pdf = readers.read_pdf(inps.numer_fname, verbose=inps.verbose)
+    denom_pdf = readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    pdfs = interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
+    (numer_pdf,
+     denom_pdf) = interpolation.interpolate_pdfs([numer_pdf, denom_pdf],
+                                                 verbose=inps.verbose)
 
-    # Compute joint PDF
-    joint_pdf = combine_variables(pdfs, verbose=inps.verbose)
+    # Compute summed PDF
+    quot_pdf = divide_variables(numer_pdf, denom_pdf, name=inps.name,
+                                verbose=inps.verbose)
 
     # Save to file
-    readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
+    readers.save_pdf(inps.outname, quot_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -76,16 +84,16 @@ def main():
         fig, axes = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        for pdf in pdfs:
-            plotting.plot_pdf_filled(fig, axes[0], pdf)
+        plotting.plot_pdf_filled(fig, axes[0], pdf1)
+        plotting.plot_pdf_filled(fig, axes[0], pdf2)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], joint_pdf)
+        plotting.plot_pdf_labeled(fig, axes[1], quot_pdf)
 
         # Format figure
         axes[0].legend()
         axes[0].set_title("Inputs")
-        axes[1].set_title("Joint PDF")
+        axes[1].set_title("PDF Quotient")
         fig.tight_layout()
 
         plt.show()
