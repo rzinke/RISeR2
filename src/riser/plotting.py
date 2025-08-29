@@ -8,6 +8,7 @@
 import matplotlib.pyplot as plt
 
 from riser.probability_functions import PDF, analytics
+from riser.sampling import filtering
 
 
 #################### PDF PLOTTING ####################
@@ -125,6 +126,14 @@ def plot_cdf_labeled(fig, ax, pdf:PDF,
 
     # Set probability density label
     ax.set_ylabel("P(X <= x)")
+
+
+#################### FILTER KERNEL PLOTTING ####################
+def plot_filter_kernel(fig, ax, filt:filtering.FIRFilter):
+    """Plot a filter kernel.
+    """
+    # Plot kernel values
+    ax.plot(filt.h, color="k", linewidth=2)
 
 
 # end of file
