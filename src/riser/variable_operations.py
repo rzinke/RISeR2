@@ -465,30 +465,61 @@ def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
     return r
 
 
-def cross_correlate_variables(pdf1:PDF, pdf2:PDF, verbose=False) -> \
+def cross_correlate_variables(ref_pdf:PDF, sec_pdf:PDF, verbose=False) -> \
         (np.ndarray, np.ndarray):
     """Compute the cross correlation of the second variable against the first.
     Note: Unlike in classical cross correlation, which assumes infinite
     stationary signals and wraps the shifted part of the signal back around,
     this function zero-pads the second signal outside the defined portion.
 
-    Args    pdf1, pdf2 - PDFs to be cross-correlated
+    Args    ref_pdf - PDF, reference variable to be held fixed
+            sec_pdf - PDF, secondary variable to cross-correlate against
+                reference
+    Returns lags - np.ndarray, lag integers
+            corr_vals - np.ndarrays, correlation values
     """
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+    value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
 
     # Check units
-    unit = units.check_units([pdf1, pdf2])
+    units.check_units([ref_pdf, sec_pdf])
 
-    # Array lengths
-    n1 = len(pdf1)
-    n2 = len(pdf2)
-    n_lags = n1 + n2 - 1
+    # Define integer lags
+    n = len(ref_pdf)
+    lags = np.arange(-n+1, n, dtype=int)
 
-    # Define lags
-    n_lags = np.linspace()
+    # Pre-allocate correlation values
+    corr_vals = np.empty(2*n-1)
 
-    return lags, corr
+    # Pre-compute normalization factor for reference PDF
+    ref_rss = np.sqrt(np.sum(ref_pdf.px**2))
+
+    # Compute correlation values
+    for i, lag in enumerate(lags):
+        # Shift the secondary signal by the integer amount
+        # The other way to do this would be to zero-pad the array
+        px_secondary = np.roll(sec_pdf.px, lag)
+
+        # Consider values outside the signal domain to be zero probability
+        if lag < 0:
+            px_secondary[lag:] = 0
+        elif lag > 0:
+            px_secondary[:lag] = 0
+
+        # Correlation normalization factor
+        norm = ref_rss * np.sqrt(np.sum(px_secondary**2))
+
+        # Compute the correlation value
+        corr_val = np.sum(ref_pdf.px * px_secondary)
+
+        # Normalize correlation value
+        if corr_val != 0:
+            corr_val /= (ref_rss * np.sqrt(np.sum(px_secondary**2)))
+
+        # Update correlation value array
+        corr_vals[i] = corr_val
+
+    return lags, corr_vals
 
 
 def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
@@ -527,6 +558,31 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
         print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
 
     return px_min, eta
+
+
+def compute_ks_statistic(pdf1:PDF, pdf2:PDF, verbose=False) -> (float, int):
+    """Compute the Komolgorov-Smirnov statistic for two PDFs.
+    The K-S statistic (D) is the largest difference between the CDFs of the
+    two PDFs.
+
+        D = sup |F1 - F2|
+
+    Args    pdf1, pdf2 - PDFs to compare
+    Returns ks_stat - float, K-S statistic
+            ks_ndx - int, index of K-S statistic location
+    """
+    # Compute difference between CDFs
+    cdf_diff = np.abs(pdf1.Px - pdf2.Px)
+
+    # Find maximum difference
+    ks_ndx = np.argmax(cdf_diff)
+    ks_stat = cdf_diff[ks_ndx]
+
+    # Report if requested
+    if verbose == True:
+        print(f"K-S statistic (D): {ks_stat:.2f}")
+
+    return ks_stat, ks_ndx
 
 
 # end of file
