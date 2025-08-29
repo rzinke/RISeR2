@@ -21,7 +21,7 @@ from riser import plotting, units
 Description = """Cross-correlate two random variables expressed as PDFs."""
 
 Examples = """Examples:
-cross_correlate_variables.py displacement.txt age.txt -o sliprate.txt
+cross_correlate_variables.py ref_pdf.txt sec_pdf.txt
 """
 
 def create_parser():
