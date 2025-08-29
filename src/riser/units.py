@@ -5,10 +5,21 @@
 
 
 # Constants
+UNIT_SCALES = {
+    'm': 0.001,
+    'c': 0.01,
+    'd': 0.1,
+    'D': 10.,
+    'C': 100.,
+    'k': 1000.,
+    'M': 1000000.,
+}
 
 
 # Import modules
 import warnings
+
+import numpy as np
 
 from riser.probability_functions import PDF
 
@@ -34,6 +45,73 @@ def check_units(pdfs:list[PDF]) -> str|None:
 
 
 #################### UNIT SCALING ####################
+def scale_from_unit_prefix(unit:str) -> float:
+    len_unit = len(unit)
+
+    if len_unit > 2:
+        raise ValueError(f"Unit {unit} not recognized")
+
+    elif len_unit == 2:
+        unit_prefix = unit[0]
+
+        return UNIT_SCALES[unit_prefix]
+
+    else:
+        return 1.0
+
+
+def scale_units(input_data:np.ndarray, input_unit:str, output_unit:str,
+                verbose=False) -> np.ndarray:
+    """Scale data from input units to output units.
+    This is a relatively simple problem because there are only two types of
+    units:
+
+        m (meter)
+        y (year)
+
+    The only combination of these units is velocity:
+
+        m/y
+
+    The input unit should be split by the division operator into unit-parts.
+    The unit prefixes should then be isolated.
+
+    E.g.,
+        input_data: 1000
+        input_units: y
+        output_units: ky
+        output_data: 1
+    """
+    if verbose == True:
+        print("Parsing and scaling unit")
+
+    # Initialize scale factor
+    scale_factor = 1.0
+
+    # Split input and output units based on division operator
+    input_unit_parts = input_unit.split("/")
+    output_unit_parts = output_unit.split("/")
+
+    # Check that in/out units have the same number of parts
+    if len(input_unit_parts) != len(output_unit_parts):
+        raise ValueError("Input and output units must have the same "
+                         "dimensions")
+
+    recip = 1
+    for in_unit, out_unit in zip(input_unit_parts, output_unit_parts):
+        # Check that unit bases are the same
+        if in_unit[-1] != out_unit[-1]:
+            raise ValueError("Unit bases are not the same")
+
+        # Determine unit scales from prefixes
+        scale_factor *= \
+                  scale_from_unit_prefix(in_unit)**recip \
+                / scale_from_unit_prefix(out_unit)**recip
+
+        recip *= -1
+
+    # Format final unit
+    return scale_factor * input_data
 
 
 # end of file
