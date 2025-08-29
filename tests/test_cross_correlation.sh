@@ -12,5 +12,3 @@ make_pdf.py -d triangular -s 3.5 5.0 6.5 -dx 0.1 --name "sec" --unit "ky" -o $X2
 # Compute joint probability
 cross_correlate_variables.py $X1name $X2name -v -p
 
-# # Examine output
-# view_pdf.py $X1_2name -v
