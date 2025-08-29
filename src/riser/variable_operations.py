@@ -185,7 +185,8 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
 
-    Theory: For discrete PDFs, think of variable addition as a sum of joint
+    Theory:
+    For discrete PDFs, think of variable addition as a sum of joint
     probabilties as a function of values. This is exactly convolution, and is
     mathematically best expressed from the "output side".
 
@@ -193,8 +194,8 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
         or
         fZ(z) = integral(fX(x).fY(z - x) dx)
 
-    Machinery: This function takes two PDFs that will be sampled on the same
-    value axis.
+    Machinery:
+    This function takes two PDFs that will be sampled on the same value axis.
     It creates an output array based on the input PDFs values, with the
     minimum sum being twice the minimum input, and the maximum sum being twice
     the maximum input.
@@ -243,8 +244,9 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
     their values (Z).
 
-    Theory: Subtraction of random variables is equivalent to the addition of
-    the negated second variable:
+    Theory:
+    Subtraction of random variables is equivalent to the addition of the
+    negated second variable:
 
         Z = X + (-Y)
 
@@ -253,7 +255,8 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
 
         P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
 
-    Machinery: This function takes two PDFs that will be sampled on the same
+    Machinery:
+    This function takes two PDFs that will be sampled on the same
     value axis.
     It creates an output array based on the input PDFs values, with the
     minimum difference being the minimum input value minus the maximum input
@@ -313,6 +316,29 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
         dq:float=0.01, name:str=None, verbose=False) -> PDF:
     """Divide numerator by denominator.
 
+    Thoery:
+    The equation for division of PDFs comes from Bird (2007) and later from
+    Zechar and Frankel (2009):
+
+        fV(v) = integral(fT(t).fX(x=vt).t dt)
+
+    where v is velocity, T is time, and X is distance.
+    This equation follows the same intuition for using output-side convolution
+    to carry out addition and subtraction:
+    For each value of the output axis, compute something like a sum of joint
+    probabilities. In this case, the distance-time joint probabilities are
+    scaled by time.
+
+    Machinery:
+    Loop over the values in output array.
+    An explicit nested for loop over each input variable is saved by using the
+    interpolation function. Namely, the corresponding pX value to each vt
+    value is interpolated along the distance (numerator) PDF. The interpolated
+    numerator values can then be scaled by the corresponding time probability
+    and time value, and summed directly.
+    This results in slightly incrased accuracy over Zechar and Frankel's
+    implementation, and greatly increased speed.
+
     Args    numerator - PDF
             denominator - PDF
             max_quotient - float, maximum-allowable quotient to consider
@@ -361,8 +387,6 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
 
     # Form results into PDF
     quot_pdf = PDF(q, pq, normalize_area=True, name=name, unit=unit)
-
-    # exit()
 
     return quot_pdf
 
