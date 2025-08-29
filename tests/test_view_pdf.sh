@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Create PDF
 echo "Creating PDF"
 bash test_make_pdf.sh
@@ -9,6 +8,3 @@ bash test_make_pdf.sh
 echo ""
 echo "Viewing PDF"
 view_pdf.py "tmp/PDF_X.txt" -v --show-confidence
-
-
-# end of file
