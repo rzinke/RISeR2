@@ -560,4 +560,29 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
     return px_min, eta
 
 
+def compute_ks_statistic(pdf1:PDF, pdf2:PDF, verbose=False) -> (float, int):
+    """Compute the Komolgorov-Smirnov statistic for two PDFs.
+    The K-S statistic (D) is the largest difference between the CDFs of the
+    two PDFs.
+
+        D = sup |F1 - F2|
+
+    Args    pdf1, pdf2 - PDFs to compare
+    Returns ks_stat - float, K-S statistic
+            ks_ndx - int, index of K-S statistic location
+    """
+    # Compute difference between CDFs
+    cdf_diff = np.abs(pdf1.Px - pdf2.Px)
+
+    # Find maximum difference
+    ks_ndx = np.argmax(cdf_diff)
+    ks_stat = cdf_diff[ks_ndx]
+
+    # Report if requested
+    if verbose == True:
+        print(f"K-S statistic (D): {ks_stat:.2f}")
+
+    return ks_stat, ks_ndx
+
+
 # end of file
