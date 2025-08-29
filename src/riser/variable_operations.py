@@ -204,7 +204,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
 
     Args    pdf1, pdf2 - PDFs to add
             name - str, name of summed PDF
-    Returns sum_pdf - PDF, summed PDF
+    Returns sum_pdf - summed PDF
     """
     if verbose == True:
         print("Adding variables")
@@ -267,7 +267,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
             limit_positive - bool, enforce condition that values must be
                 positive
             name - str, name of differenced PDF
-    Returns difference_pdf - PDF, differenced PDF
+    Returns difference_pdf - differenced PDF
     """
     if verbose == True:
         print("Subtracting variables")
@@ -309,20 +309,62 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     return diff_pdf
 
 
-def divide_variables(numerator:PDF, denominator:PDF, verbose=False) -> PDF:
+def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
+        dq:float=0.01, name:str=None, verbose=False) -> PDF:
     """Divide numerator by denominator.
 
-    Args
-    Returns - PDF
+    Args    numerator - PDF
+            denominator - PDF
+            max_quotient - float, maximum-allowable quotient to consider
+            dq - float, quotient sample spacing
+            name - str, name of quotient PDF
+    Returns quot_pdf - divided PDF
     """
     if verbose == True:
         print("Dividing variables")
 
-    #
+    # Parameters
+    n_numer = len(numerator)
+    n_denom = len(denominator)
 
-    # Loop through
+    numer_min = numerator.x[0]
+    numer_max = numerator.x[-1]
+    denom_min = denominator.x[0]
+    denom_max = denominator.x[-1]
 
-    return
+    # Quotient value parameters
+    quot_min = numer_min / denom_max
+    quot_max = np.min([max_quotient, numer_max / denom_min])
+
+    # Create quotient value array
+    q = value_arrays.create_precise_value_array(quot_min, quot_max, dq)
+
+    # Create quotient probability density array
+    nq = len(q)
+    pq = np.zeros(nq)
+
+    # Loop through values in quotient
+    for i in range(nq):
+        # Compute target numerator values (rate * denominator values)
+        numer_x = q[i] * denominator.x
+
+        # Equivalent numerator density at each target numator value
+        numer_px = numerator.pdf_at_value(numer_x)
+
+        # Sum numerator densities
+        pq[i] = np.sum(denominator.px * numer_px * denominator.x)
+
+    # Determine quotient unit
+    unit = None
+    if all([numerator.unit is not None, denominator.unit is not None]):
+        unit = f"{numerator.unit}/{denominator.unit}"
+
+    # Form results into PDF
+    quot_pdf = PDF(q, pq, normalize_area=True, name=name, unit=unit)
+
+    # exit()
+
+    return quot_pdf
 
 
 #################### GAP BETWEEN VARIABLES ####################
