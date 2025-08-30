@@ -186,6 +186,57 @@ def read_pdfs(fnames:list[str], normalize_area:bool=True,
     return pdfs
 
 
+def read_calendar_file(fname:str, verbose=False):
+    """Read a file (e.g., OxCal output) in which probability densities are
+    recorded as a function of calendar year, as opposed to years before
+    present (or some reference date).
+
+    Args    fname - str, name of calendar year file
+    Returns calyr - np.ndarray, calendar years
+            calpx - np.ndarray, probability density of each year increment
+            metdata - dict, metadata retrieved from file
+    """
+    # Open file and read contents
+    with open(fname, 'r') as raw_file:
+        lines = raw_file.readlines()
+
+    # Remove blank or malformed lines
+    lines = [line for line in lines if len(line) > 3]
+
+    # Parse header lines
+    header_lines = [line for line in lines if line[0] == "#"]
+    if verbose == True:
+        print(f"{len(header_lines)} header lines")
+
+    # Retrieve metadata
+    metadata = parse_metadata_from_header(header_lines, verbose=verbose)
+
+    # Parse data lines
+    data_lines = [line for line in lines if line[0] != "#"]
+
+    # Empty lists for x, px
+    calyr = []
+    calpx = []
+
+    # Loop through lines
+    for line in data_lines:
+        # Format data line
+        line = format_data_line(line)
+
+        # Parse x, px from line
+        line_calyr, line_px = line.split(",")
+
+        # Record to list
+        calyr.append(float(line_calyr))
+        calpx.append(float(line_px))
+
+    # Convert lists to numpy arrays
+    calyr = np.array(calyr)
+    calpx = np.array(calpx)
+
+    return calyr, calpx, metadata
+
+
 #################### PDF SAVERS ####################
 def create_header_from_pdf(pdf:PDF) -> str:
     """Create the header of a PDF file.
