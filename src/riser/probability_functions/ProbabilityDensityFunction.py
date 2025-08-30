@@ -40,7 +40,8 @@ class ProbabilityDensityFunction:
     which is the probability that the random variable will take a value less
     than or equal to value x.
     """
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=True,
+    def __init__(self, x:np.ndarray, px:np.ndarray,
+                 limit_zero:bool=False, normalize_area:bool=True,
                  name:str=None, variable_type:str=None, unit:str=None):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
@@ -48,6 +49,7 @@ class ProbabilityDensityFunction:
 
         Args    x - np.ndarray, domain values of the random variable
                 px - np.ndarray, probability density values
+                limit_zero - bool, limit smallest values to zero
                 normalize_area - bool, scale px value to so the area = 1.0
 
                 name - str, brief descriptive identifier
@@ -60,6 +62,15 @@ class ProbabilityDensityFunction:
 
         # Check that array sizes are equal
         self.__check_array_lengths__()
+
+        # Limit smallest value to zero
+        if limit_zero == True:
+            # Non-negative indices
+            pos_ndx = (x >= 0)
+
+            # Crop arrays
+            self.x = self.x[pos_ndx]
+            self.px = self.px[pos_ndx]
 
         # Normalize area under curve
         if normalize_area == True:

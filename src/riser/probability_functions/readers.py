@@ -193,7 +193,7 @@ def read_calendar_file(fname:str, verbose=False):
 
     Args    fname - str, name of calendar year file
     Returns calyr - np.ndarray, calendar years
-            px - np.ndarray, probability density of each year increment
+            calpx - np.ndarray, probability density of each year increment
             metdata - dict, metadata retrieved from file
     """
     # Open file and read contents
@@ -216,7 +216,7 @@ def read_calendar_file(fname:str, verbose=False):
 
     # Empty lists for x, px
     calyr = []
-    px = []
+    calpx = []
 
     # Loop through lines
     for line in data_lines:
@@ -228,13 +228,13 @@ def read_calendar_file(fname:str, verbose=False):
 
         # Record to list
         calyr.append(float(line_calyr))
-        px.append(float(line_px))
+        calpx.append(float(line_px))
 
     # Convert lists to numpy arrays
     calyr = np.array(calyr)
-    px = np.array(px)
+    calpx = np.array(calpx)
 
-    return calyr, px, metadata
+    return calyr, calpx, metadata
 
 
 #################### PDF SAVERS ####################
