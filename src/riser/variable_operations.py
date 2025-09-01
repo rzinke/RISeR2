@@ -87,7 +87,7 @@ def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
     value_arrays.check_pdfs_sampling(pdfs)
 
     # Check units
-    unit = units.check_units(pdfs)
+    unit = units.check_same_pdf_units(pdfs)
 
     # Base PDF
     px = copy.deepcopy(pdfs[0].px)
@@ -131,7 +131,7 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
     value_arrays.check_pdfs_sampling(pdfs)
 
     # Check units
-    unit = units.check_units(pdfs)
+    unit = units.check_same_pdf_units(pdfs)
 
     # Base PDF
     px = copy.deepcopy(pdfs[0].px)
@@ -214,7 +214,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
-    unit = units.check_units([pdf1, pdf2])
+    unit = units.check_same_pdf_units([pdf1, pdf2])
 
     # Parameters
     x_min = pdf1.x[0]
@@ -279,7 +279,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
-    unit = units.check_units([pdf1, pdf2])
+    unit = units.check_same_pdf_units([pdf1, pdf2])
 
     # Parameters
     x_min = pdf1.x[0]
@@ -418,7 +418,7 @@ def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
-    unit = units.check_units([pdf1, pdf2])
+    unit = units.check_same_pdf_units([pdf1, pdf2])
 
     # Compute probabilities between variables
     px = pdf1.Px * (1 - pdf2.Px)
@@ -447,7 +447,7 @@ def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
-    unit = units.check_units([pdf1, pdf2])
+    unit = units.check_same_pdf_units([pdf1, pdf2])
 
     # Centered arrays
     px1_cntr = pdf1.px
@@ -482,7 +482,7 @@ def cross_correlate_variables(ref_pdf:PDF, sec_pdf:PDF, verbose=False) -> \
     value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
 
     # Check units
-    units.check_units([ref_pdf, sec_pdf])
+    units.check_same_pdf_units([ref_pdf, sec_pdf])
 
     # Define integer lags
     n = len(ref_pdf)
@@ -541,7 +541,7 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
     value_arrays.check_pdfs_sampling(pdfs)
 
     # Check units
-    unit = units.check_units(pdfs)
+    unit = units.check_same_pdf_units(pdfs)
 
     # Arrange PDFs into matrix
     pxs = np.vstack([pdf.px for pdf in pdfs])
