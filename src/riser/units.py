@@ -5,6 +5,9 @@
 
 
 # Constants
+BASE_UNITS = ['m', 'y']
+
+
 UNIT_SCALES = {
     'm': 0.001,
     'c': 0.01,
@@ -25,7 +28,27 @@ from riser.probability_functions import PDF
 
 
 #################### UNIT CHECKS ####################
-def check_units(pdfs:list[PDF]) -> str|None:
+def check_pdf_base_unit(pdf:PDF) -> str:
+    """Check whether a PDF has a unit assigned, and the base of that unit.
+
+    Args    pdf - PDF to check
+    Returns base_unit - str
+    """
+    # Check PDF has unit
+    if pdf.unit is None:
+        raise ValueError("PDF unit is not defined")
+
+    # Determine base unit
+    base_unit = pdf.unit[0]
+
+    # Check PDF base unit is appropriate
+    if pdf.unit not in BASE_UNITS:
+        raise ValueError(f"PDF must have base unit {', or '.join(BASE_UNITS)}")
+
+    return base_unit
+
+
+def check_same_pdf_units(pdfs:list[PDF]) -> str|None:
     """Check that the units are the same among a series of PDFs.
 
     Args    pdfs - list[PDF], PDFs to check

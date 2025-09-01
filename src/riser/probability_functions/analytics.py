@@ -257,6 +257,9 @@ class ConfidenceRange:
     def __init__(self, confidence:float, range_values:tuple[tuple[float]],
                  method:str=None, pdf_name:str=None, unit:str=None):
         """Store confidence ranges.
+        Each range is a tuple of floats: (range_min, range_max)
+        For multi-peak PDFs, HPD may provide multiple ranges as a tuple of
+        age ranges: ((range_min, range_max), (range_min, range_max), ...)
 
         Args    range_values - sets of confidence values
         """
@@ -308,7 +311,7 @@ def compute_interquantile_range(pdf:PDF,
     # Format values into ConfidenceRange object
     conf_args = {
         'confidence': confidence,
-        'range_values': (values),
+        'range_values': tuple([values]),
         'method': "IQR",
         'pdf_name': pdf.name,
         'unit': pdf.unit,
