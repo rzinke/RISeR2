@@ -46,9 +46,6 @@ def cmd_parser(iargs=None):
     metadata_args.add_argument('--variable-type', dest='variable_type',
         type=str, default="age",
         help="Variable type. [age]")
-    metadata_args.add_argument('--input-unit', dest='input_unit',
-        type=str, default="y",
-        help="Unit of input data. [y]")
 
     # Referencing
     referencing_args = parser.add_argument_group("Referencing")
@@ -59,6 +56,15 @@ def cmd_parser(iargs=None):
     referencing_args.add_argument('--limit-zero', dest='limit_zero',
         action='store_true',
         help="Limit youngest value to zero.")
+
+    # Units
+    unit_args = parser.add_argument_group("Units")
+    unit_args.add_argument('--input-unit', dest='input_unit',
+        type=str,
+        help="Unit of input data. [y]")
+    unit_args.add_argument('--output-unit', dest='output_unit',
+        type=str, default="ky",
+        help="Unit of output data. [ky]")
 
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
@@ -71,10 +77,6 @@ def cmd_parser(iargs=None):
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('--output-unit', dest='output_unit',
-        type=str, default="ky",
-        help="Unit of output data. [ky]")
-
     output_args.add_argument('-o', '--outname', dest='outname',
         type=str, required=True,
         help="Output file.")
@@ -102,8 +104,11 @@ def main():
         print(f"Shifting dates relative to reference: {inps.reference_date}")
     ybp = inps.reference_date - calyr
 
+    # Check input units
+    input_unit = units.get_priority_unit(metadata.get('unit'), inps.input_unit)
+
     # Scale from input units to output units
-    x = units.scale_units(ybp, inps.input_unit, inps.output_unit,
+    x = units.scale_by_units(ybp, input_unit, inps.output_unit,
                           verbose=inps.verbose)
 
     # Flip left for right, so age is increasing
