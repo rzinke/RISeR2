@@ -6,3 +6,4 @@ dependencies:
   - matplotlib
   - python>=3.13
   - scipy
+  - toml
