@@ -143,7 +143,7 @@ def plot_filter_kernel(fig, ax, filt:filtering.FIRFilter):
 #################### DATED MARKER PLOTTING ####################
 def plot_marker_whisker(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="k", label=False):
+        color="royalblue", label=False):
     """Plot a dated marker as a cross.
     """
     # Compute confidence limits
@@ -169,7 +169,7 @@ def plot_marker_whisker(
 
 def plot_marker_rectangle(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="k", label=False):
+        color="royalblue", label=False):
     """Plot a dated marker as a rectangle.
     """
     # Compute confidence limits
