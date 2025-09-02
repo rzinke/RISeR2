@@ -12,6 +12,7 @@ from riser.probability_functions.parametric_functions import \
 
 # Import modules
 import argparse
+import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -150,6 +151,15 @@ def main():
     # Check inputs
     check_number_inputs(inps.distribution, inps.values)
     precision.check_precision(inps.dx)
+
+    # Suggest inputs
+    if inps.variable_type is None:
+        warnings.warn("It is strongly suggested to specify variable-type "
+                      "(e.g., age; displacement)", stacklevel=2)
+
+    if inps.unit is None:
+        warnings.warn("It is strongly suggested to specify unit "
+                      "(e.g., y; m)", stacklevel=2)
 
     # Determine min/max values
     xmin, xmax = determine_min_max_limits(inps.distribution, inps.values,
