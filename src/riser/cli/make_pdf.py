@@ -179,8 +179,14 @@ def main():
     px = para_fcn(x, *inps.values)
 
     # Instantiate PDF
-    pdf = PDF(x, px, normalize_area=True,
-              name=inps.name, variable_type=inps.variable_type, unit=inps.unit)
+    pdf_args = {
+        'x': x,
+        'px': px,
+        'name': inps.name,
+        'variable_type': inps.variable_type,
+        'unit': inps.unit,
+    }
+    pdf = PDF(**pdf_args, normalize_area=True)
 
     # Save to file
     readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
