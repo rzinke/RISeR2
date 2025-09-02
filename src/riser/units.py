@@ -68,7 +68,7 @@ def check_same_pdf_units(pdfs:list[PDF]) -> str|None:
 
 
 #################### UNIT SCALING ####################
-def scale_from_unit_prefix(unit:str) -> float:
+def determine_scale_from_unit_prefix(unit:str) -> float:
     len_unit = len(unit)
 
     if len_unit > 2:
@@ -128,8 +128,8 @@ def scale_units(input_data:np.ndarray, input_unit:str, output_unit:str,
 
         # Determine unit scales from prefixes
         scale_factor *= \
-                  scale_from_unit_prefix(in_unit)**recip \
-                / scale_from_unit_prefix(out_unit)**recip
+                  determine_scale_from_unit_prefix(in_unit)**recip \
+                / determine_scale_from_unit_prefix(out_unit)**recip
 
         recip *= -1
 
