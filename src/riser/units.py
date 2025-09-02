@@ -68,73 +68,103 @@ def check_same_pdf_units(pdfs:list[PDF]) -> str|None:
 
 
 #################### UNIT SCALING ####################
-def determine_scale_from_unit_prefix(unit:str) -> float:
-    len_unit = len(unit)
+def parse_unit(unit:str, verbose=False) -> (str, str, str):
+    """Determine the components of a unit.
+    Currently only works with simple units (e.g., m, y) and not compound units
+    (e.g., m/y).
+    """
+    # Report if requested
+    if verbose == True:
+        print(f"")
 
-    if len_unit > 2:
-        raise ValueError(f"Unit {unit} not recognized")
-
-    elif len_unit == 2:
-        unit_prefix = unit[0]
-
-        return UNIT_SCALES[unit_prefix]
-
-    else:
-        return 1.0
+    return
 
 
-def scale_units(input_data:np.ndarray, input_unit:str, output_unit:str,
-                verbose=False) -> np.ndarray:
-    """Scale data from input units to output units.
-    This is a relatively simple problem because there are only two types of
-    units:
-
-        m (meter)
-        y (year)
-
-    The only combination of these units is velocity:
-
-        m/y
-
-    The input unit should be split by the division operator into unit-parts.
-    The unit prefixes should then be isolated.
-
-    E.g.,
-        input_data: 1000
-        input_units: y
-        output_units: ky
-        output_data: 1
+def scale_unit(value:float|np.ndarray, unit_in:str, unit_out:str,
+        verbose=False) -> float|np.ndarray:
+    """Scale values from the input unit to the output.
+    Currently only works with simple units (e.g., m, y) and not compound units
+    (e.g., m/y).
     """
     if verbose == True:
-        print("Parsing and scaling unit")
+        print(f"Scaling from {unit_in} to {unit_out}")
 
-    # Initialize scale factor
-    scale_factor = 1.0
+    # Parse input and output units (coef, base, exponent)
 
-    # Split input and output units based on division operator
-    input_unit_parts = input_unit.split("/")
-    output_unit_parts = output_unit.split("/")
+    # Check whether input and output units are compatible (same base)
 
-    # Check that in/out units have the same number of parts
-    if len(input_unit_parts) != len(output_unit_parts):
-        raise ValueError("Input and output units must have the same "
-                         "dimensions")
+    # Determine scale
 
-    recip = 1
-    for in_unit, out_unit in zip(input_unit_parts, output_unit_parts):
-        # Check that unit bases are the same
-        if in_unit[-1] != out_unit[-1]:
-            raise ValueError("Unit bases are not the same")
+    return
 
-        # Determine unit scales from prefixes
-        scale_factor *= \
-                  determine_scale_from_unit_prefix(in_unit)**recip \
-                / determine_scale_from_unit_prefix(out_unit)**recip
 
-        recip *= -1
+# def determine_scale_from_unit_prefix(unit:str) -> float:
+#     len_unit = len(unit)
 
-    # Format final unit
-    return scale_factor * input_data
+#     if len_unit > 2:
+#         raise ValueError(f"Unit {unit} not recognized")
+
+#     elif len_unit == 2:
+#         unit_prefix = unit[0]
+
+#         return UNIT_SCALES[unit_prefix]
+
+#     else:
+#         return 1.0
+
+
+# def scale_units(input_data:np.ndarray, input_unit:str, output_unit:str,
+#                 verbose=False) -> np.ndarray:
+#     """Scale data from input units to output units.
+#     This is a relatively simple problem because there are only two types of
+#     units:
+
+#         m (meter)
+#         y (year)
+
+#     The only combination of these units is velocity:
+
+#         m/y
+
+#     The input unit should be split by the division operator into unit-parts.
+#     The unit prefixes should then be isolated.
+
+#     E.g.,
+#         input_data: 1000
+#         input_units: y
+#         output_units: ky
+#         output_data: 1
+#     """
+#     if verbose == True:
+#         print("Parsing and scaling unit")
+
+#     # Initialize scale factor
+#     scale_factor = 1.0
+
+#     # Split input and output units based on division operator
+#     input_unit_parts = input_unit.split("/")
+#     output_unit_parts = output_unit.split("/")
+
+#     # Check that in/out units have the same number of parts
+#     if len(input_unit_parts) != len(output_unit_parts):
+#         raise ValueError("Input and output units must have the same "
+#                          "dimensions")
+
+#     recip = 1
+#     for in_unit, out_unit in zip(input_unit_parts, output_unit_parts):
+#         # Check that unit bases are the same
+#         if in_unit[-1] != out_unit[-1]:
+#             raise ValueError("Unit bases are not the same")
+
+#         # Determine unit scales from prefixes
+#         scale_factor *= \
+#                   determine_scale_from_unit_prefix(in_unit)**recip \
+#                 / determine_scale_from_unit_prefix(out_unit)**recip
+
+#         recip *= -1
+
+#     # Format final unit
+#     return scale_factor * input_data
 
 
 # end of file
