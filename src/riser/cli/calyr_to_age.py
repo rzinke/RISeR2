@@ -115,17 +115,24 @@ def main():
     x = x[::-1]
     px = calpx[::-1]
 
+    # Limit minimum age to zero
+    if inps.limit_zero == True:
+        # Non-negative indices
+        non_neg_ndx = (x >= 0)
+
+        # Crop arrays
+        x = x[non_neg_ndx]
+        px = px[non_neg_ndx]
+
     # Form data into PDF
     pdf_args = {
         'x': x,
         'px': px,
-        'limit_zero': inps.limit_zero,
-        'normalize_area': True,
         'name': inps.name,
         'variable_type': inps.variable_type,
         'unit': inps.output_unit,
     }
-    pdf = PDF(**pdf_args)
+    pdf = PDF(**pdf_args, normalize_area=True)
 
     # Smooth data
     if inps.smoothing_width > 0:
