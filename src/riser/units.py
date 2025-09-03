@@ -3,7 +3,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-
 # Constants
 BASE_UNITS = ['m', 'y']
 
@@ -25,18 +24,6 @@ import copy
 import numpy as np
 
 from riser.probability_functions import PDF
-
-
-#################### UNIT CHECKS ####################
-def check_base_unit(base_unit:str) -> bool:
-    """Check that the base unit is supported.
-    """
-    # Check PDF base unit is appropriate
-    if base_unit not in BASE_UNITS:
-        raise ValueError(f"PDF {pdf.name} must have base unit "
-                         f"{', or '.join(BASE_UNITS)}")
-
-    return True
 
 
 #################### UNIT PARSING ####################
@@ -83,6 +70,18 @@ def parse_unit(unit:str, verbose=False) -> (float, str):
         print(f"Unit: {scale:E} {base}")
 
     return scale, base
+
+
+#################### UNIT CHECKS ####################
+def check_base_unit(base_unit:str) -> bool:
+    """Check that the base unit is supported.
+    """
+    # Check PDF base unit is appropriate
+    if base_unit not in BASE_UNITS:
+        raise ValueError(f"PDF {pdf.name} must have base unit "
+                         f"{', or '.join(BASE_UNITS)}")
+
+    return True
 
 
 #################### UNIT PRIORITIZATION ####################
