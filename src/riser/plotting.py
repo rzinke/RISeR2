@@ -150,6 +150,17 @@ def set_origin_zero(ax):
     ax.set_ylim([0, ax.get_ylim()[1]])
 
 
+def format_marker_plot(fig, ax, marker:DatedMarker):
+    """Add axis labels.
+    """
+    # Label axes
+    ax.set_xlabel(marker.age.name)
+    ax.set_ylabel(marker.displacement.name)
+
+    # Format figure
+    fig.tight_layout()
+
+
 def plot_marker_whisker(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
         color="royalblue", label=False):
@@ -173,10 +184,7 @@ def plot_marker_whisker(
 
     # Label if requested
     if label == True:
-        ax.text(1.01 * age_mode, 1.01 * disp_mode, marker.displacement.name)
-
-    # Set origin at zero
-    set_origin_zero(ax)
+        ax.text(1.01 * age_mode, 1.01 * disp_mode, marker.name)
 
 
 def plot_marker_rectangle(
@@ -203,10 +211,39 @@ def plot_marker_rectangle(
 
     # Label if requested
     if label == True:
-        ax.text(box_x+box_width, box_y+box_height, marker.displacement.name)
+        ax.text(box_x+box_width, box_y+box_height, marker.name)
+
+
+def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
+    """Plot multiple dated markers.
+    """
+    # Retrieve marker plot
+    if marker_plot_type == "whisker":
+        plotter = plot_marker_whisker
+    elif marker_plot_type == "rectangle":
+        plotter = plot_marker_rectangle
+    else:
+        raise ValueError(f"Marker plot type {marker_plot_type} not recognized")
+
+    # Loop through markers
+    for marker_name, marker in markers.items():
+        # Plot marker
+        plot_args = {
+            'fig': fig,
+            'ax': ax,
+            'marker': marker,
+            'confidence': kwargs.get('confidence', Psigma['2']),
+            'color': kwargs.get('color', "royalblue"),
+            'label': kwargs.get('label', False),
+        }
+        plotter(**plot_args)
 
     # Set origin at zero
     set_origin_zero(ax)
+
+    # Label axes
+    format_marker_plot(fig, ax, marker)
+
 
 
 # end of file
