@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from riser import precision
 from riser.probability_functions import PDF, readers, value_arrays, \
     parametric_functions
-from riser import plotting
+from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
@@ -160,6 +160,10 @@ def main():
     if inps.unit is None:
         warnings.warn("It is strongly suggested to specify unit "
                       "(e.g., y; m)", stacklevel=2)
+
+    # Check unit specification
+    if inps.unit is not None:
+        units.parse_unit(inps.unit)
 
     # Determine min/max values
     xmin, xmax = determine_min_max_limits(inps.distribution, inps.values,

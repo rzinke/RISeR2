@@ -90,14 +90,10 @@ def main():
     marker = [*markers.values()][0]
 
     # Scale input units to output units
-    if all([marker.age.unit is not None,
-            inps.age_unit_out]):
-        marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
+    marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
 
-    if all([marker.displacement.unit is not None,
-            inps.displacement_unit_out is not None]):
-        marker.displacement = units.scale_pdf_by_units(
-                marker.displacement, inps.displacement_unit_out)
+    marker.displacement = units.scale_pdf_by_units(
+            marker.displacement, inps.displacement_unit_out)
 
     # Compute slip rate
     slip_rate_args = {
@@ -123,7 +119,8 @@ def main():
         plotting.plot_marker_whisker(marker_fig, marker_ax, marker, label=True)
 
         # Format marker fig
-        marker_fig.tight_layout()
+        plotting.set_origin_zero(marker_ax)
+        plotting.format_marker_plot(marker_fig, marker_ax, marker)
 
         # Save marker fig
         marker_fig_outname = os.path.join(inps.outfldr,

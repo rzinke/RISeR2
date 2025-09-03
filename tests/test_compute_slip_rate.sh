@@ -16,7 +16,7 @@ make_pdf.py -d gaussian -s 10.0 1.0 -dx 0.01 \
 echo ""
 echo "Writing config file"
 config_file="tmp/slip_rate_config.toml"
-echo "[\"slip rate X\"]" > $config_file
+echo "[\"Marker 1\"]" > $config_file
 echo "\"age file\" = \"${X2name}\"" >> $config_file
 echo "\"displacement file\" = \"${X1name}\"" >> $config_file
 
