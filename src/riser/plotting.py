@@ -19,17 +19,20 @@ from riser.markers import DatedMarker
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(fig, ax, pdf:PDF,
-                  color="k", linewidth=2):
+                  color="black", linewidth=2):
     """Basic plot of a probability density function (PDF).
     """
     # Plot PDF
     ax.plot(pdf.x, pdf.px, color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_pdf_filled(fig, ax, pdf:PDF,
-                    color="k", linewidth=2, alpha=0.3):
+def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
     """Filled plot of a probability density function (PDF).
     """
+    # Parse args
+    color = kwargs.get('color', "black")
+    linewidth = kwargs.get('linewidth', 2)
+
     # Plot filled PDF
     ax.fill_between(pdf.x, pdf.px, color=color, alpha=alpha)
 
@@ -37,30 +40,19 @@ def plot_pdf_filled(fig, ax, pdf:PDF,
     plot_pdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
 
 
-def plot_pdf_labeled(fig, ax, pdf:PDF,
-                     color="k", linewidth=2, alpha=0.3):
+def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
     """Labeled plot of a PDF.
     """
     # Plot filled PDF
-    plot_pdf_filled(fig, ax, pdf,
-                    color=color, linewidth=linewidth, alpha=alpha)
-
-    # Set title
-    title = pdf.name if pdf.name is not None else "PDF"
-    ax.set_title(title)
-
-    # Set value label
-    xlabel = f"{pdf.variable_type} " if pdf.variable_type is not None else ""
-    xlabel += f"({pdf.unit})" if pdf.unit is not None else ""
-    ax.set_xlabel(xlabel)
-
-def plot_pdf_labeled(fig, ax, pdf:PDF,
-                     color="k", linewidth=2, alpha=0.3):
-    """Labeled plot of a PDF.
-    """
-    # Plot filled PDF
-    plot_pdf_filled(fig, ax, pdf,
-                    color=color, linewidth=linewidth, alpha=alpha)
+    plot_args = {
+        'fig': fig,
+        'ax': ax,
+        'pdf': pdf,
+        'color': kwargs.get('color', "black"),
+        'linewidth': kwargs.get('linewidth', 2),
+        'alpha': kwargs.get('alpha', 0.3)
+    }
+    plot_pdf_filled(**plot_args)
 
     # Set title
     title = pdf.name if pdf.name is not None else "PDF"
@@ -74,6 +66,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF,
 
     # Set probability density label
     ax.set_ylabel("Probability density")
+
 
 # PDF Confidence
 def plot_pdf_confidence_range(
@@ -94,17 +87,20 @@ def plot_pdf_confidence_range(
 
 #################### CDF PLOTTING ####################
 def plot_cdf_line(fig, ax, pdf:PDF,
-                  color="k", linewidth=2):
+                  color="black", linewidth=2):
     """Basic plot of a cumulative distribution function (CDF).
     """
     # Plot PDF
     ax.plot(pdf.x, pdf.Px, color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_cdf_filled(fig, ax, pdf:PDF,
-                    color="k", linewidth=2, alpha=0.3):
+def plot_cdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
     """Filled plot of a cumulative distribution function (CDF).
     """
+    # Parse args
+    color = kwargs.get('color', "black")
+    linewidth = kwargs.get('linewidth', 2)
+
     # Plot filled PDF
     ax.fill_between(pdf.x, pdf.Px, color=color, alpha=alpha)
 
@@ -112,13 +108,19 @@ def plot_cdf_filled(fig, ax, pdf:PDF,
     plot_cdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
 
 
-def plot_cdf_labeled(fig, ax, pdf:PDF,
-                     color="k", linewidth=2, alpha=0.3):
+def plot_cdf_labeled(fig, ax, pdf:PDF, **kwargs):
     """Labeled plot of a CDF.
     """
-    # Plot filled PDF
-    plot_cdf_filled(fig, ax, pdf,
-                    color=color, linewidth=linewidth, alpha=alpha)
+    # Plot filled CDF
+    plot_args = {
+        'fig': fig,
+        'ax': ax,
+        'pdf': pdf,
+        'color': kwargs.get('color', "black"),
+        'linewidth': kwargs.get('linewidth', 2),
+        'alpha': kwargs.get('alpha', 0.3)
+    }
+    plot_cdf_filled(**plot_args)
 
     # Set title
     title = pdf.name if pdf.name is not None else "CDF"
@@ -211,7 +213,11 @@ def plot_marker_rectangle(
 
     # Label if requested
     if label == True:
-        ax.text(box_x+box_width, box_y+box_height, marker.name)
+        ax.text(age_vals[1], disp_vals[1], marker.name)
+
+    # Adjust axis limits
+    ax.set_xlim([0, 1.1 * age_vals[1]])
+    ax.set_ylim([0, 1.1 * disp_vals[1]])
 
 
 def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
