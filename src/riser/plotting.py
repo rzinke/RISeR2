@@ -3,6 +3,9 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Constants
+from riser.constants import Psigma
+
 
 # Import modules
 import numpy as np
@@ -11,8 +14,7 @@ from matplotlib.patches import Rectangle
 
 from riser.probability_functions import PDF, analytics
 from riser.sampling import filtering
-from riser.slip_rates import DatedMarker
-from riser.constants import Psigma
+from riser.markers import DatedMarker
 
 
 #################### PDF PLOTTING ####################
@@ -141,9 +143,16 @@ def plot_filter_kernel(fig, ax, filt:filtering.FIRFilter):
 
 
 #################### DATED MARKER PLOTTING ####################
+def set_origin_zero(ax):
+    """Set the plot origin at zero.
+    """
+    ax.set_xlim([0, ax.get_xlim()[1]])
+    ax.set_ylim([0, ax.get_ylim()[1]])
+
+
 def plot_marker_whisker(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="k", label=False):
+        color="royalblue", label=False):
     """Plot a dated marker as a cross.
     """
     # Compute confidence limits
@@ -166,10 +175,13 @@ def plot_marker_whisker(
     if label == True:
         ax.text(1.01 * age_mode, 1.01 * disp_mode, marker.displacement.name)
 
+    # Set origin at zero
+    set_origin_zero(ax)
+
 
 def plot_marker_rectangle(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="k", label=False):
+        color="royalblue", label=False):
     """Plot a dated marker as a rectangle.
     """
     # Compute confidence limits
@@ -191,7 +203,10 @@ def plot_marker_rectangle(
 
     # Label if requested
     if label == True:
-        ax.text(box_x + box_width, box_y + box_height, marker.displacement.name)
+        ax.text(box_x+box_width, box_y+box_height, marker.displacement.name)
+
+    # Set origin at zero
+    set_origin_zero(ax)
 
 
 # end of file

@@ -7,7 +7,9 @@
 
 
 # Import modules
-from riser.probability_functions import PDF
+import warnings
+
+from riser.probability_functions import PDF, analytics
 from riser import units
 
 
@@ -42,22 +44,38 @@ class DatedMarker:
         and the displacement unit is some multiple of meters.
         """
         # Check age
-        if units.check_pdf_base_unit(self.age) != 'y':
-            raise ValueError("Age base unit must be y")
+        if self.age.unit is None:
+            warnings.warn("Age unit not specified. "
+                          "It is highly recommended to specify units.",
+                          stacklevel=2)
+        else:
+            if units.check_pdf_base_unit(self.age) != 'y':
+                raise ValueError("Age base unit must be y")
 
         # Check displacement
-        if units.check_pdf_base_unit(self.displacement) != 'm':
-            raise ValueError("Displacement base unit must be m")
-
-        return True
+        if self.displacement.unit is None:
+            warnings.warn("Displacement unit not specified. "
+                          "It is highly recommended to specify units.",
+                          stacklevel=2)
+        else:
+            if units.check_pdf_base_unit(self.displacement) != 'm':
+                raise ValueError("Displacement base unit must be m")
 
 
     def __str__(self):
-        print_str = "DatedMarker comprising:"
+        print_str = f"DatedMarker {self.displacement.name}, comprising:"
 
         # Report age
+        print_str += (f"\n\tage: {self.age.name} "
+                      f"{analytics.pdf_mode(self.age)} "
+                      f"+- {analytics.pdf_std(self.age):.2f} "
+                      f"{self.age.unit}")
 
         # Report displacement
+        print_str += (f"\n\tdisplacement: {self.displacement.name} "
+                      f"{analytics.pdf_mode(self.displacement)} "
+                      f"+- {analytics.pdf_std(self.displacement):.2f} "
+                      f"{self.displacement.unit}")
 
         return print_str
 

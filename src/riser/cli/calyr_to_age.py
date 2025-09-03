@@ -46,9 +46,6 @@ def cmd_parser(iargs=None):
     metadata_args.add_argument('--variable-type', dest='variable_type',
         type=str, default="age",
         help="Variable type. [age]")
-    metadata_args.add_argument('--input-unit', dest='input_unit',
-        type=str, default="y",
-        help="Unit of input data. [y]")
 
     # Referencing
     referencing_args = parser.add_argument_group("Referencing")
@@ -59,6 +56,15 @@ def cmd_parser(iargs=None):
     referencing_args.add_argument('--limit-zero', dest='limit_zero',
         action='store_true',
         help="Limit youngest value to zero.")
+
+    # Units
+    unit_args = parser.add_argument_group("Units")
+    unit_args.add_argument('--input-unit', dest='input_unit',
+        type=str,
+        help="Unit of input data. [y]")
+    unit_args.add_argument('--output-unit', dest='output_unit',
+        type=str, default="ky",
+        help="Unit of output data. [ky]")
 
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
@@ -71,10 +77,6 @@ def cmd_parser(iargs=None):
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('--output-unit', dest='output_unit',
-        type=str, default="ky",
-        help="Unit of output data. [ky]")
-
     output_args.add_argument('-o', '--outname', dest='outname',
         type=str, required=True,
         help="Output file.")
@@ -102,25 +104,35 @@ def main():
         print(f"Shifting dates relative to reference: {inps.reference_date}")
     ybp = inps.reference_date - calyr
 
+    # Check input units
+    input_unit = units.get_priority_unit(metadata.get('unit'), inps.input_unit)
+
     # Scale from input units to output units
-    x = units.scale_units(ybp, inps.input_unit, inps.output_unit,
+    x = units.scale_by_units(ybp, input_unit, inps.output_unit,
                           verbose=inps.verbose)
 
     # Flip left for right, so age is increasing
     x = x[::-1]
     px = calpx[::-1]
 
+    # Limit minimum age to zero
+    if inps.limit_zero == True:
+        # Non-negative indices
+        non_neg_ndx = (x >= 0)
+
+        # Crop arrays
+        x = x[non_neg_ndx]
+        px = px[non_neg_ndx]
+
     # Form data into PDF
     pdf_args = {
         'x': x,
         'px': px,
-        'limit_zero': inps.limit_zero,
-        'normalize_area': True,
         'name': inps.name,
         'variable_type': inps.variable_type,
         'unit': inps.output_unit,
     }
-    pdf = PDF(**pdf_args)
+    pdf = PDF(**pdf_args, normalize_area=True)
 
     # Smooth data
     if inps.smoothing_width > 0:
