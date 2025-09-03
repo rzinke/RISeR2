@@ -41,8 +41,7 @@ def cmd_parser(iargs=None):
 
     input_args.add_argument('--limit-positive', dest='limit_positive',
         action='store_true',
-        help="Enforce the condition that values are greater than or equal to "
-             "0.")
+        help="Enforce the condition that values are >= to 0.")
 
     input_args.add_argument('--name', dest='name',
         type=str,
