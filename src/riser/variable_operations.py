@@ -15,7 +15,7 @@ import copy
 import numpy as np
 import scipy as sp
 
-from riser import precision, units
+from riser import precision, variable_types, units
 from riser.probability_functions import PDF, value_arrays
 
 
@@ -86,6 +86,9 @@ def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
 
+    # Check variable types
+    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
+
     # Check units
     unit = units.check_same_pdf_units(pdfs)
 
@@ -129,6 +132,9 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
 
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling(pdfs)
+
+    # Check variable types
+    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
 
     # Check units
     unit = units.check_same_pdf_units(pdfs)
@@ -180,8 +186,7 @@ def negate_variable(pdf:PDF, verbose=False) -> PDF:
     return neg_pdf
 
 
-def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
-        PDF:
+def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
 
@@ -213,6 +218,9 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
+    # Check variable types
+    variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
+
     # Check units
     unit = units.check_same_pdf_units([pdf1, pdf2])
 
@@ -234,7 +242,14 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> \
     pxx = np.convolve(pdf1.px, pdf2.px, mode="full")
 
     # Form results into PDF
-    sum_pdf = PDF(xx, pxx, normalize_area=True, name=name, unit=unit)
+    pdf_args = {
+        'x': xx,
+        'px': pxx,
+        'name': name,
+        'variable_type': variable_type,
+        'unit': unit,
+    }
+    sum_pdf = PDF(**pdf_args, normalize_area=True)
 
     return sum_pdf
 
@@ -278,6 +293,9 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     # Check for consistent sampling
     value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
+    # Check variable types
+    variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
+
     # Check units
     unit = units.check_same_pdf_units([pdf1, pdf2])
 
@@ -303,17 +321,27 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
 
     # Enforce condition that values must be positive
     if limit_positive == True:
-        # Squash probability density of values less than zero
-        pxx[xx < 0] = 0
+        # Keep only values > 0
+        pos_ndx = (xx > 0)
+        xx = xx[pos_ndx]
+        pxx = pxx[pos_ndx]
 
     # Form results into PDF
-    diff_pdf = PDF(xx, pxx, normalize_area=True, name=name, unit=unit)
+    pdf_args = {
+        'x': xx,
+        'px': pxx,
+        'name': name,
+        'variable_type': variable_type,
+        'unit': unit,
+    }
+    diff_pdf = PDF(**pdf_args, normalize_area=True)
 
     return diff_pdf
 
 
 def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
-        dq:float=0.01, name:str=None, verbose=False) -> PDF:
+        dq:float=0.01, name:str=None, variable_type:str=None,
+        verbose=False) -> PDF:
     """Divide numerator by denominator.
 
     Thoery:
@@ -387,7 +415,14 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
         unit = None
 
     # Form results into PDF
-    quot_pdf = PDF(q, pq, normalize_area=True, name=name, unit=unit)
+    pdf_args = {
+        'x': q,
+        'px': pq,
+        'name': name,
+        'variable_type': variable_type,
+        'unit': unit,
+    }
+    quot_pdf = PDF(**pdf_args, normalize_area=True)
 
     return quot_pdf
 
