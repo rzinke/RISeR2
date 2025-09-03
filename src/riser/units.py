@@ -27,6 +27,18 @@ import numpy as np
 from riser.probability_functions import PDF
 
 
+#################### UNIT CHECKS ####################
+def check_base_unit(base_unit:str) -> bool:
+    """Check that the base unit is supported.
+    """
+    # Check PDF base unit is appropriate
+    if base_unit not in BASE_UNITS:
+        raise ValueError(f"PDF {pdf.name} must have base unit "
+                         f"{', or '.join(BASE_UNITS)}")
+
+    return True
+
+
 #################### UNIT PARSING ####################
 def parse_unit(unit:str, verbose=False) -> (float, str):
     """Determine the components of a unit.
@@ -64,14 +76,44 @@ def parse_unit(unit:str, verbose=False) -> (float, str):
     base = unit[-1]
 
     # Check that base is valid
-    if base not in BASE_UNITS:
-        raise ValueError(f"Unit '{base}' not supported")
+    check_base_unit(base)
 
     # Report if requested
     if verbose == True:
         print(f"Unit: {scale:E} {base}")
 
     return scale, base
+
+
+#################### UNIT PRIORITIZATION ####################
+def get_priority_unit(file_unit:str|None, inps_unit:str|None,
+                      verbose=False) -> str:
+    """If a unit is specified both in the file, and by the user, prioritize
+    the unit encoded in the file.
+    """
+    # Check if unit is specified in both the file and user inputs
+    if all([file_unit is not None,
+            inps_unit is not None,
+            file_unit != inps_unit]):
+        # Warn user
+        warnings.warn("Unit specified in file is different from "
+                      "user-specified unit.", stacklevel=2)
+
+    # Set priority unit
+    if all([file_unit is None, inps_unit is not None]):
+        priority_unit = copy.deepcopy(inps_unit)
+    else:
+        priority_unit = copy.deepcopy(file_unit)
+
+    # Check that base unit is valid
+    if priority_unit is not None:
+        parse_unit(priority_unit)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Prioritizing file unit: {priority_unit}")
+
+    return priority_unit
 
 
 #################### UNIT SCALING ####################
@@ -135,37 +177,6 @@ def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
     return scaled_pdf
 
 
-#################### UNIT PRIORITIZATION ####################
-def get_priority_unit(file_unit:str|None, inps_unit:str|None,
-                      verbose=False) -> str:
-    """If a unit is specified both in the file, and by the user, prioritize
-    the unit encoded in the file.
-    """
-    # Check if unit is specified in both the file and user inputs
-    if all([file_unit is not None,
-            inps_unit is not None,
-            file_unit != inps_unit]):
-        # Warn user
-        warnings.warn("Unit specified in file is different from "
-                      "user-specified unit.", stacklevel=2)
-
-    # Set priority unit
-    if all([file_unit is None, inps_unit is not None]):
-        priority_unit = copy.deepcopy(inps_unit)
-    else:
-        priority_unit = copy.deepcopy(file_unit)
-
-    # Check that base unit is valid
-    if priority_unit is not None:
-        parse_unit(priority_unit)
-
-    # Report if requested
-    if verbose == True:
-        print(f"Prioritizing file unit: {priority_unit}")
-
-    return priority_unit
-
-
 #################### PDF UNIT CHECKS ####################
 def check_pdf_base_unit(pdf:PDF, variable_type:str=None) -> str:
     """Check whether a PDF has a unit assigned, and the base of that unit.
@@ -181,9 +192,7 @@ def check_pdf_base_unit(pdf:PDF, variable_type:str=None) -> str:
     _, base_unit = parse_unit(pdf.unit)
 
     # Check PDF base unit is appropriate
-    if base_unit not in BASE_UNITS:
-        raise ValueError(f"PDF {pdf.name} must have base unit "
-                         f"{', or '.join(BASE_UNITS)}")
+    check_base_unit(base_unit)
 
     # Check against variable type
     if all([variable_type == "age", base_unit != "y"]):

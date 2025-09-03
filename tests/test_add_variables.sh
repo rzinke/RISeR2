@@ -3,10 +3,12 @@
 # Create marginal distributions
 echo "Creating PDFs"
 X1name="tmp/pdf1.txt"
-make_pdf.py -d gaussian -s 6.0 1.0 -dx 0.01 --name "pdf1" -o $X1name
+make_pdf.py -d gaussian -s 6.0 1.0 -dx 0.01 \
+    --name "pdf1" --variable-type "age" --unit "y" -o $X1name
 
 X2name="tmp/pdf2.txt"
-make_pdf.py -d gaussian -s 4.0 1.0 -dx 0.01 --name "pdf2" -o $X2name
+make_pdf.py -d gaussian -s 4.0 1.0 -dx 0.01 \
+    --name "pdf2" --variable-type "age" --unit "y" -o $X2name
 
 
 # Add variables
