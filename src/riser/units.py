@@ -111,10 +111,11 @@ def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
     """
-    # Escape if units not properly specified
+    # Escape if units not properly specified or scaling is not desired
     if any([pdf.unit is None, unit_out is None]):
-        warnings.warn("Cannot scale PDF values with units None. "
-                      "Continuing with original units.", stacklevel=2)
+        if pdf.unit is None:
+            warnings.warn("Cannot scale PDF values with units None. "
+                          "Continuing with original units.", stacklevel=2)
         return pdf
 
     # Scale values
