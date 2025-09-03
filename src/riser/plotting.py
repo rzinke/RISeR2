@@ -3,6 +3,9 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Constants
+from riser.constants import Psigma
+
 
 # Import modules
 import numpy as np
@@ -11,8 +14,7 @@ from matplotlib.patches import Rectangle
 
 from riser.probability_functions import PDF, analytics
 from riser.sampling import filtering
-from riser.slip_rates import DatedMarker
-from riser.constants import Psigma
+from riser.markers import DatedMarker
 
 
 #################### PDF PLOTTING ####################

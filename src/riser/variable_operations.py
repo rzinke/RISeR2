@@ -381,9 +381,10 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
         pq[i] = np.sum(denominator.px * numer_px * denominator.x)
 
     # Determine quotient unit
-    unit = None
     if all([numerator.unit is not None, denominator.unit is not None]):
         unit = f"{numerator.unit}/{denominator.unit}"
+    else:
+        unit = None
 
     # Form results into PDF
     quot_pdf = PDF(q, pq, normalize_area=True, name=name, unit=unit)
