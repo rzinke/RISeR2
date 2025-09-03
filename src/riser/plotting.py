@@ -156,8 +156,8 @@ def format_marker_plot(fig, ax, marker:DatedMarker):
     """Add axis labels.
     """
     # Label axes
-    ax.set_xlabel(marker.age.name)
-    ax.set_ylabel(marker.displacement.name)
+    ax.set_xlabel(marker.age.variable_type)
+    ax.set_ylabel(marker.displacement.variable_type)
 
     # Format figure
     fig.tight_layout()
