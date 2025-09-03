@@ -27,7 +27,7 @@ import numpy as np
 from riser.probability_functions import PDF
 
 
-#################### UNIT SCALING ####################
+#################### UNIT PARSING ####################
 def parse_unit(unit:str, verbose=False) -> (float, str):
     """Determine the components of a unit.
     Currently only works with simple units (e.g., m, y) and not compound units
@@ -74,6 +74,7 @@ def parse_unit(unit:str, verbose=False) -> (float, str):
     return scale, base
 
 
+#################### UNIT SCALING ####################
 def scale_values_by_units(values:float|np.ndarray, unit_in:str, unit_out:str,
         verbose=False) -> float|np.ndarray:
     """Scale values from the input unit to the output.
@@ -110,6 +111,12 @@ def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
     """
+    # Escape if units not properly specified
+    if any([pdf.unit is None, unit_out is None]):
+        warnings.warn("Cannot scale PDF values with units None. "
+                      "Continuing with original units.", stacklevel=2)
+        return pdf
+
     # Scale values
     scaled_values = scale_values_by_units(pdf.x, pdf.unit, unit_out,
                                           verbose=verbose)
@@ -158,7 +165,7 @@ def get_priority_unit(file_unit:str|None, inps_unit:str|None,
     return priority_unit
 
 
-#################### UNIT CHECKS ####################
+#################### PDF UNIT CHECKS ####################
 def check_pdf_base_unit(pdf:PDF, variable_type:str=None) -> str:
     """Check whether a PDF has a unit assigned, and the base of that unit.
 

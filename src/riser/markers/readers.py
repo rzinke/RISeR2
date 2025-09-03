@@ -33,8 +33,8 @@ def set_metadata_priority(metadata_item:str, file_item:str, spec_item:str):
         return file_item
 
 
-def read_marker_from_files(age_fname:str, displacement_fname:str,
-                           verbose=False, **kwargs) -> DatedMarker:
+def initialize_marker_from_files(age_fname:str, displacement_fname:str,
+                                 verbose=False, **kwargs) -> DatedMarker:
     """
     """
     # Read age PDF
@@ -121,7 +121,7 @@ def read_markers_from_config(fname:str, verbose=False) -> dict:
                                             'displacement variable type'),
             'displacement_unit': marker_spec.get('displacement unit'),
         }
-        marker = read_marker_from_files(**marker_args, verbose=verbose)
+        marker = initialize_marker_from_files(**marker_args, verbose=verbose)
 
         # Write marker to dictionary
         markers[marker_name] = marker
