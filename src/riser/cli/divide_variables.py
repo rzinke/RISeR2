@@ -84,8 +84,8 @@ def main():
         fig, axes = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], pdf1)
-        plotting.plot_pdf_filled(fig, axes[0], pdf2)
+        plotting.plot_pdf_filled(fig, axes[0], numer_pdf)
+        plotting.plot_pdf_filled(fig, axes[0], denom_pdf)
 
         # Plot PDF
         plotting.plot_pdf_labeled(fig, axes[1], quot_pdf)

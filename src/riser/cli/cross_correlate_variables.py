@@ -84,7 +84,7 @@ def main():
     opt_corr = corr_vals[opt_ndx]
 
     # PDF unit
-    unit = units.check_units([ref_pdf, sec_pdf])
+    unit = units.check_same_pdf_units([ref_pdf, sec_pdf])
 
     # Shift secondary correlation to optimal lag
     px_shifted = np.roll(sec_pdf.px, opt_lag)
