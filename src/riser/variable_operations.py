@@ -386,6 +386,11 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
     denom_min = denominator.x[0]
     denom_max = denominator.x[-1]
 
+    # Ensure all denominator values > 0
+    if denom_min < 0:
+        raise ValueError("Division cannot be applied where the denominator is "
+                         "negative.")
+
     # Quotient value parameters
     quot_min = numer_min / denom_max
     quot_max = np.min([max_quotient, numer_max / denom_min])

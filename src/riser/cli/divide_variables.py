@@ -66,12 +66,7 @@ def main():
     numer_pdf = readers.read_pdf(inps.numer_fname, verbose=inps.verbose)
     denom_pdf = readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
-    # Sample PDFs on same axis
-    (numer_pdf,
-     denom_pdf) = interpolation.interpolate_pdfs([numer_pdf, denom_pdf],
-                                                 verbose=inps.verbose)
-
-    # Compute summed PDF
+    # Compute quotient of PDFs
     quot_pdf = divide_variables(numer_pdf, denom_pdf, name=inps.name,
                                 verbose=inps.verbose)
 
