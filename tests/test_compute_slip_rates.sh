@@ -60,4 +60,6 @@ echo "\"displacement file\" = \"${U3name}\"" >> $config_file
 # Compute slip rate
 echo ""
 echo "Computing slip rate"
-compute_slip_rates.py $config_file -o "tmp" -v -p
+compute_slip_rates.py $config_file \
+    --max-rate 10 \
+    -o "tmp/incr_analyt/v1ia" -v -p
