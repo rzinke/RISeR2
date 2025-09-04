@@ -135,7 +135,7 @@ def determine_min_max_limits(distribution:str, values:list[float],
 
         # Limit at zero
         xmin = np.max([mu - sigma_lim, 0]) if limit_positive == True \
-                else -sigma_lim
+                else mu - sigma_lim
 
         # Max value
         xmax = mu + sigma_lim
