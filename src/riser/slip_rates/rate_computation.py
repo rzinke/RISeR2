@@ -5,6 +5,8 @@
 
 
 # Import modules
+from datetime import datetime
+
 from riser.probability_functions import PDF, interpolation, analytics
 from riser import variable_operations
 from riser.markers import DatedMarker

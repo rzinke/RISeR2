@@ -17,6 +17,23 @@ from riser.sampling import filtering
 from riser.markers import DatedMarker
 
 
+#################### GENERAL LABELING ####################
+def formulate_axis_label(pdf:PDF) -> str:
+    """Formulate an axis label from PDF metadata in a standardized manner.
+
+    Args    pdf - PDF from which to draw the metadata
+    Returns ax_label - str, standardized axis label
+    """
+    # Set variable type if available
+    ax_label = f"{pdf.variable_type.capitalize()} " \
+            if pdf.variable_type is not None else ""
+
+    # Add unit if available
+    ax_label += f"({pdf.unit})" if pdf.unit is not None else ""
+
+    return ax_label
+
+
 #################### PDF PLOTTING ####################
 def plot_pdf_line(fig, ax, pdf:PDF,
                   color="black", linewidth=2):
@@ -59,10 +76,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
     ax.set_title(title)
 
     # Set value label
-    xlabel = f"{pdf.variable_type.capitalize()} " \
-            if pdf.variable_type is not None else ""
-    xlabel += f"({pdf.unit})" if pdf.unit is not None else ""
-    ax.set_xlabel(xlabel)
+    ax.set_xlabel(formulate_axis_label(pdf))
 
     # Set probability density label
     ax.set_ylabel("Probability density")
@@ -153,11 +167,11 @@ def set_origin_zero(ax):
 
 
 def format_marker_plot(fig, ax, marker:DatedMarker):
-    """Add axis labels.
+    """Add axis labels, formulated in the standardized manner.
     """
     # Label axes
-    ax.set_xlabel(marker.age.name)
-    ax.set_ylabel(marker.displacement.name)
+    ax.set_xlabel(formulate_axis_label(marker.age))
+    ax.set_ylabel(formulate_axis_label(marker.displacement))
 
     # Format figure
     fig.tight_layout()

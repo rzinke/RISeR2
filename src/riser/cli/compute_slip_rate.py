@@ -4,6 +4,10 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Constants
+from riser.constants import Psigma
+from riser.probability_functions.analytics import CONFIDENCE_FUNCTIONS
+
 
 # Import modules
 import os
@@ -11,17 +15,19 @@ import argparse
 
 import matplotlib.pyplot as plt
 
+from riser.probability_functions import readers as pdf_readers, analytics
 from riser.markers import readers as marker_readers
-from riser.slip_rate_computation import compute_slip_rate
-from riser.probability_functions import readers as pdf_readers
+from riser.slip_rates import rate_computation, reporting
 from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the slip rate for a single marker by dividing feature displacement by age, using the analytical formulation."""
+Description = ("Compute the slip rate for a single marker by dividing feature "
+               "displacement by age, using the analytical formulation.")
 
 Examples = """Examples:
-compute_slip_rate.py marker_config.toml -o slip_rate
+compute_slip_rate.py marker_config.toml -o v1
+compute_slip_rate.py marker_config.toml --age-unit-out y --displacement-unit-out mm -o v2/v2
 """
 
 def create_parser():
@@ -58,17 +64,29 @@ def cmd_parser(iargs=None):
         type=float, default=0.01,
         help="Slip rate step. [0.01]")
 
+    # Reporting
+    reporting_args = parser.add_argument_group("Reporting")
+    reporting_args.add_argument(
+        '--confidence-method', dest='confidence_method',
+        type=str, choices=CONFIDENCE_FUNCTIONS, default="HPD",
+        help="Function for computing function confidence. [HPD]")
+    reporting_args.add_argument(
+        '--confidence-limits', dest='confidence_limits',
+        type=float, default=Psigma['1'],
+        help="Confidence level. [0.682]")
+
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outfldr', dest='outfldr',
+    output_args.add_argument('-o', '--output-prefix', dest='output_prefix',
         type=str, required=True,
-        help="Output folder.")
+        help="Output prefix as <prefix> or <folder>/<prefix>.")
     output_args.add_argument('-v', '--verbose', dest='verbose',
         action='store_true',
         help="Verbose mode.")
     output_args.add_argument('-p', '--plot', dest='plot',
         action='store_true',
-        help="Plot distribution.")
+        help="Show results plots. Figures will be generated and saved "
+             "whether plot flag is raised.")
 
     return parser.parse_args(args=iargs)
 
@@ -77,6 +95,9 @@ def cmd_parser(iargs=None):
 def main():
     # Parse arguments
     inps = cmd_parser()
+
+    # Establish output directory
+    reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
     markers = marker_readers.read_markers_from_config(inps.marker_config,
@@ -88,6 +109,20 @@ def main():
 
     # Use only first marker
     marker = [*markers.values()][0]
+
+    # Initialize figure and axis for input marker
+    marker_fig, marker_ax = plt.subplots()
+
+    # Plot marker
+    plotting.plot_marker_whisker(marker_fig, marker_ax, marker, label=True)
+
+    # Format marker fig
+    plotting.set_origin_zero(marker_ax)
+    plotting.format_marker_plot(marker_fig, marker_ax, marker)
+
+    # Save marker fig
+    reporting.save_marker_fig(inps.output_prefix, marker_fig,
+                              verbose=inps.verbose)
 
     # Scale input units to output units
     marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
@@ -101,46 +136,51 @@ def main():
         'max_quotient': inps.max_rate,
         'dq': inps.dv,
     }
-    slip_rate = compute_slip_rate(**slip_rate_args, verbose=inps.verbose)
+    slip_rate = rate_computation.compute_slip_rate(**slip_rate_args,
+                                                   verbose=inps.verbose)
 
-    # Formulate slip rate output file name
-    slip_rate_outname = os.path.join(inps.outfldr,
-                                     f"{inps.outfldr}_slip_rate.txt")
+    # Save PDF to file
+    pdf_readers.save_pdf(f"{inps.output_prefix}_slip_rate.txt", slip_rate,
+                         verbose=inps.verbose)
 
-    # Save to file
-    pdf_readers.save_pdf(slip_rate_outname, slip_rate, verbose=inps.verbose)
+    # Compute PDF statistics
+    pdf_stats = analytics.PDFstatistics(slip_rate)
+
+    # Retrieve confidence range function
+    conf_fcn = analytics.get_confidence_function(inps.confidence_method,
+                                                 verbose=inps.verbose)
+
+    # Compute confidence range
+    conf_range = conf_fcn(slip_rate, inps.confidence_limits)
+    if inps.verbose == True:
+        print(conf_range)
+
+    # Initialize figure and axis for slip rate PDF
+    rate_fig, rate_ax = plt.subplots()
+
+    # Plot slip rate PDF
+    plotting.plot_pdf_labeled(rate_fig, rate_ax, slip_rate)
+
+    # Plot confidence range
+    plotting.plot_pdf_confidence_range(rate_fig, rate_ax,
+                                       slip_rate, conf_range)
+
+    # Save slip rate figure
+    reporting.save_slip_rate_fig(inps.output_prefix, rate_fig,
+                                 verbose=inps.verbose)
+
+    # Save slip rate report to file
+    report_args = {
+        'output_prefix': inps.output_prefix,
+        'formulation': "analytical",
+        'slip_rates': {marker.name: slip_rate},
+        'pdf_statistics': {marker.name: pdf_stats},
+        'confidence_ranges': {marker.name: conf_range},
+    }
+    reporting.write_slip_rates_report(**report_args, verbose=inps.verbose)
 
     # Plot if requested
     if inps.plot == True:
-        # Initialize figure and axis for input marker
-        marker_fig, marker_ax = plt.subplots()
-
-        # Plot marker
-        plotting.plot_marker_whisker(marker_fig, marker_ax, marker, label=True)
-
-        # Format marker fig
-        plotting.set_origin_zero(marker_ax)
-        plotting.format_marker_plot(marker_fig, marker_ax, marker)
-
-        # Save marker fig
-        marker_fig_outname = os.path.join(inps.outfldr,
-                                          f"{inps.outfldr}_marker.png")
-        marker_fig.savefig(marker_fig_outname)
-
-        # Initialize figure and axis for slip rate PDF
-        rate_fig, rate_ax = plt.subplots()
-
-        # Plot slip rate PDF
-        plotting.plot_pdf_labeled(rate_fig, rate_ax, slip_rate)
-
-        # Format slip rate figure
-        rate_fig.tight_layout()
-
-        # Save slip rate figure
-        rate_fig_outname = os.path.join(inps.outfldr,
-                                        f"{inps.outfldr}_slip_rate.png")
-        rate_fig.savefig(rate_fig_outname)
-
         plt.show()
 
 

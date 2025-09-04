@@ -51,6 +51,9 @@ def cmd_parser(iargs=None):
     input_args.add_argument('-dx', '--dx', dest='dx',
         type=float, required=True,
         help="x-step.")
+    input_args.add_argument('--limit-positive', dest='limit_positive',
+        action='store_true',
+        help="Enforce the condition that values are >= to 0.")
 
     input_args.add_argument('--name', dest='name',
         type=str,
@@ -110,7 +113,7 @@ def check_number_inputs(distribution:str, values:list[float]):
 
 
 def determine_min_max_limits(distribution:str, values:list[float],
-                             verbose=False) -> (float, float):
+        limit_positive:bool=False, verbose=False) -> (float, float):
     """Determine the minimum and maximum values of the PDF domain.
 
     Args    distribution - str, parametric function
@@ -131,7 +134,8 @@ def determine_min_max_limits(distribution:str, values:list[float],
         sigma_lim = 4 * sigma
 
         # Limit at zero
-        xmin = np.max([mu - sigma_lim, 0])
+        xmin = np.max([mu - sigma_lim, 0]) if limit_positive == True \
+                else mu - sigma_lim
 
         # Max value
         xmax = mu + sigma_lim
@@ -167,7 +171,7 @@ def main():
 
     # Determine min/max values
     xmin, xmax = determine_min_max_limits(inps.distribution, inps.values,
-                                          verbose=inps.verbose)
+            limit_positive=inps.limit_positive, verbose=inps.verbose)
 
     # Create x-array
     x = value_arrays.create_precise_value_array(xmin, xmax, inps.dx,
