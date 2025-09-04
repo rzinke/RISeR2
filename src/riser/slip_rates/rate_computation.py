@@ -38,14 +38,17 @@ def compute_slip_rate(marker:DatedMarker, verbose=False, **kwargs) -> PDF:
     return slip_rate
 
 
-def compute_slip_rates_analytical(markers:dict, verbose=False, **kwargs) -> \
-        dict:
+def compute_slip_rates_analytical(
+        markers:dict, verbose=False, **kwargs) -> dict:
     """Compute the incremental slip rates between multiple dated displacement
     markers using analytical functions.
     First, compute the difference between each pair of adjacent displacements
     and corresponding pairs of ages to get DeltaD's and DeltaT's.
     Then, compute the slip rate over each increment by dividing the DeltaD by
     the corresponding DeltaT.
+
+    Note: Per the divide_variables operator, denominator (age) values cannot
+    be negative.
 
     Args    markers - dict, DatedMarkers bounding each interval
             kwargs - dict, keyword arguments for:
@@ -81,13 +84,13 @@ def compute_slip_rates_analytical(markers:dict, verbose=False, **kwargs) -> \
          older_age) = interpolation.interpolate_pdfs(
                 [younger_marker.age, older_marker.age])
 
-        # Compute age difference
+        # Compute age difference - negative ages not supported
         age_args = {
             'pdf1': older_age,
             'pdf2': younger_age,
-            'limit_positive': kwargs.get('limit_positive', False)
         }
-        DeltaT = variable_operations.subtract_variables(**age_args)
+        DeltaT = variable_operations.subtract_variables(**age_args,
+                                                        limit_positive=True)
 
         # Interpolate displacements on same axis
         (younger_displacement,

@@ -36,11 +36,13 @@ def formulate_axis_label(pdf:PDF) -> str:
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(fig, ax, pdf:PDF,
-                  color="black", linewidth=2):
+                  color:str="black", linewidth:int=2,
+                  offset:float=0, scale:float=1):
     """Basic plot of a probability density function (PDF).
     """
     # Plot PDF
-    ax.plot(pdf.x, pdf.px, color=color, linewidth=linewidth, label=pdf.name)
+    ax.plot(pdf.x, scale * pdf.px + offset,
+            color=color, linewidth=linewidth, label=pdf.name)
 
 
 def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
@@ -49,12 +51,17 @@ def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
     # Parse args
     color = kwargs.get('color', "black")
     linewidth = kwargs.get('linewidth', 2)
+    offset = kwargs.get('offset', 0)
+    scale = kwargs.get('scale', 1)
 
     # Plot filled PDF
-    ax.fill_between(pdf.x, pdf.px, color=color, alpha=alpha)
+    ax.fill_between(pdf.x, scale * pdf.px + offset, y2=offset,
+                    color=color, alpha=alpha)
 
     # Plot PDF outline
-    plot_pdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
+    plot_pdf_line(fig, ax, pdf,
+                  color=color, linewidth=linewidth,
+                  offset=offset, scale=scale)
 
 
 def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
@@ -85,17 +92,59 @@ def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
 # PDF Confidence
 def plot_pdf_confidence_range(
         fig, ax, pdf:PDF, conf_range:analytics.ConfidenceRange,
-        color="royalblue", alpha=0.3):
+        color="royalblue", alpha=0.3, offset:float=0, scale:float=1,
+        incl_label:bool=False):
     """Plot confidence ranges as fields overlying a PDF.
     """
+    # Formulate label
+    label = f"{100 * conf_range.confidence:.2f} %" if incl_label == True \
+            else None
+
     # Plot confidence ranges
     for rng in conf_range:
+        # Indices within range
         rng_ndx = (pdf.x >= rng[0]) & (pdf.x <= rng[1])
-        ax.fill_between(pdf.x[rng_ndx], pdf.px[rng_ndx],
-                        color=color, alpha=alpha,
-                        label=f"{100 * conf_range.confidence:.2f} %")
+
+        # Plot range
+        plot_args = {
+            'x': pdf.x[rng_ndx],
+            'y1': scale * pdf.px[rng_ndx] + offset,
+            'y2': offset,
+            'color': color,
+            'alpha': alpha,
+            'label': label,
+        }
+        ax.fill_between(**plot_args)
 
     # Format plot
+    ax.legend()
+
+
+# Multi-PDF
+def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
+    """Plot multiple PDFs as rows on the same figure.
+    Check all PDFs for the maximum px value, scale the largest max to 1.0,
+    and scale the other PDF maxima accordingly.
+    """
+    # Determine highest peak
+    max_peak = 0
+    for pdf in pdfs.values():
+        px_max = pdf.px.max()
+        max_peak = px_max if px_max > max_peak else max_peak
+
+    # Scale
+    scale = height / max_peak
+
+    # Loop through PDFs
+    for i, (name, pdf) in enumerate(pdfs.items()):
+        # Plot PDF
+        plot_pdf_filled(fig, ax, pdf, offset=i, scale=scale)
+
+        # Plot confidence range if available
+        if name in conf_ranges.keys():
+            plot_pdf_confidence_range(fig, ax, pdf, conf_ranges[name],
+                                      offset=i, scale=scale, incl_label=False)
+
     ax.legend()
 
 
@@ -264,6 +313,8 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
     # Label axes
     format_marker_plot(fig, ax, marker)
 
+    # Set title
+    ax.set_title("Displacement-Age History")
 
 
 # end of file

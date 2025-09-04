@@ -10,7 +10,6 @@ from riser.probability_functions.analytics import CONFIDENCE_FUNCTIONS
 
 
 # Import modules
-import os
 import argparse
 
 import matplotlib.pyplot as plt
@@ -140,11 +139,14 @@ def main():
                                                    verbose=inps.verbose)
 
     # Save PDF to file
-    pdf_readers.save_pdf(f"{inps.output_prefix}_slip_rate.txt", slip_rate,
+    rate_outname = f"{inps.output_prefix}_{slip_rate.name}_slip_rate.txt"
+    pdf_readers.save_pdf(rate_outname, slip_rate,
                          verbose=inps.verbose)
 
     # Compute PDF statistics
     pdf_stats = analytics.PDFstatistics(slip_rate)
+    if inps.verbose == True:
+        print(pdf_stats)
 
     # Retrieve confidence range function
     conf_fcn = analytics.get_confidence_function(inps.confidence_method,
