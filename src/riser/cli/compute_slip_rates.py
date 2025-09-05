@@ -122,6 +122,7 @@ def main():
         'label': True,
     }
     plotting.plot_markers(**plot_args)
+    marker_fig.tight_layout()
 
     # Scale input units to output units
     for marker in markers.values():

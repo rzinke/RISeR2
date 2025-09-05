@@ -12,26 +12,57 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+from riser import variable_types, units
 from riser.probability_functions import PDF, analytics
 from riser.sampling import filtering
 from riser.markers import DatedMarker
 
 
 #################### GENERAL LABELING ####################
-def formulate_axis_label(pdf:PDF) -> str:
-    """Formulate an axis label from PDF metadata in a standardized manner.
+def formulate_axis_label(variable_type:str, unit:str) -> str:
+    """Formulate an axis label in a standardized manner.
 
     Args    pdf - PDF from which to draw the metadata
     Returns ax_label - str, standardized axis label
     """
     # Set variable type if available
-    ax_label = f"{pdf.variable_type.capitalize()} " \
-            if pdf.variable_type is not None else ""
+    ax_label = f"{variable_type.capitalize()} " \
+            if variable_type is not None else ""
 
     # Add unit if available
-    ax_label += f"({pdf.unit})" if pdf.unit is not None else ""
+    ax_label += f"({unit})" if unit is not None else ""
 
     return ax_label
+
+
+def formulate_axis_label_from_pdf(pdf:PDF) -> str:
+    """Formulate an axis label from PDF metadata in a standardized manner.
+
+    Args    pdf - PDF from which to draw the metadata
+    Returns ax_label - str, standardized axis label
+    """
+    # Set variable type
+    variable_type = pdf.variable_type
+
+    # Set unit
+    unit = pdf.unit
+
+    return formulate_axis_label(variable_type, unit)
+
+
+def formulate_axis_label_from_pdfs(pdfs:list[PDF]) -> str:
+    """Formulate an axis label from PDF metadata in a standardized manner.
+
+    Args    pdfs - list[PDF], PDFs from which to draw the metadata
+    Returns ax_label - str, standardized axis label
+    """
+    # Set variable type
+    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
+
+    # Set unit
+    unit = units.check_same_pdf_units(pdfs)
+
+    return formulate_axis_label(variable_type, unit)
 
 
 #################### PDF PLOTTING ####################
@@ -83,7 +114,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
     ax.set_title(title)
 
     # Set value label
-    ax.set_xlabel(formulate_axis_label(pdf))
+    ax.set_xlabel(formulate_axis_label_from_pdf(pdf))
 
     # Set probability density label
     ax.set_ylabel("Probability density")
@@ -145,7 +176,11 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
             plot_pdf_confidence_range(fig, ax, pdf, conf_ranges[name],
                                       offset=i, scale=scale, incl_label=False)
 
+    # Format plot
     ax.legend()
+    ax.set_xlabel(formulate_axis_label_from_pdfs([*pdfs.values()]))
+    ax.set_yticks([])
+    ax.set_ylabel("Rel probability density")
 
 
 #################### CDF PLOTTING ####################
@@ -219,11 +254,8 @@ def format_marker_plot(fig, ax, marker:DatedMarker):
     """Add axis labels, formulated in the standardized manner.
     """
     # Label axes
-    ax.set_xlabel(formulate_axis_label(marker.age))
-    ax.set_ylabel(formulate_axis_label(marker.displacement))
-
-    # Format figure
-    fig.tight_layout()
+    ax.set_xlabel(formulate_axis_label_from_pdf(marker.age))
+    ax.set_ylabel(formulate_axis_label_from_pdf(marker.displacement))
 
 
 def plot_marker_whisker(

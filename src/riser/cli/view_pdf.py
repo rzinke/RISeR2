@@ -64,7 +64,7 @@ def cmd_parser(iargs=None):
         help="Output file.")
     output_args.add_argument('--no-show', dest='no_show',
         action='store_true',
-        help="Forego showing plot")
+        help="Forego showing plot.")
 
     return parser.parse_args(args=iargs)
 

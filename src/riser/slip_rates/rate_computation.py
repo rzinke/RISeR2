@@ -131,4 +131,16 @@ def compute_slip_rates_analytical(
     return slip_rates
 
 
+#################### MONTE CARLO COMPUTATION ####################
+def sample_monte_carlo(markers:dict, criterion, n_samples:int=10000,
+                       verbose=False):
+    """This method uses the inverse transform sampling method to randomly
+    sample the displacement and age PDFs constraining a DatedMarker.
+    The random samples are checked against a criterion, e.g., "no negative
+    slip rates".
+    """
+
+    return
+
+
 # end of file
