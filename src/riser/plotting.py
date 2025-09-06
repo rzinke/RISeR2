@@ -12,26 +12,57 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+from riser import variable_types, units
 from riser.probability_functions import PDF, analytics
 from riser.sampling import filtering
 from riser.markers import DatedMarker
 
 
 #################### GENERAL LABELING ####################
-def formulate_axis_label(pdf:PDF) -> str:
-    """Formulate an axis label from PDF metadata in a standardized manner.
+def formulate_axis_label(variable_type:str, unit:str) -> str:
+    """Formulate an axis label in a standardized manner.
 
     Args    pdf - PDF from which to draw the metadata
     Returns ax_label - str, standardized axis label
     """
     # Set variable type if available
-    ax_label = f"{pdf.variable_type.capitalize()} " \
-            if pdf.variable_type is not None else ""
+    ax_label = f"{variable_type.capitalize()} " \
+            if variable_type is not None else ""
 
     # Add unit if available
-    ax_label += f"({pdf.unit})" if pdf.unit is not None else ""
+    ax_label += f"({unit})" if unit is not None else ""
 
     return ax_label
+
+
+def formulate_axis_label_from_pdf(pdf:PDF) -> str:
+    """Formulate an axis label from PDF metadata in a standardized manner.
+
+    Args    pdf - PDF from which to draw the metadata
+    Returns ax_label - str, standardized axis label
+    """
+    # Set variable type
+    variable_type = pdf.variable_type
+
+    # Set unit
+    unit = pdf.unit
+
+    return formulate_axis_label(variable_type, unit)
+
+
+def formulate_axis_label_from_pdfs(pdfs:list[PDF]) -> str:
+    """Formulate an axis label from PDF metadata in a standardized manner.
+
+    Args    pdfs - list[PDF], PDFs from which to draw the metadata
+    Returns ax_label - str, standardized axis label
+    """
+    # Set variable type
+    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
+
+    # Set unit
+    unit = units.check_same_pdf_units(pdfs)
+
+    return formulate_axis_label(variable_type, unit)
 
 
 #################### PDF PLOTTING ####################
@@ -45,15 +76,11 @@ def plot_pdf_line(fig, ax, pdf:PDF,
             color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
+def plot_pdf_filled(fig, ax, pdf:PDF,
+                    color:str="black", linewidth:int=2,
+                    offset:float=0, scale:float=1, alpha=0.3):
     """Filled plot of a probability density function (PDF).
     """
-    # Parse args
-    color = kwargs.get('color', "black")
-    linewidth = kwargs.get('linewidth', 2)
-    offset = kwargs.get('offset', 0)
-    scale = kwargs.get('scale', 1)
-
     # Plot filled PDF
     ax.fill_between(pdf.x, scale * pdf.px + offset, y2=offset,
                     color=color, alpha=alpha)
@@ -64,35 +91,35 @@ def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
                   offset=offset, scale=scale)
 
 
-def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
+def plot_pdf_labeled(fig, ax, pdf:PDF,
+                     color:str="black", linewidth:int=2,
+                     offset:float=0, scale:float=1, alpha:float=0.3):
     """Labeled plot of a PDF.
     """
     # Plot filled PDF
-    plot_args = {
-        'fig': fig,
-        'ax': ax,
-        'pdf': pdf,
-        'color': kwargs.get('color', "black"),
-        'linewidth': kwargs.get('linewidth', 2),
-        'alpha': kwargs.get('alpha', 0.3)
-    }
-    plot_pdf_filled(**plot_args)
+    plot_pdf_filled(fig, ax, pdf, color, linewidth, offset, scale, alpha)
 
     # Set title
     title = pdf.name if pdf.name is not None else "PDF"
     ax.set_title(title)
 
     # Set value label
-    ax.set_xlabel(formulate_axis_label(pdf))
+    ax.set_xlabel(formulate_axis_label_from_pdf(pdf))
 
     # Set probability density label
-    ax.set_ylabel("Probability density")
+    if all([offset == 0, scale == 0]):
+        # y-values are probability density
+        ax.set_ylabel("Probability density")
+    else:
+        # y-values are scaled and/or shifted: the exact value is meaningless
+        ax.set_yticks([])
+        ax.set_ylabel("Rel probability density")
 
 
 # PDF Confidence
 def plot_pdf_confidence_range(
         fig, ax, pdf:PDF, conf_range:analytics.ConfidenceRange,
-        color="royalblue", alpha=0.3, offset:float=0, scale:float=1,
+        color:str="royalblue", offset:float=0, scale:float=1, alpha:float=0.3,
         incl_label:bool=False):
     """Plot confidence ranges as fields overlying a PDF.
     """
@@ -125,6 +152,12 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
     and scale the other PDF maxima accordingly.
+
+    Args    fig, ax - figure and axis on which to plot
+            pdfs - dict, PDFs stored by PDF name
+            conf_ranges - dict, ConfidenceRanges stored by PDF name
+            height - float, height of hightest PDF peak relative to line
+                spacing
     """
     # Determine highest peak
     max_peak = 0
@@ -145,7 +178,11 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
             plot_pdf_confidence_range(fig, ax, pdf, conf_ranges[name],
                                       offset=i, scale=scale, incl_label=False)
 
-    ax.legend()
+    # Format plot
+    ax.legend(loc="upper right")
+    ax.set_xlabel(formulate_axis_label_from_pdfs([*pdfs.values()]))
+    ax.set_yticks([])
+    ax.set_ylabel("Rel probability density")
 
 
 #################### CDF PLOTTING ####################
@@ -157,13 +194,10 @@ def plot_cdf_line(fig, ax, pdf:PDF,
     ax.plot(pdf.x, pdf.Px, color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_cdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
+def plot_cdf_filled(fig, ax, pdf:PDF,
+                    color="black", linewidth=2, alpha:float=0.3):
     """Filled plot of a cumulative distribution function (CDF).
     """
-    # Parse args
-    color = kwargs.get('color', "black")
-    linewidth = kwargs.get('linewidth', 2)
-
     # Plot filled PDF
     ax.fill_between(pdf.x, pdf.Px, color=color, alpha=alpha)
 
@@ -171,19 +205,13 @@ def plot_cdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
     plot_cdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
 
 
-def plot_cdf_labeled(fig, ax, pdf:PDF, **kwargs):
+def plot_cdf_labeled(fig, ax, pdf:PDF,
+                     color="black", linewidth=2, alpha:float=0.3):
     """Labeled plot of a CDF.
     """
     # Plot filled CDF
-    plot_args = {
-        'fig': fig,
-        'ax': ax,
-        'pdf': pdf,
-        'color': kwargs.get('color', "black"),
-        'linewidth': kwargs.get('linewidth', 2),
-        'alpha': kwargs.get('alpha', 0.3)
-    }
-    plot_cdf_filled(**plot_args)
+    plot_cdf_filled(fig, ax, pdf,
+                    color=color, linewidth=linewidth, alpha=alpha)
 
     # Set title
     title = pdf.name if pdf.name is not None else "CDF"
@@ -219,16 +247,13 @@ def format_marker_plot(fig, ax, marker:DatedMarker):
     """Add axis labels, formulated in the standardized manner.
     """
     # Label axes
-    ax.set_xlabel(formulate_axis_label(marker.age))
-    ax.set_ylabel(formulate_axis_label(marker.displacement))
-
-    # Format figure
-    fig.tight_layout()
+    ax.set_xlabel(formulate_axis_label_from_pdf(marker.age))
+    ax.set_ylabel(formulate_axis_label_from_pdf(marker.displacement))
 
 
 def plot_marker_whisker(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="royalblue", label=False):
+        color="royalblue", zorder=1, label=False):
     """Plot a dated marker as a cross.
     """
     # Compute confidence limits
@@ -245,7 +270,8 @@ def plot_marker_whisker(
     disp_err = [[disp_mode - disp_vals[0]], [disp_vals[1] - disp_mode]]
 
     # Plot marker
-    ax.errorbar(age_mode, disp_mode, xerr=age_err, yerr=disp_err, color=color)
+    ax.errorbar(age_mode, disp_mode, xerr=age_err, yerr=disp_err,
+                color=color, zorder=zorder)
 
     # Label if requested
     if label == True:
@@ -254,7 +280,7 @@ def plot_marker_whisker(
 
 def plot_marker_rectangle(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="royalblue", label=False):
+        color="royalblue", zorder=1, label=False):
     """Plot a dated marker as a rectangle.
     """
     # Compute confidence limits
@@ -272,7 +298,7 @@ def plot_marker_rectangle(
 
     # Plot rectangle
     ax.add_patch(Rectangle((box_x, box_y), box_width, box_height,
-                 edgecolor=color, fill=False))
+                 edgecolor=color, fill=False, zorder=zorder))
 
     # Label if requested
     if label == True:
@@ -303,6 +329,7 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
             'marker': marker,
             'confidence': kwargs.get('confidence', Psigma['2']),
             'color': kwargs.get('color', "royalblue"),
+            'zorder': kwargs.get('zorder', 1),
             'label': kwargs.get('label', False),
         }
         plotter(**plot_args)
@@ -315,6 +342,20 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
 
     # Set title
     ax.set_title("Displacement-Age History")
+
+
+#################### SAMPLE PLOTTING ####################
+def plot_mc_picks(fig, ax, age_picks:np.ndarray, disp_picks:np.ndarray,
+                  max_picks:int=500):
+    """Plot valid displacement-age picks.
+    """
+    # Plot lines connecting points
+    ax.plot(age_picks[:,:max_picks], disp_picks[:,:max_picks],
+            color="k", alpha=0.1, zorder=1)
+
+    # Plot pick values
+    ax.scatter(age_picks[:,:max_picks], disp_picks[:,:max_picks], s=2**2,
+               color="b", alpha=0.1, zorder=2)
 
 
 # end of file

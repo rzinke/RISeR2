@@ -4,7 +4,10 @@
 # (c) 2025 all rights reserved
 
 # Constants
-
+PDF_FORMATION_METHODS = [
+    "histogram",
+    "kde",
+]
 
 # Import modules
 import numpy as np
@@ -119,6 +122,28 @@ def samples_to_pdf_kde(samples:np.ndarray,
     pdf = PDF(**pdf_args)
 
     return pdf
+
+
+def get_pdf_formation_function(method:str, verbose=False):
+    """Retrieve a PDF formation function by name.
+    """
+    # Format method input
+    method = method.lower()
+
+    # Check that method is valid
+    if method not in PDF_FORMATION_METHODS:
+        raise ValueError(f"Method {method} not supported. "
+                         f"Must be one of {', '.join(PDF_FORMATION_METHODS)}")
+
+    # Report if requested
+    if verbose == True:
+        print(f"PDF formation method: {method}")
+
+    # Return method
+    if method == "histogram":
+        return samples_to_pdf_histogram
+    elif method == "kde":
+        return samples_to_pdf_kde
 
 
 # end of file

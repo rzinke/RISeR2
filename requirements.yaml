@@ -7,3 +7,4 @@ dependencies:
   - python>=3.13
   - scipy
   - toml
+  - tqdm
