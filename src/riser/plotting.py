@@ -260,7 +260,7 @@ def format_marker_plot(fig, ax, marker:DatedMarker):
 
 def plot_marker_whisker(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="royalblue", label=False):
+        color="royalblue", zorder=1, label=False):
     """Plot a dated marker as a cross.
     """
     # Compute confidence limits
@@ -277,7 +277,8 @@ def plot_marker_whisker(
     disp_err = [[disp_mode - disp_vals[0]], [disp_vals[1] - disp_mode]]
 
     # Plot marker
-    ax.errorbar(age_mode, disp_mode, xerr=age_err, yerr=disp_err, color=color)
+    ax.errorbar(age_mode, disp_mode, xerr=age_err, yerr=disp_err,
+                color=color, zorder=zorder)
 
     # Label if requested
     if label == True:
@@ -286,7 +287,7 @@ def plot_marker_whisker(
 
 def plot_marker_rectangle(
         fig, ax, marker:DatedMarker, confidence:float=Psigma['2'],
-        color="royalblue", label=False):
+        color="royalblue", zorder=1, label=False):
     """Plot a dated marker as a rectangle.
     """
     # Compute confidence limits
@@ -304,7 +305,7 @@ def plot_marker_rectangle(
 
     # Plot rectangle
     ax.add_patch(Rectangle((box_x, box_y), box_width, box_height,
-                 edgecolor=color, fill=False))
+                 edgecolor=color, fill=False, zorder=zorder))
 
     # Label if requested
     if label == True:
@@ -335,6 +336,7 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
             'marker': marker,
             'confidence': kwargs.get('confidence', Psigma['2']),
             'color': kwargs.get('color', "royalblue"),
+            'zorder': kwargs.get('zorder', 1),
             'label': kwargs.get('label', False),
         }
         plotter(**plot_args)
@@ -347,6 +349,20 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
 
     # Set title
     ax.set_title("Displacement-Age History")
+
+
+#################### SAMPLE PLOTTING ####################
+def plot_mc_picks(fig, ax, age_picks:np.ndarray, disp_picks:np.ndarray,
+                  max_picks:int=500):
+    """Plot valid displacement-age picks.
+    """
+    # Plot lines connecting points
+    ax.plot(age_picks[:,:max_picks], disp_picks[:,:max_picks],
+            color="k", alpha=0.1, zorder=1)
+
+    # Plot pick values
+    ax.scatter(age_picks[:,:max_picks], disp_picks[:,:max_picks], s=2**2,
+               color="b", alpha=0.1, zorder=2)
 
 
 # end of file

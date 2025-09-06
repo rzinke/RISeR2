@@ -55,7 +55,7 @@ def pass_nonnegative_bounded(ages, displacements, **kwargs) -> bool:
 
     # Check condition
     if all([age_diffs.min() > 0, disp_diffs.min() >= 0,
-            slip_rates.max() <= kwargs.get('max_rate')]):
+            slip_rates.max() <= kwargs.get('max_rate', np.inf)]):
         return True
     else:
         return False
@@ -83,8 +83,8 @@ def get_sample_criterion(criterion_name:str, verbose=False):
 
 #################### MONTE CARLO SAMPLING ####################
 def sample_monte_carlo(markers:dict, criterion:"function",
-                       n_samples:int=10000, max_rate:float=100, seed_val:int=0,
-                       hard_stop:int=1000000000, verbose=False) -> \
+                       n_samples:int=10000, seed_val:int=0,
+                       hard_stop:int=1000000000, verbose=False, **kwargs) -> \
                        (np.ndarray, np.ndarray):
     """This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
@@ -134,7 +134,7 @@ def sample_monte_carlo(markers:dict, criterion:"function",
             disp_samps[j] = markers[name].displacement.pit(r_disps[j])
 
         # Check samples against condition
-        if criterion(age_samps, disp_samps, max_rate=max_rate) == True:
+        if criterion(age_samps, disp_samps, **kwargs) == True:
             # Condition met, record valid samples
             age_picks[:,successes] = age_samps
             disp_picks[:,successes] = disp_samps
