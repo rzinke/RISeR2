@@ -6,7 +6,7 @@
 
 # Constants
 from riser.constants import Psigma
-from riser.probability_functions.analytics import CONFIDENCE_FUNCTIONS
+from riser.probability_functions.analytics import PDF_CONFIDENCE_METRICS
 
 
 # Import modules
@@ -70,8 +70,8 @@ def cmd_parser(iargs=None):
     # Reporting
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
-        '--confidence-method', dest='confidence_method',
-        type=str, choices=CONFIDENCE_FUNCTIONS, default="HPD",
+        '--confidence-metric', dest='confidence_metric',
+        type=str, choices=PDF_CONFIDENCE_METRICS, default="HPD",
         help="Function for computing function confidence. [HPD]")
     reporting_args.add_argument(
         '--confidence-limits', dest='confidence_limits',
@@ -158,8 +158,8 @@ def main():
             print(pdf_stats[marker_pair])
 
     # Retrieve confidence range function
-    conf_fcn = analytics.get_confidence_function(inps.confidence_method,
-                                                 verbose=inps.verbose)
+    conf_fcn = analytics.get_pdf_confidence_function(inps.confidence_metric,
+                                                     verbose=inps.verbose)
 
     # Compute confidence ranges
     conf_ranges = {}

@@ -76,15 +76,11 @@ def plot_pdf_line(fig, ax, pdf:PDF,
             color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
+def plot_pdf_filled(fig, ax, pdf:PDF,
+                    color:str="black", linewidth:int=2,
+                    offset:float=0, scale:float=1, alpha=0.3):
     """Filled plot of a probability density function (PDF).
     """
-    # Parse args
-    color = kwargs.get('color', "black")
-    linewidth = kwargs.get('linewidth', 2)
-    offset = kwargs.get('offset', 0)
-    scale = kwargs.get('scale', 1)
-
     # Plot filled PDF
     ax.fill_between(pdf.x, scale * pdf.px + offset, y2=offset,
                     color=color, alpha=alpha)
@@ -95,19 +91,13 @@ def plot_pdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
                   offset=offset, scale=scale)
 
 
-def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
+def plot_pdf_labeled(fig, ax, pdf:PDF,
+                     color:str="black", linewidth:int=2,
+                     offset:float=0, scale:float=1, alpha:float=0.3):
     """Labeled plot of a PDF.
     """
     # Plot filled PDF
-    plot_args = {
-        'fig': fig,
-        'ax': ax,
-        'pdf': pdf,
-        'color': kwargs.get('color', "black"),
-        'linewidth': kwargs.get('linewidth', 2),
-        'alpha': kwargs.get('alpha', 0.3)
-    }
-    plot_pdf_filled(**plot_args)
+    plot_pdf_filled(fig, ax, pdf, color, linewidth, offset, scale, alpha)
 
     # Set title
     title = pdf.name if pdf.name is not None else "PDF"
@@ -117,13 +107,19 @@ def plot_pdf_labeled(fig, ax, pdf:PDF, **kwargs):
     ax.set_xlabel(formulate_axis_label_from_pdf(pdf))
 
     # Set probability density label
-    ax.set_ylabel("Probability density")
+    if all([offset == 0, scale == 0]):
+        # y-values are probability density
+        ax.set_ylabel("Probability density")
+    else:
+        # y-values are scaled and/or shifted: the exact value is meaningless
+        ax.set_yticks([])
+        ax.set_ylabel("Rel probability density")
 
 
 # PDF Confidence
 def plot_pdf_confidence_range(
         fig, ax, pdf:PDF, conf_range:analytics.ConfidenceRange,
-        color="royalblue", alpha=0.3, offset:float=0, scale:float=1,
+        color:str="royalblue", offset:float=0, scale:float=1, alpha:float=0.3,
         incl_label:bool=False):
     """Plot confidence ranges as fields overlying a PDF.
     """
@@ -156,6 +152,12 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
     and scale the other PDF maxima accordingly.
+
+    Args    fig, ax - figure and axis on which to plot
+            pdfs - dict, PDFs stored by PDF name
+            conf_ranges - dict, ConfidenceRanges stored by PDF name
+            height - float, height of hightest PDF peak relative to line
+                spacing
     """
     # Determine highest peak
     max_peak = 0
@@ -177,7 +179,7 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
                                       offset=i, scale=scale, incl_label=False)
 
     # Format plot
-    ax.legend()
+    ax.legend(loc="upper right")
     ax.set_xlabel(formulate_axis_label_from_pdfs([*pdfs.values()]))
     ax.set_yticks([])
     ax.set_ylabel("Rel probability density")
@@ -192,13 +194,10 @@ def plot_cdf_line(fig, ax, pdf:PDF,
     ax.plot(pdf.x, pdf.Px, color=color, linewidth=linewidth, label=pdf.name)
 
 
-def plot_cdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
+def plot_cdf_filled(fig, ax, pdf:PDF,
+                    color="black", linewidth=2, alpha:float=0.3):
     """Filled plot of a cumulative distribution function (CDF).
     """
-    # Parse args
-    color = kwargs.get('color', "black")
-    linewidth = kwargs.get('linewidth', 2)
-
     # Plot filled PDF
     ax.fill_between(pdf.x, pdf.Px, color=color, alpha=alpha)
 
@@ -206,19 +205,13 @@ def plot_cdf_filled(fig, ax, pdf:PDF, alpha=0.3, **kwargs):
     plot_cdf_line(fig, ax, pdf, color=color, linewidth=linewidth)
 
 
-def plot_cdf_labeled(fig, ax, pdf:PDF, **kwargs):
+def plot_cdf_labeled(fig, ax, pdf:PDF,
+                     color="black", linewidth=2, alpha:float=0.3):
     """Labeled plot of a CDF.
     """
     # Plot filled CDF
-    plot_args = {
-        'fig': fig,
-        'ax': ax,
-        'pdf': pdf,
-        'color': kwargs.get('color', "black"),
-        'linewidth': kwargs.get('linewidth', 2),
-        'alpha': kwargs.get('alpha', 0.3)
-    }
-    plot_cdf_filled(**plot_args)
+    plot_cdf_filled(fig, ax, pdf,
+                    color=color, linewidth=linewidth, alpha=alpha)
 
     # Set title
     title = pdf.name if pdf.name is not None else "CDF"

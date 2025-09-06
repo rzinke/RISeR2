@@ -6,7 +6,6 @@
 
 # Constants
 from riser.constants import Psigma
-from riser.probability_functions.analytics import CONFIDENCE_FUNCTIONS
 
 
 # Import modules
@@ -91,16 +90,16 @@ def main():
                 marker.displacement, inps.displacement_unit_out)
 
     # Initialize figure and axis for input markers
-    if inps.show_marginals == False:
-        # Standard single-axis figure
-        fig, marker_ax = plt.subplots()
-
-    else:
+    if inps.show_marginals == True:
         # Three-part figure with marginal distributions
         fig = plt.figure()
         marker_ax = fig.add_subplot(position=(0.32, 0.32, 0.60, 0.60))
         age_ax = fig.add_subplot(position=(0.32, 0.05, 0.60, 0.15))
         disp_ax = fig.add_subplot(position=(0.05, 0.32, 0.15, 0.60))
+    else:
+        # Standard single-axis figure
+        fig, marker_ax = plt.subplots()
+
 
     # Plot markers
     plot_args = {
@@ -113,14 +112,19 @@ def main():
     plotting.plot_markers(**plot_args)
 
     # Plot marginal distributions
-    for name, marker in markers.items():
-        # Plot age
-        age_ax.fill_between(marker.age.x, marker.age.px,
-                            color="dimgrey", alpha=0.3)
+    if inps.show_marginals == True:
+        for name, marker in markers.items():
+            # Plot age
+            age_ax.fill_between(marker.age.x, marker.age.px,
+                                color="dimgrey", alpha=0.3)
 
-        # Plot displacement
-        disp_ax.fill(marker.displacement.px, marker.displacement.x,
-                             color="dimgrey", alpha=0.3)
+            # Plot displacement
+            disp_ax.fill(marker.displacement.px, marker.displacement.x,
+                                 color="dimgrey", alpha=0.3)
+
+            # Adjust main axis limits
+            marker_ax.set_xlim(age_ax.get_xlim())
+            marker_ax.set_ylim(disp_ax.get_ylim())
 
     # Save figure to file
     if inps.outname is not None:

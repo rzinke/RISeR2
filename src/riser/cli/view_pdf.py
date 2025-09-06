@@ -91,8 +91,8 @@ def main():
     # Compute and plot confidence range
     if inps.show_confidence == True:
         # Retrieve confidence range function
-        conf_fcn = analytics.get_confidence_function(inps.confidence_method,
-                                                     verbose=inps.verbose)
+        conf_fcn = analytics.get_pdf_confidence_function(
+                inps.confidence_method, verbose=inps.verbose)
 
         # Compute confidence range
         conf_range = conf_fcn(pdf, inps.confidence_limits)

@@ -66,9 +66,9 @@ def get_sample_criterion(criterion_name:str, verbose=False):
     """
     # Format criterion name
     formatted_name = criterion_name.lower()
+    formatted_name = formatted_name.replace("pass", "")
     formatted_name = formatted_name.replace("-", "")
     formatted_name = formatted_name.replace("_", "")
-    formatted_name = formatted_name.lstrip("pass")
 
     # Return criterion object
     if formatted_name in ["all"]:
@@ -78,7 +78,7 @@ def get_sample_criterion(criterion_name:str, verbose=False):
     elif formatted_name in ["nonnegativebounded"]:
         return pass_nonnegative_bounded
     else:
-        raise ValueError(f"Criterion name {criterion_name} not recognized.")
+        raise ValueError(f"Criterion name '{criterion_name}' not recognized.")
 
 
 #################### MONTE CARLO SAMPLING ####################

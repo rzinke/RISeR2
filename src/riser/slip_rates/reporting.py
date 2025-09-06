@@ -8,6 +8,8 @@
 import os
 from datetime import datetime
 
+import numpy as np
+
 from riser.probability_functions import analytics
 
 
@@ -76,10 +78,33 @@ def save_slip_rate_fig(output_prefix:str, rate_fig, verbose=False):
         print(f"Saved slip rate figure to: {os.path.abspath(outname)}")
 
 
+#################### MC PICKS SAVING ####################
+def write_picks_to_file(output_prefix:str,
+                        age_picks:np.ndarray,
+                        disp_picks:np.ndarray,
+                        rate_picks:np.ndarray,
+                        verbose=False):
+    """Save all valid samples (picks) to a numpy binary file (npz).
+    """
+    # Formulate outname
+    outname = f"{output_prefix}_picks"
+
+    # Save to file
+    np.savez(outname,
+             age_picks=age_picks,
+             disp_picks=disp_picks,
+             rate_picks=rate_picks)
+
+    # Report if requested
+    if verbose == True:
+        print(f"Saved MC picks to: {os.path.abspath(outname)}.npz")
+
+
 #################### SLIP RATE SUMMARY REPORTS ####################
 def write_slip_rates_report(output_prefix:str,
                             formulation:str,
                             slip_rates:dict,
+                            sample_statistics:dict=None,
                             pdf_statistics:dict=None,
                             confidence_ranges:dict=None,
                             verbose=False):
@@ -91,6 +116,12 @@ def write_slip_rates_report(output_prefix:str,
         slip rate confidence intervals
     """
     # Check that slip rate statistical products pertain to same pairs
+    if sample_statistics is not None:
+        if sample_statistics.keys() != slip_rates.keys():
+            raise ValueError("One SampleStatistics object must be provided "
+                             "for each slip rate")
+
+
     if pdf_statistics is not None:
         if pdf_statistics.keys() != slip_rates.keys():
             raise ValueError("One PDFstatistics object must be provided for "
@@ -114,6 +145,10 @@ def write_slip_rates_report(output_prefix:str,
         for marker_pair in slip_rates.keys():
             # Breathe
             outfile.write("\n\n")
+
+            # Write sample statistics
+            if sample_statistics is not None:
+                outfile.write(str(sample_statistics[marker_pair]))
 
             # Write PDF statistics
             if pdf_statistics is not None:
