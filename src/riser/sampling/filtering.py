@@ -26,7 +26,7 @@ later.
 # Constants
 FILTER_TYPES = [
     'mean',
-    'gauss',
+    'gaussian',
 ]
 
 
@@ -87,7 +87,7 @@ class GaussFilter(FIRFilter):
     """Gauss filter.
     For small values, this will look similar to a triangle.
     """
-    filter_type = "gauss"
+    filter_type = "gaussian"
 
     def __init__(self, width:int):
         """Width is the total width.
@@ -115,13 +115,14 @@ def get_filter_by_name(filter_type:str, verbose=False):
     # Return filter class
     if filter_type == "mean":
         return MeanFilter
-    elif filter_type == "gauss":
+    elif filter_type == "gaussian":
         return GaussFilter
 
 
 #################### FILTER APPLICATION ####################
 def filter_pdf(pdf:PDF, filter_type:str, filter_width:int,
-               edge_padding:str='zeros', verbose=False) -> PDF:
+               padding:str='zeros', preserve_edges:bool=False,
+               verbose=False) -> PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.
 
@@ -146,14 +147,30 @@ def filter_pdf(pdf:PDF, filter_type:str, filter_width:int,
     w2 = filter_width // 2
 
     # Pad PDF
-    edge_padding = 'constant' if 'zero' in edge_padding else edge_padding
-    px = np.pad(pdf.px, (w2, w2), edge_padding)
+    padding = 'constant' if 'zero' in padding else padding
+    px = np.pad(pdf.px, (w2, w2), padding)
 
     # Apply filter to PDF
     px = sp.signal.convolve(px, filt.h, 'same')
 
     # Trim padding
     px = px[w2:-w2]
+
+    # Preserve edges if requested
+    if preserve_edges == True:
+        # Loop through edge values (output-side convolution)
+        for i in range(w2):
+            # Edge filter width
+            w_edge = 2*i + 1
+
+            # Re-formulate filter
+            edge_filt = get_filter_by_name(filter_type)(w_edge)
+
+            # Apply filter to front edge
+            px[i] = np.sum(pdf.px[:w_edge] * edge_filt.h)
+
+            # Apply filter to back edge
+            px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
     # Form results into PDF
     pdf_args = {

@@ -69,8 +69,8 @@ def cmd_parser(iargs=None):
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
     smoothing_args.add_argument('--smoothing-type', dest='smoothing_type',
-        type=str, choices=FILTER_TYPES, default="gauss",
-        help="Smoothing filter type. [gauss]")
+        type=str, choices=FILTER_TYPES,
+        help="Smoothing filter type. [None]")
     smoothing_args.add_argument('--smoothing-width', dest='smoothing_width',
         type=int, default=0,
         help="Smoothing kernel width. [0]")
