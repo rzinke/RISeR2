@@ -3,8 +3,7 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-
-# Supported functions
+# Constants
 PARAMETRIC_FUNCTIONS = [
     'boxcar',
     'triangular',
@@ -20,7 +19,8 @@ import scipy as sp
 
 #################### BOXCAR FUNCTIONS ####################
 def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
-    """ Boxcar function with unit area. """
+    """Boxcar function with unit area.
+    """
     # Number of data points
     n = len(x)
 
@@ -40,7 +40,8 @@ def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
 #################### TRIANGULAR FUNCTIONS ####################
 def triangular(
         x:np.ndarray, xmin:float, xmode:float, xmax:float) -> np.ndarray:
-    """ Triangular function with unit area. """
+    """Triangular function with unit area.
+    """
     # Number of data points
     n = len(x)
 
@@ -72,7 +73,8 @@ def triangular(
 #################### TRAPEZOIDAL FUNCTIONS ####################
 def trapezoidal(
         x:np.ndarray, x1:float, x2:float, x3:float, x4:float) -> np.ndarray:
-    """ Trapezoidal function with unit area. """
+    """Trapezoidal function with unit area.
+    """
     # Number of data points
     n = len(x)
 
@@ -103,7 +105,8 @@ def trapezoidal(
 
 #################### GAUSSIAN FUNCTIONS ####################
 def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
-    """ Gaussian function with unit area. """
+    """Gaussian function with unit area.
+    """
     a = 1 / (sigma * np.sqrt(2 * np.pi))
     f = np.exp(-0.5 * (x - mu)**2 / sigma**2)
 
@@ -114,7 +117,8 @@ def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
 
 
 def cumulative_gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
-    """ Cumulative Gaussian function with unit area. """
+    """Cumulative Gaussian function with unit area.
+    """
     return 0.5 + 0.5 * sp.special.erf((x - mu) / (np.sqrt(2) * sigma))
 
 

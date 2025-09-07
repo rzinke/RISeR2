@@ -4,19 +4,12 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-from riser.constants import Psigma
-
-
 # Import modules
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers as pdf_readers, analytics
 from riser.markers import readers as marker_readers
-from riser.slip_rates import reporting
 from riser import units, plotting
 
 
