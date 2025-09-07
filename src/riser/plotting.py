@@ -50,7 +50,7 @@ def formulate_axis_label_from_pdf(pdf:PDF) -> str:
     return formulate_axis_label(variable_type, unit)
 
 
-def formulate_axis_label_from_pdfs(pdfs:list[PDF]) -> str:
+def axis_label_from_pdfs(pdfs:list[PDF]) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
     Args    pdfs - list[PDF], PDFs from which to draw the metadata
@@ -68,36 +68,38 @@ def formulate_axis_label_from_pdfs(pdfs:list[PDF]) -> str:
 #################### PDF PLOTTING ####################
 def plot_pdf_line(fig, ax, pdf:PDF,
                   color:str="black", linewidth:int=2,
-                  offset:float=0, scale:float=1):
+                  offset:float=0, scale:float=1, zorder=1):
     """Basic plot of a probability density function (PDF).
     """
     # Plot PDF
     ax.plot(pdf.x, scale * pdf.px + offset,
-            color=color, linewidth=linewidth, label=pdf.name)
+            color=color, linewidth=linewidth, label=pdf.name, zorder=zorder)
 
 
 def plot_pdf_filled(fig, ax, pdf:PDF,
                     color:str="black", linewidth:int=2,
-                    offset:float=0, scale:float=1, alpha=0.3):
+                    offset:float=0, scale:float=1, alpha=0.3, zorder=1):
     """Filled plot of a probability density function (PDF).
     """
     # Plot filled PDF
     ax.fill_between(pdf.x, scale * pdf.px + offset, y2=offset,
-                    color=color, alpha=alpha)
+                    color=color, alpha=alpha, zorder=zorder)
 
     # Plot PDF outline
     plot_pdf_line(fig, ax, pdf,
                   color=color, linewidth=linewidth,
-                  offset=offset, scale=scale)
+                  offset=offset, scale=scale, zorder=zorder)
 
 
 def plot_pdf_labeled(fig, ax, pdf:PDF,
                      color:str="black", linewidth:int=2,
-                     offset:float=0, scale:float=1, alpha:float=0.3):
+                     offset:float=0, scale:float=1, alpha:float=0.3,
+                     zorder=1):
     """Labeled plot of a PDF.
     """
     # Plot filled PDF
-    plot_pdf_filled(fig, ax, pdf, color, linewidth, offset, scale, alpha)
+    plot_pdf_filled(fig, ax, pdf, color, linewidth, offset, scale, alpha,
+                    zorder)
 
     # Set title
     title = pdf.name if pdf.name is not None else "PDF"
@@ -120,7 +122,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF,
 def plot_pdf_confidence_range(
         fig, ax, pdf:PDF, conf_range:analytics.ConfidenceRange,
         color:str="royalblue", offset:float=0, scale:float=1, alpha:float=0.3,
-        incl_label:bool=False):
+        incl_label:bool=False, zorder=1):
     """Plot confidence ranges as fields overlying a PDF.
     """
     # Formulate label
@@ -140,6 +142,7 @@ def plot_pdf_confidence_range(
             'color': color,
             'alpha': alpha,
             'label': label,
+            'zorder': zorder,
         }
         ax.fill_between(**plot_args)
 
@@ -148,7 +151,8 @@ def plot_pdf_confidence_range(
 
 
 # Multi-PDF
-def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
+def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
+                   conf_ranges:dict={}, priors:dict={}):
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
     and scale the other PDF maxima accordingly.
@@ -170,17 +174,24 @@ def plot_pdf_stack(fig, ax, pdfs:dict, conf_ranges:dict={}, height:float=0.9):
 
     # Loop through PDFs
     for i, (name, pdf) in enumerate(pdfs.items()):
+        # Plot prior if available
+        if priors.get(name) is not None:
+            plot_pdf_line(fig, ax, priors.get(name), offset=i, scale=scale,
+                          zorder=1)
+
         # Plot PDF
-        plot_pdf_filled(fig, ax, pdf, offset=i, scale=scale)
+        plot_pdf_filled(fig, ax, pdf, offset=i, scale=scale,
+                        color=colors.get(name), zorder=2)
 
         # Plot confidence range if available
-        if name in conf_ranges.keys():
-            plot_pdf_confidence_range(fig, ax, pdf, conf_ranges[name],
-                                      offset=i, scale=scale, incl_label=False)
+        if conf_ranges.get(name) is not None:
+            plot_pdf_confidence_range(fig, ax, pdf, conf_ranges.get(name),
+                                      offset=i, scale=scale, incl_label=False,
+                                      zorder=3)
 
     # Format plot
     ax.legend(loc="upper right")
-    ax.set_xlabel(formulate_axis_label_from_pdfs([*pdfs.values()]))
+    ax.set_xlabel(axis_label_from_pdfs([*priors.values()] + [*pdfs.values()]))
     ax.set_yticks([])
     ax.set_ylabel("Rel probability density")
 
