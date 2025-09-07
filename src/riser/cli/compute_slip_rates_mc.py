@@ -176,29 +176,31 @@ def main():
     reporting.write_picks_to_file(inps.output_prefix, age_picks, disp_picks,
                                   rate_picks, verbose=inps.verbose)
 
-    # Compute sample statistics
-    sample_stats = {}
-    for i, marker_pair in enumerate(slip_rates.keys()):
-        sample_stats[marker_pair] = \
-                sample_statistics.compute_sample_confidence(
-                    rate_picks[i,:], inps.confidence_limits,
-                    name=marker_pair, unit=slip_rates[marker_pair].unit,
-                    verbose=inps.verbose)
-
-    # Compute PDF statistics
-    pdf_stats = {}
-    for marker_pair, slip_rate in slip_rates.items():
-        pdf_stats[marker_pair] = analytics.PDFstatistics(slip_rate)
-        if inps.verbose == True:
-            print(pdf_stats[marker_pair])
-
     # Retrieve confidence range function
     conf_fcn = analytics.get_pdf_confidence_function(inps.confidence_metric,
                                                      verbose=inps.verbose)
 
-    # Compute confidence ranges
+    # Empty dictionaries for summary statistics
+    sample_stats = {}
+    pdf_stats = {}
     conf_ranges = {}
-    for marker_pair, slip_rate in slip_rates.items():
+
+    # Loop through marker pairs to compute summary statistics
+    for i, (marker_pair, slip_rate) in enumerate(slip_rates.items()):
+        # Compute sample statistics
+        sample_stats[marker_pair] = \
+                sample_statistics.compute_sample_confidence(
+                    rate_picks[i,:], inps.confidence_limits,
+                    name=marker_pair, unit=slip_rates[marker_pair].unit)
+        if inps.verbose == True:
+            print(sample_stats[marker_pair])
+
+        # Compute PDF statistics
+        pdf_stats[marker_pair] = analytics.PDFstatistics(slip_rate)
+        if inps.verbose == True:
+            print(pdf_stats[marker_pair])
+
+        # Compute confidence ranges
         conf_ranges[marker_pair] = conf_fcn(slip_rate, inps.confidence_limits)
         if inps.verbose == True:
             print(conf_ranges[marker_pair])

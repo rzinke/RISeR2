@@ -35,8 +35,8 @@ class SampleStatistics:
         if self.unit is not None:
             print_str += f" ({self.unit})"
 
-        print_str += f"\n{100 * self.confidence:.2f} %"
-        print_str += (f"\n\t({self.range_values[0]:.3f} "
+        print_str += f"\n{100 * self.confidence:.2f} % : "
+        print_str += (f"({self.range_values[0]:.3f} "
                       f"- {self.range_values[1]:.3f})")
 
         return print_str
@@ -58,7 +58,7 @@ def compute_sample_confidence(picks:np.ndarray, confidence:float=Psigma['1'],
     upper = 0.5 + half_confidence
 
     # Determine percentiles
-    range_values = np.percentile(picks, (lower, upper))
+    range_values = np.percentile(picks, (100*lower, 100*upper))
 
     # Format values into SampleStatistics object
     conf_args = {

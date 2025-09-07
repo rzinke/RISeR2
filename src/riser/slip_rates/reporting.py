@@ -148,15 +148,15 @@ def write_slip_rates_report(output_prefix:str,
 
             # Write sample statistics
             if sample_statistics is not None:
-                outfile.write(str(sample_statistics[marker_pair]))
+                outfile.write(str(sample_statistics[marker_pair]) + "\n")
 
             # Write PDF statistics
             if pdf_statistics is not None:
-                outfile.write(str(pdf_statistics[marker_pair]))
+                outfile.write(str(pdf_statistics[marker_pair]) + "\n")
 
             # Write confidence ranges
             if confidence_ranges is not None:
-                outfile.write(str(confidence_ranges[marker_pair]))
+                outfile.write(str(confidence_ranges[marker_pair]) + "\n")
 
     # Report if requested
     if verbose == True:
