@@ -31,9 +31,9 @@ If you are using Windows, it is recommended you set additional environmental var
 ## Top-level Functions and Examples
 RISeR2 provides three command line functions for determining slip rates:
 
-- `compute_slip_rate.py`
-- `compute_slip_rates.py`
-- `compute_slip_rates_mc.py`
+ - `compute_slip_rate.py`
+ - `compute_slip_rates.py`
+ - `compute_slip_rates_mc.py`
 
 Each tool is designed for different scenarios, and to incorporate different assumptions. See [Slip rate determination](#slip-rate-determination).
 
@@ -71,14 +71,16 @@ Data points defining displacement-time history of a fault are encoded as a **`Da
 
 
 ## References
-* Bird, P. (2007), Uncertainties in long-term geologic offset rates of faults: General principles illustrated with data from California and other western states, *Geosphere, 3*, 577–595, https://doi:10.1130/GES00127.1.
-* Gold, R. D., & Cowgill, E. (2011). Deriving fault-slip histories to test for secular variation in slip, with examples from the Kunlun and Awatere faults. *Earth and Planetary Science Letters, 301*, 52–64. https://doi.org/10.1016/j.epsl.2010.10.011
-* Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R., & McGuire, C. P. (2017). Highly variable latest Pleistocene–Holocene incremental slip rates on the Awatere fault at Saxton River, South Island, New Zealand, revealed by lidar mapping and luminescence dating. *Geophysical Research Letters, 44*. https://doi.org/10.1002/2017GL075048
-* Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R., McGuire, C. P., Hatem, A. E., et al. (2019). Multimillennial incremental slip rate variability of the Clarnce fault at the Tophouse Road site, Marlborough Fault System, New Zealand. *Geophysical Research Letters, 46*, 717–725. https://doi.org/10.1029/2018GL080688
-* Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R. J., Hatem, A. E., McGuire, C. P., et al. (2021). Latest Pleistocene–Holocene incremental slip rates of the Wairau fault: Implications for long-distance and long-term coordination of faulting between North and South Island, New Zealand. *Geochemistry, Geophysics, Geosystems, 22*, e2021GC009656. https://doi.org/10.1029/2021GC009656
+ - Bird, P. (2007), Uncertainties in long-term geologic offset rates of faults: General principles illustrated with data from California and other western states, *Geosphere, 3*, 577–595, https://doi:10.1130/GES00127.1.
+ - Gold, R. D., & Cowgill, E. (2011). Deriving fault-slip histories to test for secular variation in slip, with examples from the Kunlun and Awatere faults. *Earth and Planetary Science Letters, 301*, 52–64. https://doi.org/10.1016/j.epsl.2010.10.011
+ - Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R., & McGuire, C. P. (2017). Highly variable latest Pleistocene–Holocene incremental slip rates on the Awatere fault at Saxton River, South Island, New Zealand, revealed by lidar mapping and luminescence dating. *Geophysical Research Letters, 44*. https://doi.org/10.1002/2017GL075048
+ - Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R., McGuire, C. P., Hatem, A. E., et al. (2019). Multimillennial incremental slip rate variability of the Clarnce fault at the Tophouse Road site, Marlborough Fault System, New Zealand. *Geophysical Research Letters, 46*, 717–725. https://doi.org/10.1029/2018GL080688
+ - Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R. J., Hatem, A. E., McGuire, C. P., et al. (2021). Latest Pleistocene–Holocene incremental slip rates of the Wairau fault: Implications for long-distance and long-term coordination of faulting between North and South Island, New Zealand. *Geochemistry, Geophysics, Geosystems, 22*, e2021GC009656. https://doi.org/10.1029/2021GC009656
 
 
 ## Citation
+ - Zinke, R., Dolan, J. F., Rhodes, E. J., Van Dissen, R. J., Hatem, A. E., McGuire, C. P., et al. (2021). Latest Pleistocene–Holocene incremental slip rates of the Wairau fault: Implications for long-distance and long-term coordination of faulting between North and South Island, New Zealand. *Geochemistry, Geophysics, Geosystems, 22*, e2021GC009656. https://doi.org/10.1029/2021GC009656
+ - Zenodo: https://zenodo.org/records/4733235. https://doi.org/10.5281/zenodo.4733235
 
 
 ## Disclaimer
