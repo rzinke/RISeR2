@@ -15,7 +15,7 @@ from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = ("Plot multiple PDFs in a stack.")
+Description = "Plot multiple PDFs in a stack."
 
 Examples = """Examples:
 view_pdf_stack.py pdfs_config.toml
@@ -73,8 +73,6 @@ def main():
 
     # Loop through PDFs in config file
     for pdf_name, pdf_spec in pdf_specs.items():
-        print(pdf_name)
-
         # Check that a PDF file is specified
         if "pdf file" not in pdf_spec.keys():
             raise ValueError("A file name must be associated with each PDF")

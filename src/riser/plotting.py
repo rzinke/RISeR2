@@ -35,7 +35,7 @@ def formulate_axis_label(variable_type:str, unit:str) -> str:
     return ax_label
 
 
-def formulate_axis_label_from_pdf(pdf:PDF) -> str:
+def axis_label_from_pdf(pdf:PDF) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
     Args    pdf - PDF from which to draw the metadata
@@ -106,7 +106,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF,
     ax.set_title(title)
 
     # Set value label
-    ax.set_xlabel(formulate_axis_label_from_pdf(pdf))
+    ax.set_xlabel(axis_label_from_pdf(pdf))
 
     # Set probability density label
     if all([offset == 0, scale == 0]):
@@ -177,11 +177,11 @@ def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
         # Plot prior if available
         if priors.get(name) is not None:
             plot_pdf_line(fig, ax, priors.get(name), offset=i, scale=scale,
-                          zorder=1)
+                          color="darkgrey", zorder=1)
 
         # Plot PDF
         plot_pdf_filled(fig, ax, pdf, offset=i, scale=scale,
-                        color=colors.get(name), zorder=2)
+                        color=colors.get(name, "black"), zorder=2)
 
         # Plot confidence range if available
         if conf_ranges.get(name) is not None:
@@ -254,12 +254,28 @@ def set_origin_zero(ax):
     ax.set_ylim([0, ax.get_ylim()[1]])
 
 
-def format_marker_plot(fig, ax, marker:DatedMarker):
+def format_marker_plot(fig, ax, markers:DatedMarker|dict):
     """Add axis labels, formulated in the standardized manner.
     """
+    if type(markers) == DatedMarker:
+        # Axis labels based on single marker
+        xlabel = axis_label_from_pdf(markers.age)
+        ylabel = axis_label_from_pdf(markers.displacement)
+
+    elif type(markers) == dict:
+        # Axis labels based on multiple markers
+        xlabel = axis_label_from_pdfs(
+                [marker.age for marker in markers.values()])
+        ylabel = axis_label_from_pdfs(
+                [marker.displacement for marker in markers.values()])
+
+    else:
+        raise Exception("Markers must be passed as a single DatedMarker "
+                        "or dictionary of DatedMarkers")
+
     # Label axes
-    ax.set_xlabel(formulate_axis_label_from_pdf(marker.age))
-    ax.set_ylabel(formulate_axis_label_from_pdf(marker.displacement))
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
 
 
 def plot_marker_whisker(
@@ -320,36 +336,91 @@ def plot_marker_rectangle(
     ax.set_ylim([0, 1.1 * disp_vals[1]])
 
 
-def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
-    """Plot multiple dated markers.
+def plot_markers_joint_pdf(fig, ax, markers:dict, **kwargs):
+    """Plot markers as joint PDFs.
     """
-    # Retrieve marker plot
-    if marker_plot_type == "whisker":
-        plotter = plot_marker_whisker
-    elif marker_plot_type == "rectangle":
-        plotter = plot_marker_rectangle
-    else:
-        raise ValueError(f"Marker plot type {marker_plot_type} not recognized")
+    # Initialize plot limits
+    xmin = kwargs.get('xmin', 0)
+    ymin = kwargs.get('ymin', 0)
+    xmax = kwargs.get('xmax', 0)
+    ymax = kwargs.get('xmax', 0)
+
+    # Determine plot limits based on markers if necessary
+    if xmax == 0:
+        for marker in markers.values():
+            # Max age
+            age_max = marker.age.x.max()
+            xmax = age_max if age_max > xmax else xmax
+
+    if ymax == 0:
+        for marker in markers.values():
+            # Max displacement
+            disp_max = marker.displacement.x.max()
+            ymax = disp_max if disp_max > ymax else ymax
+
+    # Establish grid boundaries
+    xmax = marker.age.x.max() if xmax is None else xmax
+    ymax = marker.displacement.x.max() if ymax is None else ymax
+
+    # Establish a coarse grid on which to sample
+    n = kwargs.get('n', 1000)
+    x = np.linspace(xmin, xmax, n)
+    y = np.linspace(ymin, ymax, n)
+    X, Y = np.meshgrid(x, y)
+
+    # Initialize total joing probability
+    Pjoint = np.zeros(X.shape)
 
     # Loop through markers
     for marker_name, marker in markers.items():
-        # Plot marker
-        plot_args = {
-            'fig': fig,
-            'ax': ax,
-            'marker': marker,
-            'confidence': kwargs.get('confidence', Psigma['2']),
-            'color': kwargs.get('color', "royalblue"),
-            'zorder': kwargs.get('zorder', 1),
-            'label': kwargs.get('label', False),
-        }
-        plotter(**plot_args)
+        # Interpolate PDFs on coarse grid
+        px = marker.age.pdf_at_value(x)
+        py = marker.displacement.pdf_at_value(y)
 
-    # Set origin at zero
+        # Compute joint probability
+        Pjoint += np.outer(px, py)
+
+        # Label if requested
+        if kwargs.get('label') == True:
+            age_mode = analytics.pdf_mode(marker.age)
+            disp_mode = analytics.pdf_mode(marker.displacement)
+            ax.text(age_mode, disp_mode, marker_name, color="royalblue")
+
+    # Plot joint probability
+    ax.pcolormesh(X, Y, Pjoint.T, cmap=kwargs.get('cmap', 'Greys'))
+
+
+def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
+    """Plot multiple dated markers.
+    """
+    # Determine action based on marker plot type
+    if marker_plot_type == "pdf":
+        # Plot joint PDFs
+        plot_markers_joint_pdf(fig, ax, markers, **kwargs)
+
+    else:
+        # Retrieve marker plot
+        if marker_plot_type == "whisker":
+            # Retrieve whisker plot
+            plotter = plot_marker_whisker
+
+        elif marker_plot_type == "rectangle":
+            # Retrieve rectangle plot
+            plotter = plot_marker_rectangle
+
+        else:
+            raise ValueError(f"Marker plot type {marker_plot_type} not "
+                             f"recognized")
+
+        # Loop through markers
+        for marker_name, marker in markers.items():
+            plotter(fig, ax, marker, **kwargs)
+
+    # Ensure origin set at zero
     set_origin_zero(ax)
 
     # Label axes
-    format_marker_plot(fig, ax, marker)
+    format_marker_plot(fig, ax, markers)
 
     # Set title
     ax.set_title("Displacement-Age History")

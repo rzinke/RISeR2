@@ -52,6 +52,12 @@ def cmd_parser(iargs=None):
         type=str,
         help="Output displacement units.")
 
+    # Plotting
+    plot_args = parser.add_argument_group("Plot")
+    plot_args.add_argument('--show-labels', dest='show_labels',
+        action='store_true',
+        help="Label data points.")
+
     # Outputs
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-v', '--verbose', dest='verbose',
@@ -100,7 +106,7 @@ def main():
         'ax': marker_ax,
         'markers': markers,
         'marker_plot_type': inps.marker_plot_type,
-        'label': True,
+        'label': inps.show_labels,
     }
     plotting.plot_markers(**plot_args)
 
