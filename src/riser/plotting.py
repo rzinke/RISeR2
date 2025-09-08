@@ -177,11 +177,11 @@ def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
         # Plot prior if available
         if priors.get(name) is not None:
             plot_pdf_line(fig, ax, priors.get(name), offset=i, scale=scale,
-                          zorder=1)
+                          color="darkgrey", zorder=1)
 
         # Plot PDF
         plot_pdf_filled(fig, ax, pdf, offset=i, scale=scale,
-                        color=colors.get(name), zorder=2)
+                        color=colors.get(name, "black"), zorder=2)
 
         # Plot confidence range if available
         if conf_ranges.get(name) is not None:
@@ -247,14 +247,35 @@ def plot_filter_kernel(fig, ax, filt:filtering.FIRFilter):
 
 
 #################### DATED MARKER PLOTTING ####################
-def format_marker_plot(fig, ax, markers:dict):
+def set_origin_zero(ax):
+    """Set the plot origin at zero.
+    """
+    ax.set_xlim([0, ax.get_xlim()[1]])
+    ax.set_ylim([0, ax.get_ylim()[1]])
+
+
+def format_marker_plot(fig, ax, markers:DatedMarker|dict):
     """Add axis labels, formulated in the standardized manner.
     """
+    if type(markers) == DatedMarker:
+        # Axis labels based on single marker
+        xlabel = axis_label_from_pdf(markers.age)
+        ylabel = axis_label_from_pdf(markers.displacement)
+
+    elif type(markers) == dict:
+        # Axis labels based on multiple markers
+        xlabel = axis_label_from_pdfs(
+                [marker.age for marker in markers.values()])
+        ylabel = axis_label_from_pdfs(
+                [marker.displacement for marker in markers.values()])
+
+    else:
+        raise Exception("Markers must be passed as a single DatedMarker "
+                        "or dictionary of DatedMarkers")
+
     # Label axes
-    ax.set_xlabel(axis_label_from_pdfs(
-        [marker.age for marker in markers.values()]))
-    ax.set_ylabel(axis_label_from_pdfs(
-        [marker.displacement for marker in markers.values()]))
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
 
 
 def plot_marker_whisker(
@@ -396,8 +417,7 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
             plotter(fig, ax, marker, **kwargs)
 
     # Ensure origin set at zero
-    ax.set_xlim([0, ax.get_xlim()[1]])
-    ax.set_ylim([0, ax.get_ylim()[1]])
+    set_origin_zero(ax)
 
     # Label axes
     format_marker_plot(fig, ax, markers)

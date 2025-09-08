@@ -4,8 +4,8 @@
 config_file="tmp/slip_rates_mc_config.toml"
 
 
-# # Create marginal distributions
-# echo "Creating PDFs"
+# Create marginal distributions
+echo "Creating PDFs"
 
 U1name="tmp/displacement1.txt"
 make_pdf.py -d triangular -s 7.5 9.5 11.0 -dx 0.01 \
@@ -32,7 +32,7 @@ make_pdf.py -d gaussian -s 6.3 1.2 -dx 0.01 \
 U3name="tmp/displacement3.txt"
 make_pdf.py -d trapezoidal -s 39.5 41.5 44.0 45.5 -dx 0.01 \
     --name "disp 3" --variable-type "displacement" --unit "m" \
-    -o $U4name
+    -o $U3name
 
 A3name="tmp/age3.txt"
 make_pdf.py -d gaussian -s 7.7 0.5 -dx 0.01 \
