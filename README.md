@@ -1,4 +1,4 @@
-# Rejection sampling for Incremental Slip Rate calculation v.2 &ndash; RISeR2
+# ***R***ejection sampling for ***I***ncremental ***S***lip ***R***ate calculation v.**2** &ndash; RISeR2
 
 ## Purpose
 Earthquake fault slip rates describe the displacement accumulation rate across a fault, averaged over some time interval. Slip rates are determined from geologic, geomorphic, or sedimentary markers recording measureable fault slip, and which can be dated using absolute geochronologic methods. Where multiple dateable displacement markers share a common slip history and record different epochs in that history, one can determine *incremental* slip rates. These average over shorter intervals relative to the oldest displacement, and can show the constancy or variability of fault slip over time.
@@ -55,11 +55,11 @@ Often, both the displacement measurement and age of the feature have non-negligi
  - Probability density is never negative. It can be zero or positive over the range of all possible values.
  - The area under the curve is 1.0. I.e., the event is guaranteed to have occurred at some point in the defined values.
 
-Strictly defined, a PDF is absolutely continuous (defined over infinitely many values). RISeR2 uses *discrete PDFs*, represented by a discrete and finite vector of possible values, each with a corresponding probability density. Use of discrete PDFs is essential because RISeR2 is designed to work with non-parametric functions (such as calibrated radiocarbon dates) that cannot be described by closed-form equations.
+Strictly defined, a PDF is absolutely continuous (defined over infinitely many values). RISeR2 uses *discrete PDFs*, represented by a discrete and finite vector of possible values, each with a corresponding probability density. The probability density of any value within the vector of PDF values can be determined by linear interpolation between defined probability densities, and values outside the defined vector are assigned zero probability density. Use of discrete PDFs is essential because RISeR2 is designed to work with non-parametric functions (such as calibrated radiocarbon dates) that cannot be described by closed-form equations.
 
-**`PDFs`** are the fundamental object in the RISeR2 library. All ages, displacements, and slip rates are expressed as PDFs with the above properties. The PDF can be given a descriptive *name*, and a description of the *variable-type*, e.g., "age", "displacement*, *slip rate*, *etc.* The probability density of any value within the vector of PDF values can be determined by linear interpolation between defined probability densities, and values outside the defined vector are assigned zero probability density. 
+**`PDFs`** are the fundamental object in the RISeR2 library. All ages, displacements, and slip rates are expressed as PDFs with the above properties. The PDF can be given a descriptive *name*, and a description of the *variable-type*, e.g., "age", "displacement", "slip rate". The PDF can also be assigned a *unit*&mdash;RISeR2 recognizes units conisisting of multiples of years (**y**) and meters (**m**).
 
-Data points defining displacement-time history of a fault are encoded as a **`DatedMarker`**, comprising a PDF representing *age*, and a PDF representing *displacement*. Like a PDF, a DatedMarker can carry a descriptive name.
+Data points defining displacement-time history of a fault are encoded as a **`DatedMarker`**, comprising a PDF representing *age*, and a PDF representing *displacement*. Like a PDF, a DatedMarker can carry a descriptive name. The unit (e.g., "m/y") is determined from the units of the constituent age and displacement PDFs.
 
 ### Slip rate determination
 
