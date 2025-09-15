@@ -1,5 +1,6 @@
 # Name: Feature 01
 # Variable_type: slip rate
+# Unit: m/ky
 2.0,0.0
 2.01,3.775420748359064e-06
 2.02,1.5502856967559915e-05
