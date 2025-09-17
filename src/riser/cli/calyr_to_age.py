@@ -60,7 +60,7 @@ def cmd_parser(iargs=None):
     # Units
     unit_args = parser.add_argument_group("Units")
     unit_args.add_argument('--input-unit', dest='input_unit',
-        type=str,
+        type=str, default="y",
         help="Unit of input data. [y]")
     unit_args.add_argument('--output-unit', dest='output_unit',
         type=str, default="ky",
@@ -108,8 +108,8 @@ def main():
     input_unit = units.get_priority_unit(metadata.get('unit'), inps.input_unit)
 
     # Scale from input units to output units
-    x = units.scale_by_units(ybp, input_unit, inps.output_unit,
-                          verbose=inps.verbose)
+    x = units.scale_values_by_units(ybp, input_unit, inps.output_unit,
+                                    verbose=inps.verbose)
 
     # Flip left for right, so age is increasing
     x = x[::-1]
