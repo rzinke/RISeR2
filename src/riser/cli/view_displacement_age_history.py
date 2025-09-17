@@ -14,11 +14,11 @@ from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = ("Plot the displacement-time history constrained by a set of "
+Description = ("Plot the displacement-age history constrained by a set of "
                "markers.")
 
 Examples = """Examples:
-view_displacement_time_history.py marker_config.toml
+view_displacement_age_history.py marker_config.toml
 """
 
 def create_parser():
@@ -36,7 +36,7 @@ def cmd_parser(iargs=None):
         type=str,
         help="Dated displacement marker configuration file.")
     input_args.add_argument('--marker-type', dest='marker_plot_type',
-        type=str, default="whisker",
+        type=str, choices={"whisker", "rectangle", "pdf"}, default="whisker",
         help="Marker type. [whisker]")
     input_args.add_argument('--show-marginals', dest='show_marginals',
         action='store_true',
