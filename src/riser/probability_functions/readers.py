@@ -83,8 +83,8 @@ def format_data_line(data_line:str) -> str:
     data_line = data_line.rstrip()
 
     # Change multiple spaces to single space
-    while "  " in " ":
-        line = line.replace("  ", " ")
+    while "  " in data_line:
+        data_line = data_line.replace("  ", " ")
 
     # Ensure delimiter is comma
     data_line = data_line.replace(" ", ",")
@@ -212,7 +212,7 @@ def read_calendar_file(fname:str, verbose=False):
     metadata = parse_metadata_from_header(header_lines, verbose=verbose)
 
     # Parse data lines
-    data_lines = [line for line in lines if line[0] != "#"]
+    data_lines = [line for line in lines if line[0] != "#" and len(line) > 1]
 
     # Empty lists for x, px
     calyr = []
