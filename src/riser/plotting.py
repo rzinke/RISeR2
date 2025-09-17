@@ -152,7 +152,7 @@ def plot_pdf_confidence_range(
 
 # Multi-PDF
 def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
-                   conf_ranges:dict={}, priors:dict={}):
+                   conf_ranges:dict={}, priors:dict={}, same_height:bool=False):
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
     and scale the other PDF maxima accordingly.
@@ -169,11 +169,14 @@ def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
         px_max = pdf.px.max()
         max_peak = px_max if px_max > max_peak else max_peak
 
-    # Scale
-    scale = height / max_peak
-
     # Loop through PDFs
     for i, (name, pdf) in enumerate(pdfs.items()):
+        # Determine scale
+        if same_height == True:
+            scale = height / pdf.px.max()
+        else:
+            scale = height / max_peak
+
         # Plot prior if available
         if priors.get(name) is not None:
             plot_pdf_line(fig, ax, priors.get(name), offset=i, scale=scale,
@@ -190,9 +193,9 @@ def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},
                                       zorder=3)
 
     # Format plot
-    ax.legend(loc="upper right")
     ax.set_xlabel(axis_label_from_pdfs([*priors.values()] + [*pdfs.values()]))
-    ax.set_yticks([])
+    ax.set_yticks(range(len(pdfs)))
+    ax.set_yticklabels([*pdfs.keys()])
     ax.set_ylabel("Rel probability density")
 
 
@@ -407,6 +410,10 @@ def plot_markers(fig, ax, markers:dict, marker_plot_type="whisker", **kwargs):
         elif marker_plot_type == "rectangle":
             # Retrieve rectangle plot
             plotter = plot_marker_rectangle
+
+        elif marker_plot_type == "pdf":
+            # Retrieve joint PDF plot
+            plotter = plot_markers_joint_pdf
 
         else:
             raise ValueError(f"Marker plot type {marker_plot_type} not "

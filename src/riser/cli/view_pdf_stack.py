@@ -42,6 +42,12 @@ def cmd_parser(iargs=None):
         type=str,
         help="Output units.")
 
+    # Plotting
+    plot_args = parser.add_argument_group("Plotting")
+    plot_args.add_argument('--same-height', dest='same_height',
+        action='store_true',
+        help="Plot all PDFs with the same height.")
+
     # Outputs
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-v', '--verbose', dest='verbose',
@@ -101,7 +107,8 @@ def main():
     fig, ax = plt.subplots()
 
     # Plot PDFs
-    plotting.plot_pdf_stack(fig, ax, pdfs, colors=colors, priors=priors)
+    plotting.plot_pdf_stack(fig, ax, pdfs, colors=colors, priors=priors,
+                            same_height=inps.same_height)
 
     # Save figure to file
     if inps.outname is not None:
