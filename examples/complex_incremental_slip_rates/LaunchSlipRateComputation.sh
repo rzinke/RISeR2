@@ -19,15 +19,15 @@ done
 view_pdf_stack.py age_list.toml --same-height -v
 
 
-# # Check displacement-age history
-# view_displacement_age_history.py marker_config.toml \
-#     --age-unit-out ky --marker-type rectangle --show-marginals --show-labels \
-#     -v
+# Check displacement-age history
+view_displacement_age_history.py marker_config.toml \
+    --age-unit-out ky --marker-type rectangle --show-marginals --show-labels \
+    -v
 
 
-# # Compute incremental slip rates
-# compute_slip_rates_mc.py marker_config.toml \
-#     --age-unit-out y --displacement-unit-out mm \
-#     --n-samples 1000000 --max-rate 100 --dv 0.2 \
-#     --confidence-metric HPD \
-#     -v -p -o mc_slip_rate
+# Compute incremental slip rates
+compute_slip_rates_mc.py marker_config.toml \
+    --age-unit-out y --displacement-unit-out mm \
+    --n-samples 1000000 --max-rate 100 --dv 0.2 \
+    --confidence-metric HPD \
+    -v -p -o mc_slip_rate
