@@ -1,4 +1,4 @@
-Incremental slip rates from analytical formulation (2025 09 16:17 17 50)
+Incremental slip rates from analytical formulation (2025 09 16:17 53 52)
 
 Sample statistics: T3T4-T4T5 (mm/y)
 68.27 % : (19.387 - 30.003)
