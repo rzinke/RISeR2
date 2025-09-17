@@ -146,9 +146,6 @@ def plot_pdf_confidence_range(
         }
         ax.fill_between(**plot_args)
 
-    # Format plot
-    ax.legend()
-
 
 # Multi-PDF
 def plot_pdf_stack(fig, ax, pdfs:dict, height:float=0.9, colors:dict={},

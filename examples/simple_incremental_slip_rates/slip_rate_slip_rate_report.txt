@@ -1,13 +1,39 @@
-Incremental slip rates from analytical formulation (2025 09 16:14 24 57)
+Incremental slip rates from analytical formulation (2025 09 16:18 56 25)
 
-PDF: Feature 02-Feature 01 (mm/y)
-  mode: 3.038
-median: 3.100
-  mean: 3.038
-   std: 0.380
-   var: 0.145
-  skew: 0.550
-  kurt: 3.516
-PDF confidence range: Feature 02-Feature 01 (mm/y)
+PDF: Marker 02-Marker 01 (mm/y)
+  mode: 4.218
+median: 4.300
+  mean: 4.218
+   std: 0.541
+   var: 0.293
+  skew: 0.531
+  kurt: 3.546
+PDF confidence range: Marker 02-Marker 01 (mm/y)
 HPD 68.27 %
-	(2.708 - 3.418)
+	(3.738 - 4.758)
+
+
+PDF: Marker 03-Marker 02 (mm/y)
+  mode: 2.237
+median: 2.461
+  mean: 2.237
+   std: 0.876
+   var: 0.767
+  skew: 0.586
+  kurt: -4.218
+PDF confidence range: Marker 03-Marker 02 (mm/y)
+HPD 68.27 %
+	(1.597 - 3.087)
+
+
+PDF: Marker 04-Marker 03 (mm/y)
+  mode: 1.756
+median: 2.148
+  mean: 1.756
+   std: 0.670
+   var: 0.449
+  skew: -25.515
+  kurt: -498.104
+PDF confidence range: Marker 04-Marker 03 (mm/y)
+HPD 68.27 %
+	(1.086 - 2.866)
