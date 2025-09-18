@@ -1,7 +1,15 @@
-["Feature 01"]
+["Marker 01"]
 "displacement file" = "Disp01.txt"
 "age file" = "Age01.txt"
 
-["Feature 02"]
+["Marker 02"]
 "displacement file" = "Disp02.txt"
 "age file" = "Age02.txt"
+
+["Marker 03"]
+"displacement file" = "Disp03.txt"
+"age file" = "Age03.txt"
+
+["Marker 04"]
+"displacement file" = "Disp04.txt"
+"age file" = "Age04.txt"
