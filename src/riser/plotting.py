@@ -109,7 +109,7 @@ def plot_pdf_labeled(fig, ax, pdf:PDF,
     ax.set_xlabel(axis_label_from_pdf(pdf))
 
     # Set probability density label
-    if all([offset == 0, scale == 0]):
+    if all([offset == 0, scale == 1]):
         # y-values are probability density
         ax.set_ylabel("Probability density")
     else:
