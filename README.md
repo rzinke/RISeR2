@@ -94,5 +94,9 @@ Data points defining displacement-time history of a fault are encoded as a **`Da
  - Zenodo: https://zenodo.org/records/4733235. https://doi.org/10.5281/zenodo.4733235
 
 
-## Disclaimer
-This is research code. The author(s) assumes no responsibility for any errors in the methods or scripts, or any damages resulting from the code's use.
+## &#9888;&#65039; Disclaimer
+This codebase is provided for research and experimental purposes only.
+It may contain bugs, incomplete features, or incorrect implementations.
+
+No warranty is provided, express or implied, regarding the correctness or reliability of the code.
+By using this code, you agree that the authors and contributors are not liable for any damages or issues that may arise.
