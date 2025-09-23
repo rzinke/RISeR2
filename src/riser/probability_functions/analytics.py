@@ -243,7 +243,7 @@ class PDFstatistics:
         print_str = (f"PDF: {self.name} ({self.unit})"
                      f"\n  mode: {self.mode:.3f}"
                      f"\nmedian: {self.median:.3f}"
-                     f"\n  mean: {self.mode:.3f}"
+                     f"\n  mean: {self.mean:.3f}"
                      f"\n   std: {self.std:.3f}"
                      f"\n   var: {self.variance:.3f}"
                      f"\n  skew: {self.skewness:.3f}"
