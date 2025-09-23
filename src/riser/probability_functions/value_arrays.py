@@ -73,7 +73,8 @@ def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
         return precision.fix_precision(np.diff(pdf.x, append=0))
     else:
         # Regular sampling
-        return precision.fix_precision(np.diff(pdf.x, append=np.mean(diff_x)))
+        return precision.fix_precision(
+            np.diff(pdf.x, append=pdf.x[-1] + np.mean(diff_x)))
 
 
 def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False) -> \
