@@ -12,7 +12,7 @@ Earthquake fault slip rates describe the displacement accumulation rate across a
 ## Setup
 RISeR2 is optimally used as a set of command line tools, which form an adaptable pipeline for handling and computing probability functions. These scripts have been tested for Linux/UNIX systems. To use these scripts, clone the GitHub repository to a location of your choice, which will be referred to as `RISER2_HOME`. Once cloned, you must append the filepaths to your `$PATH` AND `$PYTHONPATH` variables.
 
-f you are running BASH (`echo $SHELL = bash`), add the following paths to your `~/.bashrc` file for a Linux system or `~/.bash_profile` for a Mac system:
+If you are running BASH (`echo $SHELL = bash`), add the following paths to your `~/.bashrc` file for a Linux system or `~/.bash_profile` for a Mac system:
 ```
 RISER2_HOME=<path to repo>
 
