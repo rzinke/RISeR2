@@ -6,8 +6,9 @@
 
 
 # Constants
-from riser.probability_functions.parametric_functions import \
+from riser.probability_functions.parametric_functions import (
     PARAMETRIC_FUNCTIONS
+)
 
 
 # Import modules
@@ -18,8 +19,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import precision
-from riser.probability_functions import PDF, readers, value_arrays, \
-    parametric_functions
+from riser.probability_functions import (
+    PDF, readers, value_arrays, parametric_functions
+)
 from riser import units, plotting
 
 
