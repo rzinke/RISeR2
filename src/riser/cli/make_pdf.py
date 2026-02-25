@@ -22,7 +22,7 @@ from riser import precision
 from riser.probability_functions import (
     PDF, readers, value_arrays, parametric_functions
 )
-from riser import units, plotting
+from riser import variable_types, units, plotting
 
 
 #################### ARGUMENT PARSER ####################
