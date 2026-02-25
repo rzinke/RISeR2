@@ -61,7 +61,7 @@ def cmd_parser(iargs=None):
         type=str,
         help="PDF descriptive name. [None]")
     input_args.add_argument('--variable-type', dest='variable_type',
-        type=str, choices=variable_type.SUPPORTED_VARIABLE_TYPES,
+        type=str, choices=variable_types.SUPPORTED_VARIABLE_TYPES,
         help="PDF variable type, e.g., age, displacement, slip rate. [None]")
     input_args.add_argument('--unit', dest='unit',
         type=str,
