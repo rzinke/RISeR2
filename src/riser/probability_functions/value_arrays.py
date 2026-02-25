@@ -77,8 +77,9 @@ def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
             np.diff(pdf.x, append=pdf.x[-1] + np.mean(diff_x)))
 
 
-def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False) -> \
-        (float, float, float):
+def value_array_params_from_pdfs(
+        pdfs:list[PDF], verbose=False
+    ) -> tuple[float, float, float]:
     """Determine the value limits for a set of PDFs.
 
     Args    pdfs - list[PDF], PDFs to resample
@@ -126,8 +127,11 @@ def create_precise_value_array(xmin:float, xmax:float, dx:float,
     # Fix precision
     dx = precision.fix_precision(dx)
 
+    # Determine number of samples
+    n = np.round((xmax - xmin) / dx).astype(int) + 1
+
     # Create value array
-    x = np.arange(xmin, xmax+dx, dx)
+    x = np.linspace(xmin, xmax, n)
     x = precision.fix_precision(x)
 
     # Report if requested
