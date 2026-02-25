@@ -31,7 +31,7 @@ Description = """Make a PDF for a random variable based on a parametric distribu
 Examples = """Examples:
 make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
 make_pdf.py -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
-make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable age --unit ky -o T3.txt
+make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
 
 def create_parser():
@@ -59,13 +59,13 @@ def cmd_parser(iargs=None):
 
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="PDF name. [None]")
+        help="PDF descriptive name. [None]")
     input_args.add_argument('--variable-type', dest='variable_type',
-        type=str,
+        type=str, choices=variable_type.SUPPORTED_VARIABLE_TYPES,
         help="PDF variable type, e.g., age, displacement, slip rate. [None]")
     input_args.add_argument('--unit', dest='unit',
         type=str,
-        help="Value unit. [None]")
+        help="Value unit (e.g., 'y'; 'm'. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
