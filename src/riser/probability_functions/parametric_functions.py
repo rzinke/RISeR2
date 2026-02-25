@@ -4,12 +4,14 @@
 # (c) 2025 all rights reserved
 
 # Constants
-PARAMETRIC_FUNCTIONS = [
-    'boxcar',
-    'triangular',
-    'trapezoidal',
-    'gaussian',
-]
+PARAMETRIC_FUNCTION_PARAM_NBS = {
+    "boxcar": 2,
+    "triangular": 3,
+    "trapezoidal": 4,
+    "gaussian": 2
+}
+
+PARAMETRIC_FUNCTIONS = tuple(PARAMETRIC_FUNCTION_PARAM_NBS.keys())
 
 
 # Import modules
@@ -17,7 +19,7 @@ import numpy as np
 import scipy as sp
 
 
-#################### BOXCAR FUNCTIONS ####################
+#################### PARAMETRIC FUNCTIONS ####################
 def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
     """Boxcar function with unit area.
     """
@@ -37,9 +39,9 @@ def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
     return px
 
 
-#################### TRIANGULAR FUNCTIONS ####################
 def triangular(
-        x:np.ndarray, xmin:float, xmode:float, xmax:float) -> np.ndarray:
+        x:np.ndarray, xmin:float, xmode:float, xmax:float
+    ) -> np.ndarray:
     """Triangular function with unit area.
     """
     # Number of data points
@@ -70,9 +72,9 @@ def triangular(
     return px
 
 
-#################### TRAPEZOIDAL FUNCTIONS ####################
 def trapezoidal(
-        x:np.ndarray, x1:float, x2:float, x3:float, x4:float) -> np.ndarray:
+        x:np.ndarray, x1:float, x2:float, x3:float, x4:float
+    ) -> np.ndarray:
     """Trapezoidal function with unit area.
     """
     # Number of data points
@@ -103,7 +105,6 @@ def trapezoidal(
     return px
 
 
-#################### GAUSSIAN FUNCTIONS ####################
 def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
     """Gaussian function with unit area.
     """
@@ -148,6 +149,67 @@ def get_function_by_name(fcn_name:str):
 
     else:
         return None
+
+
+#################### CHECKS ####################
+def check_number_inputs(distribution:str, values:list[float]) -> bool:
+    """Check that the appropriate number of inputs are provided for the given
+    distribution.
+
+    Args    distribution - str, parametric function
+            values - list[float], parameter values
+    Returns bool, True if correct number of inputs provided
+    """
+    # Number of values required
+    n_vals_reqd = PARAMETRIC_FUNCTION_PARAM_NBS[distribution]
+
+    # Number of values specified
+    n_vals_specd = len(values)
+
+    # Check necessary number of values specified
+    if n_vals_specd != n_vals_reqd:
+        raise Exception(
+            f"{n_vals_reqd} must be specified for a {distribution} distribution"
+        )
+
+    return True
+
+
+def determine_min_max_limits(distribution:str, values:list[float],
+        limit_positive:bool=False, verbose=False) -> (float, float):
+    """Determine the minimum and maximum values of the PDF domain.
+
+    Args    distribution - str, parametric function
+            values - list[float], parameter values
+    Returns xmin, xmax - float, min/max values
+    """
+    # Behave based on function type
+    if distribution in ["boxcar", "triangular", "trapezoidal"]:
+        # Use first and last values
+        xmin = values[0]
+        xmax = values[-1]
+
+    elif distribution in ["gaussian"]:
+        # Parse values
+        mu, sigma = values
+
+        # Use 4-sigma limit
+        sigma_lim = 4 * sigma
+
+        # Limit at zero
+        xmin = (
+            np.max([mu - sigma_lim, 0]) if limit_positive == True 
+            else mu - sigma_lim
+        )
+
+        # Max value
+        xmax = mu + sigma_lim
+
+    # Report if requested
+    if verbose == True:
+        print(f"Minimum value {xmin}\nMaximum value {xmax}")
+
+    return xmin, xmax
 
 
 # end of file
