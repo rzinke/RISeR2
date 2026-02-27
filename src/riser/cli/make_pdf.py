@@ -26,7 +26,9 @@ from riser import variable_types, units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Make a PDF for a random variable based on a parametric distribution."""
+Description = (
+    "Make a PDF for a random variable based on a parametric distribution."
+)
 
 Examples = """Examples:
 make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
@@ -101,9 +103,7 @@ def main():
         )
     else:
         # Check whether variable type is supported - warn only, no error
-        variable_types.check_variable_type_supported(
-            inps.variable_type
-        )
+        variable_types.check_variable_type_supported(inps.variable_type)
 
     # Check optional unit input
     if inps.unit is None:
@@ -123,8 +123,9 @@ def main():
     )
 
     # Create x-array
-    x = value_arrays.create_precise_value_array(xmin, xmax, inps.dx,
-                                                verbose=inps.verbose)
+    x = value_arrays.create_precise_value_array(
+        xmin, xmax, inps.dx, verbose=inps.verbose
+    )
 
     # Retrieve parameteric function
     para_fcn = parametric_functions.get_function_by_name(inps.distribution)
@@ -136,14 +137,14 @@ def main():
     px = para_fcn(x, *inps.values)
 
     # Instantiate PDF
-    pdf_args = {
-        'x': x,
-        'px': px,
-        'name': inps.name,
-        'variable_type': inps.variable_type,
-        'unit': inps.unit,
-    }
-    pdf = PDF(**pdf_args, normalize_area=True)
+    pdf = PDF(
+        x=x,
+        px=px,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.unit,
+        normalize_area=True
+    )
 
     # Save to file
     readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
@@ -154,7 +155,7 @@ def main():
         fig, ax = plt.subplots()
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, ax, pdf)
+        plotting.plot_pdf_labeled(ax, pdf)
 
         plt.show()
 

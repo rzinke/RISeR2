@@ -11,14 +11,15 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import \
+from riser.probability_functions import (
     readers, interpolation, value_arrays, PDF
+)
 from riser.variable_operations import cross_correlate_variables
 from riser import plotting, units
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Cross-correlate two random variables expressed as PDFs."""
+Description = "Cross-correlate two random variables expressed as PDFs."
 
 Examples = """Examples:
 cross_correlate_variables.py ref_pdf.txt sec_pdf.txt
@@ -63,12 +64,14 @@ def main():
 
     # Sample PDFs on same axis
     (ref_pdf,
-     sec_pdf) = interpolation.interpolate_pdfs([ref_pdf, sec_pdf],
-                                                 verbose=inps.verbose)
+     sec_pdf) = interpolation.interpolate_pdfs(
+        [ref_pdf, sec_pdf], verbose=inps.verbose
+    )
 
     # Cross-correlate PDFs
-    lags, corr_vals = cross_correlate_variables(ref_pdf, sec_pdf,
-                                                verbose=inps.verbose)
+    lags, corr_vals = cross_correlate_variables(
+        ref_pdf, sec_pdf, verbose=inps.verbose
+    )
 
     # Convert integer lags to lag values with units of the variables
     lag_vals = lags * value_arrays.sample_spacing_from_pdf(ref_pdf)
@@ -97,32 +100,30 @@ def main():
         if unit is not None:
             lag_str += f" ({unit})"
 
-        print(lag_str)
-
         # Print correlation value
         print(f"Optimal correlation value {opt_corr:.2f}")
 
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, corr_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_labeled(fig, axes[0], ref_pdf)
-        plotting.plot_pdf_labeled(fig, axes[0], sec_pdf)
+        plotting.plot_pdf_labeled(inpt_ax, ref_pdf)
+        plotting.plot_pdf_labeled(inpt_ax, sec_pdf)
 
         # Plot correlation
         axes[1].plot(lag_vals, corr_vals, "k", linewidth=2)
 
         # Plot shifted PDF
-        plotting.plot_pdf_line(fig, axes[0], pdf_shifted, color="g")
+        plotting.plot_pdf_line(inpt_ax, pdf_shifted, color="g")
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
 
-        axes[1].set_title("Cross Correlation")
-        axes[1].set_xlabel(f"Lag ({unit})")
+        corr_ax.set_title("Cross Correlation")
+        corr_ax.set_xlabel(f"Lag ({unit})")
 
         fig.tight_layout()
 

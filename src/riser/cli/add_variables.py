@@ -16,7 +16,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Add two random variables expressed as PDFs."""
+Description = "Add two random variables expressed as PDFs."
 
 Examples = """Examples:
 add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
@@ -79,19 +79,19 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, sum_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], pdf1)
-        plotting.plot_pdf_filled(fig, axes[0], pdf2)
+        plotting.plot_pdf_filled(inpt_ax, pdf1)
+        plotting.plot_pdf_filled(inpt_ax, pdf2)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], sum_pdf)
+        plotting.plot_pdf_labeled(sum_ax, sum_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("Summed PDF")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
+        comb_ax.set_title("Summed PDF")
         fig.tight_layout()
 
         plt.show()

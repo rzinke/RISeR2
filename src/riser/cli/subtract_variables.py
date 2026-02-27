@@ -16,7 +16,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Subtract two random variables expressed as PDFs."""
+Description = "Subtract two random variables expressed as PDFs."
 
 Examples = """Examples:
 subtract_variables.py pdf1.txt pdf2.txt -o pdf12.txt
@@ -71,13 +71,18 @@ def main():
     pdf2 = readers.read_pdf(inps.fname2, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    pdf1, pdf2 = interpolation.interpolate_pdfs([pdf1, pdf2],
-                                                verbose=inps.verbose)
+    pdf1, pdf2 = interpolation.interpolate_pdfs(
+        [pdf1, pdf2], verbose=inps.verbose
+    )
 
     # Compute summed PDF
     diff_pdf = subtract_variables(
-            pdf1, pdf2, limit_positive=inps.limit_positive, name=inps.name,
-            verbose=inps.verbose)
+            pdf1,
+            pdf2,
+            limit_positive=inps.limit_positive,
+            name=inps.name,
+            verbose=inps.verbose
+    )
 
     # Save to file
     readers.save_pdf(inps.outname, diff_pdf, verbose=inps.verbose)
@@ -85,19 +90,19 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, diff_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], pdf1)
-        plotting.plot_pdf_filled(fig, axes[0], pdf2)
+        plotting.plot_pdf_filled(inpt_ax, pdf1)
+        plotting.plot_pdf_filled(inpt_ax, pdf2)
 
-        # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], diff_pdf)
+        # Plot difference PDF
+        plotting.plot_pdf_labeled(diff_ax, diff_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("Differenced PDF")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
+        diff_ax.set_title("Difference PDF")
         fig.tight_layout()
 
         plt.show()

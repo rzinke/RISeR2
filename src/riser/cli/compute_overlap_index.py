@@ -18,7 +18,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the overlap statistic of two or more PDFs."""
+Description = "Compute the overlap statistic of two or more PDFs."
 
 Examples = """Examples:
 compute_overlap_index.py pdf1.txt pdf2.txt
@@ -70,7 +70,7 @@ def main():
 
         # Plot input PDFs
         for pdf in pdfs:
-            plotting.plot_pdf_filled(fig, ax, pdf)
+            plotting.plot_pdf_filled(ax, pdf)
 
         # Plot minimum
         ax.fill_between(pdfs[0].x, px_min, color="blue")

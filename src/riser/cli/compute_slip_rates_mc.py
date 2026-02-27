@@ -23,8 +23,10 @@ from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = ("Compute the incremental slip rates for a series of dated "
-        "markers using Monte Carlo sampling, and applying a criterion.")
+Description = (
+    "Compute the incremental slip rates for a series of dated markers using "
+    "Monte Carlo sampling, and applying a criterion."
+)
 
 Examples = """Examples:
 compute_slip_rates_mc.py marker_config.toml -o incr_slip_rates
@@ -118,8 +120,9 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(inps.marker_config,
-                                                      verbose=inps.verbose)
+    markers = marker_readers.read_markers_from_config(
+        inps.marker_config, verbose=inps.verbose
+    )
 
     # Check that multiple markers are specified
     if len(markers) < 2:
@@ -129,56 +132,57 @@ def main():
     marker_fig, marker_ax = plt.subplots()
 
     # Plot markers
-    plot_args = {
-        'fig': marker_fig,
-        'ax': marker_ax,
-        'markers': markers,
-        'marker_plot_type': "rectangle",
-        'label': True,
-    }
-    plotting.plot_markers(**plot_args)
+    plotting.plot_markers(
+        ax=marker_ax,
+        markers=markers,
+        marker_plot_type="rectangle",
+        label=True
+    )
 
     # Scale input units to output units
     for marker in markers.values():
         marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
         marker.displacement = units.scale_pdf_by_units(
-                marker.displacement, inps.displacement_unit_out)
+                marker.displacement, inps.displacement_unit_out
+        )
 
     # Save marker fig
-    reporting.save_marker_fig(inps.output_prefix, marker_fig,
-                              verbose=inps.verbose)
+    reporting.save_marker_fig(
+        inps.output_prefix, marker_fig, verbose=inps.verbose
+    )
 
     # Compute slip rates
-    slip_rate_args = {
-        'markers': markers,
-        'condition': "pass-non-negative-bounded",
-        'n_samples': inps.n_samples,
-        'pdf_min': inps.min_rate,
-        'pdf_max': inps.max_rate,
-        'pdf_dx': inps.dv,
-        'smoothing_type': inps.smoothing_type,
-        'smoothing_width': inps.smoothing_width,
-        'max_rate': inps.max_rate,
-    }
     (slip_rates,
      age_picks,
      disp_picks,
      rate_picks) = rate_computation.compute_slip_rates_mc(
-            **slip_rate_args, verbose=inps.verbose)
+        markers=markers,
+        condition="pass-non-negative-bounded",
+        n_samples=inps.n_samples,
+        pdf_min=inps.min_rate,
+        pdf_max=inps.max_rate,
+        pdf_dx=inps.dv,
+        smoothing_type=inps.smoothing_type,
+        smoothing_width=inps.smoothing_width,
+        max_rate=inps.max_rate,
+        verbose=inps.verbose
+    )
 
     # Save PDFs to file
     for marker_pair, slip_rate in slip_rates.items():
         rate_outname = f"{inps.output_prefix}_{marker_pair}_slip_rate.txt"
-        pdf_readers.save_pdf(rate_outname, slip_rate,
-                             verbose=inps.verbose)
+        pdf_readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
 
     # Save picks to file
-    reporting.write_picks_to_file(inps.output_prefix, age_picks, disp_picks,
-                                  rate_picks, verbose=inps.verbose)
+    reporting.write_picks_to_file(
+        inps.output_prefix, age_picks, disp_picks, rate_picks,
+        verbose=inps.verbose
+    )
 
     # Retrieve confidence range function
-    conf_fcn = analytics.get_pdf_confidence_function(inps.confidence_metric,
-                                                     verbose=inps.verbose)
+    conf_fcn = analytics.get_pdf_confidence_function(
+        inps.confidence_metric, verbose=inps.verbose
+    )
 
     # Empty dictionaries for summary statistics
     sample_stats = {}
@@ -188,10 +192,12 @@ def main():
     # Loop through marker pairs to compute summary statistics
     for i, (marker_pair, slip_rate) in enumerate(slip_rates.items()):
         # Compute sample statistics
-        sample_stats[marker_pair] = \
-                sample_statistics.compute_sample_confidence(
-                    rate_picks[i,:], inps.confidence_limits,
-                    name=marker_pair, unit=slip_rates[marker_pair].unit)
+        sample_stats[marker_pair] = sample_statistics.compute_sample_confidence(
+            rate_picks[i,:],
+            inps.confidence_limits,
+            name=marker_pair,
+            unit=slip_rates[marker_pair].unit
+        )
         if inps.verbose == True:
             print(sample_stats[marker_pair])
 
@@ -209,23 +215,25 @@ def main():
     rate_fig, rate_ax = plt.subplots()
 
     # Plot slip rate PDFs
-    plotting.plot_pdf_stack(rate_fig, rate_ax, slip_rates,
-                            conf_ranges=conf_ranges)
+    plotting.plot_pdf_stack(
+        rate_fig, rate_ax, slip_rates, conf_ranges=conf_ranges
+    )
 
     # Save slip rate figure
-    reporting.save_slip_rate_fig(inps.output_prefix, rate_fig,
-                                 verbose=inps.verbose)
+    reporting.save_slip_rate_fig(
+        inps.output_prefix, rate_fig, verbose=inps.verbose
+    )
 
     # Save slip rate report to file
-    report_args = {
-        'output_prefix': inps.output_prefix,
-        'formulation': "analytical",
-        'slip_rates': slip_rates,
-        'sample_statistics': sample_stats,
-        'pdf_statistics': pdf_stats,
-        'confidence_ranges': conf_ranges,
-    }
-    reporting.write_slip_rates_report(**report_args, verbose=inps.verbose)
+    reporting.write_slip_rates_report(
+        output_prefix=inps.output_prefix,
+        formulation="analytical",
+        slip_rates=slip_rates,
+        sample_statistics=sample_stats,
+        pdf_statistics=pdf_stats,
+        confidence_ranges=conf_ranges,
+        verbose=inps.verbose
+    )
 
     # Plot if requested
     if inps.plot == True:

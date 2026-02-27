@@ -16,7 +16,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Divide two random variables expressed as PDFs."""
+Description = "Divide two random variables expressed as PDFs."
 
 Examples = """Examples:
 divide_variables.py displacement.txt age.txt -o sliprate.txt
@@ -67,8 +67,9 @@ def main():
     denom_pdf = readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Compute quotient of PDFs
-    quot_pdf = divide_variables(numer_pdf, denom_pdf, name=inps.name,
-                                verbose=inps.verbose)
+    quot_pdf = divide_variables(
+        numer_pdf, denom_pdf, name=inps.name, verbose=inps.verbose
+    )
 
     # Save to file
     readers.save_pdf(inps.outname, quot_pdf, verbose=inps.verbose)
@@ -76,19 +77,19 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, quot_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], numer_pdf)
-        plotting.plot_pdf_filled(fig, axes[0], denom_pdf)
+        plotting.plot_pdf_filled(inpt_ax, numer_pdf)
+        plotting.plot_pdf_filled(inpt_ax, denom_pdf)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], quot_pdf)
+        plotting.plot_pdf_labeled(quot_ax, quot_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("PDF Quotient")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
+        quot_ax.set_title("PDF Quotient")
         fig.tight_layout()
 
         plt.show()

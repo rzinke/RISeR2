@@ -18,7 +18,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Merge two or more PDFs."""
+Description = "Merge two or more PDFs."
 
 Examples = """Examples:
 merge_variables.py pdf1.txt pdf2.txt -o merged_pdf.txt
@@ -73,22 +73,22 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, merge_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
         for pdf in pdfs:
-            plotting.plot_pdf_filled(fig, axes[0], pdf)
+            plotting.plot_pdf_filled(inpt_ax, pdf)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], merged_pdf)
+        plotting.plot_pdf_labeled(merge_ax, merged_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("Merged PDF")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
+        merge_ax.set_title("Merged PDF")
         fig.tight_layout()
 
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

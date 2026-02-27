@@ -11,14 +11,15 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import \
+from riser.probability_functions import(
     readers, interpolation, value_arrays, PDF
+)
 from riser.variable_operations import compute_ks_statistic
 from riser import plotting, units
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the K-S statistic for two PDFs."""
+Description = "Compute the K-S statistic for two PDFs."
 
 Examples = """Examples:
 compute_ks_statistic.py pdf1.txt pdf2.txt
@@ -62,8 +63,9 @@ def main():
     pdf2 = readers.read_pdf(inps.fname2, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    pdf1, pdf2 = interpolation.interpolate_pdfs([pdf1, pdf2],
-                                                verbose=inps.verbose)
+    pdf1, pdf2 = interpolation.interpolate_pdfs(
+        [pdf1, pdf2], verbose=inps.verbose
+    )
 
     # Compute K-S statistic
     ks_stat, ks_ndx = compute_ks_statistic(pdf1, pdf2, verbose=True)
@@ -71,27 +73,31 @@ def main():
     # Plot functions if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, cdf_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(fig, axes[0], pdf1, color="r")
-        plotting.plot_pdf_filled(fig, axes[0], pdf2, color="b")
+        plotting.plot_pdf_filled(inpt_ax, pdf1, color="r")
+        plotting.plot_pdf_filled(inpt_ax, pdf2, color="b")
 
         # Plot CDFs
-        plotting.plot_cdf_line(fig, axes[1], pdf1, color="r")
-        plotting.plot_cdf_line(fig, axes[1], pdf2, color="b")
+        plotting.plot_cdf_line(cdf_ax, pdf1, color="r")
+        plotting.plot_cdf_line(cdf_ax, pdf2, color="b")
 
         # Plot maximum distance
-        axes[1].plot([pdf1.x[ks_ndx], pdf2.x[ks_ndx]],
-                     [pdf1.Px[ks_ndx], pdf2.Px[ks_ndx]],
-                     color="k", linewidth=2, label="KS stat")
+        cdf_ax.plot(
+            [pdf1.x[ks_ndx], pdf2.x[ks_ndx]],
+            [pdf1.Px[ks_ndx], pdf2.Px[ks_ndx]],
+            color="k",
+            linewidth=2,
+            label="KS stat"
+        )
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
 
-        axes[1].legend()
-        axes[1].set_title("K-S Analysis")
+        cdf_ax.legend()
+        cdf_ax.set_title("K-S Analysis")
         fig.tight_layout()
 
         plt.show()

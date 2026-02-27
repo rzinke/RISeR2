@@ -18,7 +18,10 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Interpolate (and extrapolate) the PDF of a random variable over a new range of values."""
+Description = (
+    "Interpolate (and extrapolate) the PDF of a random variable over a new "
+    "range of values."
+)
 
 Examples = """Examples:
 interpolate_pdf.py pdf_file.txt --dx 0.01
@@ -69,7 +72,6 @@ def main():
     # Parse arguments
     inps = cmd_parser()
 
-
     # Read PDF from file
     pdf = read_pdf(inps.pdf_name, verbose=inps.verbose)
 
@@ -95,9 +97,9 @@ def main():
         fig, ax = plt.subplots()
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, ax, pdf_resamp)
+        plotting.plot_pdf_labeled(ax, pdf_resamp)
 
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

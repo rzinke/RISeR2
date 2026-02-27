@@ -103,8 +103,9 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(inps.marker_config,
-                                                      verbose=inps.verbose)
+    markers = marker_readers.read_markers_from_config(
+        inps.marker_config, verbose=inps.verbose
+    )
 
     # Check that multiple markers are specified
     if len(markers) < 2:
@@ -114,14 +115,12 @@ def main():
     marker_fig, marker_ax = plt.subplots()
 
     # Plot markers
-    plot_args = {
-        'fig': marker_fig,
-        'ax': marker_ax,
-        'markers': markers,
-        'marker_plot_type': "whisker",
-        'label': True,
-    }
-    plotting.plot_markers(**plot_args)
+    plotting.plot_markers(
+        ax=marker_ax,
+        markers=markers,
+        marker_plot_type="whisker",
+        label=True
+    )
     marker_fig.tight_layout()
 
     # Scale input units to output units
@@ -131,24 +130,23 @@ def main():
                 marker.displacement, inps.displacement_unit_out)
 
     # Save marker fig
-    reporting.save_marker_fig(inps.output_prefix, marker_fig,
-                              verbose=inps.verbose)
+    reporting.save_marker_fig(
+        inps.output_prefix, marker_fig, verbose=inps.verbose
+    )
 
     # Compute slip rates
-    slip_rate_args = {
-        'markers': markers,
-        'limit_positive': inps.limit_positive,
-        'max_quotient': inps.max_rate,
-        'dq': inps.dv,
-    }
     slip_rates = rate_computation.compute_slip_rates_analytical(
-            **slip_rate_args, verbose=inps.verbose)
+        markers=markers,
+        limit_positive=inps.limit_positive,
+        max_quotient=inps.max_rate,
+        dq=inps.dv,
+        verbose=inps.verbose
+    )
 
     # Save PDFs to file
     for marker_pair, slip_rate in slip_rates.items():
         rate_outname = f"{inps.output_prefix}_{marker_pair}_slip_rate.txt"
-        pdf_readers.save_pdf(rate_outname, slip_rate,
-                             verbose=inps.verbose)
+        pdf_readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
 
     # Compute PDF statistics
     pdf_stats = {}
@@ -158,8 +156,9 @@ def main():
             print(pdf_stats[marker_pair])
 
     # Retrieve confidence range function
-    conf_fcn = analytics.get_pdf_confidence_function(inps.confidence_metric,
-                                                     verbose=inps.verbose)
+    conf_fcn = analytics.get_pdf_confidence_function(
+        inps.confidence_metric, verbose=inps.verbose
+    )
 
     # Compute confidence ranges
     conf_ranges = {}
@@ -172,22 +171,24 @@ def main():
     rate_fig, rate_ax = plt.subplots()
 
     # Plot slip rate PDFs
-    plotting.plot_pdf_stack(rate_fig, rate_ax, slip_rates,
-                            conf_ranges=conf_ranges)
+    plotting.plot_pdf_stack(
+        rate_fig, rate_ax, slip_rates, conf_ranges=conf_ranges
+    )
 
     # Save slip rate figure
-    reporting.save_slip_rate_fig(inps.output_prefix, rate_fig,
-                                 verbose=inps.verbose)
+    reporting.save_slip_rate_fig(
+        inps.output_prefix, rate_fig, verbose=inps.verbose
+    )
 
     # Save slip rate report to file
-    report_args = {
-        'output_prefix': inps.output_prefix,
-        'formulation': "analytical",
-        'slip_rates': slip_rates,
-        'pdf_statistics': pdf_stats,
-        'confidence_ranges': conf_ranges,
-    }
-    reporting.write_slip_rates_report(**report_args, verbose=inps.verbose)
+    reporting.write_slip_rates_report(
+        output_prefix=inps.output_prefix,
+        formulation="analytical",
+        slip_rates=slip_rates,
+        pdf_statistics=pdf_stats,
+        confidence_ranges=conf_ranges,
+        verbose=inps.verbose
+    )
 
     # Plot if requested
     if inps.plot == True:

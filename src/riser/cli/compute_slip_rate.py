@@ -21,8 +21,10 @@ from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = ("Compute the slip rate for a single marker by dividing feature "
-               "displacement by age, using the analytical formulation.")
+Description = (
+    "Compute the slip rate for a single marker by dividing feature "
+    "displacement by age, using the analytical formulation."
+)
 
 Examples = """Examples:
 compute_slip_rate.py marker_config.toml -o v1
@@ -99,8 +101,9 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(inps.marker_config,
-                                                      verbose=inps.verbose)
+    markers = marker_readers.read_markers_from_config(
+        inps.marker_config, verbose=inps.verbose
+    )
 
     # Check that only one marker is specified
     if len(markers) > 1:
@@ -120,28 +123,27 @@ def main():
     plotting.format_marker_plot(marker_fig, marker_ax, marker)
 
     # Save marker fig
-    reporting.save_marker_fig(inps.output_prefix, marker_fig,
-                              verbose=inps.verbose)
+    reporting.save_marker_fig(
+        inps.output_prefix, marker_fig, verbose=inps.verbose
+    )
 
     # Scale input units to output units
     marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
 
     marker.displacement = units.scale_pdf_by_units(
-            marker.displacement, inps.displacement_unit_out)
+            marker.displacement, inps.displacement_unit_out
+    )
 
     # Compute slip rate
-    slip_rate_args = {
-        'marker': marker,
-        'max_quotient': inps.max_rate,
-        'dq': inps.dv,
-    }
-    slip_rate = rate_computation.compute_slip_rate(**slip_rate_args,
-                                                   verbose=inps.verbose)
+    slip_rate = rate_computation.compute_slip_rate(
+        marker=marker,
+        max_quotient=inps.max_rate,
+        dq=inps.dv
+    )
 
     # Save PDF to file
     rate_outname = f"{inps.output_prefix}_{slip_rate.name}_slip_rate.txt"
-    pdf_readers.save_pdf(rate_outname, slip_rate,
-                         verbose=inps.verbose)
+    pdf_readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
 
     # Compute PDF statistics
     pdf_stats = analytics.PDFstatistics(slip_rate)
@@ -149,8 +151,9 @@ def main():
         print(pdf_stats)
 
     # Retrieve confidence range function
-    conf_fcn = analytics.get_pdf_confidence_function(inps.confidence_metric,
-                                                     verbose=inps.verbose)
+    conf_fcn = analytics.get_pdf_confidence_function(
+        inps.confidence_metric, verbose=inps.verbose
+    )
 
     # Compute confidence range
     conf_range = conf_fcn(slip_rate, inps.confidence_limits)
@@ -164,22 +167,23 @@ def main():
     plotting.plot_pdf_labeled(rate_fig, rate_ax, slip_rate)
 
     # Plot confidence range
-    plotting.plot_pdf_confidence_range(rate_fig, rate_ax,
-                                       slip_rate, conf_range)
+    plotting.plot_pdf_confidence_range(
+        rate_ax, slip_rate, conf_range
+    )
 
     # Save slip rate figure
-    reporting.save_slip_rate_fig(inps.output_prefix, rate_fig,
-                                 verbose=inps.verbose)
+    reporting.save_slip_rate_fig(
+        inps.output_prefix, rate_fig, verbose=inps.verbose
+    )
 
     # Save slip rate report to file
-    report_args = {
-        'output_prefix': inps.output_prefix,
-        'formulation': "analytical",
-        'slip_rates': {marker.name: slip_rate},
-        'pdf_statistics': {marker.name: pdf_stats},
-        'confidence_ranges': {marker.name: conf_range},
-    }
-    reporting.write_slip_rates_report(**report_args, verbose=inps.verbose)
+    reporting.write_slip_rates_report(
+        output_prefix=inps.output_prefix,
+        formulation="analytical",
+        slip_rates={marker.name: slip_rate},
+        pdf_statistics={marker.name: pdf_stats},
+        verbose=inps.verbose
+    )
 
     # Plot if requested
     if inps.plot == True:

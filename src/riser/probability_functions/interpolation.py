@@ -21,8 +21,9 @@ or domain).
 import numpy as np
 
 from riser.probability_functions import PDF
-from riser.probability_functions.ProbabilityDensityFunction import \
+from riser.probability_functions.ProbabilityDensityFunction import (
     PDF_METADATA_ITEMS
+)
 from riser.probability_functions import value_arrays
 
 
@@ -65,8 +66,7 @@ def interpolate_pdfs(pdfs:list[PDF], verbose=False) -> list[PDF]:
             pdfs, verbose=verbose)
 
     # Create value array
-    x = value_arrays.create_precise_value_array(xmin, xmax, dx,
-                                                verbose=verbose)
+    x = value_arrays.create_precise_value_array(xmin, xmax, dx, verbose=verbose)
 
     # Resample PDFs
     pdfs_resamp = [interpolate_pdf(pdf, x) for pdf in pdfs]

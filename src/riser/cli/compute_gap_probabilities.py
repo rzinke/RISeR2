@@ -10,13 +10,14 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers, interpolation
-from riser.variable_operations import compute_probability_between_variables
-from riser import plotting
+import riser.probability_functions.readers as readers
+import riser.probability_functions.interpolation as interpolation
+import riser.variable_operations as var_ops
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the probabilties of values between two PDFs."""
+Description = "Compute the probabilties of values between two PDFs."
 
 Examples = """Examples:
 compute_gap_probabilities.py pdf1.txt pdf2.txt -o pdf12.txt
@@ -41,7 +42,7 @@ def cmd_parser(iargs=None):
 
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="Name of differenced PDF. [None]")
+        help="Name of gap PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -67,12 +68,14 @@ def main():
     pdf2 = readers.read_pdf(inps.fname2, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    pdf1, pdf2 = interpolation.interpolate_pdfs([pdf1, pdf2],
-                                                verbose=inps.verbose)
+    pdf1, pdf2 = interpolation.interpolate_pdfs(
+        [pdf1, pdf2], verbose=inps.verbose
+    )
 
     # Compute summed PDF
-    gap_pdf = compute_probability_between_variables(pdf1, pdf2, name=inps.name,
-                                                    verbose=inps.verbose)
+    gap_pdf = var_ops.compute_probability_between_variables(
+        pdf1, pdf2, name=inps.name, verbose=inps.verbose
+    )
 
     # Save to file
     readers.save_pdf(inps.outname, gap_pdf, verbose=inps.verbose)
@@ -83,9 +86,9 @@ def main():
         fig, ax = plt.subplots()
 
         # Plot PDF
-        plotting.plot_pdf_line(fig, ax, pdf1)
-        plotting.plot_pdf_line(fig, ax, pdf2)
-        plotting.plot_pdf_labeled(fig, ax, gap_pdf)
+        plotting.plot_pdf_line(ax, pdf1)
+        plotting.plot_pdf_line(ax, pdf2)
+        plotting.plot_pdf_labeled(ax, gap_pdf)
 
         # Format figure
         ax.legend()

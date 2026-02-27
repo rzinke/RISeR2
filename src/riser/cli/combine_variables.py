@@ -12,13 +12,14 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers, interpolation
-from riser.variable_operations import combine_variables
-from riser import plotting
+import riser.probability_functions.readers as readers
+import riser.probability_functions.interpolation as interpolation
+import riser.variable_operations as var_ops
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Compute the joint PDF of two or more functions."""
+Description = "Compute the joint PDF of two or more functions."
 
 Examples = """Examples:
 combine_variables.py pdf1.txt pdf2.txt -o joint_pdf.txt
@@ -65,7 +66,7 @@ def main():
     pdfs = interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
     # Compute joint PDF
-    joint_pdf = combine_variables(pdfs, verbose=inps.verbose)
+    joint_pdf = var_ops.combine_variables(pdfs, verbose=inps.verbose)
 
     # Save to file
     readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
@@ -73,19 +74,19 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (inpt_ax, comb_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
         for pdf in pdfs:
-            plotting.plot_pdf_filled(fig, axes[0], pdf)
+            plotting.plot_pdf_filled(inpt_ax, pdf)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], joint_pdf)
+        plotting.plot_pdf_labeled(comb_ax, joint_pdf)
 
         # Format figure
-        axes[0].legend()
-        axes[0].set_title("Inputs")
-        axes[1].set_title("Joint PDF")
+        inpt_ax.legend()
+        inpt_ax.set_title("Inputs")
+        comb_ax.set_title("Joint PDF")
         fig.tight_layout()
 
         plt.show()

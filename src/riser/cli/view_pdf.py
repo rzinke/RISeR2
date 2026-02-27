@@ -18,7 +18,7 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """View the PDF of a random variable and its properties."""
+Description = "View the PDF of a random variable and its properties."
 
 Examples = """Examples:
 view_pdf.py pdf_file.txt
@@ -79,14 +79,13 @@ def main():
 
     # Report stats if requested
     if inps.verbose == True:
-        stats = analytics.PDFstatistics(pdf)
-        print(stats)
+        print(analytics.PDFstatistics(pdf))
 
     # Initialize figure and axis
     pdf_fig, pdf_ax = plt.subplots()
 
     # Plot PDF
-    plotting.plot_pdf_labeled(pdf_fig, pdf_ax, pdf)
+    plotting.plot_pdf_labeled(pdf_ax, pdf)
 
     # Compute and plot confidence range
     if inps.show_confidence == True:
@@ -100,7 +99,7 @@ def main():
             print(conf_range)
 
         # Plot confidence range(s)
-        plotting.plot_pdf_confidence_range(pdf_fig, pdf_ax, pdf, conf_range)
+        plotting.plot_pdf_confidence_range(pdf_ax, pdf, conf_range)
 
     # Show CDF
     if inps.show_cdf == True:
@@ -108,7 +107,7 @@ def main():
         cdf_fig, cdf_ax = plt.subplots()
 
         # Plot CDF
-        plotting.plot_cdf_labeled(cdf_fig, cdf_ax, pdf)
+        plotting.plot_cdf_labeled(cdf_ax, pdf)
 
     # Save figure to file
     if inps.outname is not None:

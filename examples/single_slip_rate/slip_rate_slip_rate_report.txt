@@ -1,13 +1,10 @@
-Incremental slip rates from analytical formulation (2025 09 15:16 47 42)
+Incremental slip rates from analytical formulation (2026 02 26:21 31 45)
 
 PDF: Feature 01 (m/ky)
-  mode: 2.940
+  mode: 2.941
 median: 3.000
-  mean: 2.940
+  mean: 3.031
    std: 0.326
    var: 0.106
   skew: 0.616
   kurt: 3.757
-PDF confidence range: Feature 01 (m/ky)
-HPD 68.27 %
-	(2.670 - 3.270)

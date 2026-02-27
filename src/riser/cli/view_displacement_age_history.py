@@ -14,8 +14,9 @@ from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = ("Plot the displacement-age history constrained by a set of "
-               "markers.")
+Description = (
+    "Plot the displacement-age history constrained by a set of markers."
+)
 
 Examples = """Examples:
 view_displacement_age_history.py marker_config.toml
@@ -79,14 +80,16 @@ def main():
     inps = cmd_parser()
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(inps.marker_config,
-                                                      verbose=inps.verbose)
+    markers = marker_readers.read_markers_from_config(
+        inps.marker_config, verbose=inps.verbose
+    )
 
     # Scale input units to output units before further action
     for marker in markers.values():
         marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
         marker.displacement = units.scale_pdf_by_units(
-                marker.displacement, inps.displacement_unit_out)
+                marker.displacement, inps.displacement_unit_out
+        )
 
     # Initialize figure and axis for input markers
     if inps.show_marginals == True:
@@ -101,25 +104,32 @@ def main():
 
 
     # Plot markers
-    plot_args = {
-        'fig': fig,
-        'ax': marker_ax,
-        'markers': markers,
-        'marker_plot_type': inps.marker_plot_type,
-        'label': inps.show_labels,
-    }
-    plotting.plot_markers(**plot_args)
+    plotting.plot_markers(
+        fig=fig,
+        ax=marker_ax,
+        markers=markers,
+        marker_plot_type=inps.marker_plot_type,
+        label=inps.show_labels
+    )
 
     # Plot marginal distributions
     if inps.show_marginals == True:
         for name, marker in markers.items():
             # Plot age
-            age_ax.fill_between(marker.age.x, marker.age.px,
-                                color="dimgrey", alpha=0.3)
+            age_ax.fill_between(
+                marker.age.x,
+                marker.age.px,
+                color="dimgrey",
+                alpha=0.3
+            )
 
             # Plot displacement
-            disp_ax.fill(marker.displacement.px, marker.displacement.x,
-                                 color="dimgrey", alpha=0.3)
+            disp_ax.fill(
+                marker.displacement.px,
+                marker.displacement.x,
+                color="dimgrey",
+                alpha=0.3
+            )
 
             # Adjust main axis limits
             marker_ax.set_xlim(age_ax.get_xlim())

@@ -77,9 +77,8 @@ def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
             np.diff(pdf.x, append=pdf.x[-1] + np.mean(diff_x)))
 
 
-def value_array_params_from_pdfs(
-        pdfs:list[PDF], verbose=False
-    ) -> tuple[float, float, float]:
+def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False
+) -> tuple[float, float, float]:
     """Determine the value limits for a set of PDFs.
 
     Args    pdfs - list[PDF], PDFs to resample

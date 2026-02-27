@@ -13,13 +13,20 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers, PDF, analytics
-from riser.sampling import filtering
-from riser import units, plotting
+from riser.probability_functions.ProbabilityDensityFunction import (
+    ProbabilityDensityFunction as PDF
+)
+import riser.probability_functions.readers as readers
+import riser.probability_functions.analytics as analytics
+import riser.sampling.filtering as filtering
+import riser.units as units
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = """Convert an age PDF from calendar years to (kilo)years before present."""
+Description = (
+    "Convert an age PDF from calendar years to (kilo)years before present."
+)
 
 Examples = """Examples:
 """
@@ -34,7 +41,7 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='fname',
+    input_args.add_argument(dest='date_fname',
         type=str,
         help="Calendar years file name.")
 
@@ -96,8 +103,8 @@ def main():
     inps = cmd_parser()
 
     # Read calendar years file
-    calyr, calpx, metadata = readers.read_calendar_file(inps.fname,
-                                                     verbose=inps.verbose)
+    calyr, calpx, metadata = readers.read_calendar_file(
+        inps.date_fname, verbose=inps.verbose)
 
     # Convert calendar year to years before present (ypb)
     if inps.verbose == True:
@@ -156,22 +163,22 @@ def main():
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, axes = plt.subplots(nrows=2)
+        fig, (cal_ax, age_ax) = plt.subplots(nrows=2)
 
         # Plot calendar years
-        axes[0].plot(calyr, calpx, color="k")
+        cal_ax.plot(calyr, calpx, color="k")
 
         # Plot PDF
-        plotting.plot_pdf_labeled(fig, axes[1], pdf)
+        plotting.plot_pdf_labeled(age_ax, pdf)
 
         # Format plot
-        axes[0].invert_xaxis()
-        axes[0].set_xlabel("Calendar year (CE / BCE)")
-        axes[0].set_ylabel("Probability density")
+        cal_ax.invert_xaxis()
+        cal_ax.set_xlabel("Calendar year (CE / BCE)")
+        cal_ax.set_ylabel("Probability density")
 
         fig.tight_layout()
 
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':
