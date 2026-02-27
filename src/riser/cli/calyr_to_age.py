@@ -16,8 +16,7 @@ import matplotlib.pyplot as plt
 from riser.probability_functions.ProbabilityDensityFunction import (
     ProbabilityDensityFunction as PDF
 )
-import riser.probability_functions.readers as readers
-import riser.probability_functions.analytics as analytics
+import riser.probability_functions as PDFs
 import riser.sampling.filtering as filtering
 import riser.units as units
 import riser.plotting as plotting
@@ -103,8 +102,9 @@ def main():
     inps = cmd_parser()
 
     # Read calendar years file
-    calyr, calpx, metadata = readers.read_calendar_file(
-        inps.date_fname, verbose=inps.verbose)
+    calyr, calpx, metadata = PDFs.readers.read_calendar_file(
+        inps.date_fname, verbose=inps.verbose
+    )
 
     # Convert calendar year to years before present (ypb)
     if inps.verbose == True:
@@ -115,8 +115,9 @@ def main():
     input_unit = units.get_priority_unit(metadata.get('unit'), inps.input_unit)
 
     # Scale from input units to output units
-    x = units.scale_values_by_units(ybp, input_unit, inps.output_unit,
-                                    verbose=inps.verbose)
+    x = units.scale_values_by_units(
+        ybp, input_unit, inps.output_unit, verbose=inps.verbose
+    )
 
     # Flip left for right, so age is increasing
     x = x[::-1]
@@ -154,11 +155,11 @@ def main():
 
     # Report final stats if requested
     if inps.verbose == True:
-        stats = analytics.PDFstatistics(pdf)
+        stats = PDFs.analytics.PDFstatistics(pdf)
         print(stats)
 
     # Save to file
-    readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
