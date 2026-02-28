@@ -16,12 +16,10 @@ import argparse
 import matplotlib.pyplot as plt
 
 import riser.probability_functions as PDFs
-import riser.markers.readers as marker_readers
-import riser.sampling.sample_statistics as sample_statistics
-import riser.slip_rates.rate_computation as rate_computation
-import riser.slip_rates.reporting as reporting
-import riser.units as units
-import riser.plotting as plotting
+from riser.markers import readers as marker_readers
+from riser.slip_rates import rate_computation, reporting
+from riser.sampling import mc_sampling, sample_statistics
+from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
@@ -71,10 +69,10 @@ def cmd_parser(iargs=None):
     # Slip rate
     rate_args = parser.add_argument_group("Slip rates")
     rate_args.add_argument("--min-rate", dest="min_rate",
-        type=float, default=0,
+        type=float, default=0.0,
         help="Minimum slip rate to consider. [0]")
     rate_args.add_argument("--max-rate", dest="max_rate",
-        type=float, default=100,
+        type=float, default=100.0,
         help="Maximum slip rate to consider. [100]")
     rate_args.add_argument("--dv", dest="dv",
         type=float, default=0.01,
@@ -160,20 +158,25 @@ def main():
         inps.output_prefix, marker_fig, verbose=inps.verbose
     )
 
+    # Define valid sample criterion
+    kwargs = {"max_sample_rate": inps.max_rate}
+    criterion = (
+        mc_sampling.get_sample_criterion("pass-non-negative-bounded")(**kwargs)
+    )
+
     # Compute slip rates
     (slip_rates,
      age_picks,
      disp_picks,
      rate_picks) = rate_computation.compute_slip_rates_mc(
         markers=markers,
-        condition="pass-non-negative-bounded",
+        criterion=criterion,
         n_samples=inps.n_samples,
-        pdf_min=inps.min_rate,
-        pdf_max=inps.max_rate,
+        pdf_xmin=inps.min_rate,
+        pdf_xmax=inps.max_rate,
         pdf_dx=inps.dv,
         smoothing_type=inps.smoothing_type,
         smoothing_width=inps.smoothing_width,
-        max_rate=inps.max_rate,
         verbose=inps.verbose
     )
 
