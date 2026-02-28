@@ -15,7 +15,7 @@ import numpy as np
 
 
 #################### ROUNDING ####################
-def check_precision(x:float) -> float:
+def check_precision(x: float) -> float:
     """Check that value is above precision limit.
     """
     if x <= 10**-RISER_PRECISION:
@@ -24,7 +24,7 @@ def check_precision(x:float) -> float:
         )
 
 
-def fix_precision(x:float) -> float:
+def fix_precision(x: float) -> float:
     """Round to a tiny digit to compensate for machine error.
     """
     return np.round(x, RISER_PRECISION)

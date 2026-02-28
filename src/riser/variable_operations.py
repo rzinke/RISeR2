@@ -15,12 +15,12 @@ import copy
 import numpy as np
 import scipy as sp
 
+import riser.probability_functions as PDFs
 from riser import precision, variable_types, units
-from riser.probability_functions import PDF, value_arrays
 
 
 #################### GENERIC FUNCTIONS ####################
-def convolve_input_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
+def convolve_input_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     """Convolution operator formulated from the input side.
 
     Args    x, h - np.ndarray, arrays to convolve
@@ -42,7 +42,7 @@ def convolve_input_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
     return y
 
 
-def convolve_output_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
+def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     """Convolution operator formulated from the output side.
 
     Args    x, h - np.ndarray, arrays to convolve
@@ -68,7 +68,7 @@ def convolve_output_side(x:np.ndarray, h:np.ndarray) -> np.ndarray:
 
 
 #################### VARIABLE COMBINATION ####################
-def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
+def combine_variables(pdfs: list[PDFs.PDF], verbose=False) -> PDFs.PDF:
     """Compute the joint probability mass function of two or more discrete
     random variables.
     Note: Treating the PDFs as discrete greatly simplifies the calculations.
@@ -84,7 +84,7 @@ def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
         print(f"Combining {len(pdfs)} PDFs")
 
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling(pdfs)
+    PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
     # Check variable types
     variable_type = variable_types.check_same_pdf_variable_types(pdfs)
@@ -101,12 +101,12 @@ def combine_variables(pdfs:list[PDF], verbose=False) -> PDF:
         px *= pdf.px
 
     # Form results into PDF
-    joint_pdf = PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    joint_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
 
     return joint_pdf
 
 
-def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
+def merge_variables(pdfs: list[PDFs.PDF], verbose=False) -> PDFs.PDF:
     """Combine two or more probability mass functions by summing them
 
     p = f_X(x) + f_Y(y)
@@ -131,7 +131,7 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
         print(f"Merging {len(pdfs)} PDFs")
 
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling(pdfs)
+    PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
     # Check variable types
     variable_type = variable_types.check_same_pdf_variable_types(pdfs)
@@ -148,13 +148,13 @@ def merge_variables(pdfs:list[PDF], verbose=False) -> PDF:
         px += pdf.px
 
     # Form results into PDF
-    merged_pdf = PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    merged_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
 
     return merged_pdf
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
-def negate_variable(pdf:PDF, verbose=False) -> PDF:
+def negate_variable(pdf: PDFs.PDF, verbose=False) -> PDFs.PDF:
     """Negate a random variable by negating the x-values, and flipping the
     probability densities left for right.
 
@@ -174,19 +174,23 @@ def negate_variable(pdf:PDF, verbose=False) -> PDF:
     neg_name = f"(negative) {pdf.name}" if pdf.name is not None else None
 
     # Form results into PDF
-    args = {
-        "x": neg_x,
-        "px": neg_px,
-        "name": neg_name,
-        "variable_type": pdf.variable_type,
-        "unit": pdf.unit,
-    }
-    neg_pdf = PDF(**args)
+    neg_pdf = PDFs.PDF(
+        x=neg_x,
+        px=neg_px,
+        name=neg_name,
+        variable_type=pdf.variable_type,
+        unit=pdf.unit
+    )
 
     return neg_pdf
 
 
-def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
+def add_variables(
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
+    name: str | None=None,
+    verbose=False
+) -> PDFs.PDF:
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
 
@@ -216,7 +220,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
         print("Adding variables")
 
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check variable types
     variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
@@ -227,7 +231,7 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
     # Parameters
     x_min = pdf1.x[0]
     x_max = pdf1.x[-1]
-    dx = value_arrays.sample_spacing_from_pdf(pdf1)
+    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
     # Output array length
@@ -242,20 +246,25 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
     pxx = np.convolve(pdf1.px, pdf2.px, mode="full")
 
     # Form results into PDF
-    pdf_args = {
-        "x": xx,
-        "px": pxx,
-        "name": name,
-        "variable_type": variable_type,
-        "unit": unit,
-    }
-    sum_pdf = PDF(**pdf_args, normalize_area=True)
+    sum_pdf = PDFs.PDF(
+        x=xx,
+        px=pxx,
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+        normalize_area=True
+    )
 
     return sum_pdf
 
 
-def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
-        name:str=None, verbose=False) -> PDF:
+def subtract_variables(
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
+    limit_positive: bool=False,
+    name: str=None,
+    verbose=False
+) -> PDFs.PDF:
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
     their values (Z).
 
@@ -291,7 +300,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
         print("Subtracting variables")
 
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check variable types
     variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
@@ -302,7 +311,7 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
     # Parameters
     x_min = pdf1.x[0]
     x_max = pdf1.x[-1]
-    dx = value_arrays.sample_spacing_from_pdf(pdf1)
+    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
     # Output array length
@@ -327,21 +336,27 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
         pxx = pxx[pos_ndx]
 
     # Form results into PDF
-    pdf_args = {
-        "x": xx,
-        "px": pxx,
-        "name": name,
-        "variable_type": variable_type,
-        "unit": unit,
-    }
-    diff_pdf = PDF(**pdf_args, normalize_area=True)
+    diff_pdf = PDFs.PDF(
+        x=xx,
+        px=pxx,
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+        normalize_area=True
+    )
 
     return diff_pdf
 
 
-def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
-        dq:float=0.01, name:str=None, variable_type:str=None,
-        verbose=False) -> PDF:
+def divide_variables(
+    numerator: PDFs.PDF,
+    denominator: PDFs.PDF,
+    max_quotient: float=100.0,
+    dq: float=0.01,
+    name: str | None=None,
+    variable_type: str | None=None,
+    verbose=False
+) -> PDFs.PDF:
     """Divide numerator by denominator.
 
     Thoery:
@@ -388,15 +403,16 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
 
     # Ensure all denominator values > 0
     if denom_min < 0:
-        raise ValueError("Division cannot be applied where the denominator is "
-                         "negative.")
+        raise ValueError(
+            "Division cannot be applied where the denominator is negative."
+        )
 
     # Quotient value parameters
     quot_min = numer_min / denom_max
     quot_max = np.min([max_quotient, numer_max / denom_min])
 
     # Create quotient value array
-    q = value_arrays.create_precise_value_array(quot_min, quot_max, dq)
+    q = PDFs.value_arrays.create_precise_value_array(quot_min, quot_max, dq)
 
     # Create quotient probability density array
     nq = len(q)
@@ -420,21 +436,25 @@ def divide_variables(numerator:PDF, denominator:PDF, max_quotient:float=100,
         unit = None
 
     # Form results into PDF
-    pdf_args = {
-        'x': q,
-        'px': pq,
-        'name': name,
-        'variable_type': variable_type,
-        'unit': unit,
-    }
-    quot_pdf = PDF(**pdf_args, normalize_area=True)
+    quot_pdf = PDFs.PDF(
+        x=q,
+        px=pq,
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+        normalize_area=True
+    )
 
     return quot_pdf
 
 
 #################### GAP BETWEEN VARIABLES ####################
-def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
-            name:str=None, verbose=False) -> PDF:
+def compute_probability_between_variables(
+    pdf1: PDFs.PDF, 
+    pdf2: PDFs.PDF,
+    name: str | None=None, 
+    verbose=False
+) -> PDFs.PDF:
     """Compute a PDF representing the domain and probability densities of
     values between two random variables.
 
@@ -456,7 +476,7 @@ def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
         print("Computing probability of a value between two variables.")
 
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
     unit = units.check_same_pdf_units([pdf1, pdf2])
@@ -465,13 +485,23 @@ def compute_probability_between_variables(pdf1:PDF, pdf2:PDF,
     px = pdf1.Px * (1 - pdf2.Px)
 
     # Form results into PDF
-    gap_pdf = PDF(pdf1.x, px, normalize_area=True, name=name, unit=unit)
+    gap_pdf = PDFs.PDF(
+        pdf1.x,
+        px,
+        name=name,
+        unit=unit,
+        normalize_area=True
+    )
 
     return gap_pdf
 
 
 #################### SIMILARITY ####################
-def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
+def compute_pearson_coefficient(
+    pdf1:PDFs.PDF,
+    pdf2:PDFs.PDF,
+    verbose=False
+) -> float:
     """Compute the Pearson correlation coefficient between two PDFs.
 
         r = sum[(xi - xbar)(yi - ybar)]
@@ -485,7 +515,7 @@ def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
     Returns r - float, Pearson correlation coefficient
     """
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([pdf1, pdf2])
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Check units
     unit = units.check_same_pdf_units([pdf1, pdf2])
@@ -506,8 +536,11 @@ def compute_pearson_coefficient(pdf1:PDF, pdf2:PDF, verbose=False) -> float:
     return r
 
 
-def cross_correlate_variables(ref_pdf:PDF, sec_pdf:PDF, verbose=False) -> \
-        (np.ndarray, np.ndarray):
+def cross_correlate_variables(
+    ref_pdf: PDFs.PDF,
+    sec_pdf: PDFs.PDF,
+    verbose=False
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute the cross correlation of the second variable against the first.
     Note: Unlike in classical cross correlation, which assumes infinite
     stationary signals and wraps the shifted part of the signal back around,
@@ -520,7 +553,7 @@ def cross_correlate_variables(ref_pdf:PDF, sec_pdf:PDF, verbose=False) -> \
             corr_vals - np.ndarrays, correlation values
     """
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
+    PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
 
     # Check units
     units.check_same_pdf_units([ref_pdf, sec_pdf])
@@ -563,8 +596,10 @@ def cross_correlate_variables(ref_pdf:PDF, sec_pdf:PDF, verbose=False) -> \
     return lags, corr_vals
 
 
-def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
-        (np.ndarray, float):
+def compute_overlap_index(
+    pdfs:list[PDFs.PDF],
+    verbose=False
+) -> tuple[np.ndarray, float]:
     """Compute the overlap index for two or more PDFs according to
     (Pastore and Calcgni, 2019):
 
@@ -579,7 +614,7 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
             px_min - np.ndarray
     """
     # Check for consistent sampling
-    value_arrays.check_pdfs_sampling(pdfs)
+    PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
     # Check units
     unit = units.check_same_pdf_units(pdfs)
@@ -601,7 +636,11 @@ def compute_overlap_index(pdfs:list[PDF], verbose=False) -> \
     return px_min, eta
 
 
-def compute_ks_statistic(pdf1:PDF, pdf2:PDF, verbose=False) -> (float, int):
+def compute_ks_statistic(
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
+    verbose=False
+) -> tuple[float, int]:
     """Compute the Komolgorov-Smirnov statistic for two PDFs.
     The K-S statistic (D) is the largest difference between the CDFs of the
     two PDFs.

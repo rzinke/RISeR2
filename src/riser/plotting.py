@@ -12,8 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+import riser.probability_functions as PDFs
 from riser import variable_types, units
-from riser.probability_functions import PDF, analytics
 from riser.sampling import filtering
 from riser.markers import DatedMarker
 
@@ -36,7 +36,7 @@ def formulate_axis_label(variable_type: str, unit: str) -> str:
     return ax_label
 
 
-def axis_label_from_pdf(pdf: PDF) -> str:
+def axis_label_from_pdf(pdf: PDFs.PDF) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
     Args    pdf - PDF from which to draw the metadata
@@ -51,7 +51,7 @@ def axis_label_from_pdf(pdf: PDF) -> str:
     return formulate_axis_label(variable_type, unit)
 
 
-def axis_label_from_pdfs(pdfs: list[PDF]) -> str:
+def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
     Args    pdfs - list[PDF], PDFs from which to draw the metadata
@@ -68,16 +68,16 @@ def axis_label_from_pdfs(pdfs: list[PDF]) -> str:
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2.0,
-        zorder: int=1,
-        # Scaling args
-        offset: float=0.0,
-        scale: float=1.0
+    ax,
+    pdf: PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2.0,
+    zorder: int=1,
+    # Scaling args
+    offset: float=0.0,
+    scale: float=1.0
 ) -> None:
     """Basic line plot of a probability density function (PDF).
 
@@ -101,17 +101,17 @@ def plot_pdf_line(
 
 
 def plot_pdf_filled(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2.0,
-        zorder: int=1,
-        alpha: float=0.3,
-        # Scaling args
-        offset: float=0.0,
-        scale: float=1.0,
+    ax,
+    pdf: PDFs.PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2.0,
+    zorder: int=1,
+    alpha: float=0.3,
+    # Scaling args
+    offset: float=0.0,
+    scale: float=1.0
 ) -> None:
     """Filled plot of a probability density function (PDF).
     """
@@ -138,17 +138,17 @@ def plot_pdf_filled(
 
 
 def plot_pdf_labeled(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2.0,
-        zorder: int=1,
-        alpha: float=0.3,
-        # Scaling args
-        offset: float=0.0, 
-        scale: float=1.0
+    ax,
+    pdf: PDFs.PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2.0,
+    zorder: int=1,
+    alpha: float=0.3,
+    # Scaling args
+    offset: float=0.0, 
+    scale: float=1.0
 ) -> None:
     """Labeled plot of a PDF.
     """
@@ -182,18 +182,18 @@ def plot_pdf_labeled(
 
 # PDF Confidence
 def plot_pdf_confidence_range(
-        ax,
-        pdf: PDF,
-        conf_range: analytics.ConfidenceRange,
-        *,
-        # Style args
-        color: str="royalblue",
-        zorder: int=1,
-        alpha: float=0.3,
-        incl_label: bool=False,
-        # Scaling args
-        offset: float=0.0,
-        scale: float=1.0
+    ax,
+    pdf: PDFs.PDF,
+    conf_range: PDFs.analytics.ConfidenceRange,
+    *,
+    # Style args
+    color: str="royalblue",
+    zorder: int=1,
+    alpha: float=0.3,
+    incl_label: bool=False,
+    # Scaling args
+    offset: float=0.0,
+    scale: float=1.0
 ) -> None:
     """Plot confidence ranges as fields overlying a PDF.
     """
@@ -222,13 +222,13 @@ def plot_pdf_confidence_range(
 
 # Multi-PDF
 def plot_pdf_stack(
-        ax,
-        pdfs: dict,
-        height: float=0.9,
-        colors: dict=None,
-        conf_ranges: dict=None,
-        priors: dict=None,
-        same_height: bool=False
+    ax,
+    pdfs: dict,
+    height: float=0.9,
+    colors: dict | None=None,
+    conf_ranges: dict | None=None,
+    priors: dict | None=None,
+    same_height: bool | None=False
 ) -> None:
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
@@ -305,12 +305,12 @@ def plot_pdf_stack(
 
 #################### CDF PLOTTING ####################
 def plot_cdf_line(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2
+    ax,
+    pdf: PDFs.PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2
 ) -> None:
     """Basic plot of a cumulative distribution function (CDF).
     """
@@ -325,13 +325,13 @@ def plot_cdf_line(
 
 
 def plot_cdf_filled(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2.0,
-        alpha: float=0.3
+    ax,
+    pdf: PDFs.PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2.0,
+    alpha: float=0.3
 ) -> None:
     """Filled plot of a cumulative distribution function (CDF).
     """
@@ -353,13 +353,13 @@ def plot_cdf_filled(
 
 
 def plot_cdf_labeled(
-        ax,
-        pdf: PDF,
-        *,
-        # Style args
-        color: str="black",
-        linewidth: float=2.0,
-        alpha: float=0.3
+    ax,
+    pdf: PDFs.PDF,
+    *,
+    # Style args
+    color: str="black",
+    linewidth: float=2.0,
+    alpha: float=0.3
 ) -> None:
     """Labeled plot of a CDF.
     """
@@ -429,20 +429,20 @@ def format_marker_plot(ax, markers: DatedMarker|dict) -> None:
 
 
 def plot_marker_whisker(
-        ax,
-        marker: DatedMarker,
-        confidence: float=Psigma["2"],
-        *,
-        # Style args
-        color="royalblue",
-        zorder=1,
-        label: bool=False
+    ax,
+    marker: DatedMarker,
+    confidence: float=Psigma["2"],
+    *,
+    # Style args
+    color="royalblue",
+    zorder=1,
+    label: bool=False
 ) -> None:
     """Plot a dated marker as a cross.
     """
     # Compute age confidence limits
-    age_mode = analytics.pdf_mode(marker.age)
-    age_range = analytics.compute_interquantile_range(
+    age_mode = PDFs.analytics.pdf_mode(marker.age)
+    age_range = PDFs.analytics.compute_interquantile_range(
             marker.age, confidence
     )
 
@@ -451,8 +451,8 @@ def plot_marker_whisker(
     age_err = [[age_mode - age_vals[0]], [age_vals[1] - age_mode]]
 
     # Compute displacement confidence limits
-    disp_mode = analytics.pdf_mode(marker.displacement)
-    disp_range = analytics.compute_interquantile_range(
+    disp_mode = PDFs.analytics.pdf_mode(marker.displacement)
+    disp_range = PDFs.analytics.compute_interquantile_range(
             marker.displacement, confidence
     )
 
@@ -470,14 +470,14 @@ def plot_marker_whisker(
 
 
 def plot_markers_whisker(
-        ax,
-        markers: dict,
-        confidence: float=Psigma["2"],
-        *,
-        # Style args
-        color="royalblue",
-        zorder=1,
-        label: bool=False
+    ax,
+    markers: dict,
+    confidence: float=Psigma["2"],
+    *,
+    # Style args
+    color="royalblue",
+    zorder=1,
+    label: bool=False
 ) -> None:
     """Plot a dated marker as a cross.
     """
@@ -492,19 +492,19 @@ def plot_markers_whisker(
 
 
 def plot_marker_rectangle(
-        ax,
-        marker: DatedMarker,
-        confidence: float=Psigma["2"],
-        *,
-        # Style args
-        color="royalblue",
-        zorder=1,
-        label: bool=False
+    ax,
+    marker: DatedMarker,
+    confidence: float=Psigma["2"],
+    *,
+    # Style args
+    color="royalblue",
+    zorder=1,
+    label: bool=False
 ) -> None:
     """Plot a dated marker as a rectangle.
     """
     # Compute age confidence limits
-    age_range = analytics.compute_interquantile_range(
+    age_range = PDFs.analytics.compute_interquantile_range(
             marker.age, confidence
     )
 
@@ -514,7 +514,7 @@ def plot_marker_rectangle(
     box_width = age_vals[1] - box_x
 
     # Compute displacement confidence limits
-    disp_range = analytics.compute_interquantile_range(
+    disp_range = PDFs.analytics.compute_interquantile_range(
             marker.displacement, confidence
     )
 
@@ -540,14 +540,14 @@ def plot_marker_rectangle(
 
 
 def plot_markers_rectangle(
-        ax,
-        markers: dict,
-        confidence: float=Psigma["2"],
-        *,
-        # Style args
-        color="royalblue",
-        zorder=1,
-        label: bool=False
+    ax,
+    markers: dict,
+    confidence: float=Psigma["2"],
+    *,
+    # Style args
+    color="royalblue",
+    zorder=1,
+    label: bool=False
 ) -> None:
     """Plot dated markers as rectangles.
     """
@@ -563,17 +563,17 @@ def plot_markers_rectangle(
 
 
 def plot_markers_joint_pdf(
-        ax,
-        markers: dict,
-        *,
-        n: int=1000,
-        xmin: float=0.0,
-        ymin: float=0.0,
-        xmax: float=0.0,
-        ymax: float=0.0,
-        # Style args
-        cmap: str="Greys",
-        label: bool=False
+    ax,
+    markers: dict,
+    *,
+    n: int=1000,
+    xmin: float=0.0,
+    ymin: float=0.0,
+    xmax: float=0.0,
+    ymax: float=0.0,
+    # Style args
+    cmap: str="Greys",
+    label: bool=False
 ) -> None:
     """Plot markers as joint PDFs.
     """
@@ -613,8 +613,8 @@ def plot_markers_joint_pdf(
 
         # Label if requested
         if label == True:
-            age_mode = analytics.pdf_mode(marker.age)
-            disp_mode = analytics.pdf_mode(marker.displacement)
+            age_mode = PDFs.analytics.pdf_mode(marker.age)
+            disp_mode = PDFs.analytics.pdf_mode(marker.displacement)
             ax.text(age_mode, disp_mode, marker_name, color="royalblue")
 
     # Plot joint probability
@@ -622,16 +622,16 @@ def plot_markers_joint_pdf(
 
 
 def plot_markers(
-        ax,
-        markers: dict,
-        marker_plot_type="whisker",
-        *,
-        confidence: float=Psigma["2"],
-        xmin: float=0.0,
-        ymin: float=0.0,
-        xmax: float=0.0,
-        ymax: float=0.0,
-        label: bool=False
+    ax,
+    markers: dict,
+    marker_plot_type="whisker",
+    *,
+    confidence: float=Psigma["2"],
+    xmin: float=0.0,
+    ymin: float=0.0,
+    xmax: float=0.0,
+    ymax: float=0.0,
+    label: bool=False
 ) -> None:
     """Plot multiple dated markers.
     """
@@ -689,10 +689,10 @@ def plot_markers(
 
 #################### SAMPLE PLOTTING ####################
 def plot_mc_picks(
-        ax,
-        age_picks: np.ndarray,
-        disp_picks: np.ndarray,
-        max_picks: int=500
+    ax,
+    age_picks: np.ndarray,
+    disp_picks: np.ndarray,
+    max_picks: int=500
 ) -> None:
     """Plot valid displacement-age picks.
     """

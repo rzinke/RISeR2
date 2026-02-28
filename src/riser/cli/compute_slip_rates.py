@@ -145,7 +145,7 @@ def main():
     slip_rates = rate_computation.compute_slip_rates_analytical(
         markers=markers,
         limit_positive=inps.limit_positive,
-        max_quotient=inps.max_rate,
+        max_rate=inps.max_rate,
         dq=inps.dv,
         verbose=inps.verbose
     )

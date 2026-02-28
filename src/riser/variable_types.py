@@ -25,7 +25,7 @@ from riser.probability_functions import PDF
 #################### PDF VARIABLE TYPE CHECKS ####################
 def check_variable_type_supported(
         variable_type: str, throw_error: bool=False, verbose=False
-    ) -> bool:
+) -> bool:
     """Check whether the specified variable type is supported.
 
     Args    variable_type - str, specified variable type

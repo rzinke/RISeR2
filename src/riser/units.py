@@ -23,11 +23,11 @@ import copy
 
 import numpy as np
 
-from riser.probability_functions import PDF
+import riser.probability_functions as PDFs
 
 
 #################### UNIT PARSING ####################
-def parse_unit(unit:str, verbose=False) -> (float, str):
+def parse_unit(unit: str, verbose=False) -> tuple[float, str]:
     """Determine the components of a unit.
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
@@ -73,20 +73,22 @@ def parse_unit(unit:str, verbose=False) -> (float, str):
 
 
 #################### UNIT CHECKS ####################
-def check_base_unit(base_unit:str) -> bool:
+def check_base_unit(base_unit: str) -> bool:
     """Check that the base unit is supported.
     """
     # Check PDF base unit is appropriate
     if base_unit not in BASE_UNITS:
-        raise ValueError(f"PDF {pdf.name} must have base unit "
-                         f"{', or '.join(BASE_UNITS)}")
+        raise ValueError(
+            f"PDF {pdf.name} must have base unit {', or '.join(BASE_UNITS)}"
+        )
 
     return True
 
 
 #################### UNIT PRIORITIZATION ####################
-def get_priority_unit(file_unit:str|None, inps_unit:str|None,
-                      verbose=False) -> str:
+def get_priority_unit(file_unit: str | None, inps_unit: str | None,
+        verbose=False
+) -> str:
     """If a unit is specified both in the file, and by the user, prioritize
     the unit encoded in the file.
     """
@@ -95,8 +97,10 @@ def get_priority_unit(file_unit:str|None, inps_unit:str|None,
             inps_unit is not None,
             file_unit != inps_unit]):
         # Warn user
-        warnings.warn("Unit specified in file is different from "
-                      "user-specified unit.", stacklevel=2)
+        warnings.warn(
+            "Unit specified in file is different from user-specified unit.",
+            stacklevel=2
+        )
 
     # Set priority unit
     if all([file_unit is None, inps_unit is not None]):
@@ -116,8 +120,12 @@ def get_priority_unit(file_unit:str|None, inps_unit:str|None,
 
 
 #################### UNIT SCALING ####################
-def scale_values_by_units(values:float|np.ndarray, unit_in:str, unit_out:str,
-        verbose=False) -> float|np.ndarray:
+def scale_values_by_units(
+    values: float | np.ndarray,
+    unit_in: str,
+    unit_out: str,
+    verbose=False
+) -> float | np.ndarray:
     """Scale values from the input unit to the output.
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
@@ -145,8 +153,11 @@ def scale_values_by_units(values:float|np.ndarray, unit_in:str, unit_out:str,
     return scale_factor * values
 
 
-def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
-        float|np.ndarray:
+def scale_pdf_by_units(
+    pdf: PDFs.PDF,
+    unit_out: str,
+    verbose=False
+) -> PDFs.PDF:
     """Scale the values of a PDF from the input unit to the output.
     Only the values and units are changed.
     Currently only works with simple units (e.g., m, y) and not compound units
@@ -155,32 +166,37 @@ def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
     # Escape if units not properly specified or scaling is not desired
     if any([pdf.unit is None, unit_out is None]):
         if pdf.unit is None:
-            warnings.warn("Cannot scale PDF values with units None. "
-                          "Continuing with original units.", stacklevel=2)
+            warnings.warn(
+                "Cannot scale PDF values with units None. "
+                "Continuing with original units.",
+                stacklevel=2
+            )
         return pdf
 
     # Scale values
-    scaled_values = scale_values_by_units(pdf.x, pdf.unit, unit_out,
-                                          verbose=verbose)
+    scaled_values = scale_values_by_units(
+        pdf.x, pdf.unit, unit_out, verbose=verbose
+    )
 
     # Form scaled PDF
-    pdf_args = {
-        "x": scaled_values,
-        "px": pdf.px,
-        "name": pdf.name,
-        "variable_type": pdf.variable_type,
-        "unit": unit_out,
-    }
-    scaled_pdf = PDF(**pdf_args, normalize_area=True)
+    scaled_pdf = PDFs.PDF(
+        x=scaled_values,
+        px=pdf.px,
+        name=pdf.name,
+        variable_type=pdf.variable_type,
+        unit=unit_out,
+        normalize_area=True
+    )
 
     return scaled_pdf
 
 
 #################### PDF UNIT CHECKS ####################
-def check_pdf_base_unit(pdf:PDF, variable_type:str=None) -> str:
+def check_pdf_base_unit(pdf: PDFs.PDF, variable_type: str | None=None) -> str:
     """Check whether a PDF has a unit assigned, and the base of that unit.
 
     Args    pdf - PDF to check
+            variable_type - str, variable type
     Returns base_unit - str
     """
     # Check PDF has unit
@@ -203,7 +219,7 @@ def check_pdf_base_unit(pdf:PDF, variable_type:str=None) -> str:
     return base_unit
 
 
-def check_same_pdf_units(pdfs:list[PDF]) -> str|None:
+def check_same_pdf_units(pdfs: list[PDFs.PDF]) -> str | None:
     """Check that the units are the same among a series of PDFs.
 
     Args    pdfs - list[PDF], PDFs to check

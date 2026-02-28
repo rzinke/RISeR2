@@ -140,7 +140,7 @@ def main():
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
-        max_quotient=inps.max_rate,
+        max_rate=inps.max_rate,
         dq=inps.dv
     )
 
