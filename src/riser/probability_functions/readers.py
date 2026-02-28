@@ -17,7 +17,7 @@ from riser.probability_functions import PDF
 
 
 #################### CHECKS ####################
-def check_extension(fname:str, ext:str):
+def check_extension(fname: str, ext: str):
     """Check that the filename has the appropriate extension.
 
     Args    fname - str, filename
@@ -32,7 +32,7 @@ def check_extension(fname:str, ext:str):
 
 
 #################### PDF READERS ####################
-def parse_metadata_from_header(header_lines:list[str], verbose=False) -> dict:
+def parse_metadata_from_header(header_lines: list[str], verbose: bool=False) -> dict:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
     those listed in PDF_METADATA_ITEMS, and are demarkated by the item
@@ -69,7 +69,7 @@ def parse_metadata_from_header(header_lines:list[str], verbose=False) -> dict:
     return metadata
 
 
-def format_data_line(data_line:str) -> str:
+def format_data_line(data_line: str) -> str:
     """Remove leading and trailing spaces and newline characters.
     Ensure the delimiter is a comma.
 
@@ -95,7 +95,7 @@ def format_data_line(data_line:str) -> str:
     return data_line
 
 
-def parse_data_lines(data_lines:list[str], verbose=False
+def parse_data_lines(data_lines: list[str], verbose: bool=False
 ) -> tuple[np.ndarray, np.ndarray]:
     """Parse the value-probability density pairs of a PDF file.
     Values x and probability densities px should be recorded as floats.
@@ -133,7 +133,7 @@ def parse_data_lines(data_lines:list[str], verbose=False
     return x, px
 
 
-def read_pdf(fname:str, normalize_area:bool=True, verbose=False) -> PDF:
+def read_pdf(fname: str, normalize_area: bool=True, verbose: bool=False) -> PDF:
     """Read a PDF from a file.
 
     Args    fname - str, file name
@@ -170,7 +170,7 @@ def read_pdf(fname:str, normalize_area:bool=True, verbose=False) -> PDF:
     return pdf
 
 
-def read_pdfs(fnames:list[str], normalize_area:bool=True, verbose=False
+def read_pdfs(fnames: list[str], normalize_area: bool=True, verbose: bool=False
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
@@ -187,7 +187,7 @@ def read_pdfs(fnames:list[str], normalize_area:bool=True, verbose=False
     return pdfs
 
 
-def read_calendar_file(fname:str, verbose=False):
+def read_calendar_file(fname: str, verbose: bool=False):
     """Read a file (e.g., OxCal output) in which probability densities are
     recorded as a function of calendar year, as opposed to years before
     present (or some reference date).
@@ -239,7 +239,7 @@ def read_calendar_file(fname:str, verbose=False):
 
 
 #################### PDF SAVERS ####################
-def create_header_from_pdf(pdf:PDF) -> str:
+def create_header_from_pdf(pdf: PDF) -> str:
     """Create the header of a PDF file.
 
     Args    pdf - PDF
@@ -267,7 +267,7 @@ def create_header_from_pdf(pdf:PDF) -> str:
     return header
 
 
-def pdf_data_to_str(pdf:PDF) -> str:
+def pdf_data_to_str(pdf: PDF) -> str:
     """Format the data of a PDF into string format.
 
     Args    pdf - PDF
@@ -276,7 +276,7 @@ def pdf_data_to_str(pdf:PDF) -> str:
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
 
 
-def save_pdf(outname:str, pdf:PDF, verbose=False):
+def save_pdf(outname: str, pdf: PDF, verbose: bool=False):
     """Save a PDF to a file.
 
     Args    outname - str, output file name

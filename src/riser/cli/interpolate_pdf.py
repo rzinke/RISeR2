@@ -12,7 +12,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import riser.probability_functions as PDFs
-from riser.probability_functions.interpolation import interpolate_pdf
 from riser import plotting
 
 

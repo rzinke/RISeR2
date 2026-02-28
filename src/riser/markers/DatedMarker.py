@@ -9,7 +9,7 @@
 # Import modules
 import warnings
 
-from riser.probability_functions import PDF, analytics
+import riser.probability_functions as PDFs
 from riser import units
 
 
@@ -25,7 +25,12 @@ class DatedMarker:
     The age and displacement values are defined as PDFs.
     Each will have units of some multiple of years and meters, respectively.
     """
-    def __init__(self, age:PDF, displacement:PDF, name:str=None):
+    def __init__(
+            self,
+            age: PDFs.PDF,
+            displacement: PDFs.PDF,
+            name: str | None=None
+        ):
         """Initialize a DatedMarker.
 
         Args    age - PDF defining the age of a dated marker
@@ -48,18 +53,22 @@ class DatedMarker:
         """
         # Check age
         if self.age.unit is None:
-            warnings.warn("Age unit not specified. "
-                          "It is highly recommended to specify units.",
-                          stacklevel=2)
+            warnings.warn(
+                "Age unit not specified. "
+                "It is highly recommended to specify units.",
+                stacklevel=2
+            )
         else:
             if units.check_pdf_base_unit(self.age) != 'y':
                 raise ValueError("Age base unit must be y")
 
         # Check displacement
         if self.displacement.unit is None:
-            warnings.warn("Displacement unit not specified. "
-                          "It is highly recommended to specify units.",
-                          stacklevel=2)
+            warnings.warn(
+                "Displacement unit not specified. "
+                "It is highly recommended to specify units.",
+                stacklevel=2
+            )
         else:
             if units.check_pdf_base_unit(self.displacement) != 'm':
                 raise ValueError("Displacement base unit must be m")
@@ -69,16 +78,20 @@ class DatedMarker:
         print_str = f"DatedMarker {self.displacement.name}, comprising:"
 
         # Report age
-        print_str += (f"\n\tage: {self.age.name} "
-                      f"{analytics.pdf_mode(self.age)} "
-                      f"+- {analytics.pdf_std(self.age):.2f} "
-                      f"{self.age.unit}")
+        print_str += (
+            f"\n\tage: {self.age.name} "
+            f"{analytics.pdf_mode(self.age)} "
+            f"+- {analytics.pdf_std(self.age):.2f} "
+            f"{self.age.unit}"
+        )
 
         # Report displacement
-        print_str += (f"\n\tdisplacement: {self.displacement.name} "
-                      f"{analytics.pdf_mode(self.displacement)} "
-                      f"+- {analytics.pdf_std(self.displacement):.2f} "
-                      f"{self.displacement.unit}")
+        print_str += (
+            f"\n\tdisplacement: {self.displacement.name} "
+            f"{analytics.pdf_mode(self.displacement)} "
+            f"+- {analytics.pdf_std(self.displacement):.2f} "
+            f"{self.displacement.unit}"
+        )
 
         return print_str
 

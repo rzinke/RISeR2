@@ -11,10 +11,10 @@ These functions quantify properities of a random variable.
 # Constants
 from riser import constants
 
-PDF_CONFIDENCE_METRICS = [
+PDF_CONFIDENCE_METRICS = (
     "IQR",
     "HPD",
-]
+)
 
 
 # Import modules
@@ -22,12 +22,14 @@ import copy
 
 import numpy as np
 
-from riser.probability_functions import PDF, value_arrays
+import riser.probability_functions as PDFs
 from riser import precision
 
 
 #################### MOMENTS ####################
-def expected_value(x:np.ndarray, px:np.ndarray, dx:float|np.ndarray) -> float:
+def expected_value(
+    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray
+) -> float:
     """Compute the expected value of a random variable X.
     Note the change in x can be explicitly defined as a single number
     (e.g., 0.01) or determined directly from the value array.
@@ -40,7 +42,8 @@ def expected_value(x:np.ndarray, px:np.ndarray, dx:float|np.ndarray) -> float:
 
 
 def compute_raw_moment(
-        x:np.ndarray, px:np.ndarray, dx:float|np.ndarray, n:int) -> float:
+    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
+) -> float:
     """A raw moment is defined as:
 
     theta_n = integral(x^n * f(x) dx)
@@ -60,7 +63,8 @@ def compute_raw_moment(
 
 
 def compute_central_moment(
-        x:np.ndarray, px:np.ndarray, dx:float|np.ndarray, n:int) -> float:
+    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
+) -> float:
     """A central moment is computed about the function mean, mu:
 
     mu_n = integral((x - mu)^n * f(x) dx) = E[(X - mu)^n]
@@ -81,7 +85,8 @@ def compute_central_moment(
 
 
 def compute_standardized_moment(
-        x:np.ndarray, px:np.ndarray, dx:float|np.ndarray, n:int) -> float:
+    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
+) -> float:
     """A standardized moment is computed about the function mean, mu, and
     normalized by the standard deviation raised to the power of the moment.
 
@@ -104,7 +109,7 @@ def compute_standardized_moment(
 
 
 #################### PDF STATISTICS ####################
-def pdf_mean(pdf:PDF) -> float:
+def pdf_mean(pdf: PDFs.PDF) -> float:
     """Compute the mean of a PDF by integrating x * f(x).
     (Essentially a weighted average for the discrete PDF).
 
@@ -117,7 +122,7 @@ def pdf_mean(pdf:PDF) -> float:
     Returns mean - float, mean of PDF
     """
     # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
+    dx = PDFs.value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute expected value
     mu = expected_value(pdf.x, pdf.px, dx)
@@ -125,7 +130,7 @@ def pdf_mean(pdf:PDF) -> float:
     return mu
 
 
-def pdf_variance(pdf:PDF) -> float:
+def pdf_variance(pdf: PDFs.PDF) -> float:
     """Compute the variance of a PDF.
 
     sigma2 = E[(X - mu)^2] = integral((x - mu)^2 * f(x) * dx)
@@ -134,7 +139,7 @@ def pdf_variance(pdf:PDF) -> float:
     Returns variance - float, variance of PDF
     """
     # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
+    dx = PDFs.value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute expected value
     mu = pdf_mean(pdf)
@@ -145,7 +150,7 @@ def pdf_variance(pdf:PDF) -> float:
     return sigma2
 
 
-def pdf_std(pdf:PDF) -> float:
+def pdf_std(pdf: PDFs.PDF) -> float:
     """Compute the standard deviation (sigma) of a PDF.
     Standard deviation is the square root of the variance.
 
@@ -163,7 +168,7 @@ def pdf_std(pdf:PDF) -> float:
     return sigma
 
 
-def pdf_skewness(pdf:PDF) -> float:
+def pdf_skewness(pdf: PDFs.PDF) -> float:
     """Compute the skewness of a PDF.
 
     This is the standardized third central moment of a PDF.
@@ -174,7 +179,7 @@ def pdf_skewness(pdf:PDF) -> float:
     Returns gamma - float, skewness of PDF
     """
     # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
+    dx = PDFs.value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute third standardized moment
     gamma = compute_standardized_moment(pdf.x, pdf.px, dx, n=3)
@@ -182,7 +187,7 @@ def pdf_skewness(pdf:PDF) -> float:
     return gamma
 
 
-def pdf_kurtosis(pdf:PDF) -> float:
+def pdf_kurtosis(pdf: PDFs.PDF) -> float:
     """Compute the kurtosis, or "tailedness"/"peakiness", of a PDF.
 
     This is the standardized fourth central moment of a PDF.
@@ -193,7 +198,7 @@ def pdf_kurtosis(pdf:PDF) -> float:
     Returns kappa - float, kurtosis of PDF
     """
     # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
+    dx = PDFs.value_arrays.sample_spacing_array_from_pdf(pdf)
 
     # Compute third standardized moment
     kappa = compute_standardized_moment(pdf.x, pdf.px, dx, n=4)
@@ -201,7 +206,7 @@ def pdf_kurtosis(pdf:PDF) -> float:
     return kappa
 
 
-def pdf_mode(pdf:PDF) -> float:
+def pdf_mode(pdf: PDFs.PDF) -> float:
     """Determine the mode (peak value) of a PDF.
 
     Args    pdf - PDF to analyse
@@ -210,7 +215,7 @@ def pdf_mode(pdf:PDF) -> float:
     return np.mean(pdf.x[pdf.px == pdf.px.max()])
 
 
-def pdf_median(pdf:PDF) -> float:
+def pdf_median(pdf: PDFs.PDF) -> float:
     """Compute the median of a PDF based on the value where the CDF is 0.5.
 
     Args    pdf - PDF to analyse
@@ -221,7 +226,7 @@ def pdf_median(pdf:PDF) -> float:
 
 #################### STATISTICAL SUMMARIES ####################
 class PDFstatistics:
-    def __init__(self, pdf:PDF):
+    def __init__(self, pdf: PDFs.PDF):
         """Compute basic statistical properties of a PDF.
         """
         # PDF metadata
@@ -240,22 +245,31 @@ class PDFstatistics:
         self.kurtosis = pdf_kurtosis(pdf)
 
     def __str__(self):
-        print_str = (f"PDF: {self.name} ({self.unit})"
-                     f"\n  mode: {self.mode:.3f}"
-                     f"\nmedian: {self.median:.3f}"
-                     f"\n  mean: {self.mean:.3f}"
-                     f"\n   std: {self.std:.3f}"
-                     f"\n   var: {self.variance:.3f}"
-                     f"\n  skew: {self.skewness:.3f}"
-                     f"\n  kurt: {self.kurtosis:.3f}")
+        print_str = (
+            f"PDF: {self.name} ({self.unit})"
+            f"\n  mode: {self.mode:.3f}"
+            f"\nmedian: {self.median:.3f}"
+            f"\n  mean: {self.mean:.3f}"
+            f"\n   std: {self.std:.3f}"
+            f"\n   var: {self.variance:.3f}"
+            f"\n  skew: {self.skewness:.3f}"
+            f"\n  kurt: {self.kurtosis:.3f}"
+        )
 
         return print_str
 
 
 #################### CONFIDENCE RANGES ####################
 class ConfidenceRange:
-    def __init__(self, confidence:float, range_values:tuple[tuple[float]],
-                 metric:str=None, pdf_name:str=None, unit:str=None):
+    def __init__(
+        self,
+        confidence: float,
+        range_values: tuple[tuple[float]],
+        *,
+        metric: str | None=None,
+        pdf_name: str | None=None,
+        unit: str | None=None
+    ):
         """Store confidence ranges.
         Each range is a tuple of floats: (range_min, range_max)
         For multi-peak PDFs, HPD may provide multiple ranges as a tuple of
@@ -272,10 +286,8 @@ class ConfidenceRange:
         self.pdf_name = pdf_name
         self.unit = unit
 
-
     def __iter__(self):
         yield from self.range_values
-
 
     def __str__(self):
         print_str = "PDF confidence range:"
@@ -322,8 +334,9 @@ def compute_interquantile_range(
     return conf_range
 
 
-def compute_highest_posterior_density(pdf:PDF,
-        confidence:float=constants.Psigma['1']) -> "ConfidenceRange":
+def compute_highest_posterior_density(
+    pdf: PDFs.PDF, confidence: float=constants.Psigma["1"]
+) -> "ConfidenceRange":
     """Compute the highest posterior density (HPD) values of a PDF.
 
     Args    pdf - PDF to analyse
@@ -334,7 +347,7 @@ def compute_highest_posterior_density(pdf:PDF,
     val_nbs = np.array([*range(len(pdf))])
 
     # Compute probabilities
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
+    dx = PDFs.value_arrays.sample_spacing_array_from_pdf(pdf)
     p_i = pdf.px * dx
 
     # Sort the probabilities from largest to smallest
@@ -383,29 +396,22 @@ def compute_highest_posterior_density(pdf:PDF,
             cluster_start = x_conf[i]
 
     # Format values into ConfidenceRange object
-    conf_args = {
-        'confidence': confidence,
-        'range_values': tuple(clusters),
-        'metric': "HPD",
-        'pdf_name': pdf.name,
-        'unit': pdf.unit,
-    }
-    conf_range = ConfidenceRange(**conf_args)
+    conf_range = ConfidenceRange(
+        confidence=confidence,
+        range_values=tuple(clusters),
+        metric="HPD",
+        pdf_name=pdf.name,
+        unit=pdf.unit
+    )
 
     return conf_range
 
 
-def get_pdf_confidence_function(metric:str, verbose=False):
+def get_pdf_confidence_function(metric: str, verbose=False) -> "Callable":
     """Retrieve a confidence function by name.
     """
     # Format metric input
     metric = metric.upper()
-
-    # Check that metric is valid
-    if metric not in PDF_CONFIDENCE_METRICS:
-        raise ValueError(f"Metric {metric} not supported. "
-                         f"Must be one of "
-                         f"{', '.join(PDF_CONFIDENCE_METRICS)}")
 
     # Report if requested
     if verbose == True:
@@ -416,6 +422,11 @@ def get_pdf_confidence_function(metric:str, verbose=False):
         return compute_interquantile_range
     elif metric == "HPD":
         return compute_highest_posterior_density
+    else:
+        raise ValueError(
+            f"Metric {metric} not supported. Must be one of "
+            f"{', '.join(PDF_CONFIDENCE_METRICS)}"
+        )
 
 
 # end of file

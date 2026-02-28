@@ -95,7 +95,7 @@ def main():
         quot_ax.set_title("PDF Quotient")
         fig.tight_layout()
 
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

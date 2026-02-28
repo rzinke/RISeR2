@@ -20,7 +20,7 @@ import scipy as sp
 
 
 #################### PARAMETRIC FUNCTIONS ####################
-def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
+def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
     """Boxcar function with unit area.
     """
     # Number of data points
@@ -40,8 +40,8 @@ def boxcar(x:np.ndarray, xmin:float, xmax:float) -> np.ndarray:
 
 
 def triangular(
-        x:np.ndarray, xmin:float, xmode:float, xmax:float
-    ) -> np.ndarray:
+    x:np.ndarray, xmin:float, xmode:float, xmax:float
+) -> np.ndarray:
     """Triangular function with unit area.
     """
     # Number of data points
@@ -73,8 +73,8 @@ def triangular(
 
 
 def trapezoidal(
-        x:np.ndarray, x1:float, x2:float, x3:float, x4:float
-    ) -> np.ndarray:
+    x: np.ndarray, x1: float, x2: float, x3: float, x4: float
+) -> np.ndarray:
     """Trapezoidal function with unit area.
     """
     # Number of data points
@@ -105,7 +105,7 @@ def trapezoidal(
     return px
 
 
-def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
+def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Gaussian function with unit area.
     """
     a = 1 / (sigma * np.sqrt(2 * np.pi))
@@ -117,14 +117,14 @@ def gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
     return px
 
 
-def cumulative_gaussian(x:np.ndarray, mu:float, sigma:float) -> np.ndarray:
+def cumulative_gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Cumulative Gaussian function with unit area.
     """
     return 0.5 + 0.5 * sp.special.erf((x - mu) / (np.sqrt(2) * sigma))
 
 
 #################### FUNCTION RETRIEVAL ####################
-def get_function_by_name(fcn_name:str):
+def get_function_by_name(fcn_name: str):
     """Retrieve one of the parametric functions defined above by name.
 
     Args    fcn_name - str, function name
@@ -152,7 +152,7 @@ def get_function_by_name(fcn_name:str):
 
 
 #################### CHECKS ####################
-def check_number_inputs(distribution:str, values:list[float]) -> bool:
+def check_number_inputs(distribution: str, values: list[float]) -> bool:
     """Check that the appropriate number of inputs are provided for the given
     distribution.
 
@@ -175,8 +175,12 @@ def check_number_inputs(distribution:str, values:list[float]) -> bool:
     return True
 
 
-def determine_min_max_limits(distribution:str, values:list[float],
-        limit_positive:bool=False, verbose=False) -> (float, float):
+def determine_min_max_limits(
+    distribution: str,
+    values: list[float],
+    limit_positive: bool=False,
+    verbose: bool=False
+) -> tuple[float, float]:
     """Determine the minimum and maximum values of the PDF domain.
 
     Args    distribution - str, parametric function

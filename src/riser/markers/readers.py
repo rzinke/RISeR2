@@ -17,16 +17,25 @@ from riser import units
 
 
 #################### MARKER READERS ####################
-def set_metadata_priority(metadata_item:str, file_item:str, spec_item:str):
+def set_metadata_priority(
+        metadata_item: str,
+        file_item: str,
+        spec_item: str
+    ):
     """Determine the value of the metadata item is conflicting values are
     specified.
     """
-    if all([file_item is not None,
-            spec_item is not None,
-            file_item != spec_item]):
+    if all([
+        file_item is not None,
+        spec_item is not None,
+        file_item != spec_item
+    ]):
         # Warn user
-        warnings.warn(f"{metadata_item} specified in file is different from "
-                      f"user-specification.", stacklevel=2)
+        warnings.warn(
+            f"{metadata_item} specified in file is different from "
+            f"user-specification.",
+            stacklevel=2
+        )
 
     if all([file_item is None, spec_item is not None]):
         return spec_item
@@ -35,17 +44,17 @@ def set_metadata_priority(metadata_item:str, file_item:str, spec_item:str):
 
 
 def initialize_marker_from_files(
-        age_fname:str,
-        displacement_fname:str,
-        *,
-        marker_name:str=None,
-        age_name:str=None,
-        age_variable_type:str=None,
-        age_unit:str=None,
-        displacement_name:str=None,
-        displacement_variable_type:str=None,
-        displacement_unit:str=None,
-        verbose=False
+    age_fname: str,
+    displacement_fname: str,
+    *,
+    marker_name: str | None=None,
+    age_name: str | None=None,
+    age_variable_type: str | None=None,
+    age_unit: str | None=None,
+    displacement_name: str | None=None,
+    displacement_variable_type: str | None=None,
+    displacement_unit: str | None=None,
+    verbose=False
 ) -> DatedMarker:
     """
     Metadata can be specified either in the PDF file itself, or in the config
@@ -71,7 +80,8 @@ def initialize_marker_from_files(
     # Gather age metadata - precedence given to metadata in PDF file
     age.name = set_metadata_priority("Age name", age.name, age_name)
     age.variable_type = set_metadata_priority(
-        "Age variable type", age.variable_type, age_variable_type)
+        "Age variable type", age.variable_type, age_variable_type
+    )
     age.unit = units.get_priority_unit(age.unit, age_unit)
 
     # Read displacement PDF
@@ -82,7 +92,8 @@ def initialize_marker_from_files(
         "Displacement name", displacement.name, displacement_name
     )
     displacement.variable_type = set_metadata_priority(
-        "Displacement variable type", displacement.variable_type,
+        "Displacement variable type",
+        displacement.variable_type,
         displacement_variable_type
     )
     displacement.unit = units.get_priority_unit(
@@ -99,7 +110,7 @@ def initialize_marker_from_files(
     return marker
 
 
-def read_markers_from_config(fname:str, verbose=False) -> dict:
+def read_markers_from_config(fname: str, verbose=False) -> dict:
     """Read marker data from a TOML configuration file.
     The file should have one [marker_name] entry per marker, and each marker
     should have entries for "age file" and "displacement file".
@@ -113,7 +124,7 @@ def read_markers_from_config(fname:str, verbose=False) -> dict:
     with open(fname, "r") as age_disp_file:
         marker_specs = toml.load(age_disp_file)
 
-    # Report if requested
+    # Report number of markers read
     if verbose == True:
         n_markers = len(marker_specs)
         print(f"{n_markers} markers specified")

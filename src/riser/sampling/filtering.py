@@ -45,7 +45,7 @@ class FIRFilter:
     """
     filter_type = None
 
-    def __init__(self, h:np.ndarray):
+    def __init__(self, h: np.ndarray):
         # Filter values
         self.h = h
 
@@ -100,7 +100,7 @@ class GaussFilter(FIRFilter):
         super().__init__(h)
 
 
-def get_filter_by_name(filter_type:str, verbose=False):
+def get_filter_by_name(filter_type: str, verbose: bool=False) -> "Callable":
     """Retrieve an FIRFilter class by name.
     """
     # Check filter specification is valid
@@ -126,7 +126,7 @@ def filter_pdf(
         filter_width: int,
         edge_padding: str="zeros",
         preserve_edges: bool=False,
-        verbose=False
+        verbose: bool=False
 ) -> PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.

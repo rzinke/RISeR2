@@ -33,7 +33,7 @@ def compute_slip_rate(
     marker: DatedMarker,
     max_rate: float=100.0,
     dq: float=0.01,
-    verbose=False
+    verbose: bool=False
 ) -> PDFs.PDF:
     """Compute a single slip rate based on a dated displacement marker.
 
@@ -65,7 +65,7 @@ def compute_slip_rates_analytical(
     max_rate: float=100.0,
     dq: float=0.01,
     limit_positive: bool=False,
-    verbose=False,
+    verbose: bool=False,
 ) -> dict:
     """Compute the incremental slip rates between multiple dated displacement
     markers using analytical functions.
@@ -191,7 +191,7 @@ def compute_slip_rates_mc(
     pdf_dx: float | None=None,
     smoothing_type: str | None=None,
     smoothing_width: int | None=None,
-    verbose=False,
+    verbose: bool=False,
 ) -> tuple:
     """Compute the incremental slip rates between multiple dated displacement
     markers using Monte Carlo sampling.

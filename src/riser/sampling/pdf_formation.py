@@ -26,7 +26,7 @@ def samples_to_pdf_histogram(
     name: str | None=None,
     variable_type: str | None=None,
     unit: str | None=None,
-    verbose=False
+    verbose: bool=False
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
     Note: The number of histogram values will be 1 less than the number of bin
@@ -81,13 +81,13 @@ def samples_to_pdf_histogram(
 def samples_to_pdf_kde(
     samples:np.ndarray,
     *,
-    xmin: float|None =None,
-    xmax: float=None,
-    dx: float|None =None,
-    name: str|None =None,
-    variable_type: str|None =None,
-    unit: str|None =None,
-    verbose=False
+    xmin: float | None=None,
+    xmax: float | None=None,
+    dx: float | None=None,
+    name: str | None=None,
+    variable_type: str | None=None,
+    unit: str | None=None,
+    verbose: bool=False
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
     with a Gaussian kernel.
@@ -136,7 +136,7 @@ def samples_to_pdf_kde(
     return pdf
 
 
-def get_pdf_formation_function(method: str, verbose=False):
+def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
     """Retrieve a PDF formation function by name.
     """
     # Format method input

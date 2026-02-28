@@ -40,8 +40,15 @@ class ProbabilityDensityFunction:
     which is the probability that the random variable will take a value less
     than or equal to value x.
     """
-    def __init__(self, x:np.ndarray, px:np.ndarray, normalize_area:bool=True,
-                 name:str=None, variable_type:str=None, unit:str=None):
+    def __init__(
+        self,
+        x: np.ndarray,
+        px: np.ndarray,
+        normalize_area: bool=True,
+        name: str | None=None,
+        variable_type: str | None=None,
+        unit: str | None=None
+    ):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
@@ -77,7 +84,7 @@ class ProbabilityDensityFunction:
         self.unit = unit
 
 
-    def __check_array_lengths__(self):
+    def __check_array_lengths__(self) -> bool:
         """Check that the number of points is x is the same as the number of
         points in px.
         """
@@ -86,18 +93,22 @@ class ProbabilityDensityFunction:
         npx = len(self.px)
 
         # Check that array lengths are equal
-        if nx != npx:
-            raise Exception(f"Number of points in x ({nx}) must equal the "
-                            f"number of points in px ({npx})")
+        if nx == npx:
+            return True
+        else:
+            raise Exception(
+                f"Number of points in x ({nx}) must equal the number of points "
+                f"in px ({npx})"
+            )
 
 
-    def __compute_area__(self):
+    def __compute_area__(self) -> float:
         """Compute the area over the defined domain.
         """
         return sp.integrate.trapezoid(self.px, self.x)
 
 
-    def __normalize_area__(self):
+    def __normalize_area__(self) -> None:
         """Scale probability density values so that the area under the curve
         is 1.0. Operates in-place.
         """
@@ -119,13 +130,15 @@ class ProbabilityDensityFunction:
         # Total probability is 1.0
         area = self.__compute_area__()
         if np.abs(1.0 - area) > precision.RISER_PRECISION:
-            raise Exception(f"Area is {area}; should be 1.0. "
-                            f"Suggest setting normalize_area to True.")
+            raise Exception(
+                f"Area is {area}; should be 1.0. "
+                f"Suggest setting normalize_area to True."
+            )
 
         return True
 
 
-    def __compute_cdf__(self):
+    def __compute_cdf__(self) -> None:
         """Compute the cumulative distribution function.
         """
         # Cumulative integration
@@ -135,25 +148,25 @@ class ProbabilityDensityFunction:
         self.Px /= self.Px[-1]
 
 
-    def pdf_at_value(self, x:float) -> float:
+    def pdf_at_value(self, x: float) -> float:
         """Compute the value of the PDF at x.
         """
         return np.interp(x, self.x, self.px, left=0.0, right=0.0)
 
 
-    def cdf_at_value(self, x:float) -> float:
+    def cdf_at_value(self, x: float) -> float:
         """Compute the value of the CDF at x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
 
-    def compute_probability(self, x1:float, x2:float) -> float:
+    def compute_probability(self, x1: float, x2: float) -> float:
         """Compute the probability that the value is between x1 and x2.
         """
         return self.compute_cdf_value(x2) - self.compute_cdf_value(x1)
 
 
-    def pit(self, y:float|np.ndarray) -> float|np.ndarray:
+    def pit(self, y: float | np.ndarray) -> float | np.ndarray:
         """Compute probability inverse transform (PIT).
         Note: PIT interpolation requires a strictly increasing function.
         """
