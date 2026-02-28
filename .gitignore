@@ -217,5 +217,6 @@ tests/tmp/*
 tests/sandbox.py
 
 # Example outputs
+examples/*/*.npz
 examples/*/*.pdf
 examples/*/*.txt
