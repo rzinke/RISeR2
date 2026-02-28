@@ -80,16 +80,16 @@ class DatedMarker:
         # Report age
         print_str += (
             f"\n\tage: {self.age.name} "
-            f"{analytics.pdf_mode(self.age)} "
-            f"+- {analytics.pdf_std(self.age):.2f} "
+            f"{PDFs.analytics.pdf_mode(self.age)} "
+            f"+- {PDFs.analytics.pdf_std(self.age):.2f} "
             f"{self.age.unit}"
         )
 
         # Report displacement
         print_str += (
             f"\n\tdisplacement: {self.displacement.name} "
-            f"{analytics.pdf_mode(self.displacement)} "
-            f"+- {analytics.pdf_std(self.displacement):.2f} "
+            f"{PDFs.analytics.pdf_mode(self.displacement)} "
+            f"+- {PDFs.analytics.pdf_std(self.displacement):.2f} "
             f"{self.displacement.unit}"
         )
 

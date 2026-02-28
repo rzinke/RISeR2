@@ -47,7 +47,7 @@ def interpolate_pdf(pdf: PDFs.PDF, x: np.ndarray, verbose=False) -> PDFs.PDF:
         metadata[meta_item] = getattr(pdf, meta_item)
 
     # Instantiate new, resampled PDF
-    pdf_resamp = PDF(x, px_resamp, **metadata)
+    pdf_resamp = PDFs.PDF(x, px_resamp, **metadata)
 
     return pdf_resamp
 
