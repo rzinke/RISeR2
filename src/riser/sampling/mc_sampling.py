@@ -100,7 +100,9 @@ class PassNonnegativeBounded(SampleCriterion):
             return False
 
 
-def get_sample_criterion(criterion_name: str, verbose=False):
+def get_sample_criterion(
+    criterion_name: str, verbose: bool=False
+) -> "SampleCriterion":
     """Retrieve a sample criterion by name.
     """
     # Format criterion name
@@ -112,10 +114,13 @@ def get_sample_criterion(criterion_name: str, verbose=False):
     # Return criterion object
     if formatted_name in ["all"]:
         return PassAll
+
     elif formatted_name in ["nonnegative"]:
         return PassNonnegative
+
     elif formatted_name in ["nonnegativebounded"]:
         return PassNonnegativeBounded
+
     else:
         raise ValueError(f"Criterion name '{criterion_name}' not recognized.")
 
@@ -128,7 +133,7 @@ def sample_monte_carlo(
     n_samples: int=10000,
     seed_val: int=0,
     hard_stop: int=1000000000,
-    verbose=False,
+    verbose: bool=False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.

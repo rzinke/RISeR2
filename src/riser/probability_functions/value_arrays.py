@@ -13,7 +13,7 @@ from riser.probability_functions import PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################
-def sample_spacing_from_pdf(pdf:PDF, verbose=False) -> float:
+def sample_spacing_from_pdf(pdf: PDF, verbose: bool=False) -> float:
     """Determine the average change in x (dx) for a discrete PDF.
 
     Args    pdf - PDF from which to determine sample spacing
@@ -40,7 +40,7 @@ def sample_spacing_from_pdf(pdf:PDF, verbose=False) -> float:
     return dx
 
 
-def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
+def sample_spacing_array_from_pdf(pdf: PDF, verbose: bool=False) -> np.ndarray:
     """Return an array of the changes in x (dx) for a discrete PDF.
     In classical calculus, dx is a single scalar number, which assumes that the
     function is regularly sampled.
@@ -77,7 +77,8 @@ def sample_spacing_array_from_pdf(pdf:PDF, verbose=False) -> np.ndarray:
             np.diff(pdf.x, append=pdf.x[-1] + np.mean(diff_x)))
 
 
-def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False
+def value_array_params_from_pdfs(
+    pdfs: list[PDF], verbose: bool=False
 ) -> tuple[float, float, float]:
     """Determine the value limits for a set of PDFs.
 
@@ -115,8 +116,9 @@ def value_array_params_from_pdfs(pdfs:list[PDF], verbose=False
 
 
 #################### VALUE ARRAYS ####################
-def create_precise_value_array(xmin:float, xmax:float, dx:float,
-        verbose=False) -> np.ndarray:
+def create_precise_value_array(
+    xmin: float, xmax: float, dx: float, verbose: bool=False
+) -> np.ndarray:
     """Create an array (vector) of values over the PDF domain.
 
     Args    xmin, xmax - float, min/max values
@@ -141,7 +143,7 @@ def create_precise_value_array(xmin:float, xmax:float, dx:float,
 
 
 #################### CHECKS ####################
-def check_pdfs_sampling(pdfs:list[PDF]):
+def check_pdfs_sampling(pdfs: list[PDF]) -> bool:
     """Check that all PDFs are sampled over the same value array.
 
     Args    pdfs - list[PDF], PDFs to check
@@ -153,6 +155,8 @@ def check_pdfs_sampling(pdfs:list[PDF]):
     for pdf in pdfs[1:]:
         if not np.array_equal(pdf.x, x0):
             raise Exception("Not all PDFs are sampled over same values")
+
+    return True
 
 
 # end of file

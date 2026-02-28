@@ -20,15 +20,14 @@ or domain).
 # Import modules
 import numpy as np
 
-from riser.probability_functions import PDF
+import riser.probability_functions as PDFs
 from riser.probability_functions.ProbabilityDensityFunction import (
     PDF_METADATA_ITEMS
 )
-from riser.probability_functions import value_arrays
 
 
 #################### RESAMPLING/INTERPOLATION ####################
-def interpolate_pdf(pdf:PDF, x:np.ndarray, verbose=False) -> PDF:
+def interpolate_pdf(pdf: PDFs.PDF, x: np.ndarray, verbose=False) -> PDFs.PDF:
     """Resample a PDF along a new value array.
 
     Args    pdf - PDF to be resampled
@@ -53,7 +52,7 @@ def interpolate_pdf(pdf:PDF, x:np.ndarray, verbose=False) -> PDF:
     return pdf_resamp
 
 
-def interpolate_pdfs(pdfs:list[PDF], verbose=False) -> list[PDF]:
+def interpolate_pdfs(pdfs: list[PDFs.PDF], verbose=False) -> list[PDFs.PDF]:
     """Resample multiple PDFs along a common value array.
     First, determine the value limits and sample rate over which to resample.
     Then, resample each PDF accordingly.
@@ -62,11 +61,14 @@ def interpolate_pdfs(pdfs:list[PDF], verbose=False) -> list[PDF]:
     Returns pdfs_resamp - list[PDF], resampled PDFs
     """
     # Determine value limits and sample rate
-    (xmin, xmax, dx) = value_arrays.value_array_params_from_pdfs(
-            pdfs, verbose=verbose)
+    xmin, xmax, dx = PDFs.value_arrays.value_array_params_from_pdfs(
+            pdfs, verbose=verbose
+    )
 
     # Create value array
-    x = value_arrays.create_precise_value_array(xmin, xmax, dx, verbose=verbose)
+    x = PDFs.value_arrays.create_precise_value_array(
+        xmin, xmax, dx, verbose=verbose
+    )
 
     # Resample PDFs
     pdfs_resamp = [interpolate_pdf(pdf, x) for pdf in pdfs]
