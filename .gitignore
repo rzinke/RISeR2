@@ -215,3 +215,7 @@ tests/tmp/*
 
 # Ignore sandbox file
 tests/sandbox.py
+
+# Example outputs
+examples/*/*.pdf
+examples/*/*.txt
