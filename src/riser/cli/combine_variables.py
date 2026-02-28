@@ -12,23 +12,25 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-import riser.probability_functions.readers as readers
-import riser.probability_functions.interpolation as interpolation
+import riser.probability_functions as PDFs
 import riser.variable_operations as var_ops
-import riser.plotting as plotting
+from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = "Compute the joint PDF of two or more functions."
+description = "Compute the joint PDF of two or more functions."
 
-Examples = """Examples:
+examples = """Examples:
 combine_variables.py pdf1.txt pdf2.txt -o joint_pdf.txt
 combine_variables.py pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -36,19 +38,19 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='fnames',
-        type=str, nargs='+',
+    input_args.add_argument(dest="fnames",
+        type=str, nargs="+",
         help="PDF file names.")
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot distribution.")
 
     return parser.parse_args(args=iargs)
@@ -60,16 +62,16 @@ def main():
     inps = cmd_parser()
 
     # Read PDFs from files
-    pdfs = readers.read_pdfs(inps.fnames)
+    pdfs = PDFs.readers.read_pdfs(inps.fnames)
 
     # Sample PDFs on same axis
-    pdfs = interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
+    pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
     # Compute joint PDF
     joint_pdf = var_ops.combine_variables(pdfs, verbose=inps.verbose)
 
     # Save to file
-    readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -89,10 +91,10 @@ def main():
         comb_ax.set_title("Joint PDF")
         fig.tight_layout()
 
-        plt.show()
+    plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

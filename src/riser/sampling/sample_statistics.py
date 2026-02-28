@@ -13,8 +13,12 @@ import numpy as np
 
 #################### SAMPLE STATISTICS ####################
 class SampleStatistics:
-    def __init__(self, confidence:float, range_values:tuple[float],
-                 name:str=None, unit:str=None):
+    def __init__(self, 
+            confidence: float,
+            range_values: tuple[float],
+            name: str | None=None,
+            unit: str | None=None
+    ):
         """Store sample statistics.
 
         Args    range_values - sets of confidence values
@@ -42,9 +46,13 @@ class SampleStatistics:
         return print_str
 
 
-def compute_sample_confidence(picks:np.ndarray, confidence:float=Psigma['1'],
-                              name:str=None, unit:str=None,
-                              verbose=False) -> "SampleStatistics":
+def compute_sample_confidence(
+        picks: np.ndarray,
+        confidence: float=Psigma["1"],
+        name: str | None=None,
+        unit: str | None=None,
+        verbose=False
+) -> "SampleStatistics":
     """Compute the percent of values within a range and at the 50% percentile
     (median).
 
@@ -61,13 +69,12 @@ def compute_sample_confidence(picks:np.ndarray, confidence:float=Psigma['1'],
     range_values = np.percentile(picks, (100*lower, 100*upper))
 
     # Format values into SampleStatistics object
-    conf_args = {
-        'confidence': confidence,
-        'range_values': range_values,
-        'name': name,
-        'unit': unit,
-    }
-    conf_range = SampleStatistics(**conf_args)
+    conf_range = SampleStatistics(
+        confidence=confidence,
+        range_values=range_values,
+        name=name,
+        unit=unit
+    )
 
     return conf_range
 

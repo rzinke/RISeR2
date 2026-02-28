@@ -28,6 +28,6 @@ view_displacement_age_history.py marker_config.toml \
 # Compute incremental slip rates
 compute_slip_rates_mc.py marker_config.toml \
     --age-unit-out y --displacement-unit-out mm \
-    --n-samples 1000000 --max-rate 100 --dv 0.2 \
+    --n-samples 100000 --max-rate 100 --dv 0.2 \
     --confidence-metric HPD \
     -v -p -o mc_slip_rate

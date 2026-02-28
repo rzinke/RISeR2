@@ -11,3 +11,8 @@ parametric_functions includes definitions of parametric functions.
 """
 
 from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from . import analytics
+from . import interpolation
+from . import parametric_functions
+from . import readers
+from . import value_arrays

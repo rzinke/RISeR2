@@ -292,8 +292,10 @@ class ConfidenceRange:
         return print_str
 
 
-def compute_interquantile_range(pdf:PDF,
-        confidence:float=constants.Psigma['1']) -> "ConfidenceRange":
+def compute_interquantile_range(
+        pdf: PDF,
+        confidence: float=constants.Psigma["1"]
+    ) -> "ConfidenceRange":
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
@@ -309,14 +311,13 @@ def compute_interquantile_range(pdf:PDF,
     values = (pdf.pit(lower), pdf.pit(upper))
 
     # Format values into ConfidenceRange object
-    conf_args = {
-        'confidence': confidence,
-        'range_values': tuple([values]),
-        'metric': "IQR",
-        'pdf_name': pdf.name,
-        'unit': pdf.unit,
-    }
-    conf_range = ConfidenceRange(**conf_args)
+    conf_range = ConfidenceRange(
+        confidence=confidence,
+        range_values=tuple([values]),
+        metric="IQR",
+        pdf_name=pdf.name,
+        unit=pdf.unit
+    )
 
     return conf_range
 

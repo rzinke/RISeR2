@@ -11,8 +11,8 @@ import warnings
 
 import toml
 
-from riser.probability_functions import readers as pdf_readers, analytics
-from riser.markers import DatedMarker
+import riser.probability_functions as PDFs
+from . import DatedMarker
 from riser import units
 
 
@@ -66,25 +66,28 @@ def initialize_marker_from_files(
     Returns marker - DatedMarker
     """
     # Read age PDF
-    age = pdf_readers.read_pdf(age_fname)
+    age = PDFs.readers.read_pdf(age_fname)
 
     # Gather age metadata - precedence given to metadata in PDF file
     age.name = set_metadata_priority("Age name", age.name, age_name)
     age.variable_type = set_metadata_priority(
-            "Age variable type", age.variable_type, age_variable_type)
+        "Age variable type", age.variable_type, age_variable_type)
     age.unit = units.get_priority_unit(age.unit, age_unit)
 
     # Read displacement PDF
-    displacement = pdf_readers.read_pdf(displacement_fname)
+    displacement = PDFs.readers.read_pdf(displacement_fname)
 
     # Gather displacement metadata - precedence given to metadata in PDF file
     displacement.name = set_metadata_priority(
-            "Displacement name", displacement.name, displacement_name)
+        "Displacement name", displacement.name, displacement_name
+    )
     displacement.variable_type = set_metadata_priority(
-            "Displacement variable type", displacement.variable_type,
-            displacement_variable_type)
+        "Displacement variable type", displacement.variable_type,
+        displacement_variable_type
+    )
     displacement.unit = units.get_priority_unit(
-            displacement.unit, displacement_unit)
+            displacement.unit, displacement_unit
+    )
 
     # Form age-displacement data into DatedMarker
     marker = DatedMarker(age, displacement, name=marker_name)
@@ -156,12 +159,12 @@ def read_markers_from_config(fname:str, verbose=False) -> dict:
     for i, marker in enumerate(markers.values()):
         if i > 0:
             # Compute reference age/displacement
-            ref_age = analytics.pdf_mean(ref_marker.age)
-            ref_disp = analytics.pdf_mean(ref_marker.displacement)
+            ref_age = PDFs.analytics.pdf_mean(ref_marker.age)
+            ref_disp = PDFs.analytics.pdf_mean(ref_marker.displacement)
 
             # Compute marker age/displacement
-            marker_age = analytics.pdf_mean(marker.age)
-            marker_disp = analytics.pdf_mean(marker.displacement)
+            marker_age = PDFs.analytics.pdf_mean(marker.age)
+            marker_disp = PDFs.analytics.pdf_mean(marker.displacement)
 
             # Check that marker is older/larger than previous
             if marker_age < ref_age:

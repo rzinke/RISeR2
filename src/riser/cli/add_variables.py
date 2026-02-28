@@ -10,21 +10,24 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers, interpolation
-from riser.variable_operations import add_variables
-from riser import plotting
+import riser.probability_functions as PDFs
+import riser.variable_operations as var_ops
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = "Add two random variables expressed as PDFs."
+description = "Add two random variables expressed as PDFs."
 
-Examples = """Examples:
+examples = """Examples:
 add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -32,26 +35,26 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='fname1',
+    input_args.add_argument(dest="fname1",
         type=str,
         help="File name of first PDF.")
-    input_args.add_argument(dest='fname2',
+    input_args.add_argument(dest="fname2",
         type=str,
         help="File name of second PDF.")
 
-    input_args.add_argument('--name', dest='name',
+    input_args.add_argument("--name", dest="name",
         type=str,
         help="Name of summed PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot distribution.")
 
     return parser.parse_args(args=iargs)
@@ -63,18 +66,21 @@ def main():
     inps = cmd_parser()
 
     # Read PDFs from files
-    pdf1 = readers.read_pdf(inps.fname1, verbose=inps.verbose)
-    pdf2 = readers.read_pdf(inps.fname2, verbose=inps.verbose)
+    pdf1 = PDFs.readers.read_pdf(inps.fname1, verbose=inps.verbose)
+    pdf2 = PDFs.readers.read_pdf(inps.fname2, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    pdf1, pdf2 = interpolation.interpolate_pdfs([pdf1, pdf2],
-                                                verbose=inps.verbose)
+    pdf1, pdf2 = PDFs.interpolation.interpolate_pdfs(
+        [pdf1, pdf2], verbose=inps.verbose
+    )
 
     # Compute summed PDF
-    sum_pdf = add_variables(pdf1, pdf2, name=inps.name, verbose=inps.verbose)
+    sum_pdf = var_ops.add_variables(
+        pdf1, pdf2, name=inps.name, verbose=inps.verbose
+    )
 
     # Save to file
-    readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -91,13 +97,13 @@ def main():
         # Format figure
         inpt_ax.legend()
         inpt_ax.set_title("Inputs")
-        comb_ax.set_title("Summed PDF")
+        sum_ax.set_title("Summed PDF")
         fig.tight_layout()
 
         plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

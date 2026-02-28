@@ -4,16 +4,16 @@
 # (c) 2025 all rights reserved
 
 # Constants
-BASE_UNITS = ['m', 'y']
+BASE_UNITS = ("m", "y")
 
 UNIT_SCALES = {
-    'm': 0.001,
-    'c': 0.01,
-    'd': 0.1,
-    'D': 10.,
-    'C': 100.,
-    'k': 1000.,
-    'M': 1000000.,
+    "m": 0.001,
+    "c": 0.01,
+    "d": 0.1,
+    "D": 10.,
+    "C": 100.,
+    "k": 1000.,
+    "M": 1000000.
 }
 
 
@@ -165,11 +165,11 @@ def scale_pdf_by_units(pdf:PDF, unit_out:str, verbose=False) -> \
 
     # Form scaled PDF
     pdf_args = {
-        'x': scaled_values,
-        'px': pdf.px,
-        'name': pdf.name,
-        'variable_type': pdf.variable_type,
-        'unit': unit_out,
+        "x": scaled_values,
+        "px": pdf.px,
+        "name": pdf.name,
+        "variable_type": pdf.variable_type,
+        "unit": unit_out,
     }
     scaled_pdf = PDF(**pdf_args, normalize_area=True)
 

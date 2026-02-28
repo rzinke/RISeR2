@@ -11,26 +11,28 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-from riser.probability_functions.readers import read_pdf
-from riser.probability_functions.value_arrays import create_precise_value_array
+import riser.probability_functions as PDFs
 from riser.probability_functions.interpolation import interpolate_pdf
 from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = (
+description = (
     "Interpolate (and extrapolate) the PDF of a random variable over a new "
     "range of values."
 )
 
-Examples = """Examples:
+examples = """Examples:
 interpolate_pdf.py pdf_file.txt --dx 0.01
 interpolate_pdf.py pdf_file.txt --xmin 0 --xmax 100 -o interp_pdf_file.txt
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -38,29 +40,29 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='pdf_name',
+    input_args.add_argument(dest="pdf_name",
         type=str,
         help="PDF file name.")
 
-    input_args.add_argument('--xmin', dest='xmin',
+    input_args.add_argument("--xmin", dest="xmin",
         type=float,
         help="Minimum x-value. [None]")
-    input_args.add_argument('--xmax', dest='xmax',
+    input_args.add_argument("--xmax", dest="xmax",
         type=float,
         help="Maximum x-value. [None]")
-    input_args.add_argument('--dx', dest='dx',
+    input_args.add_argument("--dx", dest="dx",
         type=float,
         help="x-step. [None]")
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot distribution.")
 
 
@@ -73,7 +75,7 @@ def main():
     inps = cmd_parser()
 
     # Read PDF from file
-    pdf = read_pdf(inps.pdf_name, verbose=inps.verbose)
+    pdf = PDFs.readers.read_pdf(inps.pdf_name, verbose=inps.verbose)
 
     # Determine bounds of interpolation and sampling rate
     dx = inps.dx if inps.dx is not None else np.median(np.diff(pdf.x))
@@ -86,10 +88,12 @@ def main():
         print(f"xmax {xmax}")
 
     # Formulate value array
-    x = create_precise_value_array(xmin, xmax, dx, verbose=inps.verbose)
+    x = PDFs.value_arrays.create_precise_value_array(
+        xmin, xmax, dx, verbose=inps.verbose
+    )
 
     # Interpolate PDF
-    pdf_resamp = interpolate_pdf(pdf, x)
+    pdf_resamp = PDFs.interpolation.interpolate_pdf(pdf, x)
 
     # Plot if requested
     if inps.plot == True:
@@ -102,7 +106,7 @@ def main():
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

@@ -90,7 +90,7 @@ echo "\"displacement file\" = \"${U5name}\"" >> $config_file
 echo ""
 echo "Computing slip rates (Monte Carlo)"
 compute_slip_rates_mc.py $config_file \
-    --n-samples 1000000 --max-rate 60 \
+    --n-samples 100000 --max-rate 60 \
     --smoothing-type gaussian --smoothing-width 9 \
     --confidence-metric HPD \
     -o "tmp/mcx" -v -p

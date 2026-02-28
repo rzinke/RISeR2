@@ -24,7 +24,7 @@ from riser.probability_functions import PDF
 
 #################### PDF VARIABLE TYPE CHECKS ####################
 def check_variable_type_supported(
-        variable_type:str, throw_error:bool=False, verbose=False
+        variable_type: str, throw_error: bool=False, verbose=False
     ) -> bool:
     """Check whether the specified variable type is supported.
 
@@ -57,7 +57,7 @@ def check_variable_type_supported(
             return False
 
 
-def check_same_pdf_variable_types(pdfs:list[PDF]) -> str|None:
+def check_same_pdf_variable_types(pdfs: list[PDF]) -> str | None:
     """Check that the variable types are the same among a series of PDFs.
 
     Args    pdfs - list[PDF], PDFs to check

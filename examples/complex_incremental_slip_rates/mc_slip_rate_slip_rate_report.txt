@@ -1,45 +1,51 @@
-Incremental slip rates from analytical formulation (2026 02 26:21 37 19)
+Incremental slip rates from analytical formulation (2026 02 27:21 24 33)
 
 Sample statistics: T3T4-T4T5 (mm/y)
-68.27 % : (19.387 - 30.003)
+68.27 % : (19.417 - 30.041)
 PDF: T3T4-T4T5 (mm/y)
-  mode: 22.619
-median: 23.925
-  mean: 24.588
-   std: 5.455
-   var: 29.759
-  skew: 0.853
-  kurt: 5.267
+  mode: 22.474
+median: 23.931
+  mean: 24.612
+   std: 5.463
+   var: 29.845
+  skew: 0.852
+  kurt: 5.154
 PDF confidence range: T3T4-T4T5 (mm/y)
 HPD 68.27 %
-	(18.218 - 28.020)
+	(18.274 - 28.073)
 
 
 Sample statistics: T2T3-T3T4 (mm/y)
-68.27 % : (33.244 - 71.723)
+68.27 % : (33.217 - 71.777)
 PDF: T2T3-T3T4 (mm/y)
-  mode: 38.041
-median: 47.390
-  mean: 51.277
-   std: 18.297
-   var: 334.763
+  mode: 39.390
+median: 47.396
+  mean: 51.296
+   std: 18.314
+   var: 335.421
   skew: 0.703
-  kurt: 2.693
+  kurt: 2.686
 PDF confidence range: T2T3-T3T4 (mm/y)
 HPD 68.27 %
-	(27.048 - 60.026)
+	(26.789 - 26.789)
+	(27.189 - 57.391)
+	(57.792 - 58.392)
+	(58.792 - 59.592)
+	(60.592 - 60.792)
+	(61.192 - 61.192)
+	(61.592 - 61.592)
 
 
 Sample statistics: T1T2-T2T3 (mm/y)
-68.27 % : (5.171 - 20.050)
+68.27 % : (5.139 - 20.079)
 PDF: T1T2-T2T3 (mm/y)
-  mode: 8.000
-median: 10.632
-  mean: 13.004
-   std: 10.236
-   var: 104.772
-  skew: 2.668
-  kurt: 14.795
+  mode: 8.209
+median: 10.590
+  mean: 12.993
+   std: 10.262
+   var: 105.309
+  skew: 2.661
+  kurt: 14.703
 PDF confidence range: T1T2-T2T3 (mm/y)
 HPD 68.27 %
-	(2.800 - 15.400)
+	(3.004 - 15.616)

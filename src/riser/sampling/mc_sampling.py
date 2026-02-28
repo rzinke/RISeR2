@@ -82,10 +82,15 @@ def get_sample_criterion(criterion_name:str, verbose=False):
 
 
 #################### MONTE CARLO SAMPLING ####################
-def sample_monte_carlo(markers:dict, criterion:"function",
-                       n_samples:int=10000, seed_val:int=0,
-                       hard_stop:int=1000000000, verbose=False, **kwargs) -> \
-                       (np.ndarray, np.ndarray):
+def sample_monte_carlo(
+        markers: dict,
+        criterion: "function",
+        n_samples: int=10000,
+        seed_val: int=0,
+        hard_stop: int=1000000000,
+        verbose=False,
+        **kwargs
+) -> tuple[np.ndarray, np.ndarray]:
     """This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
     The random samples are checked against a criterion, e.g., "no negative
@@ -157,14 +162,18 @@ def sample_monte_carlo(markers:dict, criterion:"function",
 
     # Report if requested
     if verbose == True:
-        print(f"MC sampling finished with:"
-              f"\n\t{successes} successes"
-              f"\n\t{tossed} tossed")
+        print(
+            f"MC sampling finished with:"
+            f"\n\t{successes} successes"
+            f"\n\t{tossed} tossed"
+        )
 
     # Report if hard stop met
     if i == (hard_stop - 1):
-        print(f"WARNING: Only {successes} valid samples found before reaching "
-              f"trial limit")
+        print(
+            f"WARNING: Only {successes} valid samples found before reaching "
+            f"trial limit"
+        )
 
     return age_picks, disp_picks
 

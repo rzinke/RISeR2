@@ -19,26 +19,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import precision
-from riser.probability_functions import (
-    PDF, readers, value_arrays, parametric_functions
-)
+import riser.probability_functions as PDFs
 from riser import variable_types, units, plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = (
+description = (
     "Make a PDF for a random variable based on a parametric distribution."
 )
 
-Examples = """Examples:
+examples = """Examples:
 make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
 make_pdf.py -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
 make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -46,38 +47,38 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument('-d', '--distribution', dest='distribution',
+    input_args.add_argument("-d", "--distribution", dest="distribution",
         type=str, choices=PARAMETRIC_FUNCTIONS, required=True,
         help="Parametric function.")
-    input_args.add_argument('-s', '--values', dest='values',
-        type=float, nargs='+', required=True,
+    input_args.add_argument("-s", "--values", dest="values",
+        type=float, nargs="+", required=True,
         help="Parameter values.")
-    input_args.add_argument('-dx', '--dx', dest='dx',
+    input_args.add_argument("-dx", "--dx", dest="dx",
         type=float, required=True,
         help="x-step.")
-    input_args.add_argument('--limit-positive', dest='limit_positive',
-        action='store_true',
+    input_args.add_argument("--limit-positive", dest="limit_positive",
+        action="store_true",
         help="Enforce the condition that values are >= to 0.")
 
-    input_args.add_argument('--name', dest='name',
+    input_args.add_argument("--name", dest="name",
         type=str,
         help="PDF descriptive name. [None]")
-    input_args.add_argument('--variable-type', dest='variable_type',
+    input_args.add_argument("--variable-type", dest="variable_type",
         type=str, choices=variable_types.SUPPORTED_VARIABLE_TYPES,
         help="PDF variable type, e.g., age, displacement, slip rate. [None]")
-    input_args.add_argument('--unit', dest='unit',
+    input_args.add_argument("--unit", dest="unit",
         type=str,
         help="Value unit (e.g., 'y'; 'm'. [None]")
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot distribution.")
 
     return parser.parse_args(args=iargs)
@@ -89,7 +90,7 @@ def main():
     inps = cmd_parser()
 
     # Check required inputs
-    parametric_functions.check_number_inputs(
+    PDFs.parametric_functions.check_number_inputs(
         inps.distribution, inps.values
     )
     precision.check_precision(inps.dx)
@@ -116,19 +117,19 @@ def main():
         units.parse_unit(inps.unit)
 
     # Determine min/max values
-    xmin, xmax = parametric_functions.determine_min_max_limits(
+    xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
         inps.distribution, inps.values,
         limit_positive=inps.limit_positive,
         verbose=inps.verbose
     )
 
     # Create x-array
-    x = value_arrays.create_precise_value_array(
+    x = PDFs.value_arrays.create_precise_value_array(
         xmin, xmax, inps.dx, verbose=inps.verbose
     )
 
     # Retrieve parameteric function
-    para_fcn = parametric_functions.get_function_by_name(inps.distribution)
+    para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)
 
     # Create PDF
     if inps.verbose == True:
@@ -137,7 +138,7 @@ def main():
     px = para_fcn(x, *inps.values)
 
     # Instantiate PDF
-    pdf = PDF(
+    pdf = PDFs.PDF(
         x=x,
         px=px,
         name=inps.name,
@@ -147,7 +148,7 @@ def main():
     )
 
     # Save to file
-    readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -157,10 +158,10 @@ def main():
         # Plot PDF
         plotting.plot_pdf_labeled(ax, pdf)
 
-        plt.show()
+    plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

@@ -13,11 +13,6 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions.ProbabilityDensityFunction import (
-    ProbabilityDensityFunction as PDF
-)
-import riser.probability_functions.readers as readers
-import riser.probability_functions.analytics as analytics
 import riser.probability_functions as PDFs
 import riser.sampling.filtering as filtering
 import riser.units as units
@@ -25,16 +20,21 @@ import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = (
+description = (
     "Convert an age PDF from calendar years to (kilo)years before present."
 )
 
-Examples = """Examples:
+examples = """Examples:
+calyr_to_age.py C_date.txt -o C_age.txt
+calyr_to_age.py C_date.txt --name C14 --smoothing-type mean --smoothing-width 3 -v -p -o C_age.txt
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -42,57 +42,57 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='date_fname',
+    input_args.add_argument(dest="date_fname",
         type=str,
         help="Calendar years file name.")
 
     # Metadata
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument('--name', dest='name',
+    metadata_args.add_argument("--name", dest="name",
         type=str,
         help="Name.")
-    metadata_args.add_argument('--variable-type', dest='variable_type',
+    metadata_args.add_argument("--variable-type", dest="variable_type",
         type=str, default="age",
         help="Variable type. [age]")
 
     # Referencing
     referencing_args = parser.add_argument_group("Referencing")
-    referencing_args.add_argument('--reference-date', dest='reference_date',
+    referencing_args.add_argument("--reference-date", dest="reference_date",
         type=float, default=1950,
         help="Reference date, e.g., 1950 for radiocarbon, 2000 for OSL, etc. "
              "[1950]")
-    referencing_args.add_argument('--limit-zero', dest='limit_zero',
-        action='store_true',
+    referencing_args.add_argument("--limit-zero", dest="limit_zero",
+        action="store_true",
         help="Limit youngest value to zero.")
 
     # Units
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument('--input-unit', dest='input_unit',
+    unit_args.add_argument("--input-unit", dest="input_unit",
         type=str, default="y",
         help="Unit of input data. [y]")
-    unit_args.add_argument('--output-unit', dest='output_unit',
+    unit_args.add_argument("--output-unit", dest="output_unit",
         type=str, default="ky",
         help="Unit of output data. [ky]")
 
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
-    smoothing_args.add_argument('--smoothing-type', dest='smoothing_type',
+    smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
         type=str, choices=FILTER_TYPES,
         help="Smoothing filter type. [None]")
-    smoothing_args.add_argument('--smoothing-width', dest='smoothing_width',
+    smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
         type=int, default=0,
         help="Smoothing kernel width. [0]")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot.")
 
     return parser.parse_args(args=iargs)
@@ -104,7 +104,7 @@ def main():
     inps = cmd_parser()
 
     # Read calendar years file
-    calyr, calpx, metadata = readers.read_calendar_file(
+    calyr, calpx, metadata = PDFs.readers.read_calendar_file(
         inps.date_fname, verbose=inps.verbose)
 
     # Convert calendar year to years before present (ypb)
@@ -113,11 +113,12 @@ def main():
     ybp = inps.reference_date - calyr
 
     # Check input units
-    input_unit = units.get_priority_unit(metadata.get('unit'), inps.input_unit)
+    input_unit = units.get_priority_unit(metadata.get("unit"), inps.input_unit)
 
     # Scale from input units to output units
-    x = units.scale_values_by_units(ybp, input_unit, inps.output_unit,
-                                    verbose=inps.verbose)
+    x = units.scale_values_by_units(
+        ybp, input_unit, inps.output_unit, verbose=inps.verbose
+    )
 
     # Flip left for right, so age is increasing
     x = x[::-1]
@@ -133,33 +134,31 @@ def main():
         px = px[non_neg_ndx]
 
     # Form data into PDF
-    pdf_args = {
-        'x': x,
-        'px': px,
-        'name': inps.name,
-        'variable_type': inps.variable_type,
-        'unit': inps.output_unit,
-    }
-    pdf = PDF(**pdf_args, normalize_area=True)
+    pdf = PDFs.PDF(
+        x=x,
+        px=px,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.output_unit,
+        normalize_area=True
+    )
 
     # Smooth data
     if inps.smoothing_width > 0:
-        filter_args = {
-            'pdf': pdf,
-            'filter_type': inps.smoothing_type,
-            'filter_width': inps.smoothing_width,
-            'edge_padding': "zeros",
-            'verbose': inps.verbose,
-        }
-        pdf = filtering.filter_pdf(**filter_args)
+        pdf = filtering.filter_pdf(
+            pdf=pdf,
+            filter_type=inps.smoothing_type,
+            filter_width=inps.smoothing_width,
+            edge_padding="zeros",
+            verbose=inps.verbose
+        )
 
     # Report final stats if requested
     if inps.verbose == True:
-        stats = analytics.PDFstatistics(pdf)
-        print(stats)
+        print(PDFs.analytics.PDFstatistics(pdf))
 
     # Save to file
-    readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
@@ -182,7 +181,7 @@ def main():
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

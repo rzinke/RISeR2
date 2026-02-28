@@ -15,26 +15,31 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers as pdf_readers, analytics
-from riser.markers import readers as marker_readers
-from riser.sampling import sample_statistics
-from riser.slip_rates import rate_computation, reporting
-from riser import units, plotting
+import riser.probability_functions as PDFs
+import riser.markers.readers as marker_readers
+import riser.sampling.sample_statistics as sample_statistics
+import riser.slip_rates.rate_computation as rate_computation
+import riser.slip_rates.reporting as reporting
+import riser.units as units
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = (
+description = (
     "Compute the incremental slip rates for a series of dated markers using "
     "Monte Carlo sampling, and applying a criterion."
 )
 
-Examples = """Examples:
+examples = """Examples:
 compute_slip_rates_mc.py marker_config.toml -o incr_slip_rates
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -43,68 +48,68 @@ def cmd_parser(iargs=None):
 
     # Inputs
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='marker_config',
+    input_args.add_argument(dest="marker_config",
         type=str,
         help="Dated displacement marker configuration file.")
 
     # Units
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument('--age-unit-out', dest='age_unit_out',
+    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
         type=str,
         help="Output age units.")
     unit_args.add_argument(
-        '--displacement-unit-out', dest='displacement_unit_out',
+        "--displacement-unit-out", dest="displacement_unit_out",
         type=str,
         help="Output displacement units.")
 
     # Sampling
     sampling_args = parser.add_argument_group("Sampling")
-    sampling_args.add_argument('--n-samples', dest='n_samples',
+    sampling_args.add_argument("--n-samples", dest="n_samples",
         type=int, default=10000,
         help="Desired number of successful sample combinations. [1 000 000]")
 
     # Slip rate
     rate_args = parser.add_argument_group("Slip rates")
-    rate_args.add_argument('--min-rate', dest='min_rate',
+    rate_args.add_argument("--min-rate", dest="min_rate",
         type=float, default=0,
         help="Minimum slip rate to consider. [0]")
-    rate_args.add_argument('--max-rate', dest='max_rate',
+    rate_args.add_argument("--max-rate", dest="max_rate",
         type=float, default=100,
         help="Maximum slip rate to consider. [100]")
-    rate_args.add_argument('--dv', dest='dv',
+    rate_args.add_argument("--dv", dest="dv",
         type=float, default=0.01,
         help="Slip rate step. [0.01]")
 
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
-    smoothing_args.add_argument('--smoothing-type', dest='smoothing_type',
+    smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
         type=str, choices=FILTER_TYPES,
         help="Smoothing filter type. [None]")
-    smoothing_args.add_argument('--smoothing-width', dest='smoothing_width',
+    smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
         type=int, default=0,
         help="Smoothing kernel width. [0]")
 
     # Reporting
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
-        '--confidence-metric', dest='confidence_metric',
+        "--confidence-metric", dest="confidence_metric",
         type=str, choices=PDF_CONFIDENCE_METRICS, default="IQR",
         help="Function for computing function confidence. [IQR]")
     reporting_args.add_argument(
-        '--confidence-limits', dest='confidence_limits',
-        type=float, default=Psigma['1'],
+        "--confidence-limits", dest="confidence_limits",
+        type=float, default=Psigma["1"],
         help="Confidence level. [0.682]")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--output-prefix', dest='output_prefix',
+    output_args.add_argument("-o", "--output-prefix", dest="output_prefix",
         type=str, required=True,
         help="Output prefix as <prefix> or <folder>/<prefix>.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Show results plots. Figures will be generated and saved "
              "whether plot flag is raised.")
 
@@ -117,7 +122,9 @@ def main():
     inps = cmd_parser()
 
     # Establish output directory
-    reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
+    reporting.establish_output_dir(
+        inps.output_prefix, verbose=inps.verbose
+    )
 
     # Read markers
     markers = marker_readers.read_markers_from_config(
@@ -141,9 +148,11 @@ def main():
 
     # Scale input units to output units
     for marker in markers.values():
-        marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
+        marker.age = units.scale_pdf_by_units(
+            marker.age, inps.age_unit_out
+        )
         marker.displacement = units.scale_pdf_by_units(
-                marker.displacement, inps.displacement_unit_out
+            marker.displacement, inps.displacement_unit_out
         )
 
     # Save marker fig
@@ -171,7 +180,7 @@ def main():
     # Save PDFs to file
     for marker_pair, slip_rate in slip_rates.items():
         rate_outname = f"{inps.output_prefix}_{marker_pair}_slip_rate.txt"
-        pdf_readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
+        PDFs.readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
 
     # Save picks to file
     reporting.write_picks_to_file(
@@ -180,7 +189,7 @@ def main():
     )
 
     # Retrieve confidence range function
-    conf_fcn = analytics.get_pdf_confidence_function(
+    conf_fcn = PDFs.analytics.get_pdf_confidence_function(
         inps.confidence_metric, verbose=inps.verbose
     )
 
@@ -202,7 +211,7 @@ def main():
             print(sample_stats[marker_pair])
 
         # Compute PDF statistics
-        pdf_stats[marker_pair] = analytics.PDFstatistics(slip_rate)
+        pdf_stats[marker_pair] = PDFs.analytics.PDFstatistics(slip_rate)
         if inps.verbose == True:
             print(pdf_stats[marker_pair])
 
@@ -216,7 +225,7 @@ def main():
 
     # Plot slip rate PDFs
     plotting.plot_pdf_stack(
-        rate_fig, rate_ax, slip_rates, conf_ranges=conf_ranges
+        rate_ax, slip_rates, conf_ranges=conf_ranges
     )
 
     # Save slip rate figure
@@ -240,7 +249,7 @@ def main():
         plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

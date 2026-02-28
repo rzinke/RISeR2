@@ -19,8 +19,9 @@ def check_precision(x:float) -> float:
     """Check that value is above precision limit.
     """
     if x <= 10**-RISER_PRECISION:
-        warnings.warn("Number is less than optimal precision of the RISeR "
-                      "library")
+        warnings.warn(
+            "Number is less than optimal precision of the RISeR library"
+        )
 
 
 def fix_precision(x:float) -> float:

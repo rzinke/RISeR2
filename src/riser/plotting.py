@@ -264,10 +264,6 @@ def plot_pdf_stack(
         else:
             scale = height / max_peak
 
-        # Update plot args for this PDF
-        plt_args["offset"] = i
-        plt_args["scale"] = scale
-
         # Plot prior if available
         if priors.get(name) is not None:
             plot_pdf_line(
@@ -275,6 +271,8 @@ def plot_pdf_stack(
                 priors.get(name),
                 color="darkgrey",
                 zorder=1,
+                offset=i,
+                scale=scale
             )
 
         # Plot PDF
@@ -283,7 +281,8 @@ def plot_pdf_stack(
             pdf,
             color=colors.get(name, "black"),
             zorder=2,
-            **plt_args
+            offset=i,
+            scale=scale
         )
 
         # Plot confidence range if available
@@ -293,7 +292,8 @@ def plot_pdf_stack(
                 pdf,
                 conf_range=conf_ranges.get(name),
                 zorder=3,
-                **plt_args
+                offset=i,
+                scale=scale
             )
 
     # Format plot
@@ -626,12 +626,12 @@ def plot_markers(
         markers: dict,
         marker_plot_type="whisker",
         *,
-        label: bool=False,
         confidence: float=Psigma["2"],
         xmin: float=0.0,
         ymin: float=0.0,
         xmax: float=0.0,
-        ymax: float=0.0
+        ymax: float=0.0,
+        label: bool=False
 ) -> None:
     """Plot multiple dated markers.
     """
@@ -645,14 +645,14 @@ def plot_markers(
     # Retrieve marker plot
     if marker_plot_type == "whisker":
         # Update plot args
-        plt_args["confidence"] = confidence,
+        plt_args["confidence"] = confidence
 
         # Retrieve whisker plot
         plotter = plot_markers_whisker
 
     elif marker_plot_type == "rectangle":
         # Update plot args
-        plt_args["confidence"] = confidence,
+        plt_args["confidence"] = confidence
 
         # Retrieve rectangle plot
         plotter = plot_markers_rectangle
@@ -688,17 +688,32 @@ def plot_markers(
 
 
 #################### SAMPLE PLOTTING ####################
-def plot_mc_picks(ax, age_picks: np.ndarray, disp_picks: np.ndarray,
-        max_picks: int=500) -> None:
+def plot_mc_picks(
+        ax,
+        age_picks: np.ndarray,
+        disp_picks: np.ndarray,
+        max_picks: int=500
+) -> None:
     """Plot valid displacement-age picks.
     """
     # Plot lines connecting points
-    ax.plot(age_picks[:,:max_picks], disp_picks[:,:max_picks],
-            color="k", alpha=0.1, zorder=1)
+    ax.plot(
+        age_picks[:,:max_picks],
+        disp_picks[:,:max_picks],
+        color="k",
+        alpha=0.1,
+        zorder=1
+    )
 
     # Plot pick values
-    ax.scatter(age_picks[:,:max_picks], disp_picks[:,:max_picks], s=2**2,
-               color="b", alpha=0.1, zorder=2)
+    ax.scatter(
+        age_picks[:,:max_picks],
+        disp_picks[:,:max_picks],
+        s=2**2,
+        color="b",
+        alpha=0.1,
+        zorder=2
+    )
 
 
 # end of file

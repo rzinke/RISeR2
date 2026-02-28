@@ -4,23 +4,29 @@
 # (c) 2025 all rights reserved
 
 # Constants
-PDF_FORMATION_METHODS = [
+PDF_FORMATION_METHODS = (
     "histogram",
     "kde",
-]
+)
 
 # Import modules
 import numpy as np
 import scipy as sp
 
-from riser.probability_functions import value_arrays, PDF
+import riser.probability_functions as PDFs
 
 
 #################### FORMATION METHODS ####################
-def samples_to_pdf_histogram(samples:np.ndarray,
-                             xmin:float=None, xmax:float=None, dx:float=None,
-                             name:str=None, variable_type:str=None,
-                             unit:str=None, verbose=False):
+def samples_to_pdf_histogram(
+        samples:np.ndarray,
+        xmin: float | None=None,
+        xmax: float | None=None,
+        dx: float | None=None,
+        name: str | None=None,
+        variable_type: str | None=None,
+        unit: str | None=None,
+        verbose=False
+) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
     Note: The number of histogram values will be 1 less than the number of bin
     edges, leaving the question of what value is represented by each probability
@@ -60,22 +66,27 @@ def samples_to_pdf_histogram(samples:np.ndarray,
     px = np.pad(px, (0, 1), 'constant')
 
     # Form histogram data into PDF
-    pdf_args = {
-        'x': x,
-        'px': px,
-        'name': name,
-        'variable_type': variable_type,
-        'unit': unit,
-    }
-    pdf = PDF(**pdf_args)
+    pdf = PDFs.PDF(
+        x=x,
+        px=px,
+        name=name,
+        variable_type=variable_type,
+        unit=unit
+    )
 
     return pdf
 
 
-def samples_to_pdf_kde(samples:np.ndarray,
-                       xmin:float=None, xmax:float=None, dx:float=None,
-                       name:str=None, variable_type:str=None,
-                       unit:str=None, verbose=False):
+def samples_to_pdf_kde(
+        samples:np.ndarray,
+        xmin: float|None =None,
+        xmax: float=None,
+        dx: float|None =None,
+        name: str|None =None,
+        variable_type: str|None =None,
+        unit: str|None =None,
+        verbose=False
+) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
     with a Gaussian kernel.
     This method is not recommended for converting slip rate samples into PDFs
@@ -112,19 +123,18 @@ def samples_to_pdf_kde(samples:np.ndarray,
     px = kde.pdf(x)
 
     # Form histogram data into PDF
-    pdf_args = {
-        'x': x,
-        'px': px,
-        'name': name,
-        'variable_type': variable_type,
-        'unit': unit,
-    }
-    pdf = PDF(**pdf_args)
+    pdf = PDF(
+        x=x,
+        px=px,
+        name=name,
+        variable_type=variable_type,
+        unit=unit
+    )
 
     return pdf
 
 
-def get_pdf_formation_function(method:str, verbose=False):
+def get_pdf_formation_function(method: str, verbose=False):
     """Retrieve a PDF formation function by name.
     """
     # Format method input
@@ -132,8 +142,10 @@ def get_pdf_formation_function(method:str, verbose=False):
 
     # Check that method is valid
     if method not in PDF_FORMATION_METHODS:
-        raise ValueError(f"Method {method} not supported. "
-                         f"Must be one of {', '.join(PDF_FORMATION_METHODS)}")
+        raise ValueError(
+            f"Method {method} not supported. Must be one of "
+            f"{', '.join(PDF_FORMATION_METHODS)}"
+        )
 
     # Report if requested
     if verbose == True:
@@ -142,6 +154,7 @@ def get_pdf_formation_function(method:str, verbose=False):
     # Return method
     if method == "histogram":
         return samples_to_pdf_histogram
+
     elif method == "kde":
         return samples_to_pdf_kde
 

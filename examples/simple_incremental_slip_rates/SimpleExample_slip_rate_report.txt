@@ -1,4 +1,4 @@
-Incremental slip rates from analytical formulation (2026 02 26:21 35 13)
+Incremental slip rates from analytical formulation (2026 02 27:21 32 53)
 
 PDF: Marker 02-Marker 01 (mm/y)
   mode: 4.219

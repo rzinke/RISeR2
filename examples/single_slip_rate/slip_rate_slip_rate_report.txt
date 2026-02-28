@@ -1,4 +1,4 @@
-Incremental slip rates from analytical formulation (2026 02 26:21 31 45)
+Incremental slip rates from analytical formulation (2026 02 27:21 35 11)
 
 PDF: Feature 01 (m/ky)
   mode: 2.941

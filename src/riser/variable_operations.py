@@ -175,11 +175,11 @@ def negate_variable(pdf:PDF, verbose=False) -> PDF:
 
     # Form results into PDF
     args = {
-        'x': neg_x,
-        'px': neg_px,
-        'name': neg_name,
-        'variable_type': pdf.variable_type,
-        'unit': pdf.unit,
+        "x": neg_x,
+        "px": neg_px,
+        "name": neg_name,
+        "variable_type": pdf.variable_type,
+        "unit": pdf.unit,
     }
     neg_pdf = PDF(**args)
 
@@ -243,11 +243,11 @@ def add_variables(pdf1:PDF, pdf2:PDF, name:str=None, verbose=False) -> PDF:
 
     # Form results into PDF
     pdf_args = {
-        'x': xx,
-        'px': pxx,
-        'name': name,
-        'variable_type': variable_type,
-        'unit': unit,
+        "x": xx,
+        "px": pxx,
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
     }
     sum_pdf = PDF(**pdf_args, normalize_area=True)
 
@@ -328,11 +328,11 @@ def subtract_variables(pdf1:PDF, pdf2:PDF, limit_positive:bool=False,
 
     # Form results into PDF
     pdf_args = {
-        'x': xx,
-        'px': pxx,
-        'name': name,
-        'variable_type': variable_type,
-        'unit': unit,
+        "x": xx,
+        "px": pxx,
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
     }
     diff_pdf = PDF(**pdf_args, normalize_area=True)
 
