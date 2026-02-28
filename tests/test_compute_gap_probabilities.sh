@@ -3,11 +3,11 @@
 # Create marginal distributions
 echo "Creating PDFs"
 X1name="tmp/pdf1.txt"
-make_pdf.py -d triangular -s 3 4 5 -dx 0.2 \
+make_pdf.py -d triangular -s 3 4 5 -dx 0.1 \
     --variable-type "displacement" --unit "m" -o $X1name
 
 X2name="tmp/pdf2.txt"
-make_pdf.py -d triangular -s 5 6 7 -dx 0.2 \
+make_pdf.py -d triangular -s 5 6 7 -dx 0.1 \
     --variable-type "displacement" --unit "m" -o $X2name
 
 

@@ -14,7 +14,7 @@ from riser.probability_functions import analytics
 
 
 #################### FILENAME FORMATTING ####################
-def establish_output_dir(output_prefix:str, verbose=False):
+def establish_output_dir(output_prefix: str, verbose=False) -> None:
     """Determine the output directory based on the current directory and the
     output_prefix.
     Create it if it does not already exist.
@@ -43,7 +43,7 @@ def establish_output_dir(output_prefix:str, verbose=False):
 
 
 #################### FIGURE SAVING ####################
-def save_marker_fig(output_prefix:str, marker_fig, verbose=False):
+def save_marker_fig(output_prefix: str, marker_fig, verbose=False) -> None:
     """Save figure showing the dated displacement history to a file.
     """
     # Formulate outname
@@ -61,8 +61,8 @@ def save_marker_fig(output_prefix:str, marker_fig, verbose=False):
               f"{os.path.abspath(outname)}")
 
 
-def save_slip_rate_fig(output_prefix:str, rate_fig, verbose=False):
-    """
+def save_slip_rate_fig(output_prefix: str, rate_fig, verbose=False) -> None:
+    """Save figure showing slip rate measurements to a file.
     """
     # Formulate outname
     outname = f"{output_prefix}_slip_rates.pdf"
@@ -79,11 +79,13 @@ def save_slip_rate_fig(output_prefix:str, rate_fig, verbose=False):
 
 
 #################### MC PICKS SAVING ####################
-def write_picks_to_file(output_prefix:str,
-                        age_picks:np.ndarray,
-                        disp_picks:np.ndarray,
-                        rate_picks:np.ndarray,
-                        verbose=False):
+def write_picks_to_file(
+    output_prefix: str,
+    age_picks: np.ndarray,
+    disp_picks: np.ndarray,
+    rate_picks: np.ndarray,
+    verbose=False
+) -> None:
     """Save all valid samples (picks) to a numpy binary file (npz).
     """
     # Formulate outname
@@ -91,9 +93,10 @@ def write_picks_to_file(output_prefix:str,
 
     # Save to file
     np.savez(outname,
-             age_picks=age_picks,
-             disp_picks=disp_picks,
-             rate_picks=rate_picks)
+        age_picks=age_picks,
+        disp_picks=disp_picks,
+        rate_picks=rate_picks
+    )
 
     # Report if requested
     if verbose == True:
@@ -101,13 +104,16 @@ def write_picks_to_file(output_prefix:str,
 
 
 #################### SLIP RATE SUMMARY REPORTS ####################
-def write_slip_rates_report(output_prefix:str,
-                            formulation:str,
-                            slip_rates:dict,
-                            sample_statistics:dict=None,
-                            pdf_statistics:dict=None,
-                            confidence_ranges:dict=None,
-                            verbose=False):
+def write_slip_rates_report(
+    output_prefix: str,
+    formulation: str,
+    slip_rates: dict,
+    *,
+    sample_statistics: dict | None=None,
+    pdf_statistics: dict | None=None,
+    confidence_ranges: dict | None=None,
+    verbose=False
+) -> None:
     """Write slip rate statistics to a file.
     Include:
     Description, date, time
@@ -118,19 +124,22 @@ def write_slip_rates_report(output_prefix:str,
     # Check that slip rate statistical products pertain to same pairs
     if sample_statistics is not None:
         if sample_statistics.keys() != slip_rates.keys():
-            raise ValueError("One SampleStatistics object must be provided "
-                             "for each slip rate")
-
+            raise ValueError(
+                "One SampleStatistics object must be provided for each "
+                "slip rate"
+            )
 
     if pdf_statistics is not None:
         if pdf_statistics.keys() != slip_rates.keys():
-            raise ValueError("One PDFstatistics object must be provided for "
-                             "each slip rate")
+            raise ValueError(
+                "One PDFstatistics object must be provided for each slip rate"
+            )
 
     if confidence_ranges is not None:
         if confidence_ranges.keys() != slip_rates.keys():
-            raise ValueError("One ConfidenceRange object must be provided "
-                             "for each slip rate")
+            raise ValueError(
+                "One ConfidenceRange object must be provided for each slip rate"
+            )
 
     # Formulate outname
     outname = f"{output_prefix}_slip_rate_report.txt"
@@ -138,8 +147,10 @@ def write_slip_rates_report(output_prefix:str,
     # Write file contents
     with open(outname, 'w') as outfile:
         # Overall header
-        outfile.write(f"Incremental slip rates from {formulation} formulation "
-                      f"({datetime.now().strftime('%Y %m %d:%H %M %S')})")
+        outfile.write(
+            f"Incremental slip rates from {formulation} formulation "
+            f"({datetime.now().strftime('%Y %m %d:%H %M %S')})"
+        )
 
         # Loop through incremental slip rates based on marker pairs
         for marker_pair in slip_rates.keys():

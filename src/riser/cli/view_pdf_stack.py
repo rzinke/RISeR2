@@ -10,20 +10,24 @@ import argparse
 import toml
 import matplotlib.pyplot as plt
 
-from riser.probability_functions import readers
-from riser import units, plotting
+import riser.probability_functions as PDFs
+import riser.units as units
+import riser.plotting as plotting
 
 
 #################### ARGUMENT PARSER ####################
-Description = "Plot multiple PDFs in a stack."
+description = "Plot multiple PDFs in a stack."
 
-Examples = """Examples:
+examples = """Examples:
 view_pdf_stack.py pdfs_config.toml
 """
 
 def create_parser():
-    parser = argparse.ArgumentParser(description=Description,
-            formatter_class=argparse.RawTextHelpFormatter, epilog=Examples)
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples
+    )
 
     return parser
 
@@ -32,32 +36,32 @@ def cmd_parser(iargs=None):
 
     # Inputs
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='pdf_config',
+    input_args.add_argument(dest="pdf_config",
         type=str,
         help="PDFs configuration file.")
 
     # Units
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument('--unit-out', dest='unit_out',
+    unit_args.add_argument("--unit-out", dest="unit_out",
         type=str,
         help="Output units.")
 
     # Plotting
     plot_args = parser.add_argument_group("Plotting")
-    plot_args.add_argument('--same-height', dest='same_height',
-        action='store_true',
+    plot_args.add_argument("--same-height", dest="same_height",
+        action="store_true",
         help="Plot all PDFs with the same height.")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-o', '--outname', dest='outname',
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str,
         help="Output file.")
-    output_args.add_argument('--no-show', dest='no_show',
-        action='store_true',
+    output_args.add_argument("--no-show", dest="no_show",
+        action="store_true",
         help="Forego showing plot.")
 
     return parser.parse_args(args=iargs)
@@ -69,7 +73,7 @@ def main():
     inps = cmd_parser()
 
     # Read config file contents
-    with open(inps.pdf_config, 'r') as config_file:
+    with open(inps.pdf_config, "r") as config_file:
         pdf_specs = toml.load(config_file)
 
     # Empty dictionaries to store PDFs and metadata
@@ -84,31 +88,40 @@ def main():
             raise ValueError("A file name must be associated with each PDF")
 
         # Read PDF from file
-        pdf = readers.read_pdf(pdf_spec.get('pdf file'),
-                               verbose=inps.verbose)
+        pdf = PDFs.readers.read_pdf(
+            pdf_spec.get("pdf file"), verbose=inps.verbose
+        )
 
         # Scale PDF units
-        pdfs[pdf_name] = units.scale_pdf_by_units(pdf, inps.unit_out,
-                                                  verbose=inps.verbose)
+        pdfs[pdf_name] = units.scale_pdf_by_units(
+            pdf, inps.unit_out, verbose=inps.verbose
+        )
 
         # Read color if specified
-        colors[pdf_name] = pdf_spec.get('color', "black")
+        colors[pdf_name] = pdf_spec.get("color", "black")
 
         # Read prior if specified
-        if pdf_spec.get('prior') is not None:
-            prior = readers.read_pdf(pdf_spec.get('prior'),
-                                     verbose=inps.verbose)
+        if pdf_spec.get("prior") is not None:
+            prior = PDFs.readers.read_pdf(
+                pdf_spec.get("prior"), verbose=inps.verbose
+            )
 
             # Scale prior units
-            priors[pdf_name] = units.scale_pdf_by_units(prior, inps.unit_out,
-                                                        verbose=inps.verbose)
+            priors[pdf_name] = units.scale_pdf_by_units(
+                prior, inps.unit_out, verbose=inps.verbose
+            )
 
     # Initialize figure and axis for input markers
     fig, ax = plt.subplots()
 
     # Plot PDFs
-    plotting.plot_pdf_stack(fig, ax, pdfs, colors=colors, priors=priors,
-                            same_height=inps.same_height)
+    plotting.plot_pdf_stack(
+        ax,
+        pdfs,
+        colors=colors,
+        priors=priors,
+        same_height=inps.same_height
+    )
 
     # Save figure to file
     if inps.outname is not None:
@@ -120,7 +133,7 @@ def main():
         plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

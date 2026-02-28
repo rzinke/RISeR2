@@ -3,65 +3,104 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-SAMPLING_CRITERIA = [
-    'non-negative',
-]
 
 # Import modules
+import warnings
+
 import numpy as np
 from tqdm import tqdm
 
 
 #################### SAMPLING CRITERIA ####################
-def pass_all(ages, displacements, **kwargs) -> bool:
-    """Trivial condition for which all random samples will be passed.
-    (Allows negative slip rates).
+class SampleCriterion:
+    def __init__(self, **kwargs):
+        return
 
-    Args    ages - np.ndarray, sampled age values
-            displacements - np.ndarray, sampled displacement values
-            kwargs are ignored
-    Returns bool, pass (True) or fail (False)
-    """
-    return True
+    def check_pass_fail(
+        self,
+        ages: np.ndarray,
+        displacements: np.ndarray
+    ) -> bool:
+        """Check whether a set of displacement-age pairs meets the sample
+        criterion.
 
+        Args    ages - np.ndarray, sampled age values
+                displacements - np.ndarray, sampled displacement values
+        Returns bool, pass (True) or fail (False)
+        """
+        return NotImplementedError(
+            "check_pass_fail not implemented. Override with child class."
+        )
 
-def pass_nonnegative(ages, displacements, **kwargs) -> bool:
-    """Pass sample combinations that result in non-negative slip rates.
-    Args    kwargs are ignored
-    """
-    # Compute age, displacement deltas
-    age_diffs = np.diff(ages)
-    disp_diffs = np.diff(displacements)
+class PassAll(SampleCriterion):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-    # Check condition
-    if all([age_diffs.min() > 0, disp_diffs.min() >= 0]):
+    def check_pass_fail(
+        self,
+        ages: np.ndarray,
+        displacements: np.ndarray
+    ) -> bool:
+        """Trivial condition for which all random samples will be passed.
+        (Allows negative slip rates).
+        """
         return True
-    else:
-        return False
+
+class PassNonnegative(SampleCriterion):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def check_pass_fail(
+        self,
+        ages: np.ndarray,
+        displacements: np.ndarray
+    ) -> bool:
+        """Pass sample combinations that result in non-negative slip rates.
+        """
+        # Compute age, displacement deltas
+        age_diffs = np.diff(ages)
+        disp_diffs = np.diff(displacements)
+
+        # Check condition
+        if all([age_diffs.min() > 0, disp_diffs.min() >= 0]):
+            return True
+        else:
+            return False
+
+class PassNonnegativeBounded(SampleCriterion):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Record maximum allowable sample rate
+        self.max_sample_rate = kwargs.get("max_sample_rate", np.inf)
+
+    def check_pass_fail(
+        self,
+        ages: np.ndarray,
+        displacements: np.ndarray
+    ) -> bool:
+        """Pass sample combinations that result in slip rates that are
+        non-negativeand less than the specified maximum value.
+        """
+        # Compute age, displacement deltas
+        age_diffs = np.diff(ages)
+        disp_diffs = np.diff(displacements)
+
+        # Compute incremental slip rates
+        slip_rates = disp_diffs / age_diffs
+
+        # Check condition
+        if all([
+            age_diffs.min() > 0,
+            disp_diffs.min() >= 0,
+            slip_rates.max() <= self.max_sample_rate
+        ]):
+            return True
+        else:
+            return False
 
 
-def pass_nonnegative_bounded(ages, displacements, **kwargs) -> bool:
-    """Pass sample combinations that result in slip rates that are non-negative
-    and less than the specified maximum value.
-    Args    kwargs must contain the maximum allowable slip rate as max_rate
-    """
-    # Compute age, displacement deltas
-    age_diffs = np.diff(ages)
-    disp_diffs = np.diff(displacements)
-
-    # Compute incremental slip rates
-    slip_rates = disp_diffs / age_diffs
-
-    # Check condition
-    if all([age_diffs.min() > 0, disp_diffs.min() >= 0,
-            slip_rates.max() <= kwargs.get('max_rate', np.inf)]):
-        return True
-    else:
-        return False
-
-
-def get_sample_criterion(criterion_name:str, verbose=False):
+def get_sample_criterion(criterion_name: str, verbose=False):
     """Retrieve a sample criterion by name.
     """
     # Format criterion name
@@ -72,20 +111,25 @@ def get_sample_criterion(criterion_name:str, verbose=False):
 
     # Return criterion object
     if formatted_name in ["all"]:
-        return pass_all
+        return PassAll
     elif formatted_name in ["nonnegative"]:
-        return pass_nonnegative
+        return PassNonnegative
     elif formatted_name in ["nonnegativebounded"]:
-        return pass_nonnegative_bounded
+        return PassNonnegativeBounded
     else:
         raise ValueError(f"Criterion name '{criterion_name}' not recognized.")
 
 
 #################### MONTE CARLO SAMPLING ####################
-def sample_monte_carlo(markers:dict, criterion:"function",
-                       n_samples:int=10000, seed_val:int=0,
-                       hard_stop:int=1000000000, verbose=False, **kwargs) -> \
-                       (np.ndarray, np.ndarray):
+def sample_monte_carlo(
+    markers: dict,
+    criterion: "SampleCriterion",
+    *,
+    n_samples: int=10000,
+    seed_val: int=0,
+    hard_stop: int=1000000000,
+    verbose=False,
+) -> tuple[np.ndarray, np.ndarray]:
     """This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
     The random samples are checked against a criterion, e.g., "no negative
@@ -95,7 +139,7 @@ def sample_monte_carlo(markers:dict, criterion:"function",
                 slip rates
             criterion - function to evaluate validity of samples
             n_samples - int, number of valid samples to achieve
-            max_rate - float, maximum slip rate to consider
+            max_rate_sample - float, maximum slip rate to consider
             seed_val - int, random number generator seed value
     """
     if verbose == True:
@@ -134,7 +178,7 @@ def sample_monte_carlo(markers:dict, criterion:"function",
             disp_samps[j] = markers[name].displacement.pit(r_disps[j])
 
         # Check samples against condition
-        if criterion(age_samps, disp_samps, **kwargs) == True:
+        if criterion.check_pass_fail(age_samps, disp_samps) == True:
             # Condition met, record valid samples
             age_picks[:,successes] = age_samps
             disp_picks[:,successes] = disp_samps
@@ -157,14 +201,17 @@ def sample_monte_carlo(markers:dict, criterion:"function",
 
     # Report if requested
     if verbose == True:
-        print(f"MC sampling finished with:"
-              f"\n\t{successes} successes"
-              f"\n\t{tossed} tossed")
+        print(
+            f"MC sampling finished with:"
+            f"\n\t{successes} successes"
+            f"\n\t{tossed} tossed"
+        )
 
     # Report if hard stop met
     if i == (hard_stop - 1):
-        print(f"WARNING: Only {successes} valid samples found before reaching "
-              f"trial limit")
+        warnings.warn(
+            f"Only {successes} valid samples found before reaching trial limit"
+        )
 
     return age_picks, disp_picks
 

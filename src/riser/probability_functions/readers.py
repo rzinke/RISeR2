@@ -5,8 +5,9 @@
 
 
 # Constants
-from riser.probability_functions.ProbabilityDensityFunction import \
+from riser.probability_functions.ProbabilityDensityFunction import (
     PDF_METADATA_ITEMS
+)
 
 
 # Import modules
@@ -94,8 +95,8 @@ def format_data_line(data_line:str) -> str:
     return data_line
 
 
-def parse_data_lines(data_lines:list[str], verbose=False) -> \
-        (np.ndarray, np.ndarray):
+def parse_data_lines(data_lines:list[str], verbose=False
+) -> tuple[np.ndarray, np.ndarray]:
     """Parse the value-probability density pairs of a PDF file.
     Values x and probability densities px should be recorded as floats.
     One x-px pair per line.
@@ -169,8 +170,8 @@ def read_pdf(fname:str, normalize_area:bool=True, verbose=False) -> PDF:
     return pdf
 
 
-def read_pdfs(fnames:list[str], normalize_area:bool=True,
-              verbose=False) -> list[PDF]:
+def read_pdfs(fnames:list[str], normalize_area:bool=True, verbose=False
+) -> list[PDF]:
     """Read multiple PDFs from files.
 
     Args    fnames - list[str], file names

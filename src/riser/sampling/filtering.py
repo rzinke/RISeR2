@@ -24,10 +24,10 @@ later.
 
 
 # Constants
-FILTER_TYPES = [
-    'mean',
-    'gaussian',
-]
+FILTER_TYPES = (
+    "mean",
+    "gaussian",
+)
 
 
 # Import modules
@@ -120,9 +120,14 @@ def get_filter_by_name(filter_type:str, verbose=False):
 
 
 #################### FILTER APPLICATION ####################
-def filter_pdf(pdf:PDF, filter_type:str, filter_width:int,
-               padding:str='zeros', preserve_edges:bool=False,
-               verbose=False) -> PDF:
+def filter_pdf(
+        pdf:PDF,
+        filter_type: str,
+        filter_width: int,
+        edge_padding: str="zeros",
+        preserve_edges: bool=False,
+        verbose=False
+) -> PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.
 
@@ -146,12 +151,15 @@ def filter_pdf(pdf:PDF, filter_type:str, filter_width:int,
     # Filter half-width
     w2 = filter_width // 2
 
+    # Pad values
+    if edge_padding in ["zero", "zeros"]:
+        edge_padding = "constant"
+
     # Pad PDF
-    padding = 'constant' if 'zero' in padding else padding
-    px = np.pad(pdf.px, (w2, w2), padding)
+    px = np.pad(pdf.px, (w2, w2), edge_padding)
 
     # Apply filter to PDF
-    px = sp.signal.convolve(px, filt.h, 'same')
+    px = sp.signal.convolve(px, filt.h, "same")
 
     # Trim padding
     px = px[w2:-w2]
@@ -173,15 +181,14 @@ def filter_pdf(pdf:PDF, filter_type:str, filter_width:int,
             px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
     # Form results into PDF
-    pdf_args = {
-        'x': pdf.x,
-        'px': px,
-        'normalize_area': True,
-        'name': pdf.name,
-        'variable_type': pdf.variable_type,
-        'unit': pdf.unit,
-    }
-    filt_pdf = PDF(**pdf_args)
+    filt_pdf = PDF(
+        x=pdf.x,
+        px=px,
+        normalize_area=True,
+        name=pdf.name,
+        variable_type=pdf.variable_type,
+        unit=pdf.unit
+    )
 
     return filt_pdf
 
