@@ -54,7 +54,7 @@ def cmd_parser(iargs=None):
         type=float, nargs="+", required=True,
         help="Parameter values.")
     input_args.add_argument("-dx", "--dx", dest="dx",
-        type=float, required=True,
+        type=float,
         help="x-step.")
     input_args.add_argument("--limit-positive", dest="limit_positive",
         action="store_true",
@@ -93,7 +93,6 @@ def main():
     PDFs.parametric_functions.check_number_inputs(
         inps.distribution, inps.values
     )
-    precision.check_precision(inps.dx)
 
     # Check optional variable type input
     if inps.variable_type is None:
@@ -123,9 +122,15 @@ def main():
         verbose=inps.verbose
     )
 
+    # Determine increment
+    dx = (xmax - xmin) / 1000 if inps.dx is None else inps.dx
+
+    # Check increment
+    precision.check_precision(dx)
+
     # Create x-array
     x = PDFs.value_arrays.create_precise_value_array(
-        xmin, xmax, inps.dx, verbose=inps.verbose
+        xmin, xmax, dx, verbose=inps.verbose
     )
 
     # Retrieve parameteric function
