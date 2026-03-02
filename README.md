@@ -1,5 +1,7 @@
 # ***R***ejection sampling for ***I***ncremental ***S***lip ***R***ate calculation v.**2** &ndash; RISeR2
 
+![alt text](https://github.com/rzinke/RISeR2/blob/main/docs/RISeR_logo-name.png "RISeR")
+
 ## Purpose
 Earthquake fault slip rates describe the displacement accumulation rate across a fault, averaged over some time interval. Slip rates are determined from geologic, geomorphic, or sedimentary markers recording measureable fault slip, and which can be dated using absolute geochronologic methods. Where multiple dateable displacement markers share a common slip history and record different epochs in that history, one can determine *incremental* slip rates. These average over shorter intervals relative to the oldest displacement, and can show the constancy or variability of fault slip over time.
 
