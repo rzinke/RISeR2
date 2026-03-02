@@ -175,7 +175,7 @@ def main():
             print(conf_ranges[marker_pair])
 
     # Initialize figure and axis for slip rate PDF
-    rate_fig, rate_ax = plt.subplots()
+    rate_fig, rate_ax = plt.subplots(figsize=(6, 3.5))
 
     # Plot slip rate PDFs
     plotting.plot_pdf_stack(

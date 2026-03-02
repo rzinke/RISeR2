@@ -215,7 +215,7 @@ def plot_pdf_confidence_range(
             y2=offset,
             color=color,
             zorder=zorder,
-            alpha=alpha,
+            alpha=0.5,
             label=label
         )
 
@@ -270,7 +270,7 @@ def plot_pdf_stack(
                 ax,
                 priors.get(name),
                 color="darkgrey",
-                zorder=1,
+                zorder=3,
                 offset=i,
                 scale=scale
             )
@@ -291,7 +291,7 @@ def plot_pdf_stack(
                 ax,
                 pdf,
                 conf_range=conf_ranges.get(name),
-                zorder=3,
+                zorder=1,
                 offset=i,
                 scale=scale
             )
