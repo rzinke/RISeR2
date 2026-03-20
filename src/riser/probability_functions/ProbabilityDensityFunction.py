@@ -21,8 +21,8 @@ import scipy as sp
 
 #################### PDF BASE CLASS ####################
 class ProbabilityDensityFunction:
-    """A probability density function (PDF) expresses probability or a
-    random variable. It meets the criteria:
+    """A probability density function (PDF) expresses the relative likelihood of
+    a random variable taking a specific value. It meets the criteria:
     1. Is a continuous random variable
     2. Is non-negative for all values
     3. The integral over the entire domain (probability) is 1.0
@@ -33,8 +33,8 @@ class ProbabilityDensityFunction:
 
     Note that this class provides a discrete representation of a PDF, and is
     not explicitly defined everywhere between negative and positive infinity.
-    It is assumed that all probability density values outside the defined
-    domain are zero.
+    It can be assumed that all probability density values outside the defined
+    domain are 0.0.
 
     Every PDF has a corresponding Cumulative Distribution Function (CDF),
     which is the probability that the random variable will take a value less
@@ -160,7 +160,19 @@ class ProbabilityDensityFunction:
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
 
-    def compute_probability(self, x1: float, x2: float) -> float:
+    def compute_probability_less_than(self, x: float) -> float:
+        """Compute the probability that the vlaue is less than x.
+        """
+        return self.compute_cdf_value(x)
+
+
+    def compute_probability_greater_than(self, x: float) -> float:
+        """Compute the probability that the value is greater than x.
+        """
+        return 1.0 - self.compute_cdf_value(x)
+
+
+    def compute_probability_between(self, x1: float, x2: float) -> float:
         """Compute the probability that the value is between x1 and x2.
         """
         return self.compute_cdf_value(x2) - self.compute_cdf_value(x1)
