@@ -61,6 +61,9 @@ def cmd_parser(iargs=None):
 
     # Slip rate
     rate_args = parser.add_argument_group("Slip rates")
+    rate_args.add_argument("--limit-positive", dest="limit_positive",
+        action="store_true",
+        help="Enforce the condition that values are >= to 0.")
     rate_args.add_argument("--max-rate", dest="max_rate",
         type=float, default=100,
         help="Maximum slip rate to consider. [100]")
@@ -140,8 +143,9 @@ def main():
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
+        dq=inps.dv,
+        
         max_rate=inps.max_rate,
-        dq=inps.dv
     )
 
     # Save PDF to file
