@@ -31,27 +31,34 @@ from riser.sampling import mc_sampling, pdf_formation, filtering
 #################### ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
     marker: DatedMarker,
-    max_rate: float=100.0,
+    *,
     dq: float=0.01,
+    limit_positive: bool=False,
+    max_rate: float=100.0,
     verbose: bool=False
 ) -> PDFs.PDF:
     """Compute a single slip rate based on a dated displacement marker.
 
     Args    marker - DatedMarker, displacement-age pair used to calculate
                 slip rate
-            max_rate - float, maximum quotient value to consider
             dq - float, quotient step
+            limit_positive - bool, enforce condition that slip rate is >= 0.0
+            max_rate - float, maximum quotient value to consider
     Returns slip_rate - PDF
     """
     if verbose == True:
         print("Computing slip rate")
 
+    # Set mimimum slip rate
+    min_rate = 0.0 if limit_positive == True else -100.0
+
     # Divide displacement by age
     slip_rate = var_ops.divide_variables(
         numerator=marker.displacement,
         denominator=marker.age,
-        max_quotient=max_rate,
         dq=dq,
+        min_quotient=min_rate,
+        max_quotient=max_rate,
         name=marker.name,
         variable_type="slip rate"
     )
@@ -62,10 +69,10 @@ def compute_slip_rate(
 def compute_slip_rates_analytical(
     markers:dict,
     *,
-    max_rate: float=100.0,
     dq: float=0.01,
     limit_positive: bool=False,
-    verbose: bool=False,
+    max_rate: float=100.0,
+    verbose: bool=False
 ) -> dict:
     """Compute the incremental slip rates between multiple dated displacement
     markers using analytical functions.
@@ -110,6 +117,9 @@ def compute_slip_rates_analytical(
     units.check_same_pdf_units(
         [marker.displacement for marker in markers.values()])
 
+    # Set mimimum slip rate
+    min_rate = 0.0 if limit_positive == True else -100.0
+
     # Empty dictionary to store slip rates
     slip_rates = {}
 
@@ -133,7 +143,7 @@ def compute_slip_rates_analytical(
         DeltaT = var_ops.subtract_variables(
             pdf1=older_age,
             pdf2=younger_age,
-            limit_positive=True
+            limit_positive=limit_positive
         )
 
         # Interpolate displacements on same axis
@@ -156,8 +166,9 @@ def compute_slip_rates_analytical(
         slip_rate = var_ops.divide_variables(
             numerator=DeltaU,
             denominator=DeltaT,
-            max_quotient=max_rate,
             dq=dq,
+            min_quotient=min_rate,
+            max_quotient=max_rate,
             name=rate_name,
             variable_type="slip rate"
         )

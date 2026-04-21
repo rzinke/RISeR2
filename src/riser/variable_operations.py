@@ -309,8 +309,8 @@ def subtract_variables(
     unit = units.check_same_pdf_units([pdf1, pdf2])
 
     # Parameters
-    x_min = pdf1.x[0]
-    x_max = pdf1.x[-1]
+    x_start = pdf1.x[0]
+    x_final = pdf1.x[-1]
     dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
@@ -318,8 +318,8 @@ def subtract_variables(
     nxx = 2 * nx - 1
 
     # Differenced value array
-    xx_start = x_min - x_max
-    xx_final = x_max - x_min
+    xx_start = x_start - x_final
+    xx_final = x_final - x_start
     xx = np.linspace(xx_start, xx_final, nxx)
 
     # Negate variable to be subtracted
@@ -351,6 +351,7 @@ def subtract_variables(
 def divide_variables(
     numerator: PDFs.PDF,
     denominator: PDFs.PDF,
+    min_quotient: float=-100.0,
     max_quotient: float=100.0,
     dq: float=0.01,
     name: str | None=None,
@@ -368,7 +369,7 @@ def divide_variables(
     where v is velocity, T is time, and X is distance.
     This equation follows the same intuition for using output-side convolution
     to carry out addition and subtraction:
-    For each value of the output axis, compute something like a sum of joint
+    For each value of the output axis, compute a weighted sum of joint
     probabilities. In this case, the distance-time joint probabilities are
     scaled by time.
 
@@ -384,6 +385,7 @@ def divide_variables(
 
     Args    numerator - PDF
             denominator - PDF
+            min_quotient - float, minimum-allowable quotient to consider
             max_quotient - float, maximum-allowable quotient to consider
             dq - float, quotient sample spacing
             name - str, name of quotient PDF
@@ -392,24 +394,25 @@ def divide_variables(
     if verbose == True:
         print("Dividing variables")
 
-    # Parameters
-    n_numer = len(numerator)
-    n_denom = len(denominator)
+    # All possible quotient values
+    quots_all = [
+        numer / denom
+        for numer in numerator.x
+        for denom in denominator.x
+        if denom != 0.0
+    ]
 
-    numer_min = numerator.x[0]
-    numer_max = numerator.x[-1]
-    denom_min = denominator.x[0]
-    denom_max = denominator.x[-1]
+    # Define minimum quotient
+    quot_min = np.max([
+        np.nanmin(quots_all),
+        min_quotient,
+    ])
 
-    # Ensure all denominator values > 0
-    if denom_min < 0:
-        raise ValueError(
-            "Division cannot be applied where the denominator is negative."
-        )
-
-    # Quotient value parameters
-    quot_min = numer_min / denom_max
-    quot_max = np.min([max_quotient, numer_max / denom_min])
+    # Define maximum quotient
+    quot_max = np.min([
+        np.nanmax(quots_all),
+        max_quotient,
+    ])
 
     # Create quotient value array
     q = PDFs.value_arrays.create_precise_value_array(quot_min, quot_max, dq)
@@ -427,10 +430,10 @@ def divide_variables(
         numer_px = numerator.pdf_at_value(numer_x)
 
         # Sum numerator densities
-        pq[i] = np.sum(denominator.px * numer_px * denominator.x)
+        pq[i] = np.sum(denominator.px * numer_px * np.abs(denominator.x))
 
     # Determine quotient unit
-    if all([numerator.unit is not None, denominator.unit is not None]):
+    if numerator.unit is not None and denominator.unit is not None:
         unit = f"{numerator.unit}/{denominator.unit}"
     else:
         unit = None
