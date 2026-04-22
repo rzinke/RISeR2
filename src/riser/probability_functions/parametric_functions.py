@@ -15,6 +15,8 @@ PARAMETRIC_FUNCTIONS = tuple(PARAMETRIC_FUNCTION_PARAM_NBS.keys())
 
 
 # Import modules
+import warnings
+
 import numpy as np
 import scipy as sp
 
