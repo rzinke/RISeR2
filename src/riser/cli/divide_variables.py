@@ -44,7 +44,7 @@ def cmd_parser(iargs=None):
 
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="Name of summed PDF. [None]")
+        help="Name of quotient PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
