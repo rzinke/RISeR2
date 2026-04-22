@@ -16,10 +16,10 @@ from riser import plotting
 
 
 #################### ARGUMENT PARSER ####################
-description = "Divide two random variables expressed as PDFs."
+description = "Multiply two random variables expressed as PDFs."
 
 examples = """Examples:
-divide_variables.py displacement.txt age.txt -o sliprate.txt
+multiply_variables.py sliprate.txt age.txt -o displacement.txt
 """
 
 def create_parser():
@@ -35,16 +35,16 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='numer_fname',
+    input_args.add_argument(dest='pdf1_fname',
         type=str,
-        help="File name of the numerator PDF.")
-    input_args.add_argument(dest='denom_fname',
+        help="File name of the first PDF.")
+    input_args.add_argument(dest='pdf2_fname',
         type=str,
-        help="File name of the denominator PDF.")
+        help="File name of the second PDF.")
 
     input_args.add_argument('--name', dest='name',
         type=str,
-        help="Name of quotient PDF. [None]")
+        help="Name of summed PDF. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument('-o', '--outname', dest='outname',
@@ -66,33 +66,33 @@ def main():
     inps = cmd_parser()
 
     # Read PDFs from files
-    numer_pdf = PDFs.readers.read_pdf(inps.numer_fname, verbose=inps.verbose)
-    denom_pdf = PDFs.readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
+    pdf1 = PDFs.readers.read_pdf(inps.pdf1_fname, verbose=inps.verbose)
+    pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
 
-    # Compute quotient of PDFs
-    quot_pdf = var_ops.divide_variables(
-        numer_pdf, denom_pdf, name=inps.name, verbose=inps.verbose
+    # Compute product of PDFs
+    prod_pdf = var_ops.multiply_variables(
+        pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
 
     # Save to file
-    PDFs.readers.save_pdf(inps.outname, quot_pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, prod_pdf, verbose=inps.verbose)
 
     # Plot function if requested
     if inps.plot == True:
         # Initialize figure and axis
-        fig, (inpt_ax, quot_ax) = plt.subplots(nrows=2)
+        fig, (inpt_ax, prod_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(inpt_ax, numer_pdf)
-        plotting.plot_pdf_filled(inpt_ax, denom_pdf)
+        plotting.plot_pdf_filled(inpt_ax, pdf1)
+        plotting.plot_pdf_filled(inpt_ax, pdf2)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(quot_ax, quot_pdf)
+        plotting.plot_pdf_labeled(prod_ax, prod_pdf)
 
         # Format figure
         inpt_ax.legend()
         inpt_ax.set_title("Inputs")
-        quot_ax.set_title("PDF Quotient")
+        prod_ax.set_title("PDF Product")
         fig.tight_layout()
 
     plt.show()

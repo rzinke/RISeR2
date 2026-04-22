@@ -14,7 +14,7 @@ make_pdf.py -d gaussian -s 10.0 1.0 -dx 0.01 \
 
 # Compute joint probability
 echo ""
-echo "Computing joint probability"
+echo "Computing PDF ratio"
 
 X12name="tmp/pdf12.txt"
 divide_variables.py $X1name $X2name -o $X12name -v -p

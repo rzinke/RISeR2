@@ -230,8 +230,8 @@ class PDFstatistics:
         """Compute basic statistical properties of a PDF.
         """
         # PDF metadata
-        self.name = pdf.name if pdf.name is not None else ""
-        self.unit = pdf.unit if pdf.unit is not None else ""
+        self.name = pdf.name
+        self.unit = pdf.unit
 
         # Compute location statistics
         self.mode = pdf_mode(pdf)
@@ -245,8 +245,14 @@ class PDFstatistics:
         self.kurtosis = pdf_kurtosis(pdf)
 
     def __str__(self):
-        print_str = (
-            f"PDF: {self.name} ({self.unit})"
+        print_str = f"PDF:"
+        if self.name is not None:
+            print_str += f" {self.name}"
+
+        if self.unit is not None:
+            print_str += f" ({self.unit})"
+
+        print_str += (
             f"\n  mode: {self.mode:.3f}"
             f"\nmedian: {self.median:.3f}"
             f"\n  mean: {self.mean:.3f}"

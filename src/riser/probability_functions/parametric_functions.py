@@ -15,14 +15,28 @@ PARAMETRIC_FUNCTIONS = tuple(PARAMETRIC_FUNCTION_PARAM_NBS.keys())
 
 
 # Import modules
+import warnings
+
 import numpy as np
 import scipy as sp
+
+
+#################### SUPPORT FUNCTIONS ####################
+def check_mass_against_value_range(x: np.ndarray, xmin: float, xmax: float):
+    """Check that the xmin and xmax values of the PDF lie within the value
+    range of x.
+    """
+    if xmin < x.min() or xmax > x.max():
+        warnings.warn("PDF mass lies outside the specified value range")
 
 
 #################### PARAMETRIC FUNCTIONS ####################
 def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
     """Boxcar function with unit area.
     """
+    # Checks
+    check_mass_against_value_range(x, xmin, xmax)
+
     # Number of data points
     n = len(x)
 
@@ -40,10 +54,13 @@ def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
 
 
 def triangular(
-    x:np.ndarray, xmin:float, xmode:float, xmax:float
+    x:np.ndarray, xmin: float, xmode: float, xmax: float
 ) -> np.ndarray:
     """Triangular function with unit area.
     """
+    # Checks
+    check_mass_against_value_range(x, xmin, xmax)
+
     # Number of data points
     n = len(x)
 
@@ -77,6 +94,9 @@ def trapezoidal(
 ) -> np.ndarray:
     """Trapezoidal function with unit area.
     """
+    # Checks
+    check_mass_against_value_range(x, x1, x4)
+
     # Number of data points
     n = len(x)
 
@@ -108,6 +128,9 @@ def trapezoidal(
 def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Gaussian function with unit area.
     """
+    # Checks
+    check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
+
     a = 1 / (sigma * np.sqrt(2 * np.pi))
     f = np.exp(-0.5 * (x - mu)**2 / sigma**2)
 
