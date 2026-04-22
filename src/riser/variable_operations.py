@@ -457,13 +457,14 @@ def divide_variables(
 def multiply_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
+    *,
     dp: float=0.01,
     min_product: float=-100.0,
     max_product: float=100.0,
     name: str=None,
     variable_type: str | None=None,
     verbose: bool=False
-):
+) -> PDFs.PDF:
     """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
     values (Z).
 
@@ -502,23 +503,34 @@ def multiply_variables(
     p = PDFs.value_arrays.create_precise_value_array(prod_min, prod_max, dp)
 
     # Initialize product probability density array
-    np = len(p)
-    pp = np.zeros(np)
+    n = len(p)
+    pp = np.zeros(n)
+
+    # Absolute values of pdf1
+    x1_abs = np.abs(pdf1.x)
+
+    # Non-zero index
+    nonzero_ndx = (x1_abs > 10**-precision.RISER_PRECISION)
+
+    # Non-zero values and probability densities of pdf1
+    x1_nonzero = pdf1.x[nonzero_ndx]
+    px1_nonzero = pdf1.px[nonzero_ndx]
+    x1_abs_nonzero = x1_abs[nonzero_ndx]
 
     # Loop through values in the product
-    for i in range(np):
+    for i in range(n):
         # Compute PDF2 target values (z / x)
-        x2 = p[i] / pdf1.x
+        x2 = p[i] / x1_nonzero
 
         # Equivalent PDF2 density at each target value
         px2 = pdf2.pdf_at_value(x2)
 
         # Sum densities at product value
-        pp[i] = np.sum(pdf1.px * px2 / np.abs(pdf1.x))
+        pp[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
 
     # Determine product unit
     if pdf1.unit is not None and pdf2.unit is not None:
-        unit = f"{pdf1.unit}/{pdf2.unit}"
+        unit = f"{pdf1.unit}.{pdf2.unit}"
     else:
         unit = None
 
