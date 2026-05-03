@@ -18,9 +18,13 @@ import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 
-from riser import precision
-import riser.probability_functions as PDFs
-from riser import variable_types, units, plotting
+from riser import (
+    precision,
+    probability_functions as PDFs,
+    variable_types,
+    units,
+    plotting
+)
 
 
 #################### ARGUMENT PARSER ####################

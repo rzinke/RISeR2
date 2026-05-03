@@ -3,13 +3,27 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+"""
+These functions enforce consistency in PDF value array (x-axis) formatting.
+"""
+
+# Public API
+__all__ = [
+    "sample_spacing_from_pdf",
+    "sample_spacing_array_from_pdf",
+    "value_array_params_from_pdfs",
+    "create_precise_value_array",
+    "check_pdfs_sampling",
+]
+
+
 # Import modules
 import warnings
 
 import numpy as np
 
 from riser import precision
-from riser.probability_functions import PDF
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################

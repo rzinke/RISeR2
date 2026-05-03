@@ -6,7 +6,6 @@
 
 # Constants
 from riser.constants import Psigma
-from riser.probability_functions.analytics import PDF_CONFIDENCE_METRICS
 
 
 # Import modules
@@ -14,10 +13,13 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-import riser.probability_functions as PDFs
+from riser import (
+    probability_functions as PDFs,
+    units,
+    plotting
+)
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
-from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################
@@ -75,7 +77,7 @@ def cmd_parser(iargs=None):
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
         "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDF_CONFIDENCE_METRICS, default="HPD",
+        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS, default="HPD",
         help="Function for computing function confidence. [HPD]")
     reporting_args.add_argument(
         "--confidence-limits", dest="confidence_limits",

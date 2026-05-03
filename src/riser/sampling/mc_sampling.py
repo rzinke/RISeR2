@@ -3,6 +3,12 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "get_sample_criterion",
+    "sample_monte_carlo",
+]
+
 
 # Import modules
 import warnings

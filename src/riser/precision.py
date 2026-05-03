@@ -3,6 +3,12 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "check_precision",
+    "fix_precision",
+]
+
 
 # Constants
 RISER_PRECISION = 10  # decimals

@@ -22,6 +22,13 @@ Instead, an adaptive convolution that accounts for edges could be introduced
 later.
 """
 
+# Public API
+__all__ = [
+    "FILTER_TYPES",
+    "get_filter_by_name",
+    "filter_pdf",
+]
+
 
 # Constants
 FILTER_TYPES = (

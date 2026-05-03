@@ -11,8 +11,10 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-import riser.probability_functions as PDFs
-from riser import plotting
+from riser import (
+    probability_functions as PDFs,
+    plotting
+)
 
 
 #################### ARGUMENT PARSER ####################

@@ -4,19 +4,18 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-from riser.sampling.filtering import FILTER_TYPES
-
 
 # Import modules
 import argparse
 
 import matplotlib.pyplot as plt
 
-import riser.probability_functions as PDFs
-import riser.sampling.filtering as filtering
-import riser.units as units
-import riser.plotting as plotting
+from riser import (
+    probability_functions as PDFs,
+    units,
+    plotting
+)
+from riser.sampling import filtering
 
 
 #################### ARGUMENT PARSER ####################
@@ -77,7 +76,7 @@ def cmd_parser(iargs=None):
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
     smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
-        type=str, choices=FILTER_TYPES,
+        type=str, choices=filtering.FILTER_TYPES,
         help="Smoothing filter type. [None]")
     smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
         type=int, default=0,

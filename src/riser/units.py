@@ -3,6 +3,19 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "BASE_UNITS",
+    "UNIT_SCALES",
+    "parse_unit",
+    "check_base_unit",
+    "scale_values_by_units",
+    "scale_pdf_by_units",
+    "check_pdf_base_unit",
+    "check_same_pdf_units",
+]
+
+
 # Constants
 BASE_UNITS = ("m", "y")
 
@@ -23,7 +36,7 @@ import copy
 
 import numpy as np
 
-import riser.probability_functions as PDFs
+from riser import probability_functions as PDFs
 
 
 #################### UNIT PARSING ####################

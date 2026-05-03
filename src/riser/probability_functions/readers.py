@@ -3,17 +3,24 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-
-# Constants
-from riser.probability_functions.ProbabilityDensityFunction import (
-    PDF_METADATA_ITEMS
-)
+# Public API
+__all__ = [
+    "check_extension",
+    "parse_metadata_from_header",
+    "read_pdf",
+    "read_pdfs",
+    "read_calendar_file",
+    "save_pdf",
+]
 
 
 # Import modules
 import numpy as np
 
-from riser.probability_functions import PDF
+from .ProbabilityDensityFunction import (
+    PDF_METADATA_ITEMS,
+    ProbabilityDensityFunction as PDF
+)
 
 
 #################### CHECKS ####################
@@ -32,7 +39,9 @@ def check_extension(fname: str, ext: str):
 
 
 #################### PDF READERS ####################
-def parse_metadata_from_header(header_lines: list[str], verbose: bool=False) -> dict:
+def parse_metadata_from_header(
+        header_lines: list[str], verbose: bool=False
+) -> dict:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
     those listed in PDF_METADATA_ITEMS, and are demarkated by the item
@@ -187,7 +196,8 @@ def read_pdfs(fnames: list[str], normalize_area: bool=True, verbose: bool=False
     return pdfs
 
 
-def read_calendar_file(fname: str, verbose: bool=False):
+def read_calendar_file(fname: str, verbose: bool=False
+) -> tuple[np.ndarray, np.ndarray, dict]:
     """Read a file (e.g., OxCal output) in which probability densities are
     recorded as a function of calendar year, as opposed to years before
     present (or some reference date).
