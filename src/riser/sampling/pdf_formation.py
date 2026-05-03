@@ -3,6 +3,17 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+"""
+Convert sample values to a pseudo-continuous PDF.
+"""
+
+# Public API
+__all__ = [
+    "PDF_FORMATION_METHODS",
+    "get_pdf_formation_function",
+]
+
+
 # Constants
 PDF_FORMATION_METHODS = (
     "histogram",
@@ -13,20 +24,20 @@ PDF_FORMATION_METHODS = (
 import numpy as np
 import scipy as sp
 
-import riser.probability_functions as PDFs
+from riser import probability_functions as PDFs
 
 
 #################### FORMATION METHODS ####################
 def samples_to_pdf_histogram(
     samples:np.ndarray,
     *,
-    xmin: float | None=None,
-    xmax: float | None=None,
-    dx: float | None=None,
-    name: str | None=None,
-    variable_type: str | None=None,
-    unit: str | None=None,
-    verbose: bool=False
+    xmin: float | None = None,
+    xmax: float | None = None,
+    dx: float | None = None,
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
     Note: The number of histogram values will be 1 less than the number of bin
@@ -81,13 +92,13 @@ def samples_to_pdf_histogram(
 def samples_to_pdf_kde(
     samples:np.ndarray,
     *,
-    xmin: float | None=None,
-    xmax: float | None=None,
-    dx: float | None=None,
-    name: str | None=None,
-    variable_type: str | None=None,
-    unit: str | None=None,
-    verbose: bool=False
+    xmin: float | None = None,
+    xmax: float | None = None,
+    dx: float | None = None,
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
     with a Gaussian kernel.

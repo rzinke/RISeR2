@@ -15,16 +15,26 @@ Incremental slip rates average over shorter subsets of time within the overall
 record.
 """
 
+# Public API
+__all__ = [
+    "compute_slip_rate",
+    "compute_slip_rates_analytical",
+    "compute_slip_rates_mc",
+]
+
 
 # Import modules
 from datetime import datetime
 
 import numpy as np
 
-import riser.probability_functions as PDFs
-import riser.variable_operations as var_ops
+from riser import (
+    probability_functions as PDFs,
+    variable_operations as var_ops,
+    variable_types,
+    units
+)
 from riser.markers import DatedMarker
-from riser import variable_types, units
 from riser.sampling import mc_sampling, pdf_formation, filtering
 
 

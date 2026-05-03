@@ -3,6 +3,20 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "PARAMETRIC_FUNCTION_PARAM_NBS",
+    "PARAMETRIC_FUNCTIONS",
+    "boxcar",
+    "triangular",
+    "gaussian",
+    "cumulative_gaussian",
+    "get_function_by_name",
+    "check_number_inputs",
+    "determine_min_max_limits",
+]
+
+
 # Constants
 PARAMETRIC_FUNCTION_PARAM_NBS = {
     "boxcar": 2,

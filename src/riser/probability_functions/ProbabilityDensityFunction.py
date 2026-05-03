@@ -3,6 +3,12 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "PDF_METADATA_ITEMS",
+    "ProbabilityDensityFunction",
+]
+
 
 # Constants
 from riser import precision
@@ -44,10 +50,10 @@ class ProbabilityDensityFunction:
         self,
         x: np.ndarray,
         px: np.ndarray,
-        normalize_area: bool=True,
-        name: str | None=None,
-        variable_type: str | None=None,
-        unit: str | None=None
+        normalize_area: bool = True,
+        name: str | None = None,
+        variable_type: str | None = None,
+        unit: str | None = None
     ):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria

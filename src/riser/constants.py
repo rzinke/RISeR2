@@ -3,6 +3,11 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "Psigma",
+]
+
 
 # Fraction of values within confidence limits of a normal distribution
 Psigma = {

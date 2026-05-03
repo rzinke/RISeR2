@@ -3,6 +3,12 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "compute_sample_confidence",
+]
+
+
 # Constants
 from riser.constants import Psigma
 

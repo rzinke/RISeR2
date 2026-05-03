@@ -3,7 +3,10 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
+# Public API
+__all__ = [
+    "read_markers_from_config",
+]
 
 
 # Import modules
@@ -11,8 +14,8 @@ import warnings
 
 import toml
 
-import riser.probability_functions as PDFs
-from . import DatedMarker
+from .DatedMarker import DatedMarker
+from riser import probability_functions as PDFs
 from riser import units
 
 
@@ -47,14 +50,14 @@ def initialize_marker_from_files(
     age_fname: str,
     displacement_fname: str,
     *,
-    marker_name: str | None=None,
-    age_name: str | None=None,
-    age_variable_type: str | None=None,
-    age_unit: str | None=None,
-    displacement_name: str | None=None,
-    displacement_variable_type: str | None=None,
-    displacement_unit: str | None=None,
-    verbose=False
+    marker_name: str | None = None,
+    age_name: str | None = None,
+    age_variable_type: str | None = None,
+    age_unit: str | None = None,
+    displacement_name: str | None = None,
+    displacement_variable_type: str | None = None,
+    displacement_unit: str | None = None,
+    verbose = False
 ) -> DatedMarker:
     """
     Metadata can be specified either in the PDF file itself, or in the config
@@ -110,7 +113,7 @@ def initialize_marker_from_files(
     return marker
 
 
-def read_markers_from_config(fname: str, verbose=False) -> dict:
+def read_markers_from_config(fname: str, verbose = False) -> dict:
     """Read marker data from a TOML configuration file.
     The file should have one [marker_name] entry per marker, and each marker
     should have entries for "age file" and "displacement file".

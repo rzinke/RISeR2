@@ -8,6 +8,21 @@ These functions quantify relationships or interactions between two random
 variables.
 """
 
+# Public API
+__all__ = [
+    "combine_variables",
+    "merge_variables",
+    "negate_variable",
+    "add_variables",
+    "subtract_variables",
+    "multiply_variables",
+    "divide_variables",
+    "compute_probability_between_variables",
+    "compute_pearson_coefficient",
+    "compute_overlap_index",
+    "compute_ks_statistic",
+]
+
 
 # Import modules
 import copy
@@ -15,8 +30,12 @@ import copy
 import numpy as np
 import scipy as sp
 
-import riser.probability_functions as PDFs
-from riser import precision, variable_types, units
+from riser import (
+    probability_functions as PDFs,
+    precision,
+    variable_types,
+    units
+)
 
 
 #################### GENERIC FUNCTIONS ####################
@@ -350,6 +369,99 @@ def subtract_variables(
     return diff_pdf
 
 
+def multiply_variables(
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
+    *,
+    dp: float=0.01,
+    min_product: float=-100.0,
+    max_product: float=100.0,
+    name: str=None,
+    variable_type: str | None=None,
+    verbose: bool=False
+) -> PDFs.PDF:
+    """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
+    values (Z).
+
+    Theory:
+    The equation for multiplication of PDFs is similar to that for division:
+    It is a weighted convolution of X and Y, with the scaling factor 1/x:
+
+        fZ(z) = integral(fX(x).fY(z/x) 1/|x| dx)
+
+    Args    pdf1, pdf2 - PDFs to multiply
+            dp - float, product sample spacing
+            min_product - float, minimum-allowable product to consider
+            max_product - float, maximim-allowable product to consider
+            name - str, name of product PDF
+    Returns prod_pdf - multiplied PDF
+    """
+    if verbose == True:
+        print("Multiplying variables")
+
+    # All possible product values
+    prods_all = [x1 * x2 for x1 in pdf1.x for x2 in pdf2.x]
+
+    # Define minimum product
+    prod_min = np.max([
+        np.nanmin(prods_all),
+        min_product
+    ])
+
+    # Determine maximum product
+    prod_max = np.min([
+        np.nanmax(prods_all),
+        max_product
+    ])
+
+    # Create product value array
+    p = PDFs.value_arrays.create_precise_value_array(prod_min, prod_max, dp)
+
+    # Initialize product probability density array
+    n = len(p)
+    pp = np.zeros(n)
+
+    # Absolute values of pdf1
+    x1_abs = np.abs(pdf1.x)
+
+    # Non-zero index
+    nonzero_ndx = (x1_abs > 10**-precision.RISER_PRECISION)
+
+    # Non-zero values and probability densities of pdf1
+    x1_nonzero = pdf1.x[nonzero_ndx]
+    px1_nonzero = pdf1.px[nonzero_ndx]
+    x1_abs_nonzero = x1_abs[nonzero_ndx]
+
+    # Loop through values in the product
+    for i in range(n):
+        # Compute PDF2 target values (z / x)
+        x2 = p[i] / x1_nonzero
+
+        # Equivalent PDF2 density at each target value
+        px2 = pdf2.pdf_at_value(x2)
+
+        # Sum densities at product value
+        pp[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
+
+    # Determine product unit
+    if pdf1.unit is not None and pdf2.unit is not None:
+        unit = f"{pdf1.unit}.{pdf2.unit}"
+    else:
+        unit = None
+
+    # Form results into PDF
+    prod_pdf = PDFs.PDF(
+        x=p,
+        px=pp,
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+        normalize_area=True
+    )
+
+    return prod_pdf
+
+
 def divide_variables(
     numerator: PDFs.PDF,
     denominator: PDFs.PDF,
@@ -452,99 +564,6 @@ def divide_variables(
     )
 
     return quot_pdf
-
-
-def multiply_variables(
-    pdf1: PDFs.PDF,
-    pdf2: PDFs.PDF,
-    *,
-    dp: float=0.01,
-    min_product: float=-100.0,
-    max_product: float=100.0,
-    name: str=None,
-    variable_type: str | None=None,
-    verbose: bool=False
-) -> PDFs.PDF:
-    """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
-    values (Z).
-
-    Theory:
-    The equation for multiplication of PDFs is similar to that for division:
-    It is a weighted convolution of X and Y, with the scaling factor 1/x:
-
-        fZ(z) = integral(fX(x).fY(z/x) 1/|x| dx)
-
-    Args    pdf1, pdf2 - PDFs to multiply
-            dp - float, product sample spacing
-            min_product - float, minimum-allowable product to consider
-            max_product - float, maximim-allowable product to consider
-            name - str, name of product PDF
-    Returns prod_pdf - multiplied PDF
-    """
-    if verbose == True:
-        print("Multiplying variables")
-
-    # All possible product values
-    prods_all = [x1 * x2 for x1 in pdf1.x for x2 in pdf2.x]
-
-    # Define minimum product
-    prod_min = np.max([
-        np.nanmin(prods_all),
-        min_product
-    ])
-
-    # Determine maximum product
-    prod_max = np.min([
-        np.nanmax(prods_all),
-        max_product
-    ])
-
-    # Create product value array
-    p = PDFs.value_arrays.create_precise_value_array(prod_min, prod_max, dp)
-
-    # Initialize product probability density array
-    n = len(p)
-    pp = np.zeros(n)
-
-    # Absolute values of pdf1
-    x1_abs = np.abs(pdf1.x)
-
-    # Non-zero index
-    nonzero_ndx = (x1_abs > 10**-precision.RISER_PRECISION)
-
-    # Non-zero values and probability densities of pdf1
-    x1_nonzero = pdf1.x[nonzero_ndx]
-    px1_nonzero = pdf1.px[nonzero_ndx]
-    x1_abs_nonzero = x1_abs[nonzero_ndx]
-
-    # Loop through values in the product
-    for i in range(n):
-        # Compute PDF2 target values (z / x)
-        x2 = p[i] / x1_nonzero
-
-        # Equivalent PDF2 density at each target value
-        px2 = pdf2.pdf_at_value(x2)
-
-        # Sum densities at product value
-        pp[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
-
-    # Determine product unit
-    if pdf1.unit is not None and pdf2.unit is not None:
-        unit = f"{pdf1.unit}.{pdf2.unit}"
-    else:
-        unit = None
-
-    # Form results into PDF
-    prod_pdf = PDFs.PDF(
-        x=p,
-        px=pp,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
-        normalize_area=True
-    )
-
-    return prod_pdf
 
 
 #################### GAP BETWEEN VARIABLES ####################

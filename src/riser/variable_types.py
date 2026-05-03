@@ -8,6 +8,14 @@ Because most RISeR2 functions are general and not specific to slip rates,
 variable types should be suggested but not enforced.
 """
 
+# Public API
+__all__ = [
+    "SUPPORTED_VARIABLE_TYPES",
+    "check_variable_type_supported",
+    "check_same_pdf_variable_types",
+]
+
+
 # Constants
 SUPPORTED_VARIABLE_TYPES = (
     "age",

@@ -10,9 +10,11 @@ import argparse
 import toml
 import matplotlib.pyplot as plt
 
-import riser.probability_functions as PDFs
-import riser.units as units
-import riser.plotting as plotting
+from riser import (
+    probability_functions as PDFs,
+    units,
+    plotting
+)
 
 
 #################### ARGUMENT PARSER ####################

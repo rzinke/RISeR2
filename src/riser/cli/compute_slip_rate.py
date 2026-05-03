@@ -14,10 +14,13 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-import riser.probability_functions as PDFs
+from riser import (
+    probability_functions as PDFs,
+    units,
+    plotting
+)
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
-from riser import units, plotting
 
 
 #################### ARGUMENT PARSER ####################

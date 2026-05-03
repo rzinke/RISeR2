@@ -3,14 +3,21 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+# Public API
+__all__ = [
+    "establish_output_dir",
+    "save_marker_fig",
+    "save_slip_rate_fig",
+    "write_picks_to_file",
+    "write_slip_rates_report",
+]
+
 
 # Import modules
 import os
 from datetime import datetime
 
 import numpy as np
-
-from riser.probability_functions import analytics
 
 
 #################### FILENAME FORMATTING ####################
