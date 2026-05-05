@@ -97,6 +97,9 @@ def triangular(
     right_ndx = (x > xmode) & (x <= xmax)
     px[right_ndx] = m * x[right_ndx] + b
 
+    # Ensure all values > 0 (rounding error)
+    px[px < 0] = 0
+
     # Normalize area
     px /= sp.integrate.trapezoid(px, x)
 
