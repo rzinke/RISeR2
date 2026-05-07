@@ -87,7 +87,7 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 
 
 #################### VARIABLE COMBINATION ####################
-def combine_variables(pdfs: list[PDFs.PDF], verbose: bool=False) -> PDFs.PDF:
+def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     """Compute the joint probability mass function of two or more discrete
     random variables.
     Note: Treating the PDFs as discrete greatly simplifies the calculations.
@@ -125,7 +125,7 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool=False) -> PDFs.PDF:
     return joint_pdf
 
 
-def merge_variables(pdfs: list[PDFs.PDF], verbose: bool=False) -> PDFs.PDF:
+def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     """Combine two or more probability mass functions by summing them
 
     p = f_X(x) + f_Y(y)
@@ -173,7 +173,7 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool=False) -> PDFs.PDF:
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
-def negate_variable(pdf: PDFs.PDF, verbose: bool=False) -> PDFs.PDF:
+def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     """Negate a random variable by negating the x-values, and flipping the
     probability densities left for right.
 
@@ -209,7 +209,7 @@ def add_variables(
     pdf2: PDFs.PDF,
     *,
     name: str | None=None,
-    verbose: bool=False
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
@@ -282,9 +282,9 @@ def subtract_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
-    limit_positive: bool=False,
+    limit_positive: bool = False,
     name: str=None,
-    verbose: bool=False
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
     their values (Z).
@@ -378,7 +378,7 @@ def multiply_variables(
     max_product: float=100.0,
     name: str=None,
     variable_type: str | None=None,
-    verbose: bool=False
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
     values (Z).
@@ -471,7 +471,7 @@ def divide_variables(
     max_quotient: float=100.0,
     name: str | None=None,
     variable_type: str | None=None,
-    verbose: bool=False
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Divide numerator by denominator.
 
@@ -571,7 +571,7 @@ def compute_probability_between_variables(
     pdf1: PDFs.PDF, 
     pdf2: PDFs.PDF,
     name: str | None=None, 
-    verbose: bool=False
+    verbose: bool = False
 ) -> PDFs.PDF:
     """Compute a PDF representing the domain and probability densities of
     values between two random variables.
@@ -615,19 +615,18 @@ def compute_probability_between_variables(
 
 
 #################### SIMILARITY ####################
-def compute_pearson_coefficient(
+def compute_cosine_similarity(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
-    verbose: bool=False
+    verbose: bool = False
 ) -> float:
-    """Compute the Pearson correlation coefficient between two PDFs.
+    """Compute the cosine similarity index
 
-        r = sum[(xi - xbar)(yi - ybar)]
-            / [ sqrt sum[(xi - xbar)^2] . sqrt sum[(yi - ybar)^2]^1/2 ]
+        r = sum[f1 f2] / sqrt[sum(f1 ^ 2) . sum(f2 ^ 2)]
 
-    Because PDFs are never negative, the coefficient here is computed without
-    subtracting the mean (centering).
-    This is essentially a normalized dot product.
+    This is essentially a normalized dot product, and is equivalent to the
+    Pearson coefficient without mean-centering.
+    Because PDFs are never negative, mean-centering is not necessary.
 
     Args    pdf1, pdf2 - PDFs to correlate
     Returns r - float, Pearson correlation coefficient
@@ -644,12 +643,12 @@ def compute_pearson_coefficient(
 
     # Compute coefficient
     numer = np.sum(px1_cntr * px2_cntr)
-    denom = np.sqrt(np.sum(px1_cntr**2)) * np.sqrt(np.sum(px2_cntr**2))
+    denom = np.sqrt(np.sum(px1_cntr**2) * np.sum(px2_cntr**2))
     r = numer / denom
 
     # Report if requested
     if verbose == True:
-        print(f"Pearson correlation coefficient: {r}")
+        print(f"Cosine similarity coefficient: {r}")
 
     return r
 
@@ -657,7 +656,7 @@ def compute_pearson_coefficient(
 def cross_correlate_variables(
     ref_pdf: PDFs.PDF,
     sec_pdf: PDFs.PDF,
-    verbose: bool=False
+    verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute the cross correlation of the second variable against the first.
     Note: Unlike in classical cross correlation, which assumes infinite
@@ -715,7 +714,7 @@ def cross_correlate_variables(
 
 
 def compute_overlap_index(
-    pdfs: list[PDFs.PDF], verbose: bool=False
+    pdfs: list[PDFs.PDF], verbose: bool = False
 ) -> tuple[np.ndarray, float]:
     """Compute the overlap index for two or more PDFs according to
     (Pastore and Calcgni, 2019):
@@ -726,7 +725,7 @@ def compute_overlap_index(
 
         n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
 
-    Args    pdfs - list[PDF], list of PDFs
+    Args    pdfs - list[PDF], PDFs for which to compute the overlap index
     Returns eta - float, overlap metric
             px_min - np.ndarray
     """
@@ -746,7 +745,7 @@ def compute_overlap_index(
     # Integrate over overlapping region
     eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
 
-    # Report if requested
+    # Report overlap metric
     if verbose == True:
         print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
 
@@ -756,7 +755,7 @@ def compute_overlap_index(
 def compute_ks_statistic(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
-    verbose: bool=False
+    verbose: bool = False
 ) -> tuple[float, int]:
     """Compute the Komolgorov-Smirnov statistic for two PDFs.
     The K-S statistic (D) is the largest difference between the CDFs of the

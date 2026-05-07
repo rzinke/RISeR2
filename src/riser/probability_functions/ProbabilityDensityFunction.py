@@ -169,19 +169,19 @@ class ProbabilityDensityFunction:
     def compute_probability_less_than(self, x: float) -> float:
         """Compute the probability that the vlaue is less than x.
         """
-        return self.compute_cdf_value(x)
+        return self.cdf_at_value(x)
 
 
     def compute_probability_greater_than(self, x: float) -> float:
         """Compute the probability that the value is greater than x.
         """
-        return 1.0 - self.compute_cdf_value(x)
+        return 1.0 - self.cdf_at_value(x)
 
 
     def compute_probability_between(self, x1: float, x2: float) -> float:
         """Compute the probability that the value is between x1 and x2.
         """
-        return self.compute_cdf_value(x2) - self.compute_cdf_value(x1)
+        return self.cdf_at_value(x2) - self.cdf_at_value(x1)
 
 
     def pit(self, y: float | np.ndarray) -> float | np.ndarray:
