@@ -463,32 +463,32 @@ def plot_marker_whisker(
     """Plot a dated marker as a cross.
     """
     # Compute age confidence limits
-    age_mode = PDFs.analytics.pdf_mode(marker.age)
+    age_median = PDFs.analytics.pdf_median(marker.age)
     age_range = PDFs.analytics.compute_interquantile_range(
             marker.age, confidence
     )
 
     # Plot age values (first and only cluster range)
     age_vals = age_range.range_values[0]
-    age_err = [[age_mode - age_vals[0]], [age_vals[1] - age_mode]]
+    age_err = [[age_median - age_vals[0]], [age_vals[1] - age_median]]
 
     # Compute displacement confidence limits
-    disp_mode = PDFs.analytics.pdf_mode(marker.displacement)
+    disp_median = PDFs.analytics.pdf_median(marker.displacement)
     disp_range = PDFs.analytics.compute_interquantile_range(
             marker.displacement, confidence
     )
 
     # Plot displacement values (first and only cluster range)
     disp_vals = disp_range.range_values[0]
-    disp_err = [[disp_mode - disp_vals[0]], [disp_vals[1] - disp_mode]]
+    disp_err = [[disp_median - disp_vals[0]], [disp_vals[1] - disp_median]]
 
     # Plot marker
-    ax.errorbar(age_mode, disp_mode, xerr=age_err, yerr=disp_err,
+    ax.errorbar(age_median, disp_median, xerr=age_err, yerr=disp_err,
                 color=color, zorder=zorder)
 
     # Label if requested
     if label == True:
-        ax.text(1.01 * age_mode, 1.01 * disp_mode, marker.name)
+        ax.text(1.01 * age_median, 1.01 * disp_median, marker.name)
 
 
 def plot_markers_whisker(
