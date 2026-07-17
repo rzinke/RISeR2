@@ -1,3 +1,5 @@
+# src/riser/probability_functions/__init__.py
+
 """
 These features are built around probability density functions.
 ProbabilityDensityFunction is the fundamental class upon with RISeR2 is built.
