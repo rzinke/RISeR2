@@ -12,8 +12,10 @@ __all__ = [
 # Import modules
 import warnings
 
-from riser import probability_functions as PDFs
-from riser import units
+from .. import (
+    units,
+    probability_functions as PDFs,
+)
 
 
 #################### DATED MARKER ####################

@@ -27,7 +27,7 @@ SUPPORTED_VARIABLE_TYPES = (
 # Import modules
 import warnings
 
-from riser.probability_functions import PDF
+from .probability_functions import PDF
 
 
 #################### PDF VARIABLE TYPE CHECKS ####################

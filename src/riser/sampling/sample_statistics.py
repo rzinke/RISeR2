@@ -9,12 +9,10 @@ __all__ = [
 ]
 
 
-# Constants
-from riser.constants import Psigma
-
-
 # Import modules
 import numpy as np
+
+from ..constants import Psigma
 
 
 #################### SAMPLE STATISTICS ####################

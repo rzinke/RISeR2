@@ -30,11 +30,11 @@ import copy
 import numpy as np
 import scipy as sp
 
-from riser import (
-    probability_functions as PDFs,
+from . import (
     precision,
+    units,
     variable_types,
-    units
+    probability_functions as PDFs
 )
 
 

@@ -14,9 +14,11 @@ import warnings
 
 import toml
 
+from .. import (
+    units,
+    probability_functions as PDFs,
+)
 from .DatedMarker import DatedMarker
-from riser import probability_functions as PDFs
-from riser import units
 
 
 #################### MARKER READERS ####################

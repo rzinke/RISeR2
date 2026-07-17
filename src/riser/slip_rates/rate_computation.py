@@ -28,14 +28,14 @@ from datetime import datetime
 
 import numpy as np
 
-from riser import (
-    probability_functions as PDFs,
-    variable_operations as var_ops,
+from .. import (
+    units,
     variable_types,
-    units
+    probability_functions as PDFs,
+    variable_operations as var_ops
 )
-from riser.markers import DatedMarker
-from riser.sampling import mc_sampling, pdf_formation, filtering
+from ..markers import DatedMarker
+from ..sampling import mc_sampling, pdf_formation, filtering
 
 
 #################### ANALYTIC COMPUTATION ####################

@@ -27,7 +27,6 @@ __all__ = [
 
 
 # Constants
-from riser import constants
 
 PDF_CONFIDENCE_METRICS = (
     "IQR",
@@ -40,9 +39,10 @@ import copy
 
 import numpy as np
 
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from ..constants import Psigma
+from .. import precision
 from . import value_arrays
-from riser import precision
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
@@ -331,7 +331,7 @@ class ConfidenceRange:
 
 def compute_interquantile_range(
         pdf: PDF,
-        confidence: float=constants.Psigma["1"]
+        confidence: float=Psigma["1"]
     ) -> "ConfidenceRange":
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
@@ -360,7 +360,7 @@ def compute_interquantile_range(
 
 
 def compute_highest_posterior_density(
-    pdf: PDF, confidence: float=constants.Psigma["1"]
+    pdf: PDF, confidence: float=Psigma["1"]
 ) -> "ConfidenceRange":
     """Compute the highest posterior density (HPD) values of a PDF.
 

@@ -24,7 +24,7 @@ PDF_FORMATION_METHODS = (
 import numpy as np
 import scipy as sp
 
-from riser import probability_functions as PDFs
+from .. import probability_functions as PDFs
 
 
 #################### FORMATION METHODS ####################

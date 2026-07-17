@@ -22,22 +22,19 @@ __all__ = [
 ]
 
 
-# Constants
-from riser.constants import Psigma
-
-
 # Import modules
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-from riser import (
+from .constants import Psigma
+from . import (
     probability_functions as PDFs,
     variable_types,
     units
 )
-from riser.sampling import filtering
-from riser.markers import DatedMarker
+from .sampling import filtering
+from .markers import DatedMarker
 
 
 #################### GENERAL LABELING ####################
@@ -91,7 +88,7 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
 #################### PDF PLOTTING ####################
 def plot_pdf_line(
     ax,
-    pdf: PDF,
+    pdf: PDFs.PDF,
     *,
     # Style args
     color: str="black",

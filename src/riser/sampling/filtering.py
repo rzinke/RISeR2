@@ -43,7 +43,7 @@ import copy
 import numpy as np
 import scipy as sp
 
-from riser.probability_functions import PDF
+from ..probability_functions import PDF
 
 
 #################### FILTERS ####################

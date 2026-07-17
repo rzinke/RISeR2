@@ -36,7 +36,7 @@ import copy
 
 import numpy as np
 
-from riser import probability_functions as PDFs
+from . import probability_functions as PDFs
 
 
 #################### UNIT PARSING ####################

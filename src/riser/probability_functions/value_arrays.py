@@ -22,7 +22,7 @@ import warnings
 
 import numpy as np
 
-from riser import precision
+from .. import precision
 from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
