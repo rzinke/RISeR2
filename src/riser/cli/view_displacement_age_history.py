@@ -26,7 +26,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -97,7 +97,7 @@ def main():
         )
 
     # Initialize figure and axis for input markers
-    if inps.show_marginals == True:
+    if inps.show_marginals:
         # Three-part figure with marginal distributions
         fig = plt.figure()
         marker_ax = fig.add_subplot(position=(0.32, 0.32, 0.60, 0.60))
@@ -113,18 +113,18 @@ def main():
         ax=marker_ax,
         markers=markers,
         marker_plot_type=inps.marker_plot_type,
-        label=inps.show_labels
+        label=inps.show_labels,
     )
 
     # Plot marginal distributions
-    if inps.show_marginals == True:
+    if inps.show_marginals:
         for name, marker in markers.items():
             # Plot age
             age_ax.fill_between(
                 marker.age.x,
                 marker.age.px,
                 color="dimgrey",
-                alpha=0.3
+                alpha=0.3,
             )
 
             # Plot displacement
@@ -132,7 +132,7 @@ def main():
                 marker.displacement.px,
                 marker.displacement.x,
                 color="dimgrey",
-                alpha=0.3
+                alpha=0.3,
             )
 
             # Adjust main axis limits
@@ -145,7 +145,7 @@ def main():
         fig.savefig(inps.outname)
 
     # Show unless specified not to
-    if inps.no_show == False:
+    if not inps.no_show:
         plt.show()
 
 

@@ -32,7 +32,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -107,7 +107,7 @@ def main():
         inps.date_fname, verbose=inps.verbose)
 
     # Convert calendar year to years before present (ypb)
-    if inps.verbose == True:
+    if inps.verbose:
         print(f"Shifting dates relative to reference: {inps.reference_date}")
     ybp = inps.reference_date - calyr
 
@@ -124,7 +124,7 @@ def main():
     px = calpx[::-1]
 
     # Limit minimum age to zero
-    if inps.limit_zero == True:
+    if inps.limit_zero:
         # Non-negative indices
         non_neg_ndx = (x >= 0)
 
@@ -139,7 +139,7 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.output_unit,
-        normalize_area=True
+        normalize_area=True,
     )
 
     # Smooth data
@@ -149,18 +149,18 @@ def main():
             filter_type=inps.smoothing_type,
             filter_width=inps.smoothing_width,
             edge_padding="zeros",
-            verbose=inps.verbose
+            verbose=inps.verbose,
         )
 
     # Report final stats if requested
-    if inps.verbose == True:
+    if inps.verbose:
         print(PDFs.analytics.PDFstatistics(pdf))
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, (cal_ax, age_ax) = plt.subplots(nrows=2)
 

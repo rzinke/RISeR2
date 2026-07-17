@@ -5,24 +5,15 @@
 
 # Public API
 __all__ = [
-    "PDF_METADATA_ITEMS",
     "ProbabilityDensityFunction",
-]
-
-
-# Constants
-from riser import precision
-
-PDF_METADATA_ITEMS = [
-    "name",
-    "variable_type",
-    "unit",
 ]
 
 
 # Import modules
 import numpy as np
 import scipy as sp
+
+from .. import precision
 
 
 #################### PDF BASE CLASS ####################
@@ -46,6 +37,13 @@ class ProbabilityDensityFunction:
     which is the probability that the random variable will take a value less
     than or equal to value x.
     """
+
+    metadata_items = (
+            "name",
+            "variable_type",
+            "unit",
+        )
+
     def __init__(
         self,
         x: np.ndarray,
@@ -53,7 +51,7 @@ class ProbabilityDensityFunction:
         normalize_area: bool = True,
         name: str | None = None,
         variable_type: str | None = None,
-        unit: str | None = None
+        unit: str | None = None,
     ):
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
@@ -75,7 +73,7 @@ class ProbabilityDensityFunction:
         self.__check_array_lengths__()
 
         # Normalize area under curve
-        if normalize_area == True:
+        if normalize_area:
             self.__normalize_area__()
 
         # Validate
@@ -90,7 +88,7 @@ class ProbabilityDensityFunction:
         self.unit = unit
 
 
-    def __check_array_lengths__(self) -> bool:
+    def __check_array_lengths__(self):
         """Check that the number of points is x is the same as the number of
         points in px.
         """

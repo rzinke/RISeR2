@@ -12,8 +12,10 @@ __all__ = [
 # Import modules
 import warnings
 
-from riser import probability_functions as PDFs
-from riser import units
+from .. import (
+    units,
+    probability_functions as PDFs,
+)
 
 
 #################### DATED MARKER ####################
@@ -32,7 +34,7 @@ class DatedMarker:
             self,
             age: PDFs.PDF,
             displacement: PDFs.PDF,
-            name: str | None=None
+            name: str | None = None,
         ):
         """Initialize a DatedMarker.
 
@@ -59,7 +61,7 @@ class DatedMarker:
             warnings.warn(
                 "Age unit not specified. "
                 "It is highly recommended to specify units.",
-                stacklevel=2
+                stacklevel=2,
             )
         else:
             if units.check_pdf_base_unit(self.age) != 'y':
@@ -70,7 +72,7 @@ class DatedMarker:
             warnings.warn(
                 "Displacement unit not specified. "
                 "It is highly recommended to specify units.",
-                stacklevel=2
+                stacklevel=2,
             )
         else:
             if units.check_pdf_base_unit(self.displacement) != 'm':

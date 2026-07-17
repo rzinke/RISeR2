@@ -4,11 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-from riser.constants import Psigma
-from riser.sampling.filtering import FILTER_TYPES
-from riser.probability_functions.analytics import PDF_CONFIDENCE_METRICS
-
 
 # Import modules
 import argparse
@@ -16,13 +11,18 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
+    constants,
     units,
-    plotting
+    probability_functions as PDFs,
+    plotting,
 )
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
-from riser.sampling import mc_sampling, sample_statistics
+from riser.sampling import (
+    filtering,
+    mc_sampling,
+    sample_statistics,
+)
 
 
 #################### ARGUMENT PARSER ####################
@@ -39,7 +39,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -66,8 +66,8 @@ def cmd_parser(iargs=None):
     # Sampling
     sampling_args = parser.add_argument_group("Sampling")
     sampling_args.add_argument("--n-samples", dest="n_samples",
-        type=int, default=10000,
-        help="Desired number of successful sample combinations. [1 000 000]")
+        type=int, default=10_000,
+        help="Desired number of successful sample combinations. [10 000]")
 
     # Slip rate
     rate_args = parser.add_argument_group("Slip rates")
@@ -84,7 +84,7 @@ def cmd_parser(iargs=None):
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
     smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
-        type=str, choices=FILTER_TYPES,
+        type=str, choices=filtering.FILTER_TYPES,
         help="Smoothing filter type. [None]")
     smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
         type=int, default=0,
@@ -94,12 +94,13 @@ def cmd_parser(iargs=None):
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
         "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDF_CONFIDENCE_METRICS, default="IQR",
-        help="Function for computing function confidence. [IQR]")
+        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS, default="HPD",
+        help=f"Function for computing function confidence. "
+             f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]")
     reporting_args.add_argument(
         "--confidence-limits", dest="confidence_limits",
-        type=float, default=Psigma["1"],
-        help="Confidence level. [0.682]")
+        type=float, default=constants.Psigma["1"],
+        help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
@@ -144,7 +145,7 @@ def main():
         ax=marker_ax,
         markers=markers,
         marker_plot_type="rectangle",
-        label=True
+        label=True,
     )
 
     # Scale input units to output units
@@ -163,9 +164,8 @@ def main():
 
     # Define valid sample criterion
     kwargs = {"max_sample_rate": inps.max_rate}
-    criterion = (
-        mc_sampling.get_sample_criterion("pass-non-negative-bounded")(**kwargs)
-    )
+    criterion = mc_sampling.get_sample_criterion(
+        "PassNonnegativeBounded")(**kwargs)
 
     # Compute slip rates
     (slip_rates,
@@ -180,7 +180,7 @@ def main():
         pdf_dx=inps.dv,
         smoothing_type=inps.smoothing_type,
         smoothing_width=inps.smoothing_width,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Save PDFs to file
@@ -211,19 +211,19 @@ def main():
             rate_picks[i,:],
             inps.confidence_limits,
             name=marker_pair,
-            unit=slip_rates[marker_pair].unit
+            unit=slip_rates[marker_pair].unit,
         )
-        if inps.verbose == True:
+        if inps.verbose:
             print(sample_stats[marker_pair])
 
         # Compute PDF statistics
         pdf_stats[marker_pair] = PDFs.analytics.PDFstatistics(slip_rate)
-        if inps.verbose == True:
+        if inps.verbose:
             print(pdf_stats[marker_pair])
 
         # Compute confidence ranges
         conf_ranges[marker_pair] = conf_fcn(slip_rate, inps.confidence_limits)
-        if inps.verbose == True:
+        if inps.verbose:
             print(conf_ranges[marker_pair])
 
     # Initialize figure and axis for slip rate PDF
@@ -247,11 +247,11 @@ def main():
         sample_statistics=sample_stats,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Plot if requested
-    if inps.plot == True:
+    if inps.plot:
         plt.show()
 
 

@@ -21,21 +21,18 @@ or domain).
 import numpy as np
 
 from . import value_arrays
-from .ProbabilityDensityFunction import (
-    PDF_METADATA_ITEMS,
-    ProbabilityDensityFunction as PDF
-)
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### RESAMPLING/INTERPOLATION ####################
-def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose=False) -> PDF:
+def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
     """Resample a PDF along a new value array.
 
     Args    pdf - PDF to be resampled
             x - np.ndarray, value array along which to resample the PDF
     Returns pdf_resamp - resampled PDF
     """
-    if verbose == True:
+    if verbose:
         print(f"Interpolating PDF to {len(x)}-length array")
 
     # Interpolate probability density values along the new value array
@@ -43,7 +40,7 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose=False) -> PDF:
 
     # Copy metadata from original PDF
     metadata = {}
-    for meta_item in PDF_METADATA_ITEMS:
+    for meta_item in pdf.metadata_items:
         # Retrieve metadata value from original PDF
         metadata[meta_item] = getattr(pdf, meta_item)
 
@@ -53,7 +50,7 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose=False) -> PDF:
     return pdf_resamp
 
 
-def interpolate_pdfs(pdfs: list[PDF], verbose=False) -> list[PDF]:
+def interpolate_pdfs(pdfs: list[PDF], verbose: bool = False) -> list[PDF]:
     """Resample multiple PDFs along a common value array.
     First, determine the value limits and sample rate over which to resample.
     Then, resample each PDF accordingly.
@@ -63,7 +60,7 @@ def interpolate_pdfs(pdfs: list[PDF], verbose=False) -> list[PDF]:
     """
     # Determine value limits and sample rate
     xmin, xmax, dx = value_arrays.value_array_params_from_pdfs(
-            pdfs, verbose=verbose
+        pdfs, verbose=verbose
     )
 
     # Create value array

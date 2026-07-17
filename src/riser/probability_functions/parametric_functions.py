@@ -5,7 +5,6 @@
 
 # Public API
 __all__ = [
-    "PARAMETRIC_FUNCTION_PARAM_NBS",
     "PARAMETRIC_FUNCTIONS",
     "boxcar",
     "triangular",
@@ -17,19 +16,9 @@ __all__ = [
 ]
 
 
-# Constants
-PARAMETRIC_FUNCTION_PARAM_NBS = {
-    "boxcar": 2,
-    "triangular": 3,
-    "trapezoidal": 4,
-    "gaussian": 2
-}
-
-PARAMETRIC_FUNCTIONS = tuple(PARAMETRIC_FUNCTION_PARAM_NBS.keys())
-
-
 # Import modules
 import warnings
+import inspect
 
 import numpy as np
 import scipy as sp
@@ -164,6 +153,14 @@ def cumulative_gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
 
 
 #################### FUNCTION RETRIEVAL ####################
+PARAMETRIC_FUNCTIONS = {
+    "boxcar": boxcar,
+    "triangular": triangular,
+    "trapezoidal": trapezoidal,
+    "gaussian": gaussian,
+}
+
+
 def get_function_by_name(fcn_name: str):
     """Retrieve one of the parametric functions defined above by name.
 
@@ -172,42 +169,43 @@ def get_function_by_name(fcn_name: str):
     """
     # Check that the desired function is defined here
     if fcn_name not in PARAMETRIC_FUNCTIONS:
-        raise ValueError(f"Function {fcn_name} is not defined")
+        raise ValueError(
+            f"Function '{fcn_name}' is not defined. "
+            f"Use one of {', '.join(PARAMETRIC_FUNCTIONS.keys())}"
+        )
 
     # Return function
-    if fcn_name == "boxcar":
-        return boxcar
-
-    elif fcn_name == "triangular":
-        return triangular
-
-    elif fcn_name == "trapezoidal":
-        return trapezoidal
-
-    elif fcn_name == "gaussian":
-        return gaussian
-
-    else:
-        return None
+    return PARAMETRIC_FUNCTIONS.get(fcn_name)
 
 
 #################### CHECKS ####################
-def check_number_inputs(distribution: str, values: list[float]) -> bool:
+def check_number_inputs(distribution: str, variables: list[float]) -> bool:
     """Check that the appropriate number of inputs are provided for the given
     distribution.
 
     Args    distribution - str, parametric function
-            values - list[float], parameter values
+            variables - list[float], parameter values
     Returns bool, True if correct number of inputs provided
     """
-    # Number of values required
-    n_vals_reqd = PARAMETRIC_FUNCTION_PARAM_NBS[distribution]
+    # Retrieve required arguments from function signature
+    fcn_sig = inspect.signature(PARAMETRIC_FUNCTIONS[distribution])
+    reqd_args = [
+        param.name for param in fcn_sig.parameters.values()
+        if param.default is inspect.Parameter.empty
+    ]
 
-    # Number of values specified
-    n_vals_specd = len(values)
+    # Number of values required
+    n_vals_reqd = len(reqd_args)
+
+    # Number of variables required is one less than the number of arguments
+    # because x is not counted here
+    n_vars_reqd = n_vals_reqd - 1
+
+    # Number of variables specified
+    n_vars_specd = len(variables)
 
     # Check necessary number of values specified
-    if n_vals_specd != n_vals_reqd:
+    if n_vars_specd != n_vars_reqd:
         raise Exception(
             f"{n_vals_reqd} must be specified for a {distribution} distribution"
         )
@@ -218,8 +216,8 @@ def check_number_inputs(distribution: str, values: list[float]) -> bool:
 def determine_min_max_limits(
     distribution: str,
     values: list[float],
-    limit_positive: bool=False,
-    verbose: bool=False
+    limit_positive: bool = False,
+    verbose: bool = False,
 ) -> tuple[float, float]:
     """Determine the minimum and maximum values of the PDF domain.
 
@@ -242,7 +240,7 @@ def determine_min_max_limits(
 
         # Limit at zero
         xmin = (
-            np.max([mu - sigma_lim, 0]) if limit_positive == True 
+            np.max([mu - sigma_lim, 0]) if limit_positive
             else mu - sigma_lim
         )
 
@@ -250,7 +248,7 @@ def determine_min_max_limits(
         xmax = mu + sigma_lim
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Minimum value {xmin}\nMaximum value {xmax}")
 
     return xmin, xmax

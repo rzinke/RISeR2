@@ -9,12 +9,10 @@ __all__ = [
 ]
 
 
-# Constants
-from riser.constants import Psigma
-
-
 # Import modules
 import numpy as np
+
+from .. import constants
 
 
 #################### SAMPLE STATISTICS ####################
@@ -22,8 +20,8 @@ class SampleStatistics:
     def __init__(self, 
         confidence: float,
         range_values: tuple[float],
-        name: str | None=None,
-        unit: str | None=None
+        name: str | None = None,
+        unit: str | None = None,
     ):
         """Store sample statistics.
 
@@ -56,11 +54,11 @@ class SampleStatistics:
 
 def compute_sample_confidence(
     picks: np.ndarray,
-    confidence: float=Psigma["1"],
-    name: str | None=None,
-    unit: str | None=None,
-    verbose: bool=False
-) -> "SampleStatistics":
+    confidence: float = constants.Psigma["1"],
+    name: str | None = None,
+    unit: str | None = None,
+    verbose: bool = False,
+) -> SampleStatistics:
     """Compute the percent of values within a range and at the 50% percentile
     (median).
 
@@ -81,7 +79,7 @@ def compute_sample_confidence(
         confidence=confidence,
         range_values=range_values,
         name=name,
-        unit=unit
+        unit=unit,
     )
 
     return conf_range

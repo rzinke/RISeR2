@@ -4,8 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-
 
 # Import modules
 import argparse
@@ -15,7 +13,7 @@ import matplotlib.pyplot as plt
 from riser import (
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting
+    plotting,
 )
 
 
@@ -30,7 +28,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -69,7 +67,7 @@ def main():
     px_min, eta = var_ops.compute_overlap_index(pdfs, verbose=True)
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, ax = plt.subplots()
 

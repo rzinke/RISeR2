@@ -12,10 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import (
+    units,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    units,
-    plotting
+    plotting,
 )
 
 
@@ -98,7 +98,7 @@ def main():
     pdf_shifted = PDFs.PDF(sec_pdf.x, px_shifted, name="shifted")
 
     # Report optimal lag and correlation value if requested
-    if inps.verbose == True:
+    if inps.verbose:
         # Formulate lag string
         lag_str = f"Optimal lag value {opt_lag_val}"
         if unit is not None:
@@ -108,7 +108,7 @@ def main():
         print(f"Optimal correlation value {opt_corr:.2f}")
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, corr_ax) = plt.subplots(nrows=2)
 

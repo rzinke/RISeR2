@@ -14,17 +14,11 @@ __all__ = [
 ]
 
 
-# Constants
-PDF_FORMATION_METHODS = (
-    "histogram",
-    "kde",
-)
-
 # Import modules
 import numpy as np
 import scipy as sp
 
-from riser import probability_functions as PDFs
+from .. import probability_functions as PDFs
 
 
 #################### FORMATION METHODS ####################
@@ -37,7 +31,7 @@ def samples_to_pdf_histogram(
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
     Note: The number of histogram values will be 1 less than the number of bin
@@ -57,7 +51,7 @@ def samples_to_pdf_histogram(
             unit - str, value unit
     Returns pdf - Empirical PDF based on samples
     """
-    if verbose == True:
+    if verbose:
         print("Converting samples to PDF using histogram method")
 
     # Determine value limits
@@ -83,7 +77,7 @@ def samples_to_pdf_histogram(
         px=px,
         name=name,
         variable_type=variable_type,
-        unit=unit
+        unit=unit,
     )
 
     return pdf
@@ -98,7 +92,7 @@ def samples_to_pdf_kde(
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
     with a Gaussian kernel.
@@ -115,7 +109,7 @@ def samples_to_pdf_kde(
             unit - str, value unit
     Returns pdf - Empirical PDF based on samples
     """
-    if verbose == True:
+    if verbose:
         print("Converting samples to PDF using KDE")
 
     # Determine value limits
@@ -141,10 +135,16 @@ def samples_to_pdf_kde(
         px=px,
         name=name,
         variable_type=variable_type,
-        unit=unit
+        unit=unit,
     )
 
     return pdf
+
+
+PDF_FORMATION_METHODS = {
+    "histogram": samples_to_pdf_histogram,
+    "kde": samples_to_pdf_kde,
+}
 
 
 def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
@@ -156,20 +156,15 @@ def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
     # Check that method is valid
     if method not in PDF_FORMATION_METHODS:
         raise ValueError(
-            f"Method {method} not supported. Must be one of "
-            f"{', '.join(PDF_FORMATION_METHODS)}"
+            f"PDF formation method '{method}' not supported. "
+            f"Use one of {', '.join(PDF_FORMATION_METHODS)}"
         )
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"PDF formation method: {method}")
 
-    # Return method
-    if method == "histogram":
-        return samples_to_pdf_histogram
-
-    elif method == "kde":
-        return samples_to_pdf_kde
+    return PDF_FORMATION_METHODS.get(method)
 
 
 # end of file

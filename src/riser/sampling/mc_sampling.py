@@ -25,7 +25,7 @@ class SampleCriterion:
     def check_pass_fail(
         self,
         ages: np.ndarray,
-        displacements: np.ndarray
+        displacements: np.ndarray,
     ) -> bool:
         """Check whether a set of displacement-age pairs meets the sample
         criterion.
@@ -45,7 +45,7 @@ class PassAll(SampleCriterion):
     def check_pass_fail(
         self,
         ages: np.ndarray,
-        displacements: np.ndarray
+        displacements: np.ndarray,
     ) -> bool:
         """Trivial condition for which all random samples will be passed.
         (Allows negative slip rates).
@@ -59,7 +59,7 @@ class PassNonnegative(SampleCriterion):
     def check_pass_fail(
         self,
         ages: np.ndarray,
-        displacements: np.ndarray
+        displacements: np.ndarray,
     ) -> bool:
         """Pass sample combinations that result in non-negative slip rates.
         """
@@ -83,7 +83,7 @@ class PassNonnegativeBounded(SampleCriterion):
     def check_pass_fail(
         self,
         ages: np.ndarray,
-        displacements: np.ndarray
+        displacements: np.ndarray,
     ) -> bool:
         """Pass sample combinations that result in slip rates that are
         non-negativeand less than the specified maximum value.
@@ -99,47 +99,44 @@ class PassNonnegativeBounded(SampleCriterion):
         if all([
             age_diffs.min() > 0,
             disp_diffs.min() >= 0,
-            slip_rates.max() <= self.max_sample_rate
+            slip_rates.max() <= self.max_sample_rate,
         ]):
             return True
         else:
             return False
 
 
+SAMPLE_CRITERIA = {
+    "PassAll": PassAll,
+    "PassNonnegative": PassNonnegative,
+    "PassNonnegativeBounded": PassNonnegativeBounded,
+}
+
+
 def get_sample_criterion(
-    criterion_name: str, verbose: bool=False
-) -> "SampleCriterion":
+    criterion_name: str, verbose: bool = False
+) -> SampleCriterion:
     """Retrieve a sample criterion by name.
     """
-    # Format criterion name
-    formatted_name = criterion_name.lower()
-    formatted_name = formatted_name.replace("pass", "")
-    formatted_name = formatted_name.replace("-", "")
-    formatted_name = formatted_name.replace("_", "")
+    # Check criterion name
+    if criterion_name not in SAMPLE_CRITERIA:
+        raise ValueError(
+            f"Sample criterion '{criterion_name}' not supported. "
+            f"Use one of {', '.join(SAMPLE_CRITERIA.keys())}"
+        )
 
-    # Return criterion object
-    if formatted_name in ["all"]:
-        return PassAll
-
-    elif formatted_name in ["nonnegative"]:
-        return PassNonnegative
-
-    elif formatted_name in ["nonnegativebounded"]:
-        return PassNonnegativeBounded
-
-    else:
-        raise ValueError(f"Criterion name '{criterion_name}' not recognized.")
+    return SAMPLE_CRITERIA.get(criterion_name)
 
 
 #################### MONTE CARLO SAMPLING ####################
 def sample_monte_carlo(
     markers: dict,
-    criterion: "SampleCriterion",
+    criterion: SampleCriterion,
     *,
-    n_samples: int=10000,
-    seed_val: int=0,
-    hard_stop: int=1000000000,
-    verbose: bool=False,
+    n_samples: int = 10_000,
+    seed_val: int = 0,
+    hard_stop: int = 1_000_000_000,
+    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
@@ -153,7 +150,7 @@ def sample_monte_carlo(
             max_rate_sample - float, maximum slip rate to consider
             seed_val - int, random number generator seed value
     """
-    if verbose == True:
+    if verbose:
         print(f"Initializing MC sampling for {n_samples} samples")
 
     # Number of markers
@@ -189,7 +186,7 @@ def sample_monte_carlo(
             disp_samps[j] = markers[name].displacement.pit(r_disps[j])
 
         # Check samples against condition
-        if criterion.check_pass_fail(age_samps, disp_samps) == True:
+        if criterion.check_pass_fail(age_samps, disp_samps):
             # Condition met, record valid samples
             age_picks[:,successes] = age_samps
             disp_picks[:,successes] = disp_samps
@@ -211,7 +208,7 @@ def sample_monte_carlo(
     pbar.close()
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(
             f"MC sampling finished with:"
             f"\n\t{successes} successes"

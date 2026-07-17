@@ -26,23 +26,15 @@ __all__ = [
 ]
 
 
-# Constants
-from riser import constants
-
-PDF_CONFIDENCE_METRICS = (
-    "IQR",
-    "HPD",
-)
-
-
 # Import modules
 import copy
 
 import numpy as np
 
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from ..constants import Psigma
+from .. import precision
 from . import value_arrays
-from riser import precision
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
@@ -289,11 +281,11 @@ class ConfidenceRange:
     def __init__(
         self,
         confidence: float,
-        range_values: tuple[tuple[float]],
+        range_values: tuple[tuple[float, float], ...],
         *,
-        metric: str | None=None,
-        pdf_name: str | None=None,
-        unit: str | None=None
+        metric: str | None = None,
+        pdf_name: str | None = None,
+        unit: str | None = None,
     ):
         """Store confidence ranges.
         Each range is a tuple of floats: (range_min, range_max)
@@ -331,13 +323,13 @@ class ConfidenceRange:
 
 def compute_interquantile_range(
         pdf: PDF,
-        confidence: float=constants.Psigma["1"]
-    ) -> "ConfidenceRange":
+        confidence: float = Psigma["1"],
+    ) -> ConfidenceRange:
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
             confidence - float, confidence level
-    Returns
+    Returns conf_range - ConfidenceRange
     """
     # Determine the lower and upper confidence levels
     half_confidence = confidence / 2
@@ -353,20 +345,20 @@ def compute_interquantile_range(
         range_values=tuple([values]),
         metric="IQR",
         pdf_name=pdf.name,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return conf_range
 
 
 def compute_highest_posterior_density(
-    pdf: PDF, confidence: float=constants.Psigma["1"]
-) -> "ConfidenceRange":
+    pdf: PDF, confidence: float = Psigma["1"],
+) -> ConfidenceRange:
     """Compute the highest posterior density (HPD) values of a PDF.
 
     Args    pdf - PDF to analyse
             confidence - list[float], confidence levels
-    Returns
+    Returns conf_range - ConfidenceRange
     """
     # Value index numbers
     val_nbs = np.array([*range(len(pdf))])
@@ -426,32 +418,34 @@ def compute_highest_posterior_density(
         range_values=tuple(clusters),
         metric="HPD",
         pdf_name=pdf.name,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return conf_range
 
 
-def get_pdf_confidence_function(metric: str, verbose=False) -> "Callable":
+
+PDF_CONFIDENCE_METRICS = {
+    "IQR": compute_interquantile_range,
+    "HPD": compute_highest_posterior_density,
+}
+
+DEFAULT_CONFIDENCE_METRIC = "HPD"
+
+
+def get_pdf_confidence_function(
+    metric: str, verbose: bool = False
+) -> "Callable":
     """Retrieve a confidence function by name.
     """
     # Format metric input
     metric = metric.upper()
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Confidence metric: {metric}")
 
-    # Return metric
-    if metric == "IQR":
-        return compute_interquantile_range
-    elif metric == "HPD":
-        return compute_highest_posterior_density
-    else:
-        raise ValueError(
-            f"Metric {metric} not supported. Must be one of "
-            f"{', '.join(PDF_CONFIDENCE_METRICS)}"
-        )
+    return PDF_CONFIDENCE_METRICS.get(metric)
 
 
 # end of file

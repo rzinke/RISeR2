@@ -4,9 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-from riser.constants import Psigma
-
 
 # Import modules
 import argparse
@@ -14,9 +11,10 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
+    constants,
     units,
-    plotting
+    probability_functions as PDFs,
+    plotting,
 )
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
@@ -37,7 +35,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -77,12 +75,14 @@ def cmd_parser(iargs=None):
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
         "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS, default="HPD",
-        help="Function for computing function confidence. [HPD]")
+        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
+        default=PDFs.analytics.DEFAULT_CONFIDENCE_METRIC,
+        help=f"Function for computing function confidence. "
+             f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]")
     reporting_args.add_argument(
         "--confidence-limits", dest="confidence_limits",
-        type=float, default=Psigma["1"],
-        help="Confidence level. [0.682]")
+        type=float, default=constants.Psigma["1"],
+        help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
@@ -125,7 +125,7 @@ def main():
         ax=marker_ax,
         markers=markers,
         marker_plot_type="whisker",
-        label=True
+        label=True,
     )
     marker_fig.tight_layout()
 
@@ -149,7 +149,7 @@ def main():
         limit_positive=inps.limit_positive,
         max_rate=inps.max_rate,
         dq=inps.dv,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Save PDFs to file
@@ -161,7 +161,7 @@ def main():
     pdf_stats = {}
     for marker_pair, slip_rate in slip_rates.items():
         pdf_stats[marker_pair] = PDFs.analytics.PDFstatistics(slip_rate)
-        if inps.verbose == True:
+        if inps.verbose:
             print(pdf_stats[marker_pair])
 
     # Retrieve confidence range function
@@ -173,7 +173,7 @@ def main():
     conf_ranges = {}
     for marker_pair, slip_rate in slip_rates.items():
         conf_ranges[marker_pair] = conf_fcn(slip_rate, inps.confidence_limits)
-        if inps.verbose == True:
+        if inps.verbose:
             print(conf_ranges[marker_pair])
 
     # Initialize figure and axis for slip rate PDF
@@ -196,11 +196,11 @@ def main():
         slip_rates=slip_rates,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Plot if requested
-    if inps.plot == True:
+    if inps.plot:
         plt.show()
 
 

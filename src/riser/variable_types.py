@@ -20,19 +20,19 @@ __all__ = [
 SUPPORTED_VARIABLE_TYPES = (
     "age",
     "displacement",
-    "slip rate"
+    "slip rate",
 )
 
 
 # Import modules
 import warnings
 
-from riser.probability_functions import PDF
+from .probability_functions import PDF
 
 
 #################### PDF VARIABLE TYPE CHECKS ####################
 def check_variable_type_supported(
-        variable_type: str, throw_error: bool=False, verbose=False
+        variable_type: str, throw_error: bool = False, verbose: bool = False
 ) -> bool:
     """Check whether the specified variable type is supported.
 
@@ -44,14 +44,14 @@ def check_variable_type_supported(
     # Check if variable type is supported
     if variable_type in SUPPORTED_VARIABLE_TYPES:
         # Confirm support
-        if verbose == True:
+        if verbose:
             print(f"Variable type {variable_type} is known and supported")
 
         return True
 
     else:
         # Variable type is not supported
-        if throw_error == True:
+        if throw_error:
             # Throw error
             raise ValueError(f"Variable type {variable_type} not supported")
 
@@ -59,7 +59,7 @@ def check_variable_type_supported(
             # Warn only
             warnings.warn(
                 f"Variable type {variable_type} not supported",
-                stacklevel=2
+                stacklevel=2,
             )
 
             return False

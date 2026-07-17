@@ -5,12 +5,6 @@
 # (c) 2025 all rights reserved
 
 
-# Constants
-from riser.probability_functions.parametric_functions import (
-    PARAMETRIC_FUNCTIONS
-)
-
-
 # Import modules
 import argparse
 import warnings
@@ -20,10 +14,10 @@ import matplotlib.pyplot as plt
 
 from riser import (
     precision,
-    probability_functions as PDFs,
-    variable_types,
     units,
-    plotting
+    variable_types,
+    probability_functions as PDFs,
+    plotting,
 )
 
 
@@ -42,7 +36,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -52,7 +46,8 @@ def cmd_parser(iargs=None):
 
     input_args = parser.add_argument_group("Inputs")
     input_args.add_argument("-d", "--distribution", dest="distribution",
-        type=str, choices=PARAMETRIC_FUNCTIONS, required=True,
+        type=str, choices=PDFs.parametric_functions.PARAMETRIC_FUNCTIONS,
+        required=True,
         help="Parametric function.")
     input_args.add_argument("-s", "--values", dest="values",
         type=float, nargs="+", required=True,
@@ -103,7 +98,7 @@ def main():
         warnings.warn(
             "It is strongly suggested to specify variable-type "
             "(e.g., age; displacement)",
-            stacklevel=2
+            stacklevel=2,
         )
     else:
         # Check whether variable type is supported - warn only, no error
@@ -113,7 +108,7 @@ def main():
     if inps.unit is None:
         warnings.warn(
             "It is strongly suggested to specify unit (e.g., y; m)",
-            stacklevel=2
+            stacklevel=2,
         )
     else:
         # Check unit specification
@@ -123,7 +118,7 @@ def main():
     xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
         inps.distribution, inps.values,
         limit_positive=inps.limit_positive,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Determine increment
@@ -141,7 +136,7 @@ def main():
     para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)
 
     # Create PDF
-    if inps.verbose == True:
+    if inps.verbose:
         print(f"Creating {inps.distribution} distribution")
 
     px = para_fcn(x, *inps.values)
@@ -153,14 +148,14 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.unit,
-        normalize_area=True
+        normalize_area=True,
     )
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, ax = plt.subplots()
 

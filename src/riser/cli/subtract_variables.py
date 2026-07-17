@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from riser import (
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting
+    plotting,
 )
 
 
@@ -28,7 +28,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -86,14 +86,14 @@ def main():
         pdf2,
         limit_positive=inps.limit_positive,
         name=inps.name,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, diff_pdf, verbose=inps.verbose)
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, diff_ax) = plt.subplots(nrows=2)
 
