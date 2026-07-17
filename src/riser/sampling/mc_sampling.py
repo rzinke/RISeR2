@@ -68,7 +68,7 @@ class PassNonnegative(SampleCriterion):
         disp_diffs = np.diff(displacements)
 
         # Check condition
-        if all([age_diffs.min() > 0, disp_diffs.min() >= 0]):
+        if age_diffs.min() > 0 and disp_diffs.min() >= 0:
             return True
         else:
             return False
@@ -96,11 +96,11 @@ class PassNonnegativeBounded(SampleCriterion):
         slip_rates = disp_diffs / age_diffs
 
         # Check condition
-        if all([
-            age_diffs.min() > 0,
-            disp_diffs.min() >= 0,
-            slip_rates.max() <= self.max_sample_rate,
-        ]):
+        if (
+            age_diffs.min() > 0
+            and disp_diffs.min() >= 0
+            and slip_rates.max() <= self.max_sample_rate
+        ):
             return True
         else:
             return False

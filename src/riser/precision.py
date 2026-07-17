@@ -24,7 +24,7 @@ import numpy as np
 def check_precision(x: float) -> float:
     """Check that value is above precision limit.
     """
-    if x <= 10**-RISER_PRECISION:
+    if x <= 10 ** -RISER_PRECISION:
         warnings.warn(
             "Number is less than optimal precision of the RISeR library"
         )

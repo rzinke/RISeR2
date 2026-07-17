@@ -106,11 +106,11 @@ def get_priority_unit(
     the unit encoded in the file.
     """
     # Check if unit is specified in both the file and user inputs
-    if all([
-        file_unit is not None,
-        inps_unit is not None,
-        file_unit != inps_unit
-    ]):
+    if (
+        file_unit is not None
+        and inps_unit is not None
+        and file_unit != inps_unit
+    ):
         # Warn user
         warnings.warn(
             "Unit specified in file is different from user-specified unit.",
@@ -118,7 +118,7 @@ def get_priority_unit(
         )
 
     # Set priority unit
-    if all([file_unit is None, inps_unit is not None]):
+    if file_unit is None and inps_unit is not None:
         priority_unit = copy.deepcopy(inps_unit)
     else:
         priority_unit = copy.deepcopy(file_unit)
@@ -139,7 +139,7 @@ def scale_values_by_units(
     values: float | np.ndarray,
     unit_in: str,
     unit_out: str,
-    verbose = False,
+    verbose: bool = False,
 ) -> float | np.ndarray:
     """Scale values from the input unit to the output.
     Currently only works with simple units (e.g., m, y) and not compound units
@@ -226,10 +226,10 @@ def check_pdf_base_unit(pdf: PDFs.PDF, variable_type: str | None = None) -> str:
     check_base_unit(base_unit)
 
     # Check against variable type
-    if all([variable_type == "age", base_unit != "y"]):
+    if variable_type == "age" and base_unit != "y":
         raise ValueError("Unit for variable type age is 'y'")
 
-    if all([variable_type == "displacement", base_unit != "m"]):
+    if variable_type == "displacement" and base_unit != "m":
         raise ValueError("Unit for variable type displacement is 'm'")
 
     return base_unit

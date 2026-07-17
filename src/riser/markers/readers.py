@@ -30,11 +30,11 @@ def set_metadata_priority(
     """Determine the value of the metadata item is conflicting values are
     specified.
     """
-    if all([
-        file_item is not None,
-        spec_item is not None,
-        file_item != spec_item,
-    ]):
+    if (
+        file_item is not None
+        and spec_item is not None
+        and file_item != spec_item
+    ):
         # Warn user
         warnings.warn(
             f"{metadata_item} specified in file is different from "
@@ -42,7 +42,7 @@ def set_metadata_priority(
             stacklevel=2,
         )
 
-    if all([file_item is None, spec_item is not None]):
+    if file_item is None and spec_item is not None:
         return spec_item
     else:
         return file_item

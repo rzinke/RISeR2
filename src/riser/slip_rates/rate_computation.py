@@ -250,7 +250,7 @@ def compute_slip_rates_mc(
     )
 
     # Determine slip rate unit
-    if all([displacement_unit is not None, age_unit is not None]):
+    if displacement_unit is not None and age_unit is not None:
         unit = f"{displacement_unit}/{age_unit}"
     else:
         unit = None
@@ -296,10 +296,7 @@ def compute_slip_rates_mc(
         )
 
         # Smooth sampled function
-        if all([
-            smoothing_type is not None,
-            smoothing_width is not None,
-        ]):
+        if smoothing_type is not None and smoothing_width is not None:
             slip_rate = filtering.filter_pdf(
                 pdf=slip_rate,
                 filter_type=smoothing_type,
