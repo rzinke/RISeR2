@@ -59,7 +59,7 @@ class PassNonnegative(SampleCriterion):
     def check_pass_fail(
         self,
         ages: np.ndarray,
-        displacements: np.ndarray
+        displacements: np.ndarray,
     ) -> bool:
         """Pass sample combinations that result in non-negative slip rates.
         """
@@ -106,29 +106,26 @@ class PassNonnegativeBounded(SampleCriterion):
             return False
 
 
+SAMPLE_CRITERIA = {
+    "PassAll": PassAll,
+    "PassNonnegative": PassNonnegative,
+    "PassNonnegativeBounded": PassNonnegativeBounded,
+}
+
+
 def get_sample_criterion(
-    criterion_name: str, verbose: bool=False
-) -> "SampleCriterion":
+    criterion_name: str, verbose: bool = False
+) -> SampleCriterion:
     """Retrieve a sample criterion by name.
     """
-    # Format criterion name
-    formatted_name = criterion_name.lower()
-    formatted_name = formatted_name.replace("pass", "")
-    formatted_name = formatted_name.replace("-", "")
-    formatted_name = formatted_name.replace("_", "")
+    # Check criterion name
+    if criterion_name not in SAMPLE_CRITERIA:
+        raise ValueError(
+            f"Sample criterion '{criterion_name}' not supported. "
+            f"Use one of {', '.join(SAMPLE_CRITERIA.keys())}"
+        )
 
-    # Return criterion object
-    if formatted_name in ["all"]:
-        return PassAll
-
-    elif formatted_name in ["nonnegative"]:
-        return PassNonnegative
-
-    elif formatted_name in ["nonnegativebounded"]:
-        return PassNonnegativeBounded
-
-    else:
-        raise ValueError(f"Criterion name '{criterion_name}' not recognized.")
+    return SAMPLE_CRITERIA.get(criterion_name)
 
 
 #################### MONTE CARLO SAMPLING ####################
@@ -136,9 +133,9 @@ def sample_monte_carlo(
     markers: dict,
     criterion: SampleCriterion,
     *,
-    n_samples: int = 10000,
+    n_samples: int = 10_000,
     seed_val: int = 0,
-    hard_stop: int = 1000000000,
+    hard_stop: int = 1_000_000_000,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """This method uses the inverse transform sampling method to randomly

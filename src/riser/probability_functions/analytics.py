@@ -26,14 +26,6 @@ __all__ = [
 ]
 
 
-# Constants
-
-PDF_CONFIDENCE_METRICS = (
-    "IQR",
-    "HPD",
-)
-
-
 # Import modules
 import copy
 
@@ -432,8 +424,17 @@ def compute_highest_posterior_density(
     return conf_range
 
 
+
+PDF_CONFIDENCE_METRICS = {
+    "IQR": compute_interquantile_range,
+    "HPD": compute_highest_posterior_density,
+}
+
+DEFAULT_CONFIDENCE_METRIC = "HPD"
+
+
 def get_pdf_confidence_function(
-    metric: str, verbose:bool = False
+    metric: str, verbose: bool = False
 ) -> "Callable":
     """Retrieve a confidence function by name.
     """
@@ -444,16 +445,7 @@ def get_pdf_confidence_function(
     if verbose:
         print(f"Confidence metric: {metric}")
 
-    # Return metric
-    if metric == "IQR":
-        return compute_interquantile_range
-    elif metric == "HPD":
-        return compute_highest_posterior_density
-    else:
-        raise ValueError(
-            f"Metric {metric} not supported. Must be one of "
-            f"{', '.join(PDF_CONFIDENCE_METRICS)}"
-        )
+    return PDF_CONFIDENCE_METRICS.get(metric)
 
 
 # end of file

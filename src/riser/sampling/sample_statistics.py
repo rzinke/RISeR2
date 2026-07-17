@@ -12,7 +12,7 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from ..constants import Psigma
+from .. import constants
 
 
 #################### SAMPLE STATISTICS ####################
@@ -54,7 +54,7 @@ class SampleStatistics:
 
 def compute_sample_confidence(
     picks: np.ndarray,
-    confidence: float = Psigma["1"],
+    confidence: float = constants.Psigma["1"],
     name: str | None = None,
     unit: str | None = None,
     verbose: bool = False,

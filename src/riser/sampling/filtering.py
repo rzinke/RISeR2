@@ -30,13 +30,6 @@ __all__ = [
 ]
 
 
-# Constants
-FILTER_TYPES = (
-    "mean",
-    "gaussian",
-)
-
-
 # Import modules
 import copy
 
@@ -57,16 +50,14 @@ class FIRFilter:
         self.h = h
 
         # Ensure neutral gain
-        self.__check_gain__()
+        self.__normalize_gain__()
 
-    def __check_gain__(self):
+    def __normalize_gain__(self):
         """Ensure that the filter does not change the overall gain of the
         data series to which it applies.
         """
         # Scale sum to 1.0
         self.h /= np.sum(self.h)
-
-        return True
 
     def __len__(self):
         return len(self.h)
@@ -96,34 +87,38 @@ class GaussFilter(FIRFilter):
     """
     filter_type = "gaussian"
 
-    def __init__(self, width:int):
+    def __init__(self, width: int):
         """Width is the total width.
         For a 2-sigma range, 1 sigma should be one half of half the width.
         """
         # Create basic filter values
-        h = sp.signal.windows.gaussian(width, width/4)
+        h = sp.signal.windows.gaussian(width, width / 4)
 
         # Format as FIRFilter object
         super().__init__(h)
 
 
-def get_filter_by_name(filter_type: str, verbose: bool = False) -> "Callable":
+FILTER_TYPES = {
+    "mean": MeanFilter,
+    "gaussian": GaussFilter,
+}
+
+
+def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     """Retrieve an FIRFilter class by name.
     """
     # Check filter specification is valid
     if filter_type not in FILTER_TYPES:
-        raise ValueError(f"Filter type not valid. "
-                         f"Must be one of {FILTER_TYPES}")
+        raise ValueError(
+            f"Filter type not valid. "
+            f"Use one of {', '.join(FILTER_TYPES)}"
+        )
 
     # Report if requested
     if verbose:
         print(f"Retrieving {filter_type} filter")
 
-    # Return filter class
-    if filter_type == "mean":
-        return MeanFilter
-    elif filter_type == "gaussian":
-        return GaussFilter
+    return FILTER_TYPES.get(filter_type)
 
 
 #################### FILTER APPLICATION ####################
@@ -131,7 +126,7 @@ def filter_pdf(
         pdf:PDF,
         filter_type: str,
         filter_width: int,
-        edge_padding: str="zeros",
+        edge_padding: str = "zeros",
         preserve_edges: bool = False,
         verbose: bool = False,
 ) -> PDF:

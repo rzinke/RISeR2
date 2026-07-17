@@ -14,12 +14,6 @@ __all__ = [
 ]
 
 
-# Constants
-PDF_FORMATION_METHODS = (
-    "histogram",
-    "kde",
-)
-
 # Import modules
 import numpy as np
 import scipy as sp
@@ -147,6 +141,12 @@ def samples_to_pdf_kde(
     return pdf
 
 
+PDF_FORMATION_METHODS = {
+    "histogram": samples_to_pdf_histogram,
+    "kde": samples_to_pdf_kde,
+}
+
+
 def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
     """Retrieve a PDF formation function by name.
     """
@@ -156,20 +156,15 @@ def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
     # Check that method is valid
     if method not in PDF_FORMATION_METHODS:
         raise ValueError(
-            f"Method {method} not supported. Must be one of "
-            f"{', '.join(PDF_FORMATION_METHODS)}"
+            f"PDF formation method '{method}' not supported. "
+            f"Use one of {', '.join(PDF_FORMATION_METHODS)}"
         )
 
     # Report if requested
     if verbose:
         print(f"PDF formation method: {method}")
 
-    # Return method
-    if method == "histogram":
-        return samples_to_pdf_histogram
-
-    elif method == "kde":
-        return samples_to_pdf_kde
+    return PDF_FORMATION_METHODS.get(method)
 
 
 # end of file
