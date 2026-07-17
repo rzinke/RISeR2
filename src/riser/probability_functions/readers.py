@@ -17,10 +17,7 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from .ProbabilityDensityFunction import (
-    PDF_METADATA_ITEMS,
-    ProbabilityDensityFunction as PDF,
-)
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### CHECKS ####################
@@ -40,11 +37,11 @@ def check_extension(fname: str, ext: str):
 
 #################### PDF READERS ####################
 def parse_metadata_from_header(
-        header_lines: list[str], verbose: bool = False
+    header_lines: list[str], verbose: bool = False
 ) -> dict:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
-    those listed in PDF_METADATA_ITEMS, and are demarkated by the item
+    those listed in PDF.metadata_items, and are demarkated by the item
     name, a colon, and a space.
 
     Args    header_lines - list[str], file header lines
@@ -59,7 +56,7 @@ def parse_metadata_from_header(
     # Loop through header lines
     for line in header_lines:
         # Loop through header items
-        for meta_item in PDF_METADATA_ITEMS:
+        for meta_item in PDF.metadata_items:
             # Determine if header line contains a metadata item
             if line.startswith(f"# {meta_item.capitalize()}"):
                 # Strip newline character
@@ -264,7 +261,7 @@ def create_header_from_pdf(pdf: PDF) -> str:
     header_lines = []
 
     # Loop through header items
-    for meta_item in PDF_METADATA_ITEMS:
+    for meta_item in PDF.metadata_items:
         # Determine if PDF contains a metadata item
         if hasattr(pdf, meta_item) and getattr(pdf, meta_item) is not None:
             # Get metadata item

@@ -4,9 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-from riser.constants import Psigma
-
 
 # Import modules
 import argparse
@@ -14,9 +11,10 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
+    constants,
     units,
     probability_functions as PDFs,
-    plotting
+    plotting,
 )
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
@@ -77,12 +75,14 @@ def cmd_parser(iargs=None):
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
         "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS, default="HPD",
-        help="Function for computing function confidence. [HPD]")
+        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
+        default=PDFs.analytics.DEFAULT_CONFIDENCE_METRIC,
+        help=f"Function for computing function confidence. "
+             f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]")
     reporting_args.add_argument(
         "--confidence-limits", dest="confidence_limits",
-        type=float, default=Psigma["1"],
-        help="Confidence level. [0.682]")
+        type=float, default=constants.Psigma["1"],
+        help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")

@@ -4,8 +4,6 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
-# Constants
-
 
 # Import modules
 import argparse

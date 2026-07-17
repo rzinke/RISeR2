@@ -27,11 +27,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-from .constants import Psigma
 from . import (
-    probability_functions as PDFs,
+    constants,
+    units,
     variable_types,
-    units
+    probability_functions as PDFs,
 )
 from .sampling import filtering
 from .markers import DatedMarker
@@ -451,7 +451,7 @@ def format_marker_plot(ax, markers: DatedMarker|dict) -> None:
 def plot_marker_whisker(
     ax,
     marker: DatedMarker,
-    confidence: float = Psigma["2"],
+    confidence: float = constants.Psigma["2"],
     *,
     # Style args
     color = "royalblue",
@@ -492,7 +492,7 @@ def plot_marker_whisker(
 def plot_markers_whisker(
     ax,
     markers: dict,
-    confidence: float = Psigma["2"],
+    confidence: float = constants.Psigma["2"],
     *,
     # Style args
     color = "royalblue",
@@ -514,7 +514,7 @@ def plot_markers_whisker(
 def plot_marker_rectangle(
     ax,
     marker: DatedMarker,
-    confidence: float = Psigma["2"],
+    confidence: float = constants.Psigma["2"],
     *,
     # Style args
     color = "royalblue",
@@ -567,7 +567,7 @@ def plot_marker_rectangle(
 def plot_markers_rectangle(
     ax,
     markers: dict,
-    confidence: float = Psigma["2"],
+    confidence: float = constants.Psigma["2"],
     *,
     # Style args
     color = "royalblue",
@@ -651,7 +651,7 @@ def plot_markers(
     markers: dict,
     marker_plot_type = "whisker",
     *,
-    confidence: float = Psigma["2"],
+    confidence: float = constants.Psigma["2"],
     xmin: float = 0.0,
     ymin: float = 0.0,
     xmax: float = 0.0,

@@ -27,7 +27,7 @@ from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################
-def sample_spacing_from_pdf(pdf: PDF, verbose: bool=False) -> float:
+def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     """Determine the average change in x (dx) for a discrete PDF.
 
     Args    pdf - PDF from which to determine sample spacing
@@ -54,7 +54,9 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool=False) -> float:
     return dx
 
 
-def sample_spacing_array_from_pdf(pdf: PDF, verbose: bool=False) -> np.ndarray:
+def sample_spacing_array_from_pdf(
+    pdf: PDF, verbose: bool = False
+) -> np.ndarray:
     """Return an array of the changes in x (dx) for a discrete PDF.
     In classical calculus, dx is a single scalar number, which assumes that the
     function is regularly sampled.
@@ -93,7 +95,7 @@ def sample_spacing_array_from_pdf(pdf: PDF, verbose: bool=False) -> np.ndarray:
 
 
 def value_array_params_from_pdfs(
-    pdfs: list[PDF], verbose: bool=False
+    pdfs: list[PDF], verbose: bool = False
 ) -> tuple[float, float, float]:
     """Determine the value limits for a set of PDFs.
 

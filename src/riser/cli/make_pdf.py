@@ -5,12 +5,6 @@
 # (c) 2025 all rights reserved
 
 
-# Constants
-from riser.probability_functions.parametric_functions import (
-    PARAMETRIC_FUNCTIONS
-)
-
-
 # Import modules
 import argparse
 import warnings
@@ -52,7 +46,8 @@ def cmd_parser(iargs=None):
 
     input_args = parser.add_argument_group("Inputs")
     input_args.add_argument("-d", "--distribution", dest="distribution",
-        type=str, choices=PARAMETRIC_FUNCTIONS, required=True,
+        type=str, choices=PDFs.parametric_functions.PARAMETRIC_FUNCTIONS,
+        required=True,
         help="Parametric function.")
     input_args.add_argument("-s", "--values", dest="values",
         type=float, nargs="+", required=True,

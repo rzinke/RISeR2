@@ -5,24 +5,15 @@
 
 # Public API
 __all__ = [
-    "PDF_METADATA_ITEMS",
     "ProbabilityDensityFunction",
-]
-
-
-# Constants
-from riser import precision
-
-PDF_METADATA_ITEMS = [
-    "name",
-    "variable_type",
-    "unit",
 ]
 
 
 # Import modules
 import numpy as np
 import scipy as sp
+
+from .. import precision
 
 
 #################### PDF BASE CLASS ####################
@@ -46,6 +37,13 @@ class ProbabilityDensityFunction:
     which is the probability that the random variable will take a value less
     than or equal to value x.
     """
+
+    metadata_items = (
+            "name",
+            "variable_type",
+            "unit",
+        )
+
     def __init__(
         self,
         x: np.ndarray,

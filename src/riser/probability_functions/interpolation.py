@@ -21,10 +21,7 @@ or domain).
 import numpy as np
 
 from . import value_arrays
-from .ProbabilityDensityFunction import (
-    PDF_METADATA_ITEMS,
-    ProbabilityDensityFunction as PDF,
-)
+from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
 
 #################### RESAMPLING/INTERPOLATION ####################
@@ -43,7 +40,7 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
 
     # Copy metadata from original PDF
     metadata = {}
-    for meta_item in PDF_METADATA_ITEMS:
+    for meta_item in pdf.metadata_items:
         # Retrieve metadata value from original PDF
         metadata[meta_item] = getattr(pdf, meta_item)
 
