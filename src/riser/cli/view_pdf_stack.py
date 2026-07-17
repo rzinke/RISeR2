@@ -11,9 +11,9 @@ import toml
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
     units,
-    plotting
+    probability_functions as PDFs,
+    plotting,
 )
 
 
@@ -28,7 +28,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -122,7 +122,7 @@ def main():
         pdfs,
         colors=colors,
         priors=priors,
-        same_height=inps.same_height
+        same_height=inps.same_height,
     )
 
     # Save figure to file
@@ -131,7 +131,7 @@ def main():
         fig.savefig(inps.outname)
 
     # Show unless specified not to
-    if inps.no_show == False:
+    if not inps.no_show:
         plt.show()
 
 

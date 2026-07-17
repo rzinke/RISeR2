@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 from riser import (
     probability_functions as PDFs,
-    plotting
+    plotting,
 )
 
 
@@ -32,7 +32,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -84,7 +84,7 @@ def main():
     xmax = inps.xmax if inps.xmax is not None else pdf.x.max()
 
     # Report sampling parameters if requested
-    if inps.verbose == True:
+    if inps.verbose:
         print(f"xmin {xmin}")
         print(f"xmax {xmax}")
 
@@ -97,7 +97,7 @@ def main():
     pdf_resamp = PDFs.interpolation.interpolate_pdf(pdf, x)
 
     # Plot if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, ax = plt.subplots()
 

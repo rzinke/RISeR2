@@ -15,9 +15,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
     units,
-    plotting
+    probability_functions as PDFs,
+    plotting,
 )
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
@@ -38,7 +38,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -147,7 +147,6 @@ def main():
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
         dq=inps.dv,
-        
         max_rate=inps.max_rate,
     )
 
@@ -157,7 +156,7 @@ def main():
 
     # Compute PDF statistics
     pdf_stats = PDFs.analytics.PDFstatistics(slip_rate)
-    if inps.verbose == True:
+    if inps.verbose:
         print(pdf_stats)
 
     # Retrieve confidence range function
@@ -167,7 +166,7 @@ def main():
 
     # Compute confidence range
     conf_range = conf_fcn(slip_rate, inps.confidence_limits)
-    if inps.verbose == True:
+    if inps.verbose:
         print(conf_range)
 
     # Initialize figure and axis for slip rate PDF
@@ -196,7 +195,7 @@ def main():
     )
 
     # Plot if requested
-    if inps.plot == True:
+    if inps.plot:
         plt.show()
 
 

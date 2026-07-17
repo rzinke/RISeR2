@@ -21,7 +21,7 @@ import numpy as np
 
 
 #################### FILENAME FORMATTING ####################
-def establish_output_dir(output_prefix: str, verbose: bool=False) -> None:
+def establish_output_dir(output_prefix: str, verbose: bool = False) -> None:
     """Determine the output directory based on the current directory and the
     output_prefix.
     Create it if it does not already exist.
@@ -36,7 +36,7 @@ def establish_output_dir(output_prefix: str, verbose: bool=False) -> None:
     outdir = os.path.abspath(outfldr)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Output directory: {outdir}")
 
         # Check if it already exists
@@ -51,7 +51,7 @@ def establish_output_dir(output_prefix: str, verbose: bool=False) -> None:
 
 #################### FIGURE SAVING ####################
 def save_marker_fig(
-    output_prefix: str, marker_fig, verbose: bool=False
+    output_prefix: str, marker_fig, verbose: bool = False
 ) -> None:
     """Save figure showing the dated displacement history to a file.
     """
@@ -65,13 +65,13 @@ def save_marker_fig(
     marker_fig.savefig(outname)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Saved dated displacement history (markers) to: "
               f"{os.path.abspath(outname)}")
 
 
 def save_slip_rate_fig(
-    output_prefix: str, rate_fig, verbose: bool=False
+    output_prefix: str, rate_fig, verbose: bool = False
 ) -> None:
     """Save figure showing slip rate measurements to a file.
     """
@@ -85,7 +85,7 @@ def save_slip_rate_fig(
     rate_fig.savefig(outname)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Saved slip rate figure to: {os.path.abspath(outname)}")
 
 
@@ -95,7 +95,7 @@ def write_picks_to_file(
     age_picks: np.ndarray,
     disp_picks: np.ndarray,
     rate_picks: np.ndarray,
-    verbose: bool=False
+    verbose: bool = False,
 ) -> None:
     """Save all valid samples (picks) to a numpy binary file (npz).
     """
@@ -110,7 +110,7 @@ def write_picks_to_file(
     )
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Saved MC picks to: {os.path.abspath(outname)}.npz")
 
 
@@ -120,10 +120,10 @@ def write_slip_rates_report(
     formulation: str,
     slip_rates: dict,
     *,
-    sample_statistics: dict | None=None,
-    pdf_statistics: dict | None=None,
-    confidence_ranges: dict | None=None,
-    verbose: bool=False
+    sample_statistics: dict | None = None,
+    pdf_statistics: dict | None = None,
+    confidence_ranges: dict | None = None,
+    verbose: bool = False,
 ) -> None:
     """Write slip rate statistics to a file.
     Include:
@@ -181,7 +181,7 @@ def write_slip_rates_report(
                 outfile.write(str(confidence_ranges[marker_pair]) + "\n")
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Saved slip rate report to: {os.path.abspath(outname)}")
 
 

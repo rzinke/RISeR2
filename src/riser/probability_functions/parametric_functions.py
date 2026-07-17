@@ -22,7 +22,7 @@ PARAMETRIC_FUNCTION_PARAM_NBS = {
     "boxcar": 2,
     "triangular": 3,
     "trapezoidal": 4,
-    "gaussian": 2
+    "gaussian": 2,
 }
 
 PARAMETRIC_FUNCTIONS = tuple(PARAMETRIC_FUNCTION_PARAM_NBS.keys())
@@ -218,8 +218,8 @@ def check_number_inputs(distribution: str, values: list[float]) -> bool:
 def determine_min_max_limits(
     distribution: str,
     values: list[float],
-    limit_positive: bool=False,
-    verbose: bool=False
+    limit_positive: bool = False,
+    verbose: bool = False,
 ) -> tuple[float, float]:
     """Determine the minimum and maximum values of the PDF domain.
 
@@ -242,7 +242,7 @@ def determine_min_max_limits(
 
         # Limit at zero
         xmin = (
-            np.max([mu - sigma_lim, 0]) if limit_positive == True 
+            np.max([mu - sigma_lim, 0]) if limit_positive
             else mu - sigma_lim
         )
 
@@ -250,7 +250,7 @@ def determine_min_max_limits(
         xmax = mu + sigma_lim
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Minimum value {xmin}\nMaximum value {xmax}")
 
     return xmin, xmax

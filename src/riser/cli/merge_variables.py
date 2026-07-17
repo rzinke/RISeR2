@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from riser import (
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting
+    plotting,
 )
 
 
@@ -29,7 +29,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -74,7 +74,7 @@ def main():
     PDFs.readers.save_pdf(inps.outname, merged_pdf, verbose=inps.verbose)
 
     # Plot function if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, merge_ax) = plt.subplots(nrows=2)
 

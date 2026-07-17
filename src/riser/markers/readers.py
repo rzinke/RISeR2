@@ -25,7 +25,7 @@ from .DatedMarker import DatedMarker
 def set_metadata_priority(
         metadata_item: str,
         file_item: str,
-        spec_item: str
+        spec_item: str,
     ):
     """Determine the value of the metadata item is conflicting values are
     specified.
@@ -33,13 +33,13 @@ def set_metadata_priority(
     if all([
         file_item is not None,
         spec_item is not None,
-        file_item != spec_item
+        file_item != spec_item,
     ]):
         # Warn user
         warnings.warn(
             f"{metadata_item} specified in file is different from "
             f"user-specification.",
-            stacklevel=2
+            stacklevel=2,
         )
 
     if all([file_item is None, spec_item is not None]):
@@ -59,7 +59,7 @@ def initialize_marker_from_files(
     displacement_name: str | None = None,
     displacement_variable_type: str | None = None,
     displacement_unit: str | None = None,
-    verbose = False
+    verbose: bool = False,
 ) -> DatedMarker:
     """
     Metadata can be specified either in the PDF file itself, or in the config
@@ -99,7 +99,7 @@ def initialize_marker_from_files(
     displacement.variable_type = set_metadata_priority(
         "Displacement variable type",
         displacement.variable_type,
-        displacement_variable_type
+        displacement_variable_type,
     )
     displacement.unit = units.get_priority_unit(
             displacement.unit, displacement_unit
@@ -109,13 +109,15 @@ def initialize_marker_from_files(
     marker = DatedMarker(age, displacement, name=marker_name)
 
     # Report marker attributes
-    if verbose == True:
+    if verbose:
         print(marker)
 
     return marker
 
 
-def read_markers_from_config(fname: str, verbose = False) -> dict:
+def read_markers_from_config(
+    fname: str, verbose: bool = False
+) -> dict[str, DatedMarker]:
     """Read marker data from a TOML configuration file.
     The file should have one [marker_name] entry per marker, and each marker
     should have entries for "age file" and "displacement file".
@@ -130,7 +132,7 @@ def read_markers_from_config(fname: str, verbose = False) -> dict:
         marker_specs = toml.load(age_disp_file)
 
     # Report number of markers read
-    if verbose == True:
+    if verbose:
         n_markers = len(marker_specs)
         print(f"{n_markers} markers specified")
 
@@ -165,7 +167,7 @@ def read_markers_from_config(fname: str, verbose = False) -> dict:
             displacement_variable_type=marker_spec.get(
                 "displacement variable type"),
             displacement_unit=marker_spec.get("displacement unit"),
-            verbose=verbose
+            verbose=verbose,
         )
 
         # Write marker to dictionary
@@ -187,14 +189,14 @@ def read_markers_from_config(fname: str, verbose = False) -> dict:
                 warnings.warn(
                     f"Marker {marker.name} appears to be younger than "
                     f"{ref_marker.name}. Confirm marker order.",
-                    stacklevel=3
+                    stacklevel=3,
                 )
 
             if marker_disp < ref_disp:
                 warnings.warn(
                     f"Marker {marker.name} appears to be less displaced than "
                     f"{ref_marker.name}. Confirm marker order.",
-                    stacklevel=3
+                    stacklevel=3,
                 )
 
         # Update reference marker

@@ -16,9 +16,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
     units,
-    plotting
+    probability_functions as PDFs,
+    plotting,
 )
 from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
@@ -39,7 +39,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -144,7 +144,7 @@ def main():
         ax=marker_ax,
         markers=markers,
         marker_plot_type="rectangle",
-        label=True
+        label=True,
     )
 
     # Scale input units to output units
@@ -180,7 +180,7 @@ def main():
         pdf_dx=inps.dv,
         smoothing_type=inps.smoothing_type,
         smoothing_width=inps.smoothing_width,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Save PDFs to file
@@ -211,19 +211,19 @@ def main():
             rate_picks[i,:],
             inps.confidence_limits,
             name=marker_pair,
-            unit=slip_rates[marker_pair].unit
+            unit=slip_rates[marker_pair].unit,
         )
-        if inps.verbose == True:
+        if inps.verbose:
             print(sample_stats[marker_pair])
 
         # Compute PDF statistics
         pdf_stats[marker_pair] = PDFs.analytics.PDFstatistics(slip_rate)
-        if inps.verbose == True:
+        if inps.verbose:
             print(pdf_stats[marker_pair])
 
         # Compute confidence ranges
         conf_ranges[marker_pair] = conf_fcn(slip_rate, inps.confidence_limits)
-        if inps.verbose == True:
+        if inps.verbose:
             print(conf_ranges[marker_pair])
 
     # Initialize figure and axis for slip rate PDF
@@ -247,11 +247,11 @@ def main():
         sample_statistics=sample_stats,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Plot if requested
-    if inps.plot == True:
+    if inps.plot:
         plt.show()
 
 

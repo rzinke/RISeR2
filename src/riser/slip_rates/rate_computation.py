@@ -43,9 +43,9 @@ def compute_slip_rate(
     marker: DatedMarker,
     *,
     dq: float=0.01,
-    limit_positive: bool=False,
-    max_rate: float=100.0,
-    verbose: bool=False
+    limit_positive: bool = False,
+    max_rate: float = 100.0,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Compute a single slip rate based on a dated displacement marker.
 
@@ -56,11 +56,11 @@ def compute_slip_rate(
             max_rate - float, maximum quotient value to consider
     Returns slip_rate - PDF
     """
-    if verbose == True:
+    if verbose:
         print("Computing slip rate")
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive == True else -100.0
+    min_rate = 0.0 if limit_positive else -100.0
 
     # Divide displacement by age
     slip_rate = var_ops.divide_variables(
@@ -70,7 +70,7 @@ def compute_slip_rate(
         min_quotient=min_rate,
         max_quotient=max_rate,
         name=marker.name,
-        variable_type="slip rate"
+        variable_type="slip rate",
     )
 
     return slip_rate
@@ -80,10 +80,10 @@ def compute_slip_rates_analytical(
     markers:dict,
     *,
     dq: float=0.01,
-    limit_positive: bool=False,
-    max_rate: float=100.0,
-    verbose: bool=False
-) -> dict:
+    limit_positive: bool = False,
+    max_rate: float = 100.0,
+    verbose: bool = False,
+) -> dict[str, PDFs.PDF]:
     """Compute the incremental slip rates between multiple dated displacement
     markers using analytical functions.
     First, compute the difference between each pair of adjacent displacements
@@ -108,7 +108,7 @@ def compute_slip_rates_analytical(
     # Number of slip rates
     n_rates = n_markers - 1
 
-    if verbose == True:
+    if verbose:
         print(f"Computing {n_rates} incremental slip rates")
 
     # Check age variable types
@@ -128,7 +128,7 @@ def compute_slip_rates_analytical(
         [marker.displacement for marker in markers.values()])
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive == True else -100.0
+    min_rate = 0.0 if limit_positive else -100.0
 
     # Empty dictionary to store slip rates
     slip_rates = {}
@@ -153,7 +153,7 @@ def compute_slip_rates_analytical(
         DeltaT = var_ops.subtract_variables(
             pdf1=older_age,
             pdf2=younger_age,
-            limit_positive=limit_positive
+            limit_positive=limit_positive,
         )
 
         # Interpolate displacements on same axis
@@ -166,7 +166,7 @@ def compute_slip_rates_analytical(
         DeltaU = var_ops.subtract_variables(
             pdf1=older_displacement,
             pdf2=younger_displacement,
-            limit_positive=limit_positive
+            limit_positive=limit_positive,
         )
 
         # Formulate incremental slip rate name
@@ -180,11 +180,11 @@ def compute_slip_rates_analytical(
             min_quotient=min_rate,
             max_quotient=max_rate,
             name=rate_name,
-            variable_type="slip rate"
+            variable_type="slip rate",
         )
 
         # Report if requested
-        if verbose == True:
+        if verbose:
             print(slip_rate)
             print(
                 f"Mean: {PDFs.analytics.pdf_mean(slip_rate):.3f} "
@@ -199,20 +199,20 @@ def compute_slip_rates_analytical(
 
 #################### MONTE CARLO COMPUTATION ####################
 def compute_slip_rates_mc(
-    markers: dict,
+    markers: dict[str, DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
-    max_rate: float=100.0,
-    dq: float=0.01,
-    n_samples: int=1000000,
-    hard_stop: int=1000000000,
-    pdf_method: str="histogram",
-    pdf_xmin: float | None=None,
-    pdf_xmax: float | None=None,
-    pdf_dx: float | None=None,
-    smoothing_type: str | None=None,
-    smoothing_width: int | None=None,
-    verbose: bool=False,
+    max_rate: float = 100.0,
+    dq: float = 0.01,
+    n_samples: int = 1000000,
+    hard_stop: int = 1000000000,
+    pdf_method: str = "histogram",
+    pdf_xmin: float | None = None,
+    pdf_xmax: float | None = None,
+    pdf_dx: float | None = None,
+    smoothing_type: str | None = None,
+    smoothing_width: int | None = None,
+    verbose: bool = False,
 ) -> tuple:
     """Compute the incremental slip rates between multiple dated displacement
     markers using Monte Carlo sampling.
@@ -226,7 +226,7 @@ def compute_slip_rates_mc(
     # Number of slip rates
     n_rates = n_markers - 1
 
-    if verbose == True:
+    if verbose:
         print(f"Computing {n_rates} incremental slip rates")
 
     # Check age variable types
@@ -262,7 +262,7 @@ def compute_slip_rates_mc(
         criterion=criterion,
         n_samples=n_samples,
         hard_stop=hard_stop,
-        verbose=verbose
+        verbose=verbose,
     )
 
     # Compute incremental differences between picks for rate = DeltaU / DeltaT
@@ -292,24 +292,24 @@ def compute_slip_rates_mc(
             name=rate_name,
             variable_type="slip rate",
             unit=unit,
-            verbose=verbose
+            verbose=verbose,
         )
 
         # Smooth sampled function
         if all([
             smoothing_type is not None,
-            smoothing_width is not None
+            smoothing_width is not None,
         ]):
             slip_rate = filtering.filter_pdf(
                 pdf=slip_rate,
                 filter_type=smoothing_type,
                 filter_width=smoothing_width,
                 preserve_edges=True,
-                verbose=verbose
+                verbose=verbose,
             )
 
         # Report if requested
-        if verbose == True:
+        if verbose:
             print(slip_rate)
             print(
                 f"Mean: {np.mean(rate_picks[i,:]):.3f} "

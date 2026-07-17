@@ -34,7 +34,7 @@ from . import (
     precision,
     units,
     variable_types,
-    probability_functions as PDFs
+    probability_functions as PDFs,
 )
 
 
@@ -99,7 +99,7 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     Args    pdfs - list[PDF], list of PDFs
     Returns joint_pdf - PDF, joint pdf
     """
-    if verbose == True:
+    if verbose:
         print(f"Combining {len(pdfs)} PDFs")
 
     # Check for consistent sampling
@@ -146,7 +146,7 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     Args    pdfs - list[PDF], list of PDFs to combine
     Returns merged_pdf - PDF, merged PDF
     """
-    if verbose == True:
+    if verbose:
         print(f"Merging {len(pdfs)} PDFs")
 
     # Check for consistent sampling
@@ -180,7 +180,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     Args    pdf, PDF to negate
     Returns neg_pdf, negated PDF
     """
-    if verbose == True:
+    if verbose:
         print("Negate PDF")
 
     # Negate values
@@ -198,7 +198,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
         px=neg_px,
         name=neg_name,
         variable_type=pdf.variable_type,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return neg_pdf
@@ -208,8 +208,8 @@ def add_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
-    name: str | None=None,
-    verbose: bool = False
+    name: str | None = None,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
     their values (Z).
@@ -236,7 +236,7 @@ def add_variables(
             name - str, name of summed PDF
     Returns sum_pdf - summed PDF
     """
-    if verbose == True:
+    if verbose:
         print("Adding variables")
 
     # Check for consistent sampling
@@ -272,7 +272,7 @@ def add_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True
+        normalize_area=True,
     )
 
     return sum_pdf
@@ -283,8 +283,8 @@ def subtract_variables(
     pdf2: PDFs.PDF,
     *,
     limit_positive: bool = False,
-    name: str=None,
-    verbose: bool = False
+    name: str = None,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
     their values (Z).
@@ -317,7 +317,7 @@ def subtract_variables(
             name - str, name of differenced PDF
     Returns difference_pdf - differenced PDF
     """
-    if verbose == True:
+    if verbose:
         print("Subtracting variables")
 
     # Check for consistent sampling
@@ -350,7 +350,7 @@ def subtract_variables(
     pxx = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
 
     # Enforce condition that values must be positive
-    if limit_positive == True:
+    if limit_positive:
         # Keep only values > 0
         pos_ndx = (xx > 0)
         xx = xx[pos_ndx]
@@ -363,7 +363,7 @@ def subtract_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True
+        normalize_area=True,
     )
 
     return diff_pdf
@@ -373,12 +373,12 @@ def multiply_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
-    dp: float=0.01,
-    min_product: float=-100.0,
-    max_product: float=100.0,
-    name: str=None,
-    variable_type: str | None=None,
-    verbose: bool = False
+    dp: float = 0.01,
+    min_product: float = -100.0,
+    max_product: float = 100.0,
+    name: str = None,
+    variable_type: str | None = None,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
     values (Z).
@@ -396,7 +396,7 @@ def multiply_variables(
             name - str, name of product PDF
     Returns prod_pdf - multiplied PDF
     """
-    if verbose == True:
+    if verbose:
         print("Multiplying variables")
 
     # All possible product values
@@ -456,7 +456,7 @@ def multiply_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True
+        normalize_area=True,
     )
 
     return prod_pdf
@@ -466,12 +466,12 @@ def divide_variables(
     numerator: PDFs.PDF,
     denominator: PDFs.PDF,
     *,
-    dq: float=0.01,
-    min_quotient: float=-100.0,
-    max_quotient: float=100.0,
-    name: str | None=None,
-    variable_type: str | None=None,
-    verbose: bool = False
+    dq: float = 0.01,
+    min_quotient: float = -100.0,
+    max_quotient: float = 100.0,
+    name: str | None = None,
+    variable_type: str | None = None,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Divide numerator by denominator.
 
@@ -506,7 +506,7 @@ def divide_variables(
             name - str, name of quotient PDF
     Returns quot_pdf - divided PDF
     """
-    if verbose == True:
+    if verbose:
         print("Dividing variables")
 
     # All possible quotient values
@@ -570,8 +570,8 @@ def divide_variables(
 def compute_probability_between_variables(
     pdf1: PDFs.PDF, 
     pdf2: PDFs.PDF,
-    name: str | None=None, 
-    verbose: bool = False
+    name: str | None = None,
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Compute a PDF representing the domain and probability densities of
     values between two random variables.
@@ -590,7 +590,7 @@ def compute_probability_between_variables(
             name - str, name of "between" PDF
     Returns gap_pdf - PDF describing values between the two input variables
     """
-    if verbose == True:
+    if verbose:
         print("Computing probability of a value between two variables.")
 
     # Check for consistent sampling
@@ -618,7 +618,7 @@ def compute_probability_between_variables(
 def compute_cosine_similarity(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> float:
     """Compute the cosine similarity index
 
@@ -647,7 +647,7 @@ def compute_cosine_similarity(
     r = numer / denom
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Cosine similarity coefficient: {r}")
 
     return r
@@ -656,7 +656,7 @@ def compute_cosine_similarity(
 def cross_correlate_variables(
     ref_pdf: PDFs.PDF,
     sec_pdf: PDFs.PDF,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute the cross correlation of the second variable against the first.
     Note: Unlike in classical cross correlation, which assumes infinite
@@ -746,7 +746,7 @@ def compute_overlap_index(
     eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
 
     # Report overlap metric
-    if verbose == True:
+    if verbose:
         print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
 
     return px_min, eta
@@ -755,7 +755,7 @@ def compute_overlap_index(
 def compute_ks_statistic(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[float, int]:
     """Compute the Komolgorov-Smirnov statistic for two PDFs.
     The K-S statistic (D) is the largest difference between the CDFs of the
@@ -775,7 +775,7 @@ def compute_ks_statistic(
     ks_stat = cdf_diff[ks_ndx]
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"K-S statistic (D): {ks_stat:.2f}")
 
     return ks_stat, ks_ndx

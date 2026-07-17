@@ -107,7 +107,7 @@ class GaussFilter(FIRFilter):
         super().__init__(h)
 
 
-def get_filter_by_name(filter_type: str, verbose: bool=False) -> "Callable":
+def get_filter_by_name(filter_type: str, verbose: bool = False) -> "Callable":
     """Retrieve an FIRFilter class by name.
     """
     # Check filter specification is valid
@@ -116,7 +116,7 @@ def get_filter_by_name(filter_type: str, verbose: bool=False) -> "Callable":
                          f"Must be one of {FILTER_TYPES}")
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Retrieving {filter_type} filter")
 
     # Return filter class
@@ -132,8 +132,8 @@ def filter_pdf(
         filter_type: str,
         filter_width: int,
         edge_padding: str="zeros",
-        preserve_edges: bool=False,
-        verbose: bool=False
+        preserve_edges: bool = False,
+        verbose: bool = False,
 ) -> PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.
@@ -152,7 +152,7 @@ def filter_pdf(
     filt = get_filter_by_name(filter_type)(filter_width)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Applying {filt}")
 
     # Filter half-width
@@ -172,7 +172,7 @@ def filter_pdf(
     px = px[w2:-w2]
 
     # Preserve edges if requested
-    if preserve_edges == True:
+    if preserve_edges:
         # Loop through edge values (output-side convolution)
         for i in range(w2):
             # Edge filter width
@@ -194,7 +194,7 @@ def filter_pdf(
         normalize_area=True,
         name=pdf.name,
         variable_type=pdf.variable_type,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return filt_pdf

@@ -289,11 +289,11 @@ class ConfidenceRange:
     def __init__(
         self,
         confidence: float,
-        range_values: tuple[tuple[float]],
+        range_values: tuple[tuple[float, float], ...],
         *,
-        metric: str | None=None,
-        pdf_name: str | None=None,
-        unit: str | None=None
+        metric: str | None = None,
+        pdf_name: str | None = None,
+        unit: str | None = None,
     ):
         """Store confidence ranges.
         Each range is a tuple of floats: (range_min, range_max)
@@ -331,13 +331,13 @@ class ConfidenceRange:
 
 def compute_interquantile_range(
         pdf: PDF,
-        confidence: float=Psigma["1"]
-    ) -> "ConfidenceRange":
+        confidence: float = Psigma["1"],
+    ) -> ConfidenceRange:
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
             confidence - float, confidence level
-    Returns
+    Returns conf_range - ConfidenceRange
     """
     # Determine the lower and upper confidence levels
     half_confidence = confidence / 2
@@ -353,20 +353,20 @@ def compute_interquantile_range(
         range_values=tuple([values]),
         metric="IQR",
         pdf_name=pdf.name,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return conf_range
 
 
 def compute_highest_posterior_density(
-    pdf: PDF, confidence: float=Psigma["1"]
-) -> "ConfidenceRange":
+    pdf: PDF, confidence: float = Psigma["1"],
+) -> ConfidenceRange:
     """Compute the highest posterior density (HPD) values of a PDF.
 
     Args    pdf - PDF to analyse
             confidence - list[float], confidence levels
-    Returns
+    Returns conf_range - ConfidenceRange
     """
     # Value index numbers
     val_nbs = np.array([*range(len(pdf))])
@@ -426,20 +426,22 @@ def compute_highest_posterior_density(
         range_values=tuple(clusters),
         metric="HPD",
         pdf_name=pdf.name,
-        unit=pdf.unit
+        unit=pdf.unit,
     )
 
     return conf_range
 
 
-def get_pdf_confidence_function(metric: str, verbose=False) -> "Callable":
+def get_pdf_confidence_function(
+    metric: str, verbose:bool = False
+) -> "Callable":
     """Retrieve a confidence function by name.
     """
     # Format metric input
     metric = metric.upper()
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Confidence metric: {metric}")
 
     # Return metric

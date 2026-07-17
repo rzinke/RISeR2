@@ -48,7 +48,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool=False) -> float:
     dx = precision.fix_precision(np.median(diff_x))
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Sample spacing {dx}")
 
     return dx
@@ -78,7 +78,7 @@ def sample_spacing_array_from_pdf(pdf: PDF, verbose: bool=False) -> np.ndarray:
     diff_x_std = np.std(diff_x)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Sample spacing mean {np.mean(diff_x)}, std {diff_x_std}")
 
     # Check regularity against machine error
@@ -124,7 +124,7 @@ def value_array_params_from_pdfs(
         dx = dxi if dxi < dx else dx
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"xmin {xmin}, xmax {xmax}, dx {dx}")
 
     return xmin, xmax, dx
@@ -132,7 +132,7 @@ def value_array_params_from_pdfs(
 
 #################### VALUE ARRAYS ####################
 def create_precise_value_array(
-    xmin: float, xmax: float, dx: float, verbose: bool=False
+    xmin: float, xmax: float, dx: float, verbose: bool = False
 ) -> np.ndarray:
     """Create an array (vector) of values over the PDF domain.
 
@@ -151,7 +151,7 @@ def create_precise_value_array(
     x = precision.fix_precision(x)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"{len(x)} discrete values with {dx} spacing")
 
     return x

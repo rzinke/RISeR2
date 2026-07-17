@@ -30,7 +30,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -81,7 +81,7 @@ def main():
     pdf = PDFs.readers.read_pdf(inps.fname, verbose=inps.verbose)
 
     # Report stats if requested
-    if inps.verbose == True:
+    if inps.verbose:
         print(PDFs.analytics.PDFstatistics(pdf))
 
     # Initialize figure and axis
@@ -91,7 +91,7 @@ def main():
     plotting.plot_pdf_labeled(pdf_ax, pdf)
 
     # Compute and plot confidence range
-    if inps.show_confidence == True:
+    if inps.show_confidence:
         # Retrieve confidence range function
         conf_fcn = PDFs.analytics.get_pdf_confidence_function(
                 inps.confidence_method, verbose=inps.verbose
@@ -99,14 +99,14 @@ def main():
 
         # Compute confidence range
         conf_range = conf_fcn(pdf, inps.confidence_limits)
-        if inps.verbose == True:
+        if inps.verbose:
             print(conf_range)
 
         # Plot confidence range(s)
         plotting.plot_pdf_confidence_range(pdf_ax, pdf, conf_range)
 
     # Show CDF
-    if inps.show_cdf == True:
+    if inps.show_cdf:
         # Initialize figure and axis
         cdf_fig, cdf_ax = plt.subplots()
 
@@ -123,7 +123,7 @@ def main():
         pdf_fig.savefig(inps.outname)
 
     # Show unless specified not to
-    if inps.no_show == False:
+    if not inps.no_show:
         plt.show()
 
 

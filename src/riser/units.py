@@ -26,7 +26,7 @@ UNIT_SCALES = {
     "D": 10.,
     "C": 100.,
     "k": 1000.,
-    "M": 1000000.
+    "M": 1000000.,
 }
 
 
@@ -40,7 +40,7 @@ from . import probability_functions as PDFs
 
 
 #################### UNIT PARSING ####################
-def parse_unit(unit: str, verbose=False) -> tuple[float, str]:
+def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     """Determine the components of a unit.
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
@@ -79,7 +79,7 @@ def parse_unit(unit: str, verbose=False) -> tuple[float, str]:
     check_base_unit(base)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Unit: {scale:E} {base}")
 
     return scale, base
@@ -99,20 +99,22 @@ def check_base_unit(base_unit: str) -> bool:
 
 
 #################### UNIT PRIORITIZATION ####################
-def get_priority_unit(file_unit: str | None, inps_unit: str | None,
-        verbose=False
+def get_priority_unit(
+    file_unit: str | None, inps_unit: str | None, verbose: bool = False
 ) -> str:
     """If a unit is specified both in the file, and by the user, prioritize
     the unit encoded in the file.
     """
     # Check if unit is specified in both the file and user inputs
-    if all([file_unit is not None,
-            inps_unit is not None,
-            file_unit != inps_unit]):
+    if all([
+        file_unit is not None,
+        inps_unit is not None,
+        file_unit != inps_unit
+    ]):
         # Warn user
         warnings.warn(
             "Unit specified in file is different from user-specified unit.",
-            stacklevel=2
+            stacklevel=2,
         )
 
     # Set priority unit
@@ -126,7 +128,7 @@ def get_priority_unit(file_unit: str | None, inps_unit: str | None,
         parse_unit(priority_unit)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Prioritizing file unit: {priority_unit}")
 
     return priority_unit
@@ -137,19 +139,20 @@ def scale_values_by_units(
     values: float | np.ndarray,
     unit_in: str,
     unit_out: str,
-    verbose=False
+    verbose = False,
 ) -> float | np.ndarray:
     """Scale values from the input unit to the output.
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
     """
-    if verbose == True:
+    if verbose:
         print(f"Scaling from {unit_in} to {unit_out}")
 
     # Check if compound unit
     operators = [".", "/"]
     if any(
-        [char in unit for unit in [unit_in, unit_out] for char in operators]):
+        [char in unit for unit in [unit_in, unit_out] for char in operators]
+    ):
         raise ValueError("Compound units not currently supported")
 
     # Parse input and output units
@@ -169,7 +172,7 @@ def scale_values_by_units(
 def scale_pdf_by_units(
     pdf: PDFs.PDF,
     unit_out: str,
-    verbose=False
+    verbose: bool = False,
 ) -> PDFs.PDF:
     """Scale the values of a PDF from the input unit to the output.
     Only the values and units are changed.
@@ -182,7 +185,7 @@ def scale_pdf_by_units(
             warnings.warn(
                 "Cannot scale PDF values with units None. "
                 "Continuing with original units.",
-                stacklevel=2
+                stacklevel=2,
             )
         return pdf
 
@@ -198,14 +201,14 @@ def scale_pdf_by_units(
         name=pdf.name,
         variable_type=pdf.variable_type,
         unit=unit_out,
-        normalize_area=True
+        normalize_area=True,
     )
 
     return scaled_pdf
 
 
 #################### PDF UNIT CHECKS ####################
-def check_pdf_base_unit(pdf: PDFs.PDF, variable_type: str | None=None) -> str:
+def check_pdf_base_unit(pdf: PDFs.PDF, variable_type: str | None = None) -> str:
     """Check whether a PDF has a unit assigned, and the base of that unit.
 
     Args    pdf - PDF to check

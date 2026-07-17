@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from riser import (
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting
+    plotting,
 )
 
 
@@ -29,7 +29,7 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
@@ -74,7 +74,7 @@ def main():
     ks_stat, ks_ndx = var_ops.compute_ks_statistic(pdf1, pdf2, verbose=True)
 
     # Plot functions if requested
-    if inps.plot == True:
+    if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, cdf_ax) = plt.subplots(nrows=2)
 
@@ -92,7 +92,7 @@ def main():
             [pdf1.Px[ks_ndx], pdf2.Px[ks_ndx]],
             color="k",
             linewidth=2,
-            label="KS stat"
+            label="KS stat",
         )
 
         # Format figure

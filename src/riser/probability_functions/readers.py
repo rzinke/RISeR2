@@ -19,7 +19,7 @@ import numpy as np
 
 from .ProbabilityDensityFunction import (
     PDF_METADATA_ITEMS,
-    ProbabilityDensityFunction as PDF
+    ProbabilityDensityFunction as PDF,
 )
 
 
@@ -40,7 +40,7 @@ def check_extension(fname: str, ext: str):
 
 #################### PDF READERS ####################
 def parse_metadata_from_header(
-        header_lines: list[str], verbose: bool=False
+        header_lines: list[str], verbose: bool = False
 ) -> dict:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
@@ -50,7 +50,7 @@ def parse_metadata_from_header(
     Args    header_lines - list[str], file header lines
     Returns metadata - dict, metadata dictionary
     """
-    if verbose == True:
+    if verbose:
         print("Reading metadata from header")
 
     # Empty metadata dictionary
@@ -72,7 +72,7 @@ def parse_metadata_from_header(
                 metadata[meta_item] = meta_value
 
                 # Report if requested
-                if verbose == True:
+                if verbose:
                     print(f"{meta_item}: {meta_value}")
 
     return metadata
@@ -104,7 +104,8 @@ def format_data_line(data_line: str) -> str:
     return data_line
 
 
-def parse_data_lines(data_lines: list[str], verbose: bool=False
+def parse_data_lines(
+    data_lines: list[str], verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray]:
     """Parse the value-probability density pairs of a PDF file.
     Values x and probability densities px should be recorded as floats.
@@ -116,7 +117,7 @@ def parse_data_lines(data_lines: list[str], verbose: bool=False
     Returns x - np.ndarray, PDF values
             px - np.ndarray, PDF probability densities
     """
-    if verbose == True:
+    if verbose:
         print("Reading data from file")
 
     # Empty lists for x, px
@@ -142,7 +143,9 @@ def parse_data_lines(data_lines: list[str], verbose: bool=False
     return x, px
 
 
-def read_pdf(fname: str, normalize_area: bool=True, verbose: bool=False) -> PDF:
+def read_pdf(
+    fname: str, normalize_area: bool = True, verbose: bool = False
+) -> PDF:
     """Read a PDF from a file.
 
     Args    fname - str, file name
@@ -158,7 +161,7 @@ def read_pdf(fname: str, normalize_area: bool=True, verbose: bool=False) -> PDF:
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
-    if verbose == True:
+    if verbose:
         print(f"{len(header_lines)} header lines")
 
     # Retrieve metadata
@@ -170,7 +173,7 @@ def read_pdf(fname: str, normalize_area: bool=True, verbose: bool=False) -> PDF:
     # Retrieve data
     x, px = parse_data_lines(data_lines, verbose=verbose)
 
-    if verbose == True:
+    if verbose:
         print(f"{len(data_lines)} data lines")
 
     # Instatiate PDF object
@@ -179,7 +182,8 @@ def read_pdf(fname: str, normalize_area: bool=True, verbose: bool=False) -> PDF:
     return pdf
 
 
-def read_pdfs(fnames: list[str], normalize_area: bool=True, verbose: bool=False
+def read_pdfs(
+    fnames: list[str], normalize_area: bool = True, verbose: bool = False
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
@@ -187,7 +191,7 @@ def read_pdfs(fnames: list[str], normalize_area: bool=True, verbose: bool=False
             normalize_area - bool, scale px value to so the area = 1.0
     Returns pdfs - list[PDF], list of PDFs
     """
-    if verbose == True:
+    if verbose:
         print(f"Reading {len(fnames)} PDF names")
 
     # Read PDFs
@@ -196,7 +200,8 @@ def read_pdfs(fnames: list[str], normalize_area: bool=True, verbose: bool=False
     return pdfs
 
 
-def read_calendar_file(fname: str, verbose: bool=False
+def read_calendar_file(
+    fname: str, verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     """Read a file (e.g., OxCal output) in which probability densities are
     recorded as a function of calendar year, as opposed to years before
@@ -216,7 +221,7 @@ def read_calendar_file(fname: str, verbose: bool=False
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
-    if verbose == True:
+    if verbose:
         print(f"{len(header_lines)} header lines")
 
     # Retrieve metadata
@@ -286,7 +291,7 @@ def pdf_data_to_str(pdf: PDF) -> str:
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
 
 
-def save_pdf(outname: str, pdf: PDF, verbose: bool=False):
+def save_pdf(outname: str, pdf: PDF, verbose: bool = False):
     """Save a PDF to a file.
 
     Args    outname - str, output file name
@@ -312,7 +317,7 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool=False):
             outfile.write(datum)
 
     # Report if requested
-    if verbose == True:
+    if verbose:
         print(f"Wrote PDF to file: {outname}")
 
 
