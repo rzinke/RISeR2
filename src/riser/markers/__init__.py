@@ -1,3 +1,4 @@
+# src/riser/markers/__init__.py
 """
 These modules deal with dated markers consisting of PDFs describing the
 displacement and age of a geologic feature.
