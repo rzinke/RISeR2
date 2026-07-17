@@ -191,7 +191,7 @@ def plot_pdf_labeled(
     ax.set_xlabel(axis_label_from_pdf(pdf))
 
     # Set probability density label
-    if all([offset == 0, scale == 1]):
+    if offset == 0 and scale == 1:
         # y-values are probability density
         ax.set_ylabel("Probability density")
     else:
@@ -248,7 +248,7 @@ def plot_pdf_stack(
     colors: dict | None = None,
     conf_ranges: dict | None = None,
     priors: dict | None = None,
-    same_height: bool | None=False,
+    same_height: bool | None = False,
 ) -> None:
     """Plot multiple PDFs as rows on the same figure.
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
@@ -329,7 +329,7 @@ def plot_cdf_line(
     pdf: PDFs.PDF,
     *,
     # Style args
-    color: str="black",
+    color: str = "black",
     linewidth: float = 2,
 ) -> None:
     """Basic plot of a cumulative distribution function (CDF).
