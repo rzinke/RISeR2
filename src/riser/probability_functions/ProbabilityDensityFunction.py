@@ -106,8 +106,8 @@ class ProbabilityDensityFunction:
         if normalize_area:
             self._normalize_area_()
 
-        # Condition 3: Check probability mass
-        self._check_unit_mass_()
+        # Condition 3: Check PDF area
+        self._check_unit_area_()
 
         # Compute CDF
         self._Px = self._compute_cdf_()
@@ -122,12 +122,12 @@ class ProbabilityDensityFunction:
         self.variable_type = variable_type
         self.unit = unit
 
-    def _compute_mass_(self) -> float:
+    def _compute_area_(self) -> float:
         return integration.integrate(x=self._x, px=self._px)
 
     def _normalize_area_(self) -> None:
-        pmass = self._compute_mass_()
-        self._px /= pmass
+        area = self._compute_area_()
+        self._px /= area
 
     def _compute_cdf_(self) -> None:
         """Compute the cumulative distribution function.
@@ -153,13 +153,13 @@ class ProbabilityDensityFunction:
         if -1 in np.sign(self._px):
             raise ValueError("All probability values must be non-negative")
 
-    def _check_unit_mass_(self) -> None:
+    def _check_unit_area_(self) -> None:
         """Check that the area under the curve is 1.0.
         """
-        pmass = self._compute_mass_()
-        if np.abs(1.0 - pmass) > precision.RISER_PRECISION:
+        area = self._compute_area_()
+        if np.abs(1.0 - area) > precision.RISER_PRECISION:
             raise ValueError(
-                f"Probability mass should be 1.0, got {pmass}. "
+                f"PDF area should be 1.0, got {area}. "
                 f"Suggest setting `normalize_area` to True."
             )
 
