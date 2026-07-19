@@ -28,12 +28,12 @@ __all__ = [
 import copy
 
 import numpy as np
-import scipy as sp
 
 from . import (
     precision,
     units,
     variable_types,
+    integration,
     probability_functions as PDFs,
 )
 
@@ -743,7 +743,7 @@ def compute_overlap_index(
     px_min = np.array([pxs[min_ndx, i] for i, min_ndx in enumerate(min_ndxs)])
 
     # Integrate over overlapping region
-    eta = sp.integrate.trapezoid(px_min, pdfs[0].x)
+    eta = integration.integrate(x=pdfs[0].x, px=px_min)
 
     # Report overlap metric
     if verbose:
