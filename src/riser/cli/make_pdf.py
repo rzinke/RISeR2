@@ -148,7 +148,7 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.unit,
-        normalize_mass=True,
+        normalize_area=True,
     )
 
     # Save to file
