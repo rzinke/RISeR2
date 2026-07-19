@@ -23,6 +23,8 @@ import inspect
 import numpy as np
 import scipy as sp
 
+from .. import integrate
+
 
 #################### SUPPORT FUNCTIONS ####################
 def check_mass_against_value_range(x: np.ndarray, xmin: float, xmax: float):
@@ -90,7 +92,7 @@ def triangular(
     px[px < 0] = 0
 
     # Normalize area
-    px /= sp.integrate.trapezoid(px, x)
+    px /= integration.integrate(x=x, px=px)
 
     return px
 
@@ -126,7 +128,7 @@ def trapezoidal(
     px[right_ndx] = m * x[right_ndx] + b
 
     # Normalize area
-    px /= sp.integrate.trapezoid(px, x)
+    px /= integration.integrate(x=x, px=px)
 
     return px
 
