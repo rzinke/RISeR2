@@ -51,7 +51,7 @@ class ProbabilityDensityFunction:
         self,
         x: np.ndarray,
         px: np.ndarray,
-        normalize_mass: bool = True,
+        normalize_area: bool = True,
         name: str | None = None,
         variable_type: str | None = None,
         unit: str | None = None,
@@ -62,7 +62,7 @@ class ProbabilityDensityFunction:
 
         Args    x - np.ndarray, domain values of the random variable
                 px - np.ndarray, probability density values
-                normalize_mass - bool, scale px value to so the area = 1.0
+                normalize_area - bool, scale px value to so the area = 1.0
 
                 name - str, brief descriptive identifier
                 variable_type - str, sampled quantity, e.g., age, displacement
@@ -103,8 +103,8 @@ class ProbabilityDensityFunction:
         self._check_nonnegative_()
 
         # Normalize area under the curve
-        if normalize_mass:
-            self._normalize_mass_()
+        if normalize_area:
+            self._normalize_area_()
 
         # Condition 3: Check probability mass
         self._check_unit_mass_()
@@ -125,7 +125,7 @@ class ProbabilityDensityFunction:
     def _compute_mass_(self) -> float:
         return integration.integrate(x=self._x, px=self._px)
 
-    def _normalize_mass_(self) -> None:
+    def _normalize_area_(self) -> None:
         pmass = self._compute_mass_()
         self._px /= pmass
 
@@ -160,7 +160,7 @@ class ProbabilityDensityFunction:
         if np.abs(1.0 - pmass) > precision.RISER_PRECISION:
             raise ValueError(
                 f"Probability mass should be 1.0, got {pmass}. "
-                f"Suggest setting `normalize_mass` to True."
+                f"Suggest setting `normalize_area` to True."
             )
 
 

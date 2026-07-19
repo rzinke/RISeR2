@@ -141,12 +141,12 @@ def parse_data_lines(
 
 
 def read_pdf(
-    fname: str, normalize_mass: bool = True, verbose: bool = False
+    fname: str, normalize_area: bool = True, verbose: bool = False
 ) -> PDF:
     """Read a PDF from a file.
 
     Args    fname - str, file name
-            normalize_mass - bool, scale px value to so the area = 1.0
+            normalize_area - bool, scale px value to so the area = 1.0
     Returns PDF - ProbabilityDensityFunction
     """
     # Open file and read contents
@@ -174,18 +174,18 @@ def read_pdf(
         print(f"{len(data_lines)} data lines")
 
     # Instatiate PDF object
-    pdf = PDF(x, px, normalize_mass=normalize_mass, **metadata)
+    pdf = PDF(x, px, normalize_area=normalize_area, **metadata)
 
     return pdf
 
 
 def read_pdfs(
-    fnames: list[str], normalize_mass: bool = True, verbose: bool = False
+    fnames: list[str], normalize_area: bool = True, verbose: bool = False
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
     Args    fnames - list[str], file names
-            normalize_mass - bool, scale px value to so the area = 1.0
+            normalize_area - bool, scale px value to so the area = 1.0
     Returns pdfs - list[PDF], list of PDFs
     """
     if verbose:
