@@ -139,7 +139,7 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.output_unit,
-        normalize_area=True,
+        normalize_mass=True,
     )
 
     # Smooth data

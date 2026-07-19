@@ -50,9 +50,9 @@ class FIRFilter:
         self.h = h
 
         # Ensure neutral gain
-        self.__normalize_gain__()
+        self._normalize_gain_()
 
-    def __normalize_gain__(self):
+    def _normalize_gain_(self):
         """Ensure that the filter does not change the overall gain of the
         data series to which it applies.
         """
@@ -186,7 +186,7 @@ def filter_pdf(
     filt_pdf = PDF(
         x=pdf.x,
         px=px,
-        normalize_area=True,
+        normalize_mass=True,
         name=pdf.name,
         variable_type=pdf.variable_type,
         unit=pdf.unit,

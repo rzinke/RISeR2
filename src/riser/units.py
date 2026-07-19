@@ -92,7 +92,7 @@ def check_base_unit(base_unit: str) -> bool:
     # Check PDF base unit is appropriate
     if base_unit not in BASE_UNITS:
         raise ValueError(
-            f"PDF {pdf.name} must have base unit {', or '.join(BASE_UNITS)}"
+            f"PDF must have base unit {', or '.join(BASE_UNITS)}"
         )
 
     return True
@@ -201,7 +201,7 @@ def scale_pdf_by_units(
         name=pdf.name,
         variable_type=pdf.variable_type,
         unit=unit_out,
-        normalize_area=True,
+        normalize_mass=True,
     )
 
     return scaled_pdf

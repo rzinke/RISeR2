@@ -120,7 +120,7 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
         px *= pdf.px
 
     # Form results into PDF
-    joint_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    joint_pdf = PDFs.PDF(pdfs[0].x, px, normalize_mass=True, unit=unit)
 
     return joint_pdf
 
@@ -167,7 +167,7 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
         px += pdf.px
 
     # Form results into PDF
-    merged_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    merged_pdf = PDFs.PDF(pdfs[0].x, px, normalize_mass=True, unit=unit)
 
     return merged_pdf
 
@@ -272,7 +272,7 @@ def add_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True,
+        normalize_mass=True,
     )
 
     return sum_pdf
@@ -363,7 +363,7 @@ def subtract_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True,
+        normalize_mass=True,
     )
 
     return diff_pdf
@@ -456,7 +456,7 @@ def multiply_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True,
+        normalize_mass=True,
     )
 
     return prod_pdf
@@ -560,7 +560,7 @@ def divide_variables(
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True
+        normalize_mass=True
     )
 
     return quot_pdf
@@ -608,7 +608,7 @@ def compute_probability_between_variables(
         px,
         name=name,
         unit=unit,
-        normalize_area=True
+        normalize_mass=True
     )
 
     return gap_pdf

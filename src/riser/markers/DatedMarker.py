@@ -11,6 +11,7 @@ __all__ = [
 
 # Import modules
 import warnings
+import copy
 
 from .. import (
     units,
@@ -41,6 +42,19 @@ class DatedMarker:
         Args    age - PDF defining the age of a dated marker
                 displacement - PDF defining the displacement of a dated marker
         """
+        # Check inputs
+        if not isinstance(age, PDFs.PDF):
+            raise ValueError(
+                f"Age must be provided as a PDF, "
+                f"got {type(age).__name__}"
+            )
+
+        if not isinstance(displacement, PDFs.PDF):
+            raise ValueError(
+                f"Displacement must be provided as a PDF, "
+                f"got {type(displacement).__name__}"
+            )
+
         # Record age and displacement data
         self.age = age
         self.displacement = displacement
@@ -49,10 +63,10 @@ class DatedMarker:
         self.name = name
 
         # Check units
-        self.__check_units__()
+        self._check_units_()
 
 
-    def __check_units__(self):
+    def _check_units_(self):
         """Check that the age measurement is some multiple of years,
         and the displacement unit is some multiple of meters.
         """
