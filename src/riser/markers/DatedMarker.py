@@ -55,9 +55,9 @@ class DatedMarker:
                 f"got {type(displacement).__name__}"
             )
 
-        # Record age and displacement data
-        self.age = age
-        self.displacement = displacement
+        # Record age and displacement data - copy PDFs just in case
+        self.age = copy.deepcopy(age)
+        self.displacement = copy.deepcopy(displacement)
 
         # Record metadata
         self.name = name
