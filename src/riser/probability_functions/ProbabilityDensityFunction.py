@@ -18,7 +18,10 @@ from .. import integration
 
 #################### PDF BASE CLASS ####################
 class ProbabilityDensityFunction:
-    """A probability density function (PDF) expresses the relative likelihood of
+    """Create a probability density function (PDF).
+    Values are set once on instantiation and are effectively immutable.
+
+    A probability density function (PDF) expresses the relative likelihood of
     a random variable taking a specific value. It meets the criteria:
     1. Is a continuous random variable
     2. Is non-negative for all values
@@ -66,7 +69,7 @@ class ProbabilityDensityFunction:
                 unit - str, value unit
         """
         # Ensure domain values are numpy array
-        x = np.asarray(x)
+        x = np.array(x, dtype=float)
 
         # Check number of domain values
         nx = len(x)
@@ -83,7 +86,7 @@ class ProbabilityDensityFunction:
         self._check_monotonic_()
 
         # Ensure probability density values are numpy array
-        px = np.asarray(px)
+        px = np.array(px, dtype=float)
 
         # Check number of probability density values
         npx = len(px)
@@ -101,89 +104,77 @@ class ProbabilityDensityFunction:
 
         # Normalize area under the curve
         if normalize_area:
-            pmass = integration.integrate(x=x, px=px)
-            self._px /= pmass
+            self._normalize_mass_()
 
-        # # (Re)Compute area under the curve
-        # area = self._compute_area_(x=x, px=px)
+        # Condition 3: Check probability mass
+        self._check_unit_mass_()
 
-        # # Condition 3: Area under curve = 1.0
-        # if (1.0 - area) > precision.RISER_PRECISION:
-        #     raise ValueError(
-        #         f"PDF mass is {area}. Must equal 1.0. "
-        #         f"Normalize mass to 1.0."
-        #     )
+        # Compute CDF
+        self._Px = self._compute_cdf_()
 
-        # # Record probability density values
-        # self._px = px
+        # Enforce immutability
+        self._x.setflags(write=False)
+        self._px.setflags(write=False)
+        self._Px.setflags(write=False)
 
-        # # # Normalize area under curve
-        # # if normalize_area:
-        # #     self._normalize_area_()
+        # Record metadata
+        self.name = name
+        self.variable_type = variable_type
+        self.unit = unit
 
-        # # # Validate
-        # # self.validate()
+    def _compute_mass_(self) -> float:
+        return integration.integrate(x=self._x, px=self._px)
 
-        # # # Compute CDF
-        # # self._compute_cdf_()
-
-        # # Record metadata
-        # self.name = name
-        # self.variable_type = variable_type
-        # self.unit = unit
-
-    def _check_monotonic_(self):
-        """Check condition 1: Domain values increase monotonically.
-        """
-        diff_x = np.diff(self._x)
-        print(diff_x)
-        if np.any(diff_x <= 0):
-            raise ValueError("Domain values must strictly increase")
-
-    def _check_nonnegative_(self):
-        """Check condition 2: No negative probability density values.
-        """
-        if -1 in np.sign(self._px):
-            raise ValueError("All probability values must be non-negative")
-
-    def _normalize_area_(self) -> None:
-        """Scale probability density values so that the area under the curve
-        is 1.0. Operates in-place.
-        """
-        self.px /= self._compute_area_()
-
-
-    def validate(self) -> bool:
-        """Ensure that the object meets the criteria of a PDF.
-        """
-        # Check monotonic
-        diff_x = np.diff(self.x)
-        if -1 in np.sign(diff_x):
-            raise Exception("Domain values must only increase")
-
-        # Check non-negative
-        if -1 in np.sign(self.px):
-            raise Exception("All probability values must be non-negative")
-
-        # Total probability is 1.0
-        area = self._compute_area_()
-        if np.abs(1.0 - area) > precision.RISER_PRECISION:
-            raise Exception(
-                f"Area is {area}; should be 1.0. "
-                f"Suggest setting normalize_area to True."
-            )
-
-        return True
-
+    def _normalize_mass_(self) -> None:
+        pmass = self._compute_mass_()
+        self._px /= pmass
 
     def _compute_cdf_(self) -> None:
         """Compute the cumulative distribution function.
         """
         # Cumulative integration
-        self.Px = sp.integrate.cumulative_trapezoid(self.px, self.x, initial=0)
+        Px = integration.integrate_cumulative(x=self._x, px=self._px)
 
         # Normalize final value to 1.0
-        self.Px /= self.Px[-1]
+        Px /= Px[-1]
+
+        return Px
+
+    def _check_monotonic_(self) -> None:
+        """Check condition 1: Domain values increase monotonically.
+        """
+        diff_x = np.diff(self._x)
+        if np.any(diff_x <= 0):
+            raise ValueError("Domain values must strictly increase")
+
+    def _check_nonnegative_(self) -> None:
+        """Check condition 2: No negative probability density values.
+        """
+        if -1 in np.sign(self._px):
+            raise ValueError("All probability values must be non-negative")
+
+    def _check_unit_mass_(self) -> None:
+        """Check that the area under the curve is 1.0.
+        """
+        pmass = self._compute_mass_()
+        if np.abs(1.0 - pmass) > precision.RISER_PRECISION:
+            raise ValueError(
+                f"Probability mass should be 1.0, got {pmass}. "
+                f"Suggest setting `normalize_area` to True."
+            )
+
+
+    @property
+    def x(self) -> np.ndarray:
+        return self._x
+
+    @property
+    def px(self) -> np.ndarray:
+        return self._px
+
+    @property
+    def Px(self) -> np.ndarray:
+        return self._Px
 
 
     def pdf_at_value(self, x: float) -> float:
@@ -226,10 +217,7 @@ class ProbabilityDensityFunction:
     def __len__(self):
         """Return the length of the PDF array.
         """
-        # Check that array sizes are equal
-        self.__check_array_lengths__()
-
-        return len(self.x)
+        return len(self._x)
 
 
     def __str__(self):
