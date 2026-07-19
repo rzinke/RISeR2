@@ -92,7 +92,7 @@ def check_base_unit(base_unit: str) -> bool:
     # Check PDF base unit is appropriate
     if base_unit not in BASE_UNITS:
         raise ValueError(
-            f"PDF {pdf.name} must have base unit {', or '.join(BASE_UNITS)}"
+            f"PDF must have base unit {', or '.join(BASE_UNITS)}"
         )
 
     return True

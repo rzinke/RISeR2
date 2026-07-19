@@ -11,9 +11,9 @@ __all__ = [
 
 # Import modules
 import numpy as np
-import scipy as sp
 
 from .. import precision
+from .. import integration
 
 
 #################### PDF BASE CLASS ####################
@@ -65,58 +65,92 @@ class ProbabilityDensityFunction:
                 variable_type - str, sampled quantity, e.g., age, displacement
                 unit - str, value unit
         """
-        # Record domain and probability density values
-        self.x = x
-        self.px = px
+        # Ensure domain values are numpy array
+        x = np.asarray(x)
 
-        # Check that array sizes are equal
-        self.__check_array_lengths__()
-
-        # Normalize area under curve
-        if normalize_area:
-            self.__normalize_area__()
-
-        # Validate
-        self.validate()
-
-        # Compute CDF
-        self.__compute_cdf__()
-
-        # Record metadata
-        self.name = name
-        self.variable_type = variable_type
-        self.unit = unit
-
-
-    def __check_array_lengths__(self):
-        """Check that the number of points is x is the same as the number of
-        points in px.
-        """
-        # Number of points in arrays
-        nx = len(self.x)
-        npx = len(self.px)
-
-        # Check that array lengths are equal
-        if nx == npx:
-            return True
-        else:
-            raise Exception(
-                f"Number of points in x ({nx}) must equal the number of points "
-                f"in px ({npx})"
+        # Check number of domain values
+        nx = len(x)
+        if nx < 2:
+            raise ValueError(
+                f"A PDF must consist of at least 2 values, "
+                f"got {nx}"
             )
 
+        # Record domain values
+        self._x = x
 
-    def __compute_area__(self) -> float:
-        """Compute the area over the defined domain.
+        # Check condition 1
+        self._check_monotonic_()
+
+        # Ensure probability density values are numpy array
+        px = np.asarray(px)
+
+        # Check number of probability density values
+        npx = len(px)
+        if npx != nx:
+            raise ValueError(
+                f"The number of probability density values `px` ({npx}) "
+                f"must equal the number of domain values `x` ({nx})"
+            )
+
+        # Record probability density values
+        self._px = px
+
+        # Condition 2: Check non-negative
+        self._check_nonnegative_()
+
+        # Normalize area under the curve
+        if normalize_area:
+            pmass = integration.integrate(x=x, px=px)
+            self._px /= pmass
+
+        # # (Re)Compute area under the curve
+        # area = self._compute_area_(x=x, px=px)
+
+        # # Condition 3: Area under curve = 1.0
+        # if (1.0 - area) > precision.RISER_PRECISION:
+        #     raise ValueError(
+        #         f"PDF mass is {area}. Must equal 1.0. "
+        #         f"Normalize mass to 1.0."
+        #     )
+
+        # # Record probability density values
+        # self._px = px
+
+        # # # Normalize area under curve
+        # # if normalize_area:
+        # #     self._normalize_area_()
+
+        # # # Validate
+        # # self.validate()
+
+        # # # Compute CDF
+        # # self._compute_cdf_()
+
+        # # Record metadata
+        # self.name = name
+        # self.variable_type = variable_type
+        # self.unit = unit
+
+    def _check_monotonic_(self):
+        """Check condition 1: Domain values increase monotonically.
         """
-        return sp.integrate.trapezoid(self.px, self.x)
+        diff_x = np.diff(self._x)
+        print(diff_x)
+        if np.any(diff_x <= 0):
+            raise ValueError("Domain values must strictly increase")
 
+    def _check_nonnegative_(self):
+        """Check condition 2: No negative probability density values.
+        """
+        if -1 in np.sign(self._px):
+            raise ValueError("All probability values must be non-negative")
 
-    def __normalize_area__(self) -> None:
+    def _normalize_area_(self) -> None:
         """Scale probability density values so that the area under the curve
         is 1.0. Operates in-place.
         """
-        self.px /= self.__compute_area__()
+        self.px /= self._compute_area_()
 
 
     def validate(self) -> bool:
@@ -132,7 +166,7 @@ class ProbabilityDensityFunction:
             raise Exception("All probability values must be non-negative")
 
         # Total probability is 1.0
-        area = self.__compute_area__()
+        area = self._compute_area_()
         if np.abs(1.0 - area) > precision.RISER_PRECISION:
             raise Exception(
                 f"Area is {area}; should be 1.0. "
@@ -142,7 +176,7 @@ class ProbabilityDensityFunction:
         return True
 
 
-    def __compute_cdf__(self) -> None:
+    def _compute_cdf_(self) -> None:
         """Compute the cumulative distribution function.
         """
         # Cumulative integration
