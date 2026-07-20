@@ -23,7 +23,7 @@ import inspect
 import numpy as np
 import scipy as sp
 
-from .. import integrate
+from .. import integration
 
 
 #################### SUPPORT FUNCTIONS ####################
