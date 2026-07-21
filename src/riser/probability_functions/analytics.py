@@ -21,18 +21,23 @@ __all__ = [
     "pdf_mode",
     "pdf_median",
     "PDFstatistics",
+    "compute_pdf_statistics",
     "PDF_CONFIDENCE_METRICS",
     "get_pdf_confidence_function",
+    "compute_pdf_confidence_range",
 ]
 
 
 # Import modules
+from dataclasses import dataclass
 import copy
 
 import numpy as np
 
-from ..constants import Psigma
-from .. import precision
+from .. import (
+    constants,
+    precision,
+)
 from . import value_arrays
 from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
 
@@ -236,25 +241,25 @@ def pdf_median(pdf: PDF) -> float:
 
 
 #################### STATISTICAL SUMMARIES ####################
+@dataclass
 class PDFstatistics:
-    def __init__(self, pdf: PDF):
-        """Compute basic statistical properties of a PDF.
-        """
-        # PDF metadata
-        self.name = pdf.name
-        self.unit = pdf.unit
+    # Value statistics
+    mode: float
+    median: float
 
-        # Compute location statistics
-        self.mode = pdf_mode(pdf)
-        self.median = pdf_median(pdf)
+    # Moments
+    mean: float
+    std: float
+    variance: float
+    skewness: float
+    kurtosis: float
 
-        # Compute moments
-        self.mean = pdf_mean(pdf)
-        self.std = pdf_std(pdf)
-        self.variance = pdf_variance(pdf)
-        self.skewness = pdf_skewness(pdf)
-        self.kurtosis = pdf_kurtosis(pdf)
+    # Metadata
+    name: str | None = None
+    variable_type: str | None = None
+    unit: str | None = None
 
+    # Reporting
     def __str__(self):
         print_str = f"PDF:"
         if self.name is not None:
@@ -276,32 +281,52 @@ class PDFstatistics:
         return print_str
 
 
+def compute_pdf_statistics(pdf: PDF, verbose: bool = False) -> PDFstatistics:
+    """Compute the basic statistical properties of a PDF.
+    """
+    # Compute statistics and package as PDFstatistics object
+    pdf_stats = PDFstatistics(
+        # Value statistics
+        mode=pdf_mode(pdf),
+        median=pdf_median(pdf),
+        # Moments
+        mean=pdf_mean(pdf),
+        std=pdf_std(pdf),
+        variance=pdf_variance(pdf),
+        skewness=pdf_skewness(pdf),
+        kurtosis=pdf_kurtosis(pdf),
+        # Metadata
+        name=pdf.name,
+        variable_type=pdf.variable_type,
+        unit=pdf.unit,
+    )
+
+    if verbose:
+        print(pdf_stats)
+
+    return pdf_stats
+
+
 #################### CONFIDENCE RANGES ####################
+@dataclass
 class ConfidenceRange:
-    def __init__(
-        self,
-        confidence: float,
-        range_values: tuple[tuple[float, float], ...],
-        *,
-        metric: str | None = None,
-        pdf_name: str | None = None,
-        unit: str | None = None,
-    ):
-        """Store confidence ranges.
-        Each range is a tuple of floats: (range_min, range_max)
-        For multi-peak PDFs, HPD may provide multiple ranges as a tuple of
-        age ranges: ((range_min, range_max), (range_min, range_max), ...)
+    """Store confidence ranges.
+    Each range is a tuple of floats: (range_min, range_max)
+    For multi-peak PDFs, HPD may provide multiple ranges as a tuple of
+    age ranges: ((range_min, range_max), (range_min, range_max), ...)
+    """
 
-        Args    range_values - sets of confidence values
-        """
-        # Record confidence values
-        self.confidence = confidence
-        self.range_values = range_values
+    # Metric
+    metric: str
 
-        # Record metadata
-        self.metric = metric
-        self.pdf_name = pdf_name
-        self.unit = unit
+    # Range
+    confidence: float
+    range_values: tuple[tuple[float, float], ...]
+
+    # Metadata
+    pdf_name: str | None = None
+    variable_type: str | None = None
+    unit: str | None = None
 
     def __iter__(self):
         yield from self.range_values
@@ -322,9 +347,9 @@ class ConfidenceRange:
 
 
 def compute_interquantile_range(
-        pdf: PDF,
-        confidence: float = Psigma["1"],
-    ) -> ConfidenceRange:
+    pdf: PDF,
+    confidence: float = constants.Psigma["1"],
+) -> ConfidenceRange:
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
     Args    pdf - PDF to analyse
@@ -341,10 +366,11 @@ def compute_interquantile_range(
 
     # Format values into ConfidenceRange object
     conf_range = ConfidenceRange(
+        metric="IQR",
         confidence=confidence,
         range_values=tuple([values]),
-        metric="IQR",
         pdf_name=pdf.name,
+        variable_type=pdf.variable_type,
         unit=pdf.unit,
     )
 
@@ -352,7 +378,7 @@ def compute_interquantile_range(
 
 
 def compute_highest_posterior_density(
-    pdf: PDF, confidence: float = Psigma["1"],
+    pdf: PDF, confidence: float = constants.Psigma["1"],
 ) -> ConfidenceRange:
     """Compute the highest posterior density (HPD) values of a PDF.
 
@@ -401,8 +427,10 @@ def compute_highest_posterior_density(
     clusters = []
     cluster_start = x_conf[0]
     for i in range(1, n_conf):
-        if any([(vals_conf[i] - vals_conf[i-1]) > 1,
-                (i == n_conf-1)]):
+        if (
+            (vals_conf[i] - vals_conf[i-1]) > 1
+            or (i == n_conf-1)
+        ):
             # Cluster end
             cluster_end = x_conf[i-1]
 
@@ -414,10 +442,11 @@ def compute_highest_posterior_density(
 
     # Format values into ConfidenceRange object
     conf_range = ConfidenceRange(
+        metric="HPD",
         confidence=confidence,
         range_values=tuple(clusters),
-        metric="HPD",
         pdf_name=pdf.name,
+        variable_type=pdf.variable_type,
         unit=pdf.unit,
     )
 
@@ -437,15 +466,49 @@ def get_pdf_confidence_function(
     metric: str, verbose: bool = False
 ) -> "Callable":
     """Retrieve a confidence function by name.
+
+    Args    metric - str, confidence metric to use
     """
     # Format metric input
     metric = metric.upper()
+
+    # Check metric is supported
+    if metric not in PDF_CONFIDENCE_METRICS:
+        raise ValueError(
+            f"PDF confidene metric '{metric} not supported. "
+            f"Use one of {', '.join(PDF_CONFIDENCE_METRICS)}"
+        )
 
     # Report if requested
     if verbose:
         print(f"Confidence metric: {metric}")
 
     return PDF_CONFIDENCE_METRICS.get(metric)
+
+
+def compute_pdf_confidence_range(
+    pdf: PDF,
+    metric: str,
+    confidence: float = constants.Psigma["1"],
+    verbose: bool = False,
+) -> ConfidenceRange:
+    """Compute the specified confidence metric for a PDF.
+
+    Args    pdf - PDF to analyse
+            metric - str, confidence metric to use
+            confidence - list[float], confidence levels
+    Returns conf_range - ConfidenceRange
+    """
+    # Retrieve confidence function
+    conf_fcn = get_pdf_confidence_function(metric, verbose=verbose)
+
+    # Compute confidence range
+    conf_range = conf_fcn(pdf, confidence)
+
+    if verbose:
+        print(conf_range)
+
+    return conf_range
 
 
 # end of file

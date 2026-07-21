@@ -154,19 +154,17 @@ def main():
     PDFs.readers.save_pdf(rate_outname, slip_rate, verbose=inps.verbose)
 
     # Compute PDF statistics
-    pdf_stats = PDFs.analytics.PDFstatistics(slip_rate)
-    if inps.verbose:
-        print(pdf_stats)
-
-    # Retrieve confidence range function
-    conf_fcn = PDFs.analytics.get_pdf_confidence_function(
-        inps.confidence_metric, verbose=inps.verbose
+    pdf_stats = PDFs.analytics.compute_pdf_statistics(
+        slip_rate, verbose=inps.verbose
     )
 
     # Compute confidence range
-    conf_range = conf_fcn(slip_rate, inps.confidence_limits)
-    if inps.verbose:
-        print(conf_range)
+    conf_range = PDFs.analytics.compute_pdf_confidence_range(
+        pdf=slip_rate,
+        metric=inps.confidence_metric,
+        confidence=inps.confidence_limits,
+        verbose=inps.verbose,
+    )
 
     # Initialize figure and axis for slip rate PDF
     rate_fig, rate_ax = plt.subplots()
