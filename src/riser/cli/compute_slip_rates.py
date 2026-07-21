@@ -160,21 +160,19 @@ def main():
     # Compute PDF statistics
     pdf_stats = {}
     for marker_pair, slip_rate in slip_rates.items():
-        pdf_stats[marker_pair] = PDFs.analytics.PDFstatistics(slip_rate)
-        if inps.verbose:
-            print(pdf_stats[marker_pair])
-
-    # Retrieve confidence range function
-    conf_fcn = PDFs.analytics.get_pdf_confidence_function(
-        inps.confidence_metric, verbose=inps.verbose
-    )
+        pdf_stats[marker_pair] = PDFs.analytics.compute_pdf_statistics(
+            slip_rate, verbose=inps.verbose
+        )
 
     # Compute confidence ranges
     conf_ranges = {}
     for marker_pair, slip_rate in slip_rates.items():
-        conf_ranges[marker_pair] = conf_fcn(slip_rate, inps.confidence_limits)
-        if inps.verbose:
-            print(conf_ranges[marker_pair])
+        conf_ranges[marker_pair] = PDFs.analytics.compute_pdf_confidence_range(
+            pdf=slip_rate,
+            metric=inps.confidence_metric,
+            confidence=inps.confidence_limits,
+            verbose=inps.verbose,
+        )
 
     # Initialize figure and axis for slip rate PDF
     rate_fig, rate_ax = plt.subplots(figsize=(6, 3.5))

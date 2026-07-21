@@ -154,7 +154,7 @@ def main():
 
     # Report final stats if requested
     if inps.verbose:
-        print(PDFs.analytics.PDFstatistics(pdf))
+        PDFs.analytics.compute_pdf_statistics(pdf, verbose=True)
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, pdf, verbose=inps.verbose)

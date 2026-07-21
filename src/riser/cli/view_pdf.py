@@ -82,7 +82,7 @@ def main():
 
     # Report stats if requested
     if inps.verbose:
-        print(PDFs.analytics.PDFstatistics(pdf))
+        PDFs.analytics.compute_pdf_statistics(pdf, verbose=True)
 
     # Initialize figure and axis
     pdf_fig, pdf_ax = plt.subplots()
@@ -92,15 +92,13 @@ def main():
 
     # Compute and plot confidence range
     if inps.show_confidence:
-        # Retrieve confidence range function
-        conf_fcn = PDFs.analytics.get_pdf_confidence_function(
-                inps.confidence_method, verbose=inps.verbose
-        )
-
         # Compute confidence range
-        conf_range = conf_fcn(pdf, inps.confidence_limits)
-        if inps.verbose:
-            print(conf_range)
+        conf_range = PDFs.analytics.compute_pdf_confidence_range(
+            pdf=pdf,
+            metric=inps.confidence_method,
+            confidence=inps.confidence_limits,
+            verbose=inps.verbose,
+        )
 
         # Plot confidence range(s)
         plotting.plot_pdf_confidence_range(pdf_ax, pdf, conf_range)
