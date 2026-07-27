@@ -32,13 +32,13 @@ def check_extension(fname: str, ext: str):
 
     # Check filename has required extension
     if fname_ext != ext:
-        raise ValueError(f"Filename must have extension: {ext}")
+        raise ValueError(f"Filename must have extension: '{ext}'")
 
 
 #################### PDF READERS ####################
 def parse_metadata_from_header(
     header_lines: list[str], verbose: bool = False
-) -> dict:
+) -> dict[str, str]:
     """Parse the header of a PDF file.
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
     those listed in PDF.metadata_items, and are demarkated by the item
@@ -150,7 +150,7 @@ def read_pdf(
     Returns PDF - ProbabilityDensityFunction
     """
     # Open file and read contents
-    with open(fname, 'r') as raw_file:
+    with open(fname, "r") as raw_file:
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
@@ -199,7 +199,7 @@ def read_pdfs(
 
 def read_calendar_file(
     fname: str, verbose: bool = False
-) -> tuple[np.ndarray, np.ndarray, dict]:
+) -> tuple[np.ndarray, np.ndarray, dict[str, str]]:
     """Read a file (e.g., OxCal output) in which probability densities are
     recorded as a function of calendar year, as opposed to years before
     present (or some reference date).

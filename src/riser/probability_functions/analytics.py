@@ -118,8 +118,10 @@ def compute_standardized_moment(
     mu = expected_value(x, px, dx)
 
     # Compute central moment
-    mu_std_n = expected_value((x - mu)**n, px, dx) \
-            / expected_value((x - mu)**2, px, dx)**(n/2)
+    mu_std_n = (
+        expected_value((x - mu)**n, px, dx)
+        / expected_value((x - mu)**2, px, dx)**(n/2)
+    )
 
     return mu_std_n
 
@@ -475,7 +477,7 @@ def get_pdf_confidence_function(
     # Check metric is supported
     if metric not in PDF_CONFIDENCE_METRICS:
         raise ValueError(
-            f"PDF confidene metric '{metric} not supported. "
+            f"PDF confidene metric '{metric}' not supported. "
             f"Use one of {', '.join(PDF_CONFIDENCE_METRICS)}"
         )
 

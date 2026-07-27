@@ -171,7 +171,7 @@ def check_pdfs_sampling(pdfs: list[PDF]) -> bool:
     # Loop through subsequent PDFs
     for pdf in pdfs[1:]:
         if not np.array_equal(pdf.x, x0):
-            raise Exception("Not all PDFs are sampled over same values")
+            raise ValueError("Not all PDFs are sampled over same values")
 
     return True
 
