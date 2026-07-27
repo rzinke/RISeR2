@@ -115,7 +115,7 @@ def main():
 
     # Check that multiple markers are specified
     if len(markers) < 2:
-        raise Exception("Multiple markers must be specified")
+        raise ValueError("Multiple markers must be specified")
 
     # Initialize figure and axis for input markers
     marker_fig, marker_ax = plt.subplots()

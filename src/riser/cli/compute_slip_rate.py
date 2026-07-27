@@ -115,7 +115,7 @@ def main():
 
     # Check that only one marker is specified
     if len(markers) > 1:
-        raise Exception("Only one marker can be specified")
+        raise ValueError("Only one marker can be specified")
 
     # Use only first marker
     marker = [*markers.values()][0]

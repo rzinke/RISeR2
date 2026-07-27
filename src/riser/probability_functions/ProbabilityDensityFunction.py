@@ -12,8 +12,10 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from .. import precision
-from .. import integration
+from .. import (
+    precision,
+    integration,
+)
 
 
 #################### PDF BASE CLASS ####################

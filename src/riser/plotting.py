@@ -424,7 +424,9 @@ def set_origin_zero(ax) -> None:
     ax.set_ylim([0, ax.get_ylim()[1]])
 
 
-def format_marker_plot(ax, markers: DatedMarker|dict) -> None:
+def format_marker_plot(
+    ax, markers: DatedMarker | dict[str, DatedMarker]
+) -> None:
     """Add axis labels, formulated in the standardized manner.
     """
     if type(markers) == DatedMarker:
@@ -440,8 +442,10 @@ def format_marker_plot(ax, markers: DatedMarker|dict) -> None:
                 [marker.displacement for marker in markers.values()])
 
     else:
-        raise Exception("Markers must be passed as a single DatedMarker "
-                        "or dictionary of DatedMarkers")
+        raise TypeError(
+            f"Markers must be passed as a single DatedMarker "
+            f"or dictionary of DatedMarkers, got {type(markers).__name__}"
+        )
 
     # Label axes
     ax.set_xlabel(xlabel)
@@ -696,7 +700,7 @@ def plot_markers(
 
     else:
         raise ValueError(
-            f"Marker plot type {marker_plot_type} not recognized"
+            f"Marker plot type '{marker_plot_type}' not recognized"
         )
 
     # Loop through markers
