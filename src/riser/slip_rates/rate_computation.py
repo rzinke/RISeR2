@@ -32,15 +32,15 @@ from .. import (
     units,
     variable_types,
     probability_functions as PDFs,
-    variable_operations as var_ops
+    variable_operations as var_ops,
+    dated_markers,
 )
-from ..markers import DatedMarker
 from ..sampling import mc_sampling, pdf_formation, filtering
 
 
 #################### ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
-    marker: DatedMarker,
+    marker: dated_markers.DatedMarker,
     *,
     dq: float=0.01,
     limit_positive: bool = False,
@@ -199,7 +199,7 @@ def compute_slip_rates_analytical(
 
 #################### MONTE CARLO COMPUTATION ####################
 def compute_slip_rates_mc(
-    markers: dict[str, DatedMarker],
+    markers: dict[str, dated_markers.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
     max_rate: float = 100.0,

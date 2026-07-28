@@ -21,7 +21,7 @@ or domain).
 import numpy as np
 
 from . import value_arrays
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### RESAMPLING/INTERPOLATION ####################

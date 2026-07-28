@@ -9,8 +9,11 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from riser.markers import readers as marker_readers
-from riser import units, plotting
+from riser import (
+    units,
+    dated_markers,
+    plotting,
+)
 
 
 #################### ARGUMENT PARSER ####################
@@ -83,7 +86,7 @@ def main():
     inps = cmd_parser()
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(
+    markers = dated_markers.read_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 

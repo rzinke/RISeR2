@@ -31,12 +31,13 @@ class DatedMarker:
     The age and displacement values are defined as PDFs.
     Each will have units of some multiple of years and meters, respectively.
     """
+
     def __init__(
-            self,
-            age: PDFs.PDF,
-            displacement: PDFs.PDF,
-            name: str | None = None,
-        ):
+        self,
+        age: PDFs.PDF,
+        displacement: PDFs.PDF,
+        name: str | None = None,
+    ):
         """Initialize a DatedMarker.
 
         Args    age - PDF defining the age of a dated marker

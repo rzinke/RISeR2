@@ -14,9 +14,9 @@ from riser import (
     constants,
     units,
     probability_functions as PDFs,
+    dated_markers,
     plotting,
 )
-from riser.markers import readers as marker_readers
 from riser.slip_rates import rate_computation, reporting
 
 
@@ -109,7 +109,7 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = marker_readers.read_markers_from_config(
+    markers = dated_markers.read_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 

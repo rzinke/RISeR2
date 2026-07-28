@@ -18,15 +18,15 @@ from .. import (
     units,
     probability_functions as PDFs,
 )
-from .DatedMarker import DatedMarker
+from .dated_marker import DatedMarker
 
 
 #################### MARKER READERS ####################
 def set_metadata_priority(
-        metadata_item: str,
-        file_item: str,
-        spec_item: str,
-    ):
+    metadata_item: str,
+    file_item: str,
+    spec_item: str,
+):
     """Determine the value of the metadata item is conflicting values are
     specified.
     """

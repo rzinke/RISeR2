@@ -23,7 +23,7 @@ import warnings
 import numpy as np
 
 from .. import precision
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################

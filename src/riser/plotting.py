@@ -34,7 +34,7 @@ from . import (
     probability_functions as PDFs,
 )
 from .sampling import filtering
-from .markers import DatedMarker
+from .dated_markers import DatedMarker
 
 
 #################### GENERAL LABELING ####################

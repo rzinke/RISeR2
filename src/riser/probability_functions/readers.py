@@ -17,7 +17,7 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### CHECKS ####################

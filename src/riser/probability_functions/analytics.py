@@ -39,7 +39,7 @@ from .. import (
     precision,
 )
 from . import value_arrays
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
