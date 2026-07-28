@@ -17,7 +17,12 @@ from riser import (
     dated_markers,
     plotting,
 )
-from riser.slip_rates import rate_computation, reporting
+
+from riser.slip_rates import (
+    rate_computation,
+    reporting,
+)
+
 from riser.sampling import (
     filtering,
     mc_sampling,
@@ -181,6 +186,13 @@ def main():
         smoothing_type=inps.smoothing_type,
         smoothing_width=inps.smoothing_width,
         verbose=inps.verbose,
+    )
+
+    # Plot picks
+    plotting.plot_mc_picks(
+        ax=marker_ax,
+        age_picks=age_picks,
+        disp_picks=disp_picks,
     )
 
     # Save PDFs to file
