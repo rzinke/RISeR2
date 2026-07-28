@@ -208,7 +208,7 @@ def check_number_inputs(distribution: str, variables: list[float]) -> bool:
 
     # Check necessary number of values specified
     if n_vars_specd != n_vars_reqd:
-        raise Exception(
+        raise ValueError(
             f"{n_vals_reqd} must be specified for a {distribution} distribution"
         )
 

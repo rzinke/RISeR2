@@ -44,13 +44,13 @@ class DatedMarker:
         """
         # Check inputs
         if not isinstance(age, PDFs.PDF):
-            raise ValueError(
+            raise TypeError(
                 f"Age must be provided as a PDF, "
                 f"got {type(age).__name__}"
             )
 
         if not isinstance(displacement, PDFs.PDF):
-            raise ValueError(
+            raise TypeError(
                 f"Displacement must be provided as a PDF, "
                 f"got {type(displacement).__name__}"
             )

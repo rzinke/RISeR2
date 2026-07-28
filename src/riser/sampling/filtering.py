@@ -123,12 +123,12 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
 
 #################### FILTER APPLICATION ####################
 def filter_pdf(
-        pdf:PDF,
-        filter_type: str,
-        filter_width: int,
-        edge_padding: str = "zeros",
-        preserve_edges: bool = False,
-        verbose: bool = False,
+    pdf:PDF,
+    filter_type: str,
+    filter_width: int,
+    edge_padding: str = "zeros",
+    preserve_edges: bool = False,
+    verbose: bool = False,
 ) -> PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.
