@@ -12,6 +12,7 @@ These functions are used to compare different random variables.
 __all__ = [
     "compute_cosine_similarity",
     "cross_correlate_variables",
+    "compute_overlap_index",
     "compute_ks_statistic",
 ]
 
@@ -22,6 +23,7 @@ import copy
 import numpy as np
 
 from .. import (
+    integration,
     probability_functions as PDFs,
     units,
     variable_types,
