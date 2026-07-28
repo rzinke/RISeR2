@@ -4,23 +4,21 @@
 # (c) 2025 all rights reserved
 
 """
-These functions quantify relationships or interactions between two random
-variables.
+These functions carry out arithmetic between variables:
+    addition
+    subtraction
+    multiplication (product distribution)
+    division (ratio distribution)
 """
+
 
 # Public API
 __all__ = [
-    "combine_variables",
-    "merge_variables",
     "negate_variable",
     "add_variables",
     "subtract_variables",
     "multiply_variables",
     "divide_variables",
-    "compute_probability_between_variables",
-    "compute_pearson_coefficient",
-    "compute_overlap_index",
-    "compute_ks_statistic",
 ]
 
 
@@ -29,12 +27,11 @@ import copy
 
 import numpy as np
 
-from . import (
+from .. import (
+    probability_functions as PDFs,
     precision,
     units,
     variable_types,
-    integration,
-    probability_functions as PDFs,
 )
 
 
@@ -84,92 +81,6 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
                 y[i] += x[j] * h[i - j]
 
     return y
-
-
-#################### VARIABLE COMBINATION ####################
-def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
-    """Compute the joint probability mass function of two or more discrete
-    random variables.
-    Note: Treating the PDFs as discrete greatly simplifies the calculations.
-
-    f_X,Y(x,y) = f_X(x) * f_Y(y)
-
-    This is similar to OxCal R_Combine.
-
-    Args    pdfs - list[PDF], list of PDFs
-    Returns joint_pdf - PDF, joint pdf
-    """
-    if verbose:
-        print(f"Combining {len(pdfs)} PDFs")
-
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling(pdfs)
-
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
-
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
-
-    # Base PDF
-    px = copy.deepcopy(pdfs[0].px)
-
-    # Loop through subsequent variables
-    for pdf in pdfs[1:]:
-        # Compute joint probability
-        px *= pdf.px
-
-    # Form results into PDF
-    joint_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
-
-    return joint_pdf
-
-
-def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
-    """Combine two or more probability mass functions by summing them
-
-    p = f_X(x) + f_Y(y)
-
-    and normalizing the area.
-
-    Note that "merging" has no formal definition in the context of probability
-    theory.
-    This is similar to the OxCal sum function, and should not be confused with
-    either compute_joint_pdf (which combines PDFs by multiplying them element-
-    wise) or add_variables (which computes the sum of two independent random
-    variables).
-    OxCal provides a note:
-    '... the 95% range for a Sum distribution give an estimate for the period
-    in which 95% of the events took place not the period in which one can be
-    95% sure all of the events took place.'
-
-    Args    pdfs - list[PDF], list of PDFs to combine
-    Returns merged_pdf - PDF, merged PDF
-    """
-    if verbose:
-        print(f"Merging {len(pdfs)} PDFs")
-
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling(pdfs)
-
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
-
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
-
-    # Base PDF
-    px = copy.deepcopy(pdfs[0].px)
-
-    # Loop through subsequent variables
-    for pdf in pdfs[1:]:
-        # Compute joint probability
-        px += pdf.px
-
-    # Form results into PDF
-    merged_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
-
-    return merged_pdf
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
@@ -564,221 +475,6 @@ def divide_variables(
     )
 
     return quot_pdf
-
-
-#################### GAP BETWEEN VARIABLES ####################
-def compute_probability_between_variables(
-    pdf1: PDFs.PDF, 
-    pdf2: PDFs.PDF,
-    name: str | None = None,
-    verbose: bool = False,
-) -> PDFs.PDF:
-    """Compute a PDF representing the domain and probability densities of
-    values between two random variables.
-
-    Theory: The probability of a value being between two uncertain values is
-    equal to the probability that a value is larger than the first value
-    (P(X <= x)) and smaller than the second value (1 - P(Y <= y)):
-
-        P(X < x < Y) = CDF_X . (1 - CDF_Y) = P(X <= x) * (1 - P(Y <= y))
-
-    Machinery: The CDFs of the first and second PDFs are pre-computed during
-    PDF instantiation. Leverage these to compute the "between-PDF".
-
-    Args    pdf1 - smaller PDF
-            pdf2 - larger PDF
-            name - str, name of "between" PDF
-    Returns gap_pdf - PDF describing values between the two input variables
-    """
-    if verbose:
-        print("Computing probability of a value between two variables.")
-
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
-
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
-
-    # Compute probabilities between variables
-    px = pdf1.Px * (1 - pdf2.Px)
-
-    # Form results into PDF
-    gap_pdf = PDFs.PDF(
-        pdf1.x,
-        px,
-        name=name,
-        unit=unit,
-        normalize_area=True
-    )
-
-    return gap_pdf
-
-
-#################### SIMILARITY ####################
-def compute_cosine_similarity(
-    pdf1: PDFs.PDF,
-    pdf2: PDFs.PDF,
-    verbose: bool = False,
-) -> float:
-    """Compute the cosine similarity index
-
-        r = sum[f1 f2] / sqrt[sum(f1 ^ 2) . sum(f2 ^ 2)]
-
-    This is essentially a normalized dot product, and is equivalent to the
-    Pearson coefficient without mean-centering.
-    Because PDFs are never negative, mean-centering is not necessary.
-
-    Args    pdf1, pdf2 - PDFs to correlate
-    Returns r - float, Pearson correlation coefficient
-    """
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
-
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
-
-    # Centered arrays
-    px1_cntr = pdf1.px
-    px2_cntr = pdf2.px
-
-    # Compute coefficient
-    numer = np.sum(px1_cntr * px2_cntr)
-    denom = np.sqrt(np.sum(px1_cntr**2) * np.sum(px2_cntr**2))
-    r = numer / denom
-
-    # Report if requested
-    if verbose:
-        print(f"Cosine similarity coefficient: {r}")
-
-    return r
-
-
-def cross_correlate_variables(
-    ref_pdf: PDFs.PDF,
-    sec_pdf: PDFs.PDF,
-    verbose: bool = False,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Compute the cross correlation of the second variable against the first.
-    Note: Unlike in classical cross correlation, which assumes infinite
-    stationary signals and wraps the shifted part of the signal back around,
-    this function zero-pads the second signal outside the defined portion.
-
-    Args    ref_pdf - PDF, reference variable to be held fixed
-            sec_pdf - PDF, secondary variable to cross-correlate against
-                reference
-    Returns lags - np.ndarray, lag integers
-            corr_vals - np.ndarrays, correlation values
-    """
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
-
-    # Check units
-    units.check_same_pdf_units([ref_pdf, sec_pdf])
-
-    # Define integer lags
-    n = len(ref_pdf)
-    lags = np.arange(-n+1, n, dtype=int)
-
-    # Pre-allocate correlation values
-    corr_vals = np.empty(2*n-1)
-
-    # Pre-compute normalization factor for reference PDF
-    ref_rss = np.sqrt(np.sum(ref_pdf.px**2))
-
-    # Compute correlation values
-    for i, lag in enumerate(lags):
-        # Shift the secondary signal by the integer amount
-        # The other way to do this would be to zero-pad the array
-        px_secondary = np.roll(sec_pdf.px, lag)
-
-        # Consider values outside the signal domain to be zero probability
-        if lag < 0:
-            px_secondary[lag:] = 0
-        elif lag > 0:
-            px_secondary[:lag] = 0
-
-        # Correlation normalization factor
-        norm = ref_rss * np.sqrt(np.sum(px_secondary**2))
-
-        # Compute the correlation value
-        corr_val = np.sum(ref_pdf.px * px_secondary)
-
-        # Normalize correlation value
-        if corr_val != 0:
-            corr_val /= (ref_rss * np.sqrt(np.sum(px_secondary**2)))
-
-        # Update correlation value array
-        corr_vals[i] = corr_val
-
-    return lags, corr_vals
-
-
-def compute_overlap_index(
-    pdfs: list[PDFs.PDF], verbose: bool = False
-) -> tuple[np.ndarray, float]:
-    """Compute the overlap index for two or more PDFs according to
-    (Pastore and Calcgni, 2019):
-
-        n(A, B) = integral(min[fA(x), fB(x)] dx)
-
-    An alternative formulation is
-
-        n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
-
-    Args    pdfs - list[PDF], PDFs for which to compute the overlap index
-    Returns eta - float, overlap metric
-            px_min - np.ndarray
-    """
-    # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling(pdfs)
-
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
-
-    # Arrange PDFs into matrix
-    pxs = np.vstack([pdf.px for pdf in pdfs])
-
-    # Determine minimum of PDF curves
-    min_ndxs = np.argmin(pxs, axis=0)
-    px_min = np.array([pxs[min_ndx, i] for i, min_ndx in enumerate(min_ndxs)])
-
-    # Integrate over overlapping region
-    eta = integration.integrate(x=pdfs[0].x, px=px_min)
-
-    # Report overlap metric
-    if verbose:
-        print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
-
-    return px_min, eta
-
-
-def compute_ks_statistic(
-    pdf1: PDFs.PDF,
-    pdf2: PDFs.PDF,
-    verbose: bool = False,
-) -> tuple[float, int]:
-    """Compute the Komolgorov-Smirnov statistic for two PDFs.
-    The K-S statistic (D) is the largest difference between the CDFs of the
-    two PDFs.
-
-        D = sup |F1 - F2|
-
-    Args    pdf1, pdf2 - PDFs to compare
-    Returns ks_stat - float, K-S statistic
-            ks_ndx - int, index of K-S statistic location
-    """
-    # Compute difference between CDFs
-    cdf_diff = np.abs(pdf1.Px - pdf2.Px)
-
-    # Find maximum difference
-    ks_ndx = np.argmax(cdf_diff)
-    ks_stat = cdf_diff[ks_ndx]
-
-    # Report if requested
-    if verbose:
-        print(f"K-S statistic (D): {ks_stat:.2f}")
-
-    return ks_stat, ks_ndx
 
 
 # end of file

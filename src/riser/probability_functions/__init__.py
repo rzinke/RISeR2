@@ -12,6 +12,14 @@ along a new value array.
 parametric_functions includes definitions of parametric functions.
 """
 
+# Import modules
+from .probability_density_function import ProbabilityDensityFunction as PDF
+from . import analytics
+from . import interpolation
+from . import parametric_functions
+from . import readers
+from . import value_arrays
+
 # Public API
 __all__ = [
     "PDF",
@@ -21,11 +29,3 @@ __all__ = [
     "readers",
     "value_arrays",
 ]
-
-# Import modules
-from .probability_density_function import ProbabilityDensityFunction as PDF
-from . import analytics
-from . import interpolation
-from . import parametric_functions
-from . import readers
-from . import value_arrays
