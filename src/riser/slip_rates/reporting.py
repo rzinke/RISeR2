@@ -61,7 +61,7 @@ def establish_output_dir(output_prefix: str, verbose: bool = False) -> None:
 #################### FIGURE SAVING ####################
 def save_marker_fig(
     output_prefix: str,
-    marker_fig: matplotlib.figure.Figure,
+    marker_fig: Figure,
     verbose: bool = False,
 ) -> None:
     """Save figure showing the dated displacement history to a file.
@@ -70,8 +70,8 @@ def save_marker_fig(
     ----------
     output_prefix : str
         Prefix for output file name.
-    marker_fig : matplotlib.figure.Figure
-        Figure to save.
+    marker_fig : Figure
+        Dated marker figure to save.
     """
     # Formulate outname
     outname = f"{output_prefix}_markers.pdf"
@@ -90,7 +90,7 @@ def save_marker_fig(
 
 def save_slip_rate_fig(
     output_prefix: str,
-    rate_fig: matplotlib.figure.Figure,
+    rate_fig: Figure,
     verbose: bool = False,
 ) -> None:
     """Save figure showing slip rate measurements to a file.
@@ -99,8 +99,8 @@ def save_slip_rate_fig(
     ----------
     output_prefix : str
         Prefix for output file name.
-    marker_fig : matplotlib.figure.Figure
-        Figure to save.
+    rate_fig : Figure
+        Slip rate figure to save.
     """
     # Formulate outname
     outname = f"{output_prefix}_slip_rates.pdf"
