@@ -95,7 +95,7 @@ def main():
         )
 
         # Scale PDF units
-        pdfs[pdf_name] = PDFs.scaling.scale_by_units(
+        pdfs[pdf_name] = PDFs.scaling.scale_pdf_by_units(
             pdf, inps.unit_out, verbose=inps.verbose
         )
 
@@ -109,7 +109,7 @@ def main():
             )
 
             # Scale prior units
-            priors[pdf_name] = PDFs.scaling.scale_by_units(
+            priors[pdf_name] = PDFs.scaling.scale_pdf_by_units(
                 prior, inps.unit_out, verbose=inps.verbose
             )
 
