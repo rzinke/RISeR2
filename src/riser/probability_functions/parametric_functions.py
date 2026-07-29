@@ -23,7 +23,10 @@ import inspect
 import numpy as np
 import scipy as sp
 
-from .. import integration
+from .. import (
+    precision,
+    integration,
+)
 
 
 #################### SUPPORT FUNCTIONS ####################
@@ -42,7 +45,10 @@ def check_mass_against_value_range(
     xmax : float
         Theoretical maximum value of significance to check against value array.
     """
-    if xmin < x.min() or xmax > x.max():
+    if (
+        xmin < x.min() - precision.RISER_PRECISION
+        or xmax > x.max() + precision.RISER_PRECISION
+    ):
         warnings.warn("PDF mass lies outside the specified value range")
 
 
@@ -352,11 +358,12 @@ def determine_min_max_limits(
         # Use 4-sigma limit
         sigma_lim = 4 * sigma
 
+        # Min value
+        xmin = mu - sigma_lim
+
         # Limit at zero
-        xmin = (
-            np.max([mu - sigma_lim, 0]) if limit_positive
-            else mu - sigma_lim
-        )
+        if limit_positive:
+            xmin = np.max([xmin, 0])
 
         # Max value
         xmax = mu + sigma_lim
