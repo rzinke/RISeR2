@@ -21,7 +21,7 @@ __all__ = [
 
 
 # Import modules
-import matplotlib
+from matplotlib.axes import Axes
 
 from .. import (
     units,
@@ -103,7 +103,7 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -145,7 +145,7 @@ def plot_pdf_line(
 
 
 def plot_pdf_filled(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -201,7 +201,7 @@ def plot_pdf_filled(
 
 
 def plot_pdf_labeled(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -265,7 +265,7 @@ def plot_pdf_labeled(
 
 # PDF Confidence
 def plot_pdf_confidence_range(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     conf_range: PDFs.analytics.ConfidenceRange,
     *,
@@ -328,7 +328,7 @@ def plot_pdf_confidence_range(
 
 # Multi-PDF
 def plot_pdf_stack(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdfs: dict[str, PDFs.PDF],
     height: float = 0.9,
     colors: dict[str, str] | None = None,

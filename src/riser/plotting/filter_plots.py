@@ -15,12 +15,14 @@ __all__ = [
 
 
 # Import modules
+from matplotlib.axes import Axes
+
 from ..sampling import filtering
 
 
 #################### FILTER KERNEL PLOTTING ####################
 def plot_filter_kernel(
-    ax: matplotlib.axes.Axes, filt: filtering.FIRFilter
+    ax: Axes, filt: filtering.FIRFilter
 ) -> None:
     """Plot a filter kernel.
 

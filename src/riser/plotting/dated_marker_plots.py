@@ -16,7 +16,7 @@ __all__ = [
 
 # Import modules
 import numpy as np
-import matplotlib
+from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
 
 from .. import (
@@ -28,7 +28,7 @@ from .pdf_plots import axis_label_from_pdf, axis_label_from_pdfs
 
 
 #################### DATED MARKER PLOTTING ####################
-def set_origin_zero(ax: matplotlib.axes.Axes) -> None:
+def set_origin_zero(ax: Axes) -> None:
     """Set the plot origin at zero.
 
     Parameters
@@ -41,7 +41,7 @@ def set_origin_zero(ax: matplotlib.axes.Axes) -> None:
 
 
 def format_marker_plot(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     markers: dated_markers.DatedMarker | dict[str, dated_markers.DatedMarker],
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
@@ -79,7 +79,7 @@ def format_marker_plot(
 
 
 def plot_marker_whisker(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     marker: dated_markers.DatedMarker,
     confidence: float = constants.Psigma["2"],
     *,
@@ -143,7 +143,7 @@ def plot_marker_whisker(
 
 
 def plot_markers_whisker(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
@@ -180,7 +180,7 @@ def plot_markers_whisker(
 
 
 def plot_marker_rectangle(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     marker: dated_markers.DatedMarker,
     confidence: float = constants.Psigma["2"],
     *,
@@ -248,7 +248,7 @@ def plot_marker_rectangle(
 
 
 def plot_markers_rectangle(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
@@ -286,7 +286,7 @@ def plot_markers_rectangle(
 
 
 def plot_markers_joint_pdf(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     *,
     n: int = 1_000,
@@ -400,7 +400,7 @@ def get_markers_plot(
 
 
 def plot_markers(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     marker_plot_type = "whisker",
     *,
