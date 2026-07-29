@@ -121,11 +121,11 @@ def main():
     marker = [*markers.values()][0]
 
     # Scale input units to output units
-    marker.age = PDFs.scaling.scale_by_units(
+    marker.age = PDFs.scaling.scale_pdf_by_units(
         marker.age, inps.age_unit_out, verbose=inps.verbose
     )
 
-    marker.displacement = PDFs.scaling.scale_by_units(
+    marker.displacement = PDFs.scaling.scale_pdf_by_units(
         marker.displacement, inps.displacement_unit_out, verbose=inps.verbose
     )
 

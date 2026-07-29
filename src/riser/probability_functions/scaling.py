@@ -9,7 +9,7 @@ Unit-based operations for PDFs.
 
 # Public API
 __all__ = [
-    "scale_by_units",
+    "scale_pdf_by_units",
 ]
 
 
@@ -86,7 +86,7 @@ def determine_scaling_appropriate(
         return False
 
 
-def scale_by_units(
+def scale_pdf_by_units(
     pdf: PDF,
     unit_out: str,
     verbose: bool = False,
@@ -117,7 +117,7 @@ def scale_by_units(
         verbose=verbose,
     ):
         # Scale values
-        scaled_values = units.scale_by_units(
+        scaled_values = units.scale_values_by_units(
             values=pdf.x,
             unit_in=pdf.unit,
             unit_out=unit_out,

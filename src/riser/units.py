@@ -9,7 +9,7 @@ __all__ = [
     "UNIT_SCALES",
     "parse_unit",
     "check_base_unit",
-    "scale_by_units",
+    "scale_values_by_units",
 ]
 
 
@@ -103,7 +103,7 @@ def parse_unit(
 
 
 #################### UNIT CHECKS ####################
-def check_base_unit(base_unit: str):
+def check_base_unit_supported(base_unit: str):
     """Check that the base unit is supported.
 
     Parameters
@@ -125,7 +125,7 @@ def check_base_unit(base_unit: str):
 
 
 #################### UNIT SCALING ####################
-def scale_by_units(
+def scale_values_by_units(
     values: float | np.ndarray,
     unit_in: str,
     unit_out: str,
