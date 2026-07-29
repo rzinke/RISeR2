@@ -33,7 +33,7 @@ type VariableType = str
 
 
 #################### PDF VARIABLE TYPE CHECKS ####################
-def check_variable_type_supported(variable_type: str):
+def check_variable_type_supported(variable_type: str) -> None:
     """Check whether the specified variable type is supported.
 
     Parameters
@@ -43,8 +43,7 @@ def check_variable_type_supported(variable_type: str):
     
     Returns
     -------
-    bool
-        True if variable type is supported.
+    None
     """
     # Check if variable type is supported
     if not variable_type in SUPPORTED_VARIABLE_TYPES:
