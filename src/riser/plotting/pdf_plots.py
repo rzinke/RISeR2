@@ -347,14 +347,12 @@ def plot_pdf_stack(
         Axis on which to plot PDF stack.
     pdfs : dict[str, PDF]
         PDFs stored by PDF name.
-    conf_ranges : dict[str, ConfidenceRange]
-        Confidence ranges stored by PDF name.
     height : float
         Height of hightest PDF peak relative to line spacing.
     colors : dict[str, str]
         PDF colors.
     conf_ranges : dict[str, ConfidenceRange]
-        PDF confidence ranges.
+        Confidence ranges stored by PDF name.
     priors : dict[str, PDF]
         PDF prior distributions.
     same_height : bool

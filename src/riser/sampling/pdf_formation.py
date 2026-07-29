@@ -152,7 +152,7 @@ def samples_to_pdf_kde(
     dx = np.sqrt(n_samples) if dx is None else dx
 
     # Create histogram value array
-    x = value_arrays.create_precise_value_array(xmin, xmax, dx)
+    x = PDFs.value_arrays.create_precise_value_array(xmin, xmax, dx)
 
     # Compute KDE
     kde = sp.stats.gaussian_kde(samples)

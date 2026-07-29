@@ -8,7 +8,7 @@ __all__ = [
     "BASE_UNITS",
     "UNIT_SCALES",
     "parse_unit",
-    "check_base_unit",
+    "check_base_unit_supported",
     "scale_values_by_units",
 ]
 
@@ -93,7 +93,7 @@ def parse_unit(
         base = unit[-1]
 
         # Check that base is valid
-        check_base_unit(base)
+        check_base_unit_supported(base)
 
         # Report if requested
         if verbose:
