@@ -16,6 +16,8 @@ import warnings
 import numpy as np
 from tqdm import tqdm
 
+from .. import dated_markers
+
 
 #################### SAMPLING CRITERIA ####################
 class SampleCriterion:
@@ -148,7 +150,7 @@ def get_sample_criterion(
 
 #################### MONTE CARLO SAMPLING ####################
 def sample_monte_carlo(
-    markers: dict[str, DatedMarker],
+    markers: dict[str, dated_markers.DatedMarker],
     criterion: SampleCriterion,
     *,
     n_samples: int = 10_000,

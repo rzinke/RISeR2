@@ -16,6 +16,7 @@ __all__ = [
 
 # Import modules
 import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
 
 from .. import (
@@ -27,7 +28,7 @@ from .pdf_plots import axis_label_from_pdf, axis_label_from_pdfs
 
 
 #################### DATED MARKER PLOTTING ####################
-def set_origin_zero(ax) -> None:
+def set_origin_zero(ax: Axes) -> None:
     """Set the plot origin at zero.
 
     Parameters
@@ -40,7 +41,7 @@ def set_origin_zero(ax) -> None:
 
 
 def format_marker_plot(
-    ax,
+    ax: Axes,
     markers: dated_markers.DatedMarker | dict[str, dated_markers.DatedMarker],
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
@@ -78,7 +79,7 @@ def format_marker_plot(
 
 
 def plot_marker_whisker(
-    ax,
+    ax: Axes,
     marker: dated_markers.DatedMarker,
     confidence: float = constants.Psigma["2"],
     *,
@@ -142,7 +143,7 @@ def plot_marker_whisker(
 
 
 def plot_markers_whisker(
-    ax,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
@@ -179,7 +180,7 @@ def plot_markers_whisker(
 
 
 def plot_marker_rectangle(
-    ax,
+    ax: Axes,
     marker: dated_markers.DatedMarker,
     confidence: float = constants.Psigma["2"],
     *,
@@ -239,7 +240,7 @@ def plot_marker_rectangle(
 
     # Label if requested
     if label:
-        ax.text(age_vals[1], disp_vals[1], marker.name)
+        ax.text(age_vals[1], disp_vals[1], marker.name, color=color)
 
     # Adjust axis limits
     ax.set_xlim([0, 1.1 * age_vals[1]])
@@ -247,7 +248,7 @@ def plot_marker_rectangle(
 
 
 def plot_markers_rectangle(
-    ax,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
@@ -260,7 +261,7 @@ def plot_markers_rectangle(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the dated marker.
     markers : dict[str, DatedMarker]
         Dated markers to plot.
@@ -285,7 +286,7 @@ def plot_markers_rectangle(
 
 
 def plot_markers_joint_pdf(
-    ax,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     *,
     n: int = 1_000,
@@ -301,7 +302,7 @@ def plot_markers_joint_pdf(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the dated marker.
     markers : dict[str, DatedMarker]
         Dated markers to plot.
@@ -399,7 +400,7 @@ def get_markers_plot(
 
 
 def plot_markers(
-    ax,
+    ax: Axes,
     markers: dict[str, dated_markers.DatedMarker],
     marker_plot_type = "whisker",
     *,
@@ -414,7 +415,7 @@ def plot_markers(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot dated markers.
     markers : dict[str, DatedMarker]
         Dated markers to plot.

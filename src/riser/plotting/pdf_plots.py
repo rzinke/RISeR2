@@ -21,7 +21,7 @@ __all__ = [
 
 
 # Import modules
-import matplotlib
+from matplotlib.axes import Axes
 
 from .. import (
     units,
@@ -92,18 +92,18 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
     ax_label : str
         Standardized axis label.
     """
-    # Set variable type
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
+    # Find common metadata values
+    common_metadata = PDFs.metadata.get_common_metadata(pdfs)
 
-    # Set unit
-    unit = units.check_same_pdf_units(pdfs)
-
-    return formulate_axis_label(variable_type, unit)
+    return formulate_axis_label(
+        variable_type=common_metadata.variable_type,
+        unit=common_metadata.unit,
+    )
 
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -118,7 +118,7 @@ def plot_pdf_line(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -145,7 +145,7 @@ def plot_pdf_line(
 
 
 def plot_pdf_filled(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -161,7 +161,7 @@ def plot_pdf_filled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -201,7 +201,7 @@ def plot_pdf_filled(
 
 
 def plot_pdf_labeled(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -217,7 +217,7 @@ def plot_pdf_labeled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -265,7 +265,7 @@ def plot_pdf_labeled(
 
 # PDF Confidence
 def plot_pdf_confidence_range(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdf: PDFs.PDF,
     conf_range: PDFs.analytics.ConfidenceRange,
     *,
@@ -282,7 +282,7 @@ def plot_pdf_confidence_range(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -328,7 +328,7 @@ def plot_pdf_confidence_range(
 
 # Multi-PDF
 def plot_pdf_stack(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     pdfs: dict[str, PDFs.PDF],
     height: float = 0.9,
     colors: dict[str, str] | None = None,
@@ -343,18 +343,16 @@ def plot_pdf_stack(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot PDF stack.
     pdfs : dict[str, PDF]
         PDFs stored by PDF name.
-    conf_ranges : dict[str, ConfidenceRange]
-        Confidence ranges stored by PDF name.
     height : float
         Height of hightest PDF peak relative to line spacing.
     colors : dict[str, str]
         PDF colors.
     conf_ranges : dict[str, ConfidenceRange]
-        PDF confidence ranges.
+        Confidence ranges stored by PDF name.
     priors : dict[str, PDF]
         PDF prior distributions.
     same_height : bool

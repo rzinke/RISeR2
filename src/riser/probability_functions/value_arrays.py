@@ -196,7 +196,7 @@ def create_precise_value_array(
 
 
 #################### CHECKS ####################
-def check_pdfs_sampling(pdfs: list[PDF]) -> bool:
+def check_pdfs_sampling(pdfs: list[PDF]):
     """Check that all PDFs are sampled over the same value array.
 
     Parameters
@@ -211,8 +211,6 @@ def check_pdfs_sampling(pdfs: list[PDF]) -> bool:
     for pdf in pdfs[1:]:
         if not np.array_equal(pdf.x, x0):
             raise ValueError("Not all PDFs are sampled over same values")
-
-    return True
 
 
 # end of file

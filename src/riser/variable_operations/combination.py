@@ -26,7 +26,11 @@ from .. import (
 
 
 #################### RANDOM VARIABLE COMBINATION ####################
-def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
+def combine_variables(
+    pdfs: list[PDFs.PDF],
+    name: str | None = None,
+    verbose: bool = False,
+) -> PDFs.PDF:
     """Compute the joint probability mass function of two or more discrete
     random variables.
     Note: Treating the PDFs as discrete greatly simplifies the calculations.
@@ -39,6 +43,8 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     ----------
     pdfs : list[PDF]
         List of PDFs to combine.
+    name : str
+        Descriptive name of combined PDF.
 
     Returns
     -------
@@ -51,11 +57,10 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
-
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
+    # Get common metadata
+    metadata = PDFs.metadata.get_common_metadata(
+        pdfs, name=name, warn=True
+    )
 
     # Base PDF
     px = copy.deepcopy(pdfs[0].px)
@@ -66,12 +71,21 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
         px *= pdf.px
 
     # Form results into PDF
-    joint_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    joint_pdf = PDFs.PDF(
+        x=pdfs[0].x,
+        px=px,
+        normalize_area=True,
+        **metadata.__dict__,
+    )
 
     return joint_pdf
 
 
-def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
+def merge_variables(
+    pdfs: list[PDFs.PDF],
+    name: str | None = None,
+    verbose: bool = False,
+) -> PDFs.PDF:
     """Combine two or more probability mass.
 
     Combine distributions by summing them pointwise
@@ -95,6 +109,8 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     ----------
     pdfs : list[PDF]
         List of PDFs to merge.
+    name : str
+        Descriptive name of merged PDF.
 
     Returns
     -------
@@ -107,11 +123,10 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
-
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
+    # Get common metadata
+    metadata = PDFs.metadata.get_common_metadata(
+        pdfs, name=name, warn=True
+    )
 
     # Base PDF
     px = copy.deepcopy(pdfs[0].px)
@@ -122,7 +137,12 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
         px += pdf.px
 
     # Form results into PDF
-    merged_pdf = PDFs.PDF(pdfs[0].x, px, normalize_area=True, unit=unit)
+    merged_pdf = PDFs.PDF(
+        x=pdfs[0].x,
+        px=px,
+        normalize_area=True,
+        **metadata.__dict__,
+    )
 
     return merged_pdf
 

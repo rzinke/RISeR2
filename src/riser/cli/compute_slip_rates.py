@@ -117,6 +117,19 @@ def main():
     if len(markers) < 2:
         raise ValueError("Multiple markers must be specified")
 
+    # Scale input units to output units
+    for marker in markers.values():
+        marker.age = PDFs.scaling.scale_pdf_by_units(
+            pdf=marker.age,
+            unit_out=inps.age_unit_out,
+            verbose=inps.verbose,
+        )
+        marker.displacement = PDFs.scaling.scale_pdf_by_units(
+            pdf=marker.displacement,
+            unit_out=inps.displacement_unit_out,
+            verbose=inps.verbose,
+        )
+
     # Initialize figure and axis for input markers
     marker_fig, marker_ax = plt.subplots()
 
@@ -128,15 +141,6 @@ def main():
         label=True,
     )
     marker_fig.tight_layout()
-
-    # Scale input units to output units
-    for marker in markers.values():
-        marker.age = units.scale_pdf_by_units(
-            marker.age, inps.age_unit_out
-        )
-        marker.displacement = units.scale_pdf_by_units(
-            marker.displacement, inps.displacement_unit_out
-        )
 
     # Save marker fig
     reporting.save_marker_fig(

@@ -189,11 +189,10 @@ def add_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
-
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
+    # Get common metadata
+    metadata = PDFs.metadata.get_common_metadata(
+        [pdf1, pdf2], name=name, warn=True
+    )
 
     # Parameters
     x_min = pdf1.x[0]
@@ -216,10 +215,8 @@ def add_variables(
     sum_pdf = PDFs.PDF(
         x=xx,
         px=pxx,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
         normalize_area=True,
+        **metadata.__dict__,
     )
 
     return sum_pdf
@@ -279,11 +276,10 @@ def subtract_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
-
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
+    # Get common metadata
+    metadata = PDFs.metadata.get_common_metadata(
+        [pdf1, pdf2], name=name, warn=True
+    )
 
     # Parameters
     x_start = pdf1.x[0]
@@ -316,10 +312,8 @@ def subtract_variables(
     diff_pdf = PDFs.PDF(
         x=xx,
         px=pxx,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
         normalize_area=True,
+        **metadata.__dict__,
     )
 
     return diff_pdf

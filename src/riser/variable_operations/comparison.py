@@ -59,8 +59,10 @@ def compute_cosine_similarity(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
+    # Warn of metadata mismatches
+    PDFs.metadata.get_common_metadata(
+        [pdf1, pdf2], warn=True
+    )
 
     # Centered arrays
     px1_cntr = pdf1.px
@@ -105,8 +107,10 @@ def cross_correlate_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
 
-    # Check units
-    units.check_same_pdf_units([ref_pdf, sec_pdf])
+    # Warn of metadata mismatches
+    PDFs.metadata.get_common_metadata(
+        [ref_pdf, sec_pdf], warn=True
+    )
 
     # Define integer lags
     n = len(ref_pdf)
@@ -174,8 +178,10 @@ def compute_overlap_index(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
-    # Check units
-    unit = units.check_same_pdf_units(pdfs)
+    # Warn of metadata mismatches
+    PDFs.metadata.get_common_metadata(
+        pdfs, warn=True
+    )
 
     # Arrange PDFs into matrix
     pxs = np.vstack([pdf.px for pdf in pdfs])

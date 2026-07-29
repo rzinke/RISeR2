@@ -18,7 +18,10 @@ import os
 from datetime import datetime
 
 import numpy as np
-import matplotlib
+from matplotlib.figure import Figure
+
+from .. import probability_functions as PDFs
+from .. import sampling
 
 
 #################### FILENAME FORMATTING ####################

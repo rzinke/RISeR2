@@ -8,11 +8,8 @@ __all__ = [
     "BASE_UNITS",
     "UNIT_SCALES",
     "parse_unit",
-    "check_base_unit",
+    "check_base_unit_supported",
     "scale_values_by_units",
-    "scale_pdf_by_units",
-    "check_pdf_base_unit",
-    "check_same_pdf_units",
 ]
 
 
@@ -36,11 +33,15 @@ import copy
 
 import numpy as np
 
-from . import probability_functions as PDFs
+
+#################### UNIT TYPE ####################
+type Unit = str
 
 
 #################### UNIT PARSING ####################
-def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
+def parse_unit(
+    unit: str | None, verbose: bool = False
+) -> tuple[float, str] | tuple[None, None]:
     """Determine the components of a unit.
 
     Currently only works with simple units (e.g., m, y) and not compound units
@@ -48,7 +49,7 @@ def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
 
     Parameters
     ----------
-    unit : str
+    unit : str or None
         Unit to parse.
 
     Returns
@@ -58,44 +59,51 @@ def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     base : str
         Unit base.
     """
-    # Check if unit as an exponent
-    if unit[-1].isdigit():
-        raise ValueError("Exponents are not currently supported")
+    if unit is None:
+        if verbose:
+            print("Unit is 'None'")
 
-    # Check unit formatting based on length
-    if len(unit) > 2:
-        raise ValueError("Unit not recognized")
+        return None, None
 
-    # Determine unit scale
-    if len(unit) == 2:
-        # Unit prefix
-        prefix = unit[0]
-
-        # Determine scale from prefix
-        scale = UNIT_SCALES.get(prefix)
-
-        # Check prefix is valid
-        if scale is None:
-            raise ValueError(f"Prefix '{prefix}' not supported")
     else:
-        # Set scale
-        scale = 1.0
+        # Check if unit as an exponent
+        if unit[-1].isdigit():
+            raise ValueError("Exponents are not currently supported")
 
-    # Determine base unit
-    base = unit[-1]
+        # Check unit formatting based on length
+        if len(unit) > 2:
+            raise ValueError("Unit not recognized")
 
-    # Check that base is valid
-    check_base_unit(base)
+        # Determine unit scale
+        if len(unit) == 2:
+            # Unit prefix
+            prefix = unit[0]
 
-    # Report if requested
-    if verbose:
-        print(f"Unit: {scale:E} {base}")
+            # Determine scale from prefix
+            scale = UNIT_SCALES.get(prefix)
 
-    return scale, base
+            # Check prefix is valid
+            if scale is None:
+                raise ValueError(f"Prefix '{prefix}' not supported")
+        else:
+            # Set scale
+            scale = 1.0
+
+        # Determine base unit
+        base = unit[-1]
+
+        # Check that base is valid
+        check_base_unit_supported(base)
+
+        # Report if requested
+        if verbose:
+            print(f"Unit: {scale:E} {base}")
+
+        return scale, base
 
 
 #################### UNIT CHECKS ####################
-def check_base_unit(base_unit: str) -> bool:
+def check_base_unit_supported(base_unit: str):
     """Check that the base unit is supported.
 
     Parameters
@@ -108,64 +116,12 @@ def check_base_unit(base_unit: str) -> bool:
     bool
         True if base unit is supported.
     """
-    # Check PDF base unit is appropriate
+    # Check base unit is appropriate
     if base_unit not in BASE_UNITS:
         raise ValueError(
-            f"PDF base unit '{base_unit}' not supported. "
+            f"Base unit '{base_unit}' not supported. "
             f"Use one of {', '.join(BASE_UNITS)}"
         )
-
-    return True
-
-
-#################### UNIT PRIORITIZATION ####################
-def get_priority_unit(
-    file_unit: str | None,
-    inps_unit: str | None,
-    verbose: bool = False,
-) -> str:
-    """If a unit is specified both in the file, and by the user, prioritize
-    the unit encoded in the file.
-
-    Parameters
-    ----------
-    filt_unit : str or None
-        PDF unit specified in the source file.
-    inps_unit : str or None
-        PDF unit specified at the command line.
-
-    Returns
-    -------
-    priority_unit : str
-        Unit to assign to the PDF.
-    """
-    # Check if unit is specified in both the file and user inputs
-    if (
-        file_unit is not None
-        and inps_unit is not None
-        and file_unit != inps_unit
-    ):
-        # Warn user
-        warnings.warn(
-            "Unit specified in file is different from user-specified unit.",
-            stacklevel=2,
-        )
-
-    # Set priority unit
-    if file_unit is None and inps_unit is not None:
-        priority_unit = copy.deepcopy(inps_unit)
-    else:
-        priority_unit = copy.deepcopy(file_unit)
-
-    # Check that base unit is valid
-    if priority_unit is not None:
-        parse_unit(priority_unit)
-
-    # Report if requested
-    if verbose:
-        print(f"Prioritizing file unit: {priority_unit}")
-
-    return priority_unit
 
 
 #################### UNIT SCALING ####################
@@ -197,6 +153,17 @@ def scale_values_by_units(
     if verbose:
         print(f"Scaling from {unit_in} to {unit_out}")
 
+    # Check if scaling is appropriate
+    if unit_in is None:
+        raise ValueError(
+            "Original unit must be defined for scaling. Got 'None'."
+        )
+
+    if unit_out is None:
+        raise ValueError(
+            "Output unit must be defined for scaling. Got 'None'."
+        )
+
     # Check if compound unit
     operators = [".", "/"]
     if any(
@@ -216,120 +183,6 @@ def scale_values_by_units(
     scale_factor = scale_in / scale_out
 
     return scale_factor * values
-
-
-def scale_pdf_by_units(
-    pdf: PDFs.PDF,
-    unit_out: str,
-    verbose: bool = False,
-) -> PDFs.PDF:
-    """Scale the values of a PDF from the input unit to the output.
-
-    Only the values and units are changed.
-
-    Currently only works with simple units (e.g., m, y) and not compound units
-    (e.g., m/y).
-
-    Parameters
-    ----------
-    pdf : PDF
-        PDF to scale by change in output units.
-    unit_out : str
-        Unit by which to scale the PDF.
-
-    Returns
-    -------
-    scaled_pdf : PDF
-        PDF with value axis scaled by the change in output units.
-    """
-    # Escape if units not properly specified or scaling is not desired
-    if any([pdf.unit is None, unit_out is None]):
-        if pdf.unit is None:
-            warnings.warn(
-                "Cannot scale PDF values with units None. "
-                "Continuing with original units.",
-                stacklevel=2,
-            )
-        return pdf
-
-    # Scale values
-    scaled_values = scale_values_by_units(
-        pdf.x, pdf.unit, unit_out, verbose=verbose
-    )
-
-    # Form scaled PDF
-    scaled_pdf = PDFs.PDF(
-        x=scaled_values,
-        px=pdf.px,
-        name=pdf.name,
-        variable_type=pdf.variable_type,
-        unit=unit_out,
-        normalize_area=True,
-    )
-
-    return scaled_pdf
-
-
-#################### PDF UNIT CHECKS ####################
-def check_pdf_base_unit(pdf: PDFs.PDF, variable_type: str | None = None) -> str:
-    """Check whether a PDF has a unit assigned, and the base of that unit.
-
-    Parameters
-    ----------
-    pdf : PDF
-        PDF to check.
-    variable_type : str
-        Variable type.
-
-    Returns
-    -------
-    base_unit : str
-        Base unit.
-    """
-    # Check PDF has unit
-    if pdf.unit is None:
-        raise ValueError(f"PDF {pdf.name} unit is not defined")
-
-    # Determine base unit
-    _, base_unit = parse_unit(pdf.unit)
-
-    # Check PDF base unit is appropriate
-    check_base_unit(base_unit)
-
-    # Check against variable type
-    if variable_type == "age" and base_unit != "y":
-        raise ValueError("Unit for variable type age is 'y'")
-
-    if variable_type == "displacement" and base_unit != "m":
-        raise ValueError("Unit for variable type displacement is 'm'")
-
-    return base_unit
-
-
-def check_same_pdf_units(pdfs: list[PDFs.PDF]) -> str | None:
-    """Check that the units are the same among a series of PDFs.
-
-    Parameters
-    ----------
-    pdfs : list[PDF]
-        PDFs to check.
-
-    Returns
-    -------
-    unit : str or None
-        Common unit, if unit is common to all PDFs.
-    """
-    # Establish initial unit
-    unit = pdfs[0].unit
-
-    # Loop through all PDFs
-    for pdf in pdfs[1:]:
-        # Check PDF unit against initial
-        if pdf.unit != unit:
-            # Nullify unit
-            unit = None
-
-    return unit
 
 
 # end of file

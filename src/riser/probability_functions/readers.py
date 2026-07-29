@@ -15,8 +15,17 @@ __all__ = [
 
 
 # Import modules
+import copy
+import warnings
+
 import numpy as np
 
+from .. import (
+    variable_types,
+    units,
+)
+
+from .metadata import METADATA_ITEMS
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
@@ -68,7 +77,7 @@ def parse_metadata_from_header(
     # Loop through header lines
     for line in header_lines:
         # Loop through header items
-        for meta_item in PDF.metadata_items:
+        for meta_item in METADATA_ITEMS:
             # Determine if header line contains a metadata item
             if line.startswith(f"# {meta_item.capitalize()}"):
                 # Strip newline character
@@ -83,6 +92,46 @@ def parse_metadata_from_header(
                 # Report if requested
                 if verbose:
                     print(f"{meta_item}: {meta_value}")
+
+    return metadata
+
+
+def reconcile_metadata(
+    user_metadata: dict[str, str],
+    file_metadata: dict[str, str],
+    verbose: bool = False,
+) -> dict[str, str]:
+    """Determine metadata value if user and file specifications collide.
+
+    Parameters
+    ----------
+    user_metadata : dict[str, str]
+        User-specified metadata entries.
+    file_metadata : dict[str, str]
+        File-recorded metadata entries.
+
+    Returns
+    -------
+    metadata : dict[str, str]
+        Reconciled metadata.
+    """
+    metadata = copy.copy(file_metadata)
+
+    for meta_item in METADATA_ITEMS:
+        user_item = user_metadata.get(meta_item)
+        file_item = file_metadata.get(meta_item)
+
+        if user_item is not None:
+            if file_item is not None:
+                warnings.warn(
+                    f"User-specified metadata for {meta_item} ({user_item}) "
+                    f"differs from metadata in file ({file_item}). "
+                    f"Using user-specified value.",
+                    stacklevel=2,
+                )
+
+            # Overwrite metadata from file
+            metadata[meta_item] = user_item
 
     return metadata
 
@@ -172,7 +221,13 @@ def parse_data_lines(
 
 
 def read_pdf(
-    fname: str, normalize_area: bool = True, verbose: bool = False
+    fname: str,
+    normalize_area: bool = True,
+    *,
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    verbose: bool = False,
 ) -> PDF:
     """Read a PDF from a file.
 
@@ -201,7 +256,17 @@ def read_pdf(
         print(f"{len(header_lines)} header lines")
 
     # Retrieve metadata
-    metadata = parse_metadata_from_header(header_lines, verbose=verbose)
+    file_metadata = parse_metadata_from_header(header_lines, verbose=verbose)
+
+    # Check metadata from file against user-specified metadata
+    user_metadata = {
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
+    }
+    metadata = reconcile_metadata(
+        user_metadata, file_metadata, verbose=verbose
+    )
 
     # Parse data lines
     data_lines = [line for line in lines if line[0] != "#"]
@@ -224,6 +289,7 @@ def read_pdfs(
     """Read multiple PDFs from files.
 
     Parameters
+    ----------
     fnames : list[str]
         File names.
     normalize_area : bool

@@ -120,6 +120,15 @@ def main():
     # Use only first marker
     marker = [*markers.values()][0]
 
+    # Scale input units to output units
+    marker.age = PDFs.scaling.scale_pdf_by_units(
+        marker.age, inps.age_unit_out, verbose=inps.verbose
+    )
+
+    marker.displacement = PDFs.scaling.scale_pdf_by_units(
+        marker.displacement, inps.displacement_unit_out, verbose=inps.verbose
+    )
+
     # Initialize figure and axis for input marker
     marker_fig, marker_ax = plt.subplots()
 
@@ -135,13 +144,6 @@ def main():
     # Save marker fig
     reporting.save_marker_fig(
         inps.output_prefix, marker_fig, verbose=inps.verbose
-    )
-
-    # Scale input units to output units
-    marker.age = units.scale_pdf_by_units(marker.age, inps.age_unit_out)
-
-    marker.displacement = units.scale_pdf_by_units(
-        marker.displacement, inps.displacement_unit_out
     )
 
     # Compute slip rate

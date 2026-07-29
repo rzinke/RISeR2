@@ -17,6 +17,8 @@ __all__ = [
 
 
 # Import modules
+from matplotlib.axes import Axes
+
 from .. import (
     units,
     probability_functions as PDFs,
@@ -25,7 +27,7 @@ from .. import (
 
 #################### CDF PLOTTING ####################
 def plot_cdf_line(
-    ax,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -36,7 +38,7 @@ def plot_cdf_line(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.
@@ -56,7 +58,7 @@ def plot_cdf_line(
 
 
 def plot_cdf_filled(
-    ax,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -68,7 +70,7 @@ def plot_cdf_filled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.
@@ -97,7 +99,7 @@ def plot_cdf_filled(
 
 
 def plot_cdf_labeled(
-    ax,
+    ax: Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -109,7 +111,7 @@ def plot_cdf_labeled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.

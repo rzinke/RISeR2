@@ -13,10 +13,10 @@ from .mc_plots import *
 
 
 # Public API
-__all__ = [
+__all__ = (
     pdf_plots.__all__
     + cdf_plots.__all__
     + dated_marker_plots.__all__
     + filter_plots.__all__
     + mc_plots.__all__
-]
+)

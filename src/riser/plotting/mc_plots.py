@@ -16,11 +16,12 @@ __all__ = [
 
 # Import modules
 import numpy as np
+from matplotlib.axes import Axes
 
 
 #################### SAMPLE PLOTTING ####################
 def plot_mc_picks(
-    ax,
+    ax: Axes,
     age_picks: np.ndarray,
     disp_picks: np.ndarray,
     max_picks: int = 500,
@@ -29,7 +30,7 @@ def plot_mc_picks(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the picks.
     age_picks : np.ndarray
         Age values to plot.

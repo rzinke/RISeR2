@@ -9,7 +9,7 @@ from .dated_marker import DatedMarker
 from .readers import *
 
 # Public API
-__all__ = [
+__all__ = (
     dated_marker.__all__
     + readers.__all__
-]
+)

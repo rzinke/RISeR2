@@ -3,6 +3,7 @@
 # Rob Zinke
 # (c) 2025 all rights reserved
 
+
 # Public API
 __all__ = [
     "ProbabilityDensityFunction",
@@ -16,9 +17,10 @@ from .. import (
     precision,
     integration,
 )
+from .metadata import PDFmetadata
 
 
-#################### PDF BASE CLASS ####################
+#################### PROBABILITY DENSITY FUNCTION CLASS ####################
 class ProbabilityDensityFunction:
     """Create a probability density function (PDF).
     Values are set once on instantiation and are effectively immutable.
@@ -71,9 +73,9 @@ class ProbabilityDensityFunction:
         normalize_area : bool
             Scale px value to so the area = 1.0.
         name : str
-            Brief descriptive identifier.
+            Brief descriptive identifier of the PDF.
         variable_type : str
-            Sampled quantity, e.g., age, displacement, slip rate.
+            Quality that the PDF represents, e.g., age, displacement, slip rate.
         unit : str
             Value unit.
         """
@@ -127,9 +129,12 @@ class ProbabilityDensityFunction:
         self._Px.setflags(write=False)
 
         # Record metadata
-        self.name = name
-        self.variable_type = variable_type
-        self.unit = unit
+        self.metadata = PDFmetadata(
+            name=name,
+            variable_type=variable_type,
+            unit=unit,
+        )
+
 
     def _compute_area_(self) -> float:
         return integration.integrate(x=self._x, px=self._px)
@@ -173,6 +178,7 @@ class ProbabilityDensityFunction:
             )
 
 
+    # Mathematical properties
     @property
     def x(self) -> np.ndarray:
         return self._x
@@ -280,7 +286,8 @@ class ProbabilityDensityFunction:
 
         Returns
         -------
-        value(s) corresponding to the specified probability(s).
+        float or np.ndarray
+            Value(s) corresponding to the specified probability(s).
         """
         return np.interp(y, self.Px, self.x)
 
@@ -289,6 +296,20 @@ class ProbabilityDensityFunction:
         """Return the length of the PDF array.
         """
         return len(self._x)
+
+
+    # Metadata properties
+    @property
+    def name(self) -> str:
+        return self.metadata.name
+
+    @property
+    def variable_type(self) -> str:
+        return self.metadata.variable_type
+
+    @property
+    def unit(self) -> str:
+        return self.metadata.unit
 
 
     def __str__(self):

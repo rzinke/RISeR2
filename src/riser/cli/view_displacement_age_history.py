@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 from riser import (
     units,
+    probability_functions as PDFs,
     dated_markers,
     plotting,
 )
@@ -92,11 +93,15 @@ def main():
 
     # Scale input units to output units before further action
     for marker in markers.values():
-        marker.age = units.scale_pdf_by_units(
-            marker.age, inps.age_unit_out
+        marker.age = PDFs.scaling.scale_pdf_by_units(
+            pdf=marker.age,
+            unit_out=inps.age_unit_out,
+            verbose=inps.verbose,
         )
-        marker.displacement = units.scale_pdf_by_units(
-            marker.displacement, inps.displacement_unit_out
+        marker.displacement = PDFs.scaling.scale_pdf_by_units(
+            pdf=marker.displacement,
+            unit_out=inps.displacement_unit_out,
+            verbose=inps.verbose,
         )
 
     # Initialize figure and axis for input markers

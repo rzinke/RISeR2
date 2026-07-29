@@ -12,9 +12,9 @@ from .gap_determination import *
 
 
 # Public API
-__all__ = [
+__all__ = (
     arithmetic.__all__
     + combination.__all__
     + comparison.__all__
     + gap_determination.__all__
-]
+)
