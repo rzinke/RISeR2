@@ -92,13 +92,13 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
     ax_label : str
         Standardized axis label.
     """
-    # Set variable type
-    variable_type = variable_types.check_same_pdf_variable_types(pdfs)
+    # Find common metadata values
+    common_metadata = PDFs.metadata.get_common_metadata(pdfs)
 
-    # Set unit
-    unit = units.check_same_pdf_units(pdfs)
-
-    return formulate_axis_label(variable_type, unit)
+    return formulate_axis_label(
+        variable_type=common_metadata.variable_type,
+        unit=common_metadata.unit,
+    )
 
 
 #################### PDF PLOTTING ####################
@@ -118,7 +118,7 @@ def plot_pdf_line(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -161,7 +161,7 @@ def plot_pdf_filled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -217,7 +217,7 @@ def plot_pdf_labeled(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -282,7 +282,7 @@ def plot_pdf_confidence_range(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
@@ -343,7 +343,7 @@ def plot_pdf_stack(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot PDF stack.
     pdfs : dict[str, PDF]
         PDFs stored by PDF name.

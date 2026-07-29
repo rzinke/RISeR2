@@ -22,46 +22,6 @@ from .dated_marker import DatedMarker
 
 
 #################### MARKER READERS ####################
-def set_metadata_priority(
-    metadata_item: str,
-    file_item: str,
-    spec_item: str,
-) -> str:
-    """Determine the value of the metadata item if conflicting values are
-    specified.
-
-    Parameters
-    ----------
-    metadata_item : str
-        Metadata item for which to determine the value.
-    file_item : str
-        Metadata value found in the file.
-    spec_item : str
-        Metadata value specified by the user.
-
-    Returns
-    -------
-    str
-        Metadata item value.
-    """
-    if (
-        file_item is not None
-        and spec_item is not None
-        and file_item != spec_item
-    ):
-        # Warn user
-        warnings.warn(
-            f"{metadata_item} specified in file is different from "
-            f"user-specification.",
-            stacklevel=2,
-        )
-
-    if file_item is None and spec_item is not None:
-        return spec_item
-    else:
-        return file_item
-
-
 def initialize_marker_from_files(
     age_fname: str,
     displacement_fname: str,
@@ -109,33 +69,31 @@ def initialize_marker_from_files(
     marker : DatedMarker
     """
     # Read age PDF
-    age = PDFs.readers.read_pdf(age_fname)
-
-    # Gather age metadata - precedence given to metadata in PDF file
-    age.name = set_metadata_priority("Age name", age.name, age_name)
-    age.variable_type = set_metadata_priority(
-        "Age variable type", age.variable_type, age_variable_type
+    age = PDFs.readers.read_pdf(
+        fname=age_fname,
+        normalize_area=True,
+        name=age_name,
+        variable_type=age_variable_type,
+        unit=age_unit,
+        verbose=verbose,
     )
-    age.unit = units.get_priority_unit(age.unit, age_unit)
 
     # Read displacement PDF
-    displacement = PDFs.readers.read_pdf(displacement_fname)
-
-    # Gather displacement metadata - precedence given to metadata in PDF file
-    displacement.name = set_metadata_priority(
-        "Displacement name", displacement.name, displacement_name
-    )
-    displacement.variable_type = set_metadata_priority(
-        "Displacement variable type",
-        displacement.variable_type,
-        displacement_variable_type,
-    )
-    displacement.unit = units.get_priority_unit(
-            displacement.unit, displacement_unit
+    displacement = PDFs.readers.read_pdf(
+        fname=displacement_fname,
+        normalize_area=True,
+        name=displacement_name,
+        variable_type=displacement_variable_type,
+        unit=displacement_unit,
+        verbose=verbose,
     )
 
     # Form age-displacement data into DatedMarker
-    marker = DatedMarker(age, displacement, name=marker_name)
+    marker = DatedMarker(
+        age=age,
+        displacement=displacement,
+        name=marker_name,
+    )
 
     # Report marker attributes
     if verbose:

@@ -65,11 +65,8 @@ def compute_probability_between_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
-    # Check variable types
-    variable_type = variable_types.check_same_pdf_variable_types([pdf1, pdf2])
-
-    # Check units
-    unit = units.check_same_pdf_units([pdf1, pdf2])
+    # Get common metadata
+    metadata = PDFs.metadata.get_common_metadata([pdf1, pdf2], warn=True)
 
     # Compute probabilities between variables
     px = pdf1.Px * (1 - pdf2.Px)
@@ -79,9 +76,9 @@ def compute_probability_between_variables(
         pdf1.x,
         px,
         name=name,
-        unit=unit,
-        variable_type=variable_type,
-        normalize_area=True
+        variable_type=metadata.variable_type,
+        unit=metadata.unit,
+        normalize_area=True,
     )
 
     return gap_pdf

@@ -79,23 +79,31 @@ class DatedMarker:
         if self.age.unit is None:
             warnings.warn(
                 "Age unit not specified. "
-                "It is highly recommended to specify units.",
+                "It is highly recommended to specify units for dated markers.",
                 stacklevel=2,
             )
         else:
-            if units.check_pdf_base_unit(self.age) != 'y':
-                raise ValueError("Age base unit must be y")
+            _, base_unit = units.parse_unit(self.age.unit)
+            if base_unit != 'y':
+                raise ValueError(
+                    f"Age base unit must be 'y' for dated marker, "
+                    f"got '{base_unit}'"
+                )
 
         # Check displacement
         if self.displacement.unit is None:
             warnings.warn(
                 "Displacement unit not specified. "
-                "It is highly recommended to specify units.",
+                "It is highly recommended to specify units for dated markers.",
                 stacklevel=2,
             )
         else:
-            if units.check_pdf_base_unit(self.displacement) != 'm':
-                raise ValueError("Displacement base unit must be m")
+            _, base_unit = units.parse_unit(self.displacement.unit)
+            if base_unit != 'm':
+                raise ValueError(
+                    f"Displacement base unit must be 'm' for dated marker, "
+                    f"got '{base_unit}'"
+                )
 
 
     def __str__(self):

@@ -130,21 +130,15 @@ def compute_slip_rates_analytical(
     if verbose:
         print(f"Computing {n_rates} incremental slip rates")
 
-    # Check age variable types
-    variable_types.check_same_pdf_variable_types(
-        [marker.age for marker in markers.values()])
+    # Warn of metadata mismatches for ages
+    PDFs.metadata.get_common_metadata(
+        [marker.age for marker in markers.values()]
+    )
 
-    # Check displacement variable types
-    variable_types.check_same_pdf_variable_types(
-        [marker.displacement for marker in markers.values()])
-
-    # Check age units
-    units.check_same_pdf_units(
-        [marker.age for marker in markers.values()])
-
-    # Check displacement units
-    units.check_same_pdf_units(
-        [marker.displacement for marker in markers.values()])
+    # Warn of metadata mismatches for displacements
+    PDFs.metadata.get_common_metadata(
+        [marker.displacement for marker in markers.values()]
+    )
 
     # Set mimimum slip rate
     min_rate = 0.0 if limit_positive else -100.0
@@ -176,8 +170,10 @@ def compute_slip_rates_analytical(
         )
 
         # Interpolate displacements on same axis
-        (younger_displacement,
-         older_displacement) = PDFs.interpolation.interpolate_pdfs(
+        (
+            younger_displacement,
+            older_displacement,
+        ) = PDFs.interpolation.interpolate_pdfs(
                 [younger_marker.displacement, older_marker.displacement]
         )
 
@@ -284,29 +280,22 @@ def compute_slip_rates_mc(
     if verbose:
         print(f"Computing {n_rates} incremental slip rates")
 
-    # Check age variable types
-    variable_types.check_same_pdf_variable_types(
+    # Warn of metadata mismatches for ages
+    age_metadata = PDFs.metadata.get_common_metadata(
         [marker.age for marker in markers.values()]
     )
 
-    # Check displacement variable types
-    variable_types.check_same_pdf_variable_types(
-        [marker.displacement for marker in markers.values()]
-    )
-
-    # Check age units
-    age_unit = units.check_same_pdf_units(
-        [marker.age for marker in markers.values()]
-    )
-
-    # Check displacement units
-    displacement_unit = units.check_same_pdf_units(
+    # Warn of metadata mismatches for displacements
+    displacement_metadata = PDFs.metadata.get_common_metadata(
         [marker.displacement for marker in markers.values()]
     )
 
     # Determine slip rate unit
-    if displacement_unit is not None and age_unit is not None:
-        unit = f"{displacement_unit}/{age_unit}"
+    if (
+        displacement_metadata.unit is not None
+        and age_metadata.unit is not None
+    ):
+        unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
     else:
         unit = None
 

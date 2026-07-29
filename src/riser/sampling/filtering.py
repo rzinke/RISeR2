@@ -219,7 +219,7 @@ def filter_pdf(
             px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
     # Form results into PDF
-    filt_pdf = PDF(
+    filt_pdf = PDFs.PDF(
         x=pdf.x,
         px=px,
         normalize_area=True,

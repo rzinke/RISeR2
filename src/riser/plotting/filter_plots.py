@@ -19,12 +19,14 @@ from ..sampling import filtering
 
 
 #################### FILTER KERNEL PLOTTING ####################
-def plot_filter_kernel(ax, filt: filtering.FIRFilter) -> None:
+def plot_filter_kernel(
+    ax: matplotlib.axes.Axes, filt: filtering.FIRFilter
+) -> None:
     """Plot a filter kernel.
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the filter kernel.
     filt : FIRfilter
         Filter to plot.

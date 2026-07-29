@@ -116,7 +116,8 @@ def main():
 
     # Determine min/max values
     xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
-        inps.distribution, inps.values,
+        distribution=inps.distribution,
+        values=inps.values,
         limit_positive=inps.limit_positive,
         verbose=inps.verbose,
     )

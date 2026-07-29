@@ -20,7 +20,7 @@ import numpy as np
 
 #################### SAMPLE PLOTTING ####################
 def plot_mc_picks(
-    ax,
+    ax: matplotlib.axes.Axes,
     age_picks: np.ndarray,
     disp_picks: np.ndarray,
     max_picks: int = 500,
@@ -29,7 +29,7 @@ def plot_mc_picks(
 
     Parameters
     ----------
-    ax
+    ax : Axes
         Axis on which to plot the picks.
     age_picks : np.ndarray
         Age values to plot.
