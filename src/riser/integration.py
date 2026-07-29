@@ -21,6 +21,18 @@ def integrate(
     px: np.ndarray,
 ) -> float:
     """Compute the probability mass over the defined domain.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        PDF value array.
+    px : np.ndarray
+        PDF probability density array.
+
+    Returns
+    -------
+    float
+        Integrated value.
     """
     return sp.integrate.trapezoid(px, x)
 
@@ -31,6 +43,18 @@ def integrate_cumulative(
     px: np.ndarray,
 ) -> np.ndarray:
     """Compute the cumulative integral over the defined domain.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        PDF value array.
+    px : np.ndarray
+        PDF probability density array.
+
+    Returns
+    -------
+    np.ndarray
+        Integrated values.
     """
     return sp.integrate.cumulative_trapezoid(px, x, initial=0)
 

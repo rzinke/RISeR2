@@ -27,9 +27,20 @@ from .. import integration
 
 
 #################### SUPPORT FUNCTIONS ####################
-def check_mass_against_value_range(x: np.ndarray, xmin: float, xmax: float):
+def check_mass_against_value_range(
+    x: np.ndarray, xmin: float, xmax: float
+) -> None:
     """Check that the xmin and xmax values of the PDF lie within the value
     range of x.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which the function is defined.
+    xmin : float
+        Theoretical minimum value of significance to check against value array.
+    xmax : float
+        Theoretical maximum value of significance to check against value array.
     """
     if xmin < x.min() or xmax > x.max():
         warnings.warn("PDF mass lies outside the specified value range")
@@ -38,6 +49,20 @@ def check_mass_against_value_range(x: np.ndarray, xmin: float, xmax: float):
 #################### PARAMETRIC FUNCTIONS ####################
 def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
     """Boxcar function with unit area.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    xmin : float
+        Minimum value with non-zero probability density.
+    xmax : float
+        Maximum value with non-zero probability density.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
     """
     # Checks
     check_mass_against_value_range(x, xmin, xmax)
@@ -62,6 +87,22 @@ def triangular(
     x:np.ndarray, xmin: float, xmode: float, xmax: float
 ) -> np.ndarray:
     """Triangular function with unit area.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    xmin : float
+        Minimum value with non-zero probability density.
+    xmode : float
+        Value of peak probability density.
+    xmax : float
+        Maximum value with non-zero probability density.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
     """
     # Checks
     check_mass_against_value_range(x, xmin, xmax)
@@ -101,6 +142,24 @@ def trapezoidal(
     x: np.ndarray, x1: float, x2: float, x3: float, x4: float
 ) -> np.ndarray:
     """Trapezoidal function with unit area.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    x1 : float
+        Minimum value with non-zero probability density.
+    x2 : float
+        Minimum value of the boxcar portion of the function.
+    x3 : float
+        Maximum value of the boxcar portion of the function.
+    x4 : float
+        Maximum value with non-zero probability density.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
     """
     # Checks
     check_mass_against_value_range(x, x1, x4)
@@ -135,6 +194,20 @@ def trapezoidal(
 
 def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Gaussian function with unit area.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    mu : float
+        Center of the Gaussian function.
+    sigma : float
+        Breadth (standard deviation) of the Gaussian function.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
     """
     # Checks
     check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
@@ -150,6 +223,20 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
 
 def cumulative_gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Cumulative Gaussian function with unit area.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    mu : float
+        Center of the Gaussian function.
+    sigma : float
+        Breadth (standard deviation) of the Gaussian function.
+
+    Returns
+    -------
+    Px : np.ndarray
+        Cumulative probability values.
     """
     return 0.5 + 0.5 * sp.special.erf((x - mu) / (np.sqrt(2) * sigma))
 
@@ -163,21 +250,28 @@ PARAMETRIC_FUNCTIONS = {
 }
 
 
-def get_function_by_name(fcn_name: str):
+def get_function_by_name(distribution: str) -> "Callable":
     """Retrieve one of the parametric functions defined above by name.
 
-    Args    fcn_name - str, function name
-    Returns fcn - parameteric function
+    Parameters
+    ----------
+    distribution : str
+        Parametric function name.
+
+    Returns
+    -------
+    fcn : Callable
+        Parameteric function.
     """
     # Check that the desired function is defined here
-    if fcn_name not in PARAMETRIC_FUNCTIONS:
+    if distribution not in PARAMETRIC_FUNCTIONS:
         raise ValueError(
-            f"Function '{fcn_name}' is not defined. "
+            f"Function '{distribution}' is not defined. "
             f"Use one of {', '.join(PARAMETRIC_FUNCTIONS.keys())}"
         )
 
     # Return function
-    return PARAMETRIC_FUNCTIONS.get(fcn_name)
+    return PARAMETRIC_FUNCTIONS.get(distribution)
 
 
 #################### CHECKS ####################
@@ -185,9 +279,17 @@ def check_number_inputs(distribution: str, variables: list[float]) -> bool:
     """Check that the appropriate number of inputs are provided for the given
     distribution.
 
-    Args    distribution - str, parametric function
-            variables - list[float], parameter values
-    Returns bool, True if correct number of inputs provided
+    Parameters
+    ----------
+    distribution : str
+        Parametric function name.
+    variables : list[float]
+        Parameter values.
+
+    Returns
+    -------
+    bool
+        True if correct number of inputs provided.
     """
     # Retrieve required arguments from function signature
     fcn_sig = inspect.signature(PARAMETRIC_FUNCTIONS[distribution])
@@ -223,9 +325,19 @@ def determine_min_max_limits(
 ) -> tuple[float, float]:
     """Determine the minimum and maximum values of the PDF domain.
 
-    Args    distribution - str, parametric function
-            values - list[float], parameter values
-    Returns xmin, xmax - float, min/max values
+    Parameters
+    ----------
+    distribution : str
+        Parametric function.
+    values : list[float]
+        Parameter values.
+
+    Returns
+    -------
+    xmin : float
+        Minimum value.
+    xmax : float
+        Maximum value.
     """
     # Behave based on function type
     if distribution in ["boxcar", "triangular", "trapezoidal"]:

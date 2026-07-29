@@ -39,7 +39,7 @@ from .. import (
     precision,
 )
 from . import value_arrays
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
@@ -47,12 +47,24 @@ def expected_value(
     x: np.ndarray, px: np.ndarray, dx: float | np.ndarray
 ) -> float:
     """Compute the expected value of a random variable X.
+
     Note the change in x can be explicitly defined as a single number
     (e.g., 0.01) or determined directly from the value array.
 
-    Args    x - np.ndarray, values of X
-            px - np.ndarray, relative probabilities of X
-            dx - float or np.ndarray, change in x
+    Parameters
+    ----------
+    x : np.ndarray
+        Values of X.
+    px : np.ndarray
+        Relative probabilities of X.
+    dx : float or np.ndarray
+        Change in x.
+    n - int, moment
+
+    Returns
+    -------
+    float
+        Expected value.
     """
     return np.sum(x * px * dx)
 
@@ -60,18 +72,29 @@ def expected_value(
 def compute_raw_moment(
     x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
 ) -> float:
-    """A raw moment is defined as:
+    """Compute the nth raw moment of a distribution.
+
+    A raw moment is defined as:
 
     theta_n = integral(x^n * f(x) dx)
 
     This is typically only used to compute the mean, mu, for which n = 1,
     i.e., the expected value.
 
-    Args    x - np.ndarray, values of X
-            px - np.ndarray, relative probabilities of X
-            dx - float or np.ndarray, change in x
-            n - int, moment
-    Returns theta_n - float, raw moment
+    Parameters
+    ----------
+    x : np.ndarray
+        Values of X.
+    px : np.ndarray
+        Relative probabilities of X.
+    dx : float or np.ndarray
+        Change in x.
+    n - int, moment
+
+    Returns
+    -------
+    theta_n : float
+        Raw moment.
     """
     theta_n = np.sum(x**n * px * dx)
 
@@ -81,15 +104,26 @@ def compute_raw_moment(
 def compute_central_moment(
     x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
 ) -> float:
-    """A central moment is computed about the function mean, mu:
+    """Compute the nth central moment of a distribution.
+
+    A central moment is computed about the function mean, mu:
 
     mu_n = integral((x - mu)^n * f(x) dx) = E[(X - mu)^n]
 
-    Args    x - np.ndarray, values of X
-            px - np.ndarray, relative probabilities of X
-            dx - float or np.ndarray, change in x
-            n - int, moment
-    Returns mu_n - float, central moment
+    Parameters
+    ----------
+    x : np.ndarray
+        Values of X.
+    px : np.ndarray
+        Relative probabilities of X.
+    dx : float or np.ndarray
+        Change in x.
+    n - int, moment
+
+    Returns
+    -------
+    mu_n : float
+        Central moment.
     """
     # Compute mean
     mu = expected_value(x, px, dx)
@@ -103,16 +137,27 @@ def compute_central_moment(
 def compute_standardized_moment(
     x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
 ) -> float:
-    """A standardized moment is computed about the function mean, mu, and
+    """Compute the nth standardized moment of a distribution.
+
+    A standardized moment is computed about the function mean, mu, and
     normalized by the standard deviation raised to the power of the moment.
 
     mu_std_n = mu_n / sigma^n = E[(X - mu)^n] / E[(X - mu)^2]^n/2
 
-    Args    x - np.ndarray, values of X
-            px - np.ndarray, relative probabilities of X
-            dx - float or np.ndarray, change in x
-            n - int, moment
-    Returns mu_std_n - float, standardized moment
+    Parameters
+    ----------
+    x : np.ndarray
+        Values of X.
+    px : np.ndarray
+        Relative probabilities of X.
+    dx : float or np.ndarray
+        Change in x.
+    n - int, moment
+
+    Returns
+    -------
+    mu_std_n : float
+        Standardized moment.
     """
     # Compute mean
     mu = expected_value(x, px, dx)
@@ -129,15 +174,23 @@ def compute_standardized_moment(
 #################### PDF STATISTICS ####################
 def pdf_mean(pdf: PDF) -> float:
     """Compute the mean of a PDF by integrating x * f(x).
-    (Essentially a weighted average for the discrete PDF).
+
+    It is essentially a weighted average for the discrete PDF.
 
     This is the expected value E[X] of a random variable,
     and the first raw moment of a PDF.
 
     mu = E[X] = integral(x * f(x) * dx)
 
-    Args    pdf - PDF to analyse
-    Returns mean - float, mean of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    mu : float
+        Mean of PDF.
     """
     # Change in x
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
@@ -153,8 +206,15 @@ def pdf_variance(pdf: PDF) -> float:
 
     sigma2 = E[(X - mu)^2] = integral((x - mu)^2 * f(x) * dx)
 
-    Args    pdf - PDF to analyse
-    Returns variance - float, variance of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    variance : float
+        Variance of PDF.
     """
     # Change in x
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
@@ -170,12 +230,20 @@ def pdf_variance(pdf: PDF) -> float:
 
 def pdf_std(pdf: PDF) -> float:
     """Compute the standard deviation (sigma) of a PDF.
-    Standard deviation is the square root of the variance.
+
+    Recall that standard deviation is the square root of the variance.
 
     sigma = sqrt(variance)
 
-    Args    pdf - PDF to analyse
-    Returns sigma - float, standard deviation of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    sigma : float
+        Standard deviation of PDF.
     """
     # Compute variance
     sigma2 = pdf_variance(pdf)
@@ -193,8 +261,15 @@ def pdf_skewness(pdf: PDF) -> float:
 
     gamma = E[(X - mu)^3] / (E[(X - mu)^2])^3/2
 
-    Args    pdf - PDF to analyse
-    Returns gamma - float, skewness of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    gamma : float
+        Skewness of PDF.
     """
     # Change in x
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
@@ -212,8 +287,15 @@ def pdf_kurtosis(pdf: PDF) -> float:
 
     kappa = E[(X - mu)^4] / (E[(X - mu)^2])^4/2
 
-    Args    pdf - PDF to analyse
-    Returns kappa - float, kurtosis of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    kappa : float
+        Kurtosis of PDF.
     """
     # Change in x
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
@@ -227,8 +309,15 @@ def pdf_kurtosis(pdf: PDF) -> float:
 def pdf_mode(pdf: PDF) -> float:
     """Determine the mode (peak value) of a PDF.
 
-    Args    pdf - PDF to analyse
-    Returns mode - float, mode of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    mode : float,
+        Mode of PDF.
     """
     return np.mean(pdf.x[pdf.px == pdf.px.max()])
 
@@ -236,8 +325,15 @@ def pdf_mode(pdf: PDF) -> float:
 def pdf_median(pdf: PDF) -> float:
     """Compute the median of a PDF based on the value where the CDF is 0.5.
 
-    Args    pdf - PDF to analyse
-    Returns median - float, median of PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+
+    Returns
+    -------
+    median : float
+        Median of PDF.
     """
     return pdf.pit(0.5).item()
 
@@ -354,9 +450,17 @@ def compute_interquantile_range(
 ) -> ConfidenceRange:
     """Compute the interquantile range (IQR) values of a PDF based on the CDF.
 
-    Args    pdf - PDF to analyse
-            confidence - float, confidence level
-    Returns conf_range - ConfidenceRange
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+    confidence : float
+        Confidence level.
+
+    Returns
+    -------
+    conf_range : ConfidenceRange
+        Confidence range of PDF based on the interquantile range.
     """
     # Determine the lower and upper confidence levels
     half_confidence = confidence / 2
@@ -384,9 +488,17 @@ def compute_highest_posterior_density(
 ) -> ConfidenceRange:
     """Compute the highest posterior density (HPD) values of a PDF.
 
-    Args    pdf - PDF to analyse
-            confidence - list[float], confidence levels
-    Returns conf_range - ConfidenceRange
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+    confidence : float
+        Confidence level.
+
+    Returns
+    -------
+    conf_range : ConfidenceRange
+        Confidence range of PDF based on the highest posterior density.
     """
     # Value index numbers
     val_nbs = np.array([*range(len(pdf))])
@@ -469,7 +581,15 @@ def get_pdf_confidence_function(
 ) -> "Callable":
     """Retrieve a confidence function by name.
 
-    Args    metric - str, confidence metric to use
+    Parameters
+    ----------
+    metric : str
+        Confidence metric to use.
+
+    Returns
+    -------
+    Callable
+        PDF confidence function.
     """
     # Format metric input
     metric = metric.upper()
@@ -496,10 +616,19 @@ def compute_pdf_confidence_range(
 ) -> ConfidenceRange:
     """Compute the specified confidence metric for a PDF.
 
-    Args    pdf - PDF to analyse
-            metric - str, confidence metric to use
-            confidence - list[float], confidence levels
-    Returns conf_range - ConfidenceRange
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to analyze.
+    metric : str
+        Metric for confidence range computation.
+    confidence : float
+        Confidence level.
+
+    Returns
+    -------
+    conf_range : ConfidenceRange
+        Confidence range of PDF.
     """
     # Retrieve confidence function
     conf_fcn = get_pdf_confidence_function(metric, verbose=verbose)

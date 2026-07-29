@@ -32,29 +32,38 @@ from .. import (
     units,
     variable_types,
     probability_functions as PDFs,
-    variable_operations as var_ops
+    variable_operations as var_ops,
+    dated_markers,
 )
-from ..markers import DatedMarker
 from ..sampling import mc_sampling, pdf_formation, filtering
 
 
 #################### ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
-    marker: DatedMarker,
+    marker: dated_markers.DatedMarker,
     *,
-    dq: float=0.01,
+    dq: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Compute a single slip rate based on a dated displacement marker.
 
-    Args    marker - DatedMarker, displacement-age pair used to calculate
-                slip rate
-            dq - float, quotient step
-            limit_positive - bool, enforce condition that slip rate is >= 0.0
-            max_rate - float, maximum quotient value to consider
-    Returns slip_rate - PDF
+    Parameters
+    ----------
+    marker : DatedMarker
+        Displacement-age pair used to calculate slip rate.
+    dq : float
+        Quotient step.
+    limit_positive : bool
+        Enforce condition that slip rate is >= 0.0.
+    max_rate : float
+        Maximum quotient value to consider.
+
+    Returns
+    -------
+    slip_rate : PDF
+        Computed slip rate.
     """
     if verbose:
         print("Computing slip rate")
@@ -77,15 +86,16 @@ def compute_slip_rate(
 
 
 def compute_slip_rates_analytical(
-    markers:dict,
+    markers: dict[str, dated_markers.DatedMarker],
     *,
-    dq: float=0.01,
+    dq: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
 ) -> dict[str, PDFs.PDF]:
     """Compute the incremental slip rates between multiple dated displacement
     markers using analytical functions.
+
     First, compute the difference between each pair of adjacent displacements
     and corresponding pairs of ages to get DeltaD's and DeltaT's.
     Then, compute the slip rate over each increment by dividing the DeltaD by
@@ -94,12 +104,21 @@ def compute_slip_rates_analytical(
     Note: Per the divide_variables operator, denominator (age) values cannot
     be negative.
 
-    Args    markers - dict, DatedMarkers bounding each interval
-            max_rate - float, maximum quotient value to consider
-            dq - float, quotient step
-            limit_positive - bool, enforce condition that displacement values
-                must be positive
-    Return slip_rates - dict, incremental slip rates
+    Parameters
+    ----------
+    markers - dict[str, DatedMarker]
+        Dated markers bounding each interval.
+    max_rate : float
+        Maximum quotient value to consider.
+    dq : float
+        Quotient step.
+    limit_positive : bool
+        Enforce condition that displacement values must be positive.
+
+    Returns
+    -------
+    slip_rates : dict[str, PDF]
+        Incremental slip rates.
     """
     # Marker parameters
     n_markers = len(markers)
@@ -199,13 +218,13 @@ def compute_slip_rates_analytical(
 
 #################### MONTE CARLO COMPUTATION ####################
 def compute_slip_rates_mc(
-    markers: dict[str, DatedMarker],
+    markers: dict[str, dated_markers.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
     max_rate: float = 100.0,
     dq: float = 0.01,
-    n_samples: int = 1000000,
-    hard_stop: int = 1000000000,
+    n_samples: int = 1_000_000,
+    hard_stop: int = 1_000_000_000,
     pdf_method: str = "histogram",
     pdf_xmin: float | None = None,
     pdf_xmax: float | None = None,
@@ -213,11 +232,47 @@ def compute_slip_rates_mc(
     smoothing_type: str | None = None,
     smoothing_width: int | None = None,
     verbose: bool = False,
-) -> tuple:
+) -> tuple[dict[str, PDFs.PDF], np.ndarray, np.ndarray, np.ndarray]:
     """Compute the incremental slip rates between multiple dated displacement
     markers using Monte Carlo sampling.
 
-    Args    max
+    Parameters
+    ----------
+    markers - dict[str, DatedMarker]
+        Dated markers bounding each interval.
+    criterion : SampleCriterion
+        Criterion by which to evaluate validity of samples.
+    max_rate : float
+        Maximum quotient value to consider.
+    dq : float
+        Quotient step.
+    n_samples : int
+        Number of valid samples to achieve.
+    hard_stop : float
+        Maximum slip rate to consider.
+    pdf_method : str
+        PDF formation method.
+    pdf_xmin : float
+        Minimum value to consider.
+    pdf_xmax : float
+        Maximum value to consider.
+    pdf_dx : float
+        Value array step.
+    smoothing_type : str
+        Smoothing filter type.
+    smoothing_width : int
+        Smoothing filter width in number of samples.
+
+    Returns
+    -------
+    slip_rates : dict[str, PDF]
+        Incremental slip rate PDFs.
+    age_picks : np.ndarray
+        Age samples that meet the sample criterion.
+    disp_picks : np.ndarray
+        Displacement samples that meet the sample criterion.
+    rate_picks : np.ndarray
+        Slip rate samples that meet the sample criterion.
     """
     # Marker parameters
     n_markers = len(markers)
@@ -256,8 +311,7 @@ def compute_slip_rates_mc(
         unit = None
 
     # Conduct Monte Carlo sampling - valid MC samples are called picks
-    (age_picks,
-     disp_picks) = mc_sampling.sample_monte_carlo(
+    age_picks, disp_picks = mc_sampling.sample_monte_carlo(
         markers=markers,
         criterion=criterion,
         n_samples=n_samples,

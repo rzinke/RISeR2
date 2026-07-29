@@ -10,30 +10,27 @@ __all__ = [
 
 
 # Import modules
+from dataclasses import dataclass
+
 import numpy as np
 
 from .. import constants
 
 
 #################### SAMPLE STATISTICS ####################
+@dataclass
 class SampleStatistics:
-    def __init__(self, 
-        confidence: float,
-        range_values: tuple[float],
-        name: str | None = None,
-        unit: str | None = None,
-    ):
-        """Store sample statistics.
+    """Class to store discrete sample statistics.
+    """
 
-        Args    range_values - sets of confidence values
-        """
-        # Record confidence values
-        self.confidence = confidence
-        self.range_values = range_values
+    # Confidence values
+    confidence: float
+    range_values: tuple[float, ...]
 
-        # Record metadata
-        self.name = name
-        self.unit = unit
+    # PDF metadata
+    name: str
+    variable_type: str
+    unit: str
 
     def __str__(self):
         print_str = "Sample statistics:"
@@ -53,18 +50,34 @@ class SampleStatistics:
 
 
 def compute_sample_confidence(
-    picks: np.ndarray,
+    samples: np.ndarray,
     confidence: float = constants.Psigma["1"],
+    *,
     name: str | None = None,
+    variable_type: str | None = None,
     unit: str | None = None,
     verbose: bool = False,
 ) -> SampleStatistics:
     """Compute the percent of values within a range and at the 50% percentile
     (median).
 
-    Args    picks - np.ndarray, discrete sample picks
-            confidence - float, confidence level
-    Returns SampleStatistics
+    Parameters
+    ----------
+    samples : np.ndarray
+        Discrete samples on which to compute statistics.
+    confidence : float
+        Confidence level.
+    name : str
+        Brief descriptive identifier.
+    variable_type : str
+        Sampled quantity, e.g., age, displacement, slip rate.
+    unit : str
+        Value unit.
+
+    Returns
+    -------
+    SampleStatistics
+        Statistics of the given sample set.
     """
     # Determine the lower and upper confidence levels
     half_confidence = confidence / 2
@@ -72,13 +85,14 @@ def compute_sample_confidence(
     upper = 0.5 + half_confidence
 
     # Determine percentiles
-    range_values = np.percentile(picks, (100*lower, 100*upper))
+    range_values = np.percentile(samples, (100*lower, 100*upper))
 
     # Format values into SampleStatistics object
     conf_range = SampleStatistics(
         confidence=confidence,
         range_values=range_values,
         name=name,
+        variable_type=variable_type,
         unit=unit,
     )
 

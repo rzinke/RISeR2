@@ -17,15 +17,19 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### CHECKS ####################
 def check_extension(fname: str, ext: str):
     """Check that the filename has the appropriate extension.
 
-    Args    fname - str, filename
-            ext - str, required extension
+    Parameters
+    ----------
+    fname : str
+        Filename.
+    ext : str
+        Filename extension.
     """
     # Get filename extension
     fname_ext = fname.split(".")[-1]
@@ -40,12 +44,20 @@ def parse_metadata_from_header(
     header_lines: list[str], verbose: bool = False
 ) -> dict[str, str]:
     """Parse the header of a PDF file.
+
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
     those listed in PDF.metadata_items, and are demarkated by the item
     name, a colon, and a space.
 
-    Args    header_lines - list[str], file header lines
-    Returns metadata - dict, metadata dictionary
+    Parameters
+    ----------
+    header_lines : list[str]
+        File header lines.
+
+    Return
+    ------
+    metadata : dict[str, str]
+        Metadata dictionary.
     """
     if verbose:
         print("Reading metadata from header")
@@ -76,11 +88,20 @@ def parse_metadata_from_header(
 
 
 def format_data_line(data_line: str) -> str:
-    """Remove leading and trailing spaces and newline characters.
+    """Format a line in a PDF text file to be properly parsed.
+
+    Remove leading and trailing spaces and newline characters.
     Ensure the delimiter is a comma.
 
-    Args    data_line - str, line to format
-    Returns fmtd_line - str, formatted data line
+    Parameters
+    ----------
+    data_line : str
+        Line to format.
+
+    Returns
+    -------
+    fmtd_line : str
+        Formatted data line.
     """
     # Strip newline character
     data_line = data_line.strip("\n")
@@ -105,14 +126,24 @@ def parse_data_lines(
     data_lines: list[str], verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray]:
     """Parse the value-probability density pairs of a PDF file.
+
     Values x and probability densities px should be recorded as floats.
     One x-px pair per line.
+
     x's and px's should be delimited by a comma, comma space, space,
     multiple space, or tab.
 
-    Args    data_lines - list[str], lines containing x-px pairs
-    Returns x - np.ndarray, PDF values
-            px - np.ndarray, PDF probability densities
+    Parameters
+    ----------
+    data_lines : list[str]
+        Lines containing x-px pairs.
+
+    Returns
+    -------
+    x : np.ndarray,
+        PDF value array.
+    px : np.ndarray
+        PDF probability densities.
     """
     if verbose:
         print("Reading data from file")
@@ -145,9 +176,17 @@ def read_pdf(
 ) -> PDF:
     """Read a PDF from a file.
 
-    Args    fname - str, file name
-            normalize_area - bool, scale px value to so the area = 1.0
-    Returns PDF - ProbabilityDensityFunction
+    Parameters
+    ----------
+    fname : str
+        File name.
+    normalize_area : bool
+        Scale px value to so the area = 1.0.
+
+    Returns
+    -------
+    PDF: PDF
+        Probability density function read from file.
     """
     # Open file and read contents
     with open(fname, "r") as raw_file:
@@ -184,9 +223,16 @@ def read_pdfs(
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
-    Args    fnames - list[str], file names
-            normalize_area - bool, scale px value to so the area = 1.0
-    Returns pdfs - list[PDF], list of PDFs
+    Parameters
+    fnames : list[str]
+        File names.
+    normalize_area : bool
+        Scale px value to so the area = 1.0.
+
+    Returns
+    -------
+    pdfs : list[PDF]
+        List of PDFs.
     """
     if verbose:
         print(f"Reading {len(fnames)} PDF names")
@@ -200,14 +246,25 @@ def read_pdfs(
 def read_calendar_file(
     fname: str, verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray, dict[str, str]]:
-    """Read a file (e.g., OxCal output) in which probability densities are
+    """Convert a PDF in calendar years to one in age.
+
+    Read a file (e.g., OxCal output) in which probability densities are
     recorded as a function of calendar year, as opposed to years before
     present (or some reference date).
 
-    Args    fname - str, name of calendar year file
-    Returns calyr - np.ndarray, calendar years
-            calpx - np.ndarray, probability density of each year increment
-            metdata - dict, metadata retrieved from file
+    Parameters
+    ----------
+    fname : str
+        Name of calendar year file.
+
+    Returns
+    -------
+    calyr : np.ndarray
+        Calendar years.
+    calpx : np.ndarray
+        Probability density of each year increment.
+    metdata : dict[str, str]
+        Metadata retrieved from file.
     """
     # Open file and read contents
     with open(fname, 'r') as raw_file:
@@ -254,8 +311,15 @@ def read_calendar_file(
 def create_header_from_pdf(pdf: PDF) -> str:
     """Create the header of a PDF file.
 
-    Args    pdf - PDF
-    Returns header - str, block of header text
+    Parameters
+    ----------
+    pdf : PDF
+        PDF for which to create a text file header.
+
+    Returns
+    -------
+    header : str
+        Block of header text.
     """
     # Empty header lines
     header_lines = []
@@ -282,17 +346,28 @@ def create_header_from_pdf(pdf: PDF) -> str:
 def pdf_data_to_str(pdf: PDF) -> str:
     """Format the data of a PDF into string format.
 
-    Args    pdf - PDF
-    Returns block of PDF data
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to reformat as a string.
+
+    Returns
+    -------
+    str
+        Block of PDF data.
     """
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
 
 
-def save_pdf(outname: str, pdf: PDF, verbose: bool = False):
+def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
     """Save a PDF to a file.
 
-    Args    outname - str, output file name
-            pdf - PDF to save
+    Parameters
+    ----------
+    outname : str
+        Output file name.
+    pdf : PDF
+        PDF to save.
     """
     # Check that outname is a text file
     check_extension(outname, "txt")

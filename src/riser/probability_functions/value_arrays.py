@@ -23,15 +23,22 @@ import warnings
 import numpy as np
 
 from .. import precision
-from .ProbabilityDensityFunction import ProbabilityDensityFunction as PDF
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################
 def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     """Determine the average change in x (dx) for a discrete PDF.
 
-    Args    pdf - PDF from which to determine sample spacing
-    Returns dx - float, sample spacing (single value)
+    Parameters
+    ----------
+    pdf : PDF
+        PDF from which to determine sample spacing.
+
+    Returns
+    -------
+    dx : float
+        Sample spacing (single value).
     """
     # Deteremine differences between x-samples
     diff_x = np.diff(pdf.x)
@@ -58,8 +65,10 @@ def sample_spacing_array_from_pdf(
     pdf: PDF, verbose: bool = False
 ) -> np.ndarray:
     """Return an array of the changes in x (dx) for a discrete PDF.
+
     In classical calculus, dx is a single scalar number, which assumes that the
     function is regularly sampled.
+
     For the discrete PDFs used in practical applications, that might not be
     the case, i.e., the bin sizes may vary and a vector of bin sizes (dx's) is
     necessary.
@@ -70,8 +79,15 @@ def sample_spacing_array_from_pdf(
     same as the average bin size. If the PDF is irregularly sampled, the final
     bin size will be zero (excluding the final measurement).
 
-    Args    pdf - PDF for which to determine dx
-    Returns dx - np.ndarray
+    Parameters
+    ----------
+    pdf : PDF
+        PDF for which to determine dx.
+
+    Returns
+    -------
+    dx : np.ndarray
+        dx values.
     """
     # Deteremine differences between x-samples
     diff_x = np.diff(pdf.x)
@@ -99,9 +115,19 @@ def value_array_params_from_pdfs(
 ) -> tuple[float, float, float]:
     """Determine the value limits for a set of PDFs.
 
-    Args    pdfs - list[PDF], PDFs to resample
-    Returns xmin, xmax - float, min/max values
-            dx - float, value-step
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs to resample.
+
+    Returns
+    -------
+    xmin : float
+        Minimum array value.
+    xmax : float
+        Maximum array value.
+    dx : float
+        Value array step.
     """
     # Initial values
     x0 = pdfs[0]
@@ -138,9 +164,19 @@ def create_precise_value_array(
 ) -> np.ndarray:
     """Create an array (vector) of values over the PDF domain.
 
-    Args    xmin, xmax - float, min/max values
-            dx - float, value-step
-    Returns x - np.ndarray, value array
+    Parameters
+    ----------
+    xmin : float
+        Minimum array value.
+    xmax : float
+        Maximum array value.
+    dx : float
+        Value array step.
+
+    Returns
+    -------
+    x : np.ndarray
+        Value array.
     """
     # Fix precision
     dx = precision.fix_precision(dx)
@@ -163,7 +199,10 @@ def create_precise_value_array(
 def check_pdfs_sampling(pdfs: list[PDF]) -> bool:
     """Check that all PDFs are sampled over the same value array.
 
-    Args    pdfs - list[PDF], PDFs to check
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs to check.
     """
     # Initial value array
     x0 = pdfs[0].x
