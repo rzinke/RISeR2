@@ -33,6 +33,17 @@ def plot_cdf_line(
     linewidth: float = 2,
 ) -> None:
     """Basic plot of a cumulative distribution function (CDF).
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the CDF.
+    pdf : PDF
+        PDF for which to plot the corresponding CDF.
+    color : str
+        CDF line color.
+    linewidth : float
+        CDF line width.
     """
     # Plot CDF
     ax.plot(
@@ -54,6 +65,19 @@ def plot_cdf_filled(
     alpha: float = 0.3,
 ) -> None:
     """Filled plot of a cumulative distribution function (CDF).
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the CDF.
+    pdf : PDF
+        PDF for which to plot the corresponding CDF.
+    color : str
+        CDF line color.
+    linewidth : float
+        CDF line width.
+    alpha : float
+        CDF fill opacity.
     """
     # Plot filled PDF
     ax.fill_between(
@@ -82,6 +106,17 @@ def plot_cdf_labeled(
     alpha: float = 0.3,
 ) -> None:
     """Labeled plot of a CDF.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the CDF.
+    pdf : PDF
+        PDF for which to plot the corresponding CDF.
+    color : str
+        CDF line color.
+    linewidth : float
+        CDF line width.
     """
     # Plot filled CDF
     plot_cdf_filled(

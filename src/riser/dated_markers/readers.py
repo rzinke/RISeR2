@@ -26,9 +26,23 @@ def set_metadata_priority(
     metadata_item: str,
     file_item: str,
     spec_item: str,
-):
-    """Determine the value of the metadata item is conflicting values are
+) -> str:
+    """Determine the value of the metadata item if conflicting values are
     specified.
+
+    Parameters
+    ----------
+    metadata_item : str
+        Metadata item for which to determine the value.
+    file_item : str
+        Metadata value found in the file.
+    spec_item : str
+        Metadata value specified by the user.
+
+    Returns
+    -------
+    str
+        Metadata item value.
     """
     if (
         file_item is not None
@@ -61,23 +75,38 @@ def initialize_marker_from_files(
     displacement_unit: str | None = None,
     verbose: bool = False,
 ) -> DatedMarker:
-    """
+    """Initialize a DatedMarker from a file.
+
     Metadata can be specified either in the PDF file itself, or in the config
     toml file. Precedence is given to metadata specified in the PDF file if
     there is a conflict, per the set_metadata_priority function.
 
-    Args    age_fname - str, name of age PDF file
-            displacement_fname - str, name of displacement PDF file
-            kwargs - dict, metadata for marker and age, displacement PDFs
-                marker_name - str, marker name
-                age_name - str, descriptive name of age PDF
-                age_variable_type - str, age variable type (e.g., age)
-                age_unit - str, age physical unit
-                displacement_name - str, descriptive name of displacement PDF
-                displacement_variable_type - str, displacement variable type
-                    (e.g., displacement)
-                displacement_unit - str, displacement physical unit
-    Returns marker - DatedMarker
+    Parameters
+    ----------
+    age_fname : str
+        Name of age PDF file.
+    displacement_fname : str
+        Name of displacement PDF file.
+    kwargs : dict
+        Metadata for marker and age, displacement PDFs
+    marker_name : str
+        Marker name.
+    age_name : str
+        Descriptive name of age PDF.
+    age_variable_type : str
+        Age variable type (e.g., age).
+    age_unit : str
+        Age physical unit.
+    displacement_name : str
+        Descriptive name of displacement PDF.
+    displacement_variable_type : str
+        Displacement variable type (e.g., displacement).
+    displacement_unit : str
+        Displacement physical unit.
+
+    Returns
+    -------
+    marker : DatedMarker
     """
     # Read age PDF
     age = PDFs.readers.read_pdf(age_fname)
@@ -119,14 +148,23 @@ def read_markers_from_config(
     fname: str, verbose: bool = False
 ) -> dict[str, DatedMarker]:
     """Read marker data from a TOML configuration file.
+
     The file should have one [marker_name] entry per marker, and each marker
     should have entries for "age file" and "displacement file".
+
     Optionally, age and displacement metadata can be specified in the config
     toml file, though any metadata encoded in the PDF file takes precedence
     over the config file, per the set_metadata_priority function.
 
-    Args    fname - str, configuration file name.
-    Returns markers - dict with one DatedMarker per marker name entry
+    Parameters
+    ----------
+    fname : str
+        Configuration file name.
+
+    Returns
+    -------
+    markers : dict[str, DatedMarker]
+        Dictionary with one DatedMarker per marker name entry.
     """
     with open(fname, "r") as age_disp_file:
         marker_specs = toml.load(age_disp_file)
@@ -145,14 +183,16 @@ def read_markers_from_config(
         age_fname = marker_spec.get("age file")
         if age_fname is None:
             raise ValueError(
-                f"Age file must be specified for marker {marker_name}"
+                f"Age file must be specified "
+                f"for marker '{marker_name}'"
             )
 
         # Retrieve displacement PDF name
         displacement_fname = marker_spec.get("displacement file")
         if displacement_fname is None:
             raise ValueError(
-                f"Displacement file must be specified for marker {marker_name}"
+                f"Displacement file must be specified "
+                f"for marker '{marker_name}'"
             )
 
         # Initialize marker
@@ -165,7 +205,8 @@ def read_markers_from_config(
             age_unit=marker_spec.get("age unit"),
             displacement_name=marker_spec.get("displacement name"),
             displacement_variable_type=marker_spec.get(
-                "displacement variable type"),
+                "displacement variable type"
+            ),
             displacement_unit=marker_spec.get("displacement unit"),
             verbose=verbose,
         )
@@ -187,15 +228,15 @@ def read_markers_from_config(
             # Check that marker is older/larger than previous
             if marker_age < ref_age:
                 warnings.warn(
-                    f"Marker {marker.name} appears to be younger than "
-                    f"{ref_marker.name}. Confirm marker order.",
+                    f"Marker '{marker.name}' appears to be younger than "
+                    f"'{ref_marker.name}'. Confirm marker order.",
                     stacklevel=3,
                 )
 
             if marker_disp < ref_disp:
                 warnings.warn(
-                    f"Marker {marker.name} appears to be less displaced than "
-                    f"{ref_marker.name}. Confirm marker order.",
+                    f"Marker '{marker.name}' appears to be less displaced than "
+                    f"'{ref_marker.name}'. Confirm marker order.",
                     stacklevel=3,
                 )
 

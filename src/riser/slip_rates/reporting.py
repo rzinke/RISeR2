@@ -18,16 +18,22 @@ import os
 from datetime import datetime
 
 import numpy as np
+import matplotlib
 
 
 #################### FILENAME FORMATTING ####################
 def establish_output_dir(output_prefix: str, verbose: bool = False) -> None:
-    """Determine the output directory based on the current directory and the
+    """Create a slip rate output directory name.
+
+    Determine the output directory based on the current directory and the
     output_prefix.
+
     Create it if it does not already exist.
 
-    Args    output_prefix - str, output <prefix> or <folder>/<prefix>
-    Returns outdir
+    Parameters
+    ----------
+    output_prefix : str
+        Output <prefix> or <folder>/<prefix>.
     """
     # Check for folder
     outfldr = os.path.dirname(output_prefix)
@@ -51,9 +57,18 @@ def establish_output_dir(output_prefix: str, verbose: bool = False) -> None:
 
 #################### FIGURE SAVING ####################
 def save_marker_fig(
-    output_prefix: str, marker_fig, verbose: bool = False
+    output_prefix: str,
+    marker_fig: matplotlib.figure.Figure,
+    verbose: bool = False,
 ) -> None:
     """Save figure showing the dated displacement history to a file.
+
+    Parameters
+    ----------
+    output_prefix : str
+        Prefix for output file name.
+    marker_fig : matplotlib.figure.Figure
+        Figure to save.
     """
     # Formulate outname
     outname = f"{output_prefix}_markers.pdf"
@@ -71,9 +86,18 @@ def save_marker_fig(
 
 
 def save_slip_rate_fig(
-    output_prefix: str, rate_fig, verbose: bool = False
+    output_prefix: str,
+    rate_fig: matplotlib.figure.Figure,
+    verbose: bool = False,
 ) -> None:
     """Save figure showing slip rate measurements to a file.
+
+    Parameters
+    ----------
+    output_prefix : str
+        Prefix for output file name.
+    marker_fig : matplotlib.figure.Figure
+        Figure to save.
     """
     # Formulate outname
     outname = f"{output_prefix}_slip_rates.pdf"
@@ -98,6 +122,17 @@ def write_picks_to_file(
     verbose: bool = False,
 ) -> None:
     """Save all valid samples (picks) to a numpy binary file (npz).
+
+    Parameters
+    ----------
+    output_prefix : str
+        Prefix for output file name.
+    age_picks : np.ndarray
+        Age samples that meet the sample criterion.
+    disp_picks : np.ndarray
+        Displacement samples that meet the sample criterion.
+    rate_picks : np.ndarray
+        Slip rate samples that meet the sample criterion.
     """
     # Formulate outname
     outname = f"{output_prefix}_picks"
@@ -106,7 +141,7 @@ def write_picks_to_file(
     np.savez(outname,
         age_picks=age_picks,
         disp_picks=disp_picks,
-        rate_picks=rate_picks
+        rate_picks=rate_picks,
     )
 
     # Report if requested
@@ -118,19 +153,41 @@ def write_picks_to_file(
 def write_slip_rates_report(
     output_prefix: str,
     formulation: str,
-    slip_rates: dict,
+    slip_rates: dict[str, PDFs.PDF],
     *,
-    sample_statistics: dict | None = None,
-    pdf_statistics: dict | None = None,
-    confidence_ranges: dict | None = None,
+    pdf_statistics: (
+        dict[str, PDFs.analytics.PDFstatistics] | None
+    ) = None,
+    confidence_ranges: (
+        dict[str, PDFs.analytics.ConfidenceRange] | None
+    ) = None,
+    sample_statistics: (
+        dict[str, sampling.sample_statistics.SampleStatistics] | None
+    ) = None,
     verbose: bool = False,
 ) -> None:
     """Write slip rate statistics to a file.
+
     Include:
     Description, date, time
     Slip rate name
         slip rate stats
         slip rate confidence intervals
+
+    Parameters
+    ----------
+    output_prefix : str
+        Prefix for output file name.
+    formulation : str
+        Slip rates computation description.
+    slip_rates : dict[str, PDF]
+        Incremental slip rate PDFs.
+    pdf_statistics : dict[str, PDFstatistics]
+        Slip rate PDF statistics.
+    confidence_ranges : dict[str, ConfidenceRange]
+        Slip rate PDF confidence ranges.
+    sample_statistics : dict[str, SampleStatistics]
+        Slip rate sample statistics.
     """
     # Check that slip rate statistical products pertain to same pairs
     if sample_statistics is not None:

@@ -30,9 +30,17 @@ class SampleCriterion:
         """Check whether a set of displacement-age pairs meets the sample
         criterion.
 
-        Args    ages - np.ndarray, sampled age values
-                displacements - np.ndarray, sampled displacement values
-        Returns bool, pass (True) or fail (False)
+        Parameters
+        ----------
+        ages : np.ndarray
+            Sampled age values.
+        displacements : np.ndarray
+            Sampled displacement values.
+
+        Returns
+        -------
+        bool
+            Pass (True) or fail (False).
         """
         return NotImplementedError(
             "check_pass_fail not implemented. Override with child class."
@@ -117,6 +125,16 @@ def get_sample_criterion(
     criterion_name: str, verbose: bool = False
 ) -> SampleCriterion:
     """Retrieve a sample criterion by name.
+
+    Parameters
+    ----------
+    criterion_name : str
+        Sample criterion name.
+
+    Returns
+    -------
+    SampleCriterion
+        Uninitialized sample criterion.
     """
     # Check criterion name
     if criterion_name not in SAMPLE_CRITERIA:
@@ -130,25 +148,40 @@ def get_sample_criterion(
 
 #################### MONTE CARLO SAMPLING ####################
 def sample_monte_carlo(
-    markers: dict,
+    markers: dict[str, DatedMarker],
     criterion: SampleCriterion,
     *,
     n_samples: int = 10_000,
     seed_val: int = 0,
-    hard_stop: int = 1_000_000_000,
+    hard_stop: float = 1_000_000_000,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """This method uses the inverse transform sampling method to randomly
+    """Sample valid possible slip rates using a Monte Carlo method.
+
+    This method uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
     The random samples are checked against a criterion, e.g., "no negative
     slip rates".
 
-    Args    markers - dict, DatedMarkers between which to compute incremental
-                slip rates
-            criterion - function to evaluate validity of samples
-            n_samples - int, number of valid samples to achieve
-            max_rate_sample - float, maximum slip rate to consider
-            seed_val - int, random number generator seed value
+    Parameters
+    ----------
+    markers : dict[str, DatedMarker]
+        Dated markers between which to compute incremental slip rates.
+    criterion : SampleCriterion
+        Criterion by which to evaluate validity of samples.
+    n_samples : int
+        Number of valid samples to achieve.
+    seed_val : int
+        Random number generator seed value.
+    hard_stop : float
+        Maximum slip rate to consider.
+
+    Returns
+    -------
+    age_picks : np.ndarray
+        Age samples that meet the sample criterion.
+    disp_picks : np.ndarray
+        Displacement samples that meet the sample criterion.
     """
     if verbose:
         print(f"Initializing MC sampling for {n_samples} samples")

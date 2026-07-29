@@ -36,16 +36,24 @@ import copy
 import numpy as np
 import scipy as sp
 
-from ..probability_functions import PDF
+from .. import probability_functions as PDFs
 
 
 #################### FILTERS ####################
 class FIRFilter:
     """Base class for a 1D FIR filter
     """
+
     filter_type = None
 
     def __init__(self, h: np.ndarray):
+        """Initialize a generic FIRFilter.
+
+        Parameters
+        ----------
+        h : np.ndarray
+            Filter kernel.
+        """
         # Filter values
         self.h = h
 
@@ -73,7 +81,14 @@ class MeanFilter(FIRFilter):
     """
     filter_type = "mean"
 
-    def __init__(self, width:int):
+    def __init__(self, width: int):
+        """Initialize a moving mean filter.
+
+        Parameters
+        ----------
+        width : int
+            Filter width in samples (dx units).
+        """
         # Create basic filter values
         h = np.ones(width)
 
@@ -89,7 +104,13 @@ class GaussFilter(FIRFilter):
 
     def __init__(self, width: int):
         """Width is the total width.
+
         For a 2-sigma range, 1 sigma should be one half of half the width.
+
+        Parameters
+        ----------
+        width : int
+            Filter width in samples (dx units).
         """
         # Create basic filter values
         h = sp.signal.windows.gaussian(width, width / 4)
@@ -106,6 +127,16 @@ FILTER_TYPES = {
 
 def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     """Retrieve an FIRFilter class by name.
+
+    Parameters
+    ----------
+    filter_type : str
+        Filter type.
+
+    Returns
+    -------
+    FIRFilter
+        Uninitialized filter of the specified type.
     """
     # Check filter specification is valid
     if filter_type not in FILTER_TYPES:
@@ -123,13 +154,13 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
 
 #################### FILTER APPLICATION ####################
 def filter_pdf(
-    pdf:PDF,
+    pdf: PDFs.PDF,
     filter_type: str,
     filter_width: int,
     edge_padding: str = "zeros",
     preserve_edges: bool = False,
     verbose: bool = False,
-) -> PDF:
+) -> PDFs.PDF:
     """Apply a finite impulse response filter to the probability density
     values of a PDF.
 
@@ -139,9 +170,14 @@ def filter_pdf(
     Currently, edge effect mitigation involves padding the edge values with
     either zeros or edge values.
 
-    Args    pdf - PDF to filter
-            filter_type - str, filter type, e.g., mean
-            filter_width - int, filter width in samples
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to filter.
+    filter_type : str
+        Filter type.
+    filter_width : int
+        Filter width in samples (dx units).
     """
     # Construct filter
     filt = get_filter_by_name(filter_type)(filter_width)

@@ -35,8 +35,15 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
 
     This is similar to OxCal R_Combine.
 
-    Args    pdfs - list[PDF], list of PDFs
-    Returns joint_pdf - PDF, joint pdf
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        List of PDFs to combine.
+
+    Returns
+    -------
+    joint_pdf : PDF
+        Joint pdf.
     """
     if verbose:
         print(f"Combining {len(pdfs)} PDFs")
@@ -65,7 +72,9 @@ def combine_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
 
 
 def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
-    """Combine two or more probability mass functions by summing them
+    """Combine two or more probability mass.
+
+    Combine distributions by summing them pointwise
 
     p = f_X(x) + f_Y(y)
 
@@ -82,8 +91,15 @@ def merge_variables(pdfs: list[PDFs.PDF], verbose: bool = False) -> PDFs.PDF:
     in which 95% of the events took place not the period in which one can be
     95% sure all of the events took place.'
 
-    Args    pdfs - list[PDF], list of PDFs to combine
-    Returns merged_pdf - PDF, merged PDF
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        List of PDFs to merge.
+
+    Returns
+    -------
+    merged_pdf : PDF
+        Merged PDF.
     """
     if verbose:
         print(f"Merging {len(pdfs)} PDFs")

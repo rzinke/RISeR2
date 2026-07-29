@@ -17,6 +17,13 @@ values that the random variable could take (e.g., a change in the sampling rate
 or domain).
 """
 
+# Public API
+__all__ = [
+    "interpolate_pdf",
+    "interpolate_pdfs",
+]
+
+
 # Import modules
 import numpy as np
 
@@ -28,9 +35,17 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
     """Resample a PDF along a new value array.
 
-    Args    pdf - PDF to be resampled
-            x - np.ndarray, value array along which to resample the PDF
-    Returns pdf_resamp - resampled PDF
+    Parameters
+    ----------
+    pdf : PDF
+        PDF to be resampled.
+    x : np.ndarray
+        Value array along which to resample the PDF.
+
+    Returns
+    -------
+    pdf_resamp : PDF
+        Resampled PDF.
     """
     if verbose:
         print(f"Interpolating PDF to {len(x)}-length array")
@@ -55,8 +70,15 @@ def interpolate_pdfs(pdfs: list[PDF], verbose: bool = False) -> list[PDF]:
     First, determine the value limits and sample rate over which to resample.
     Then, resample each PDF accordingly.
 
-    Args    pdfs - list[PDF], PDFs to resample
-    Returns pdfs_resamp - list[PDF], resampled PDFs
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs to resample.
+
+    Returns
+    -------
+    pdfs_resamp : list[PDF]
+        Resampled PDFs.
     """
     # Determine value limits and sample rate
     xmin, xmax, dx = value_arrays.value_array_params_from_pdfs(

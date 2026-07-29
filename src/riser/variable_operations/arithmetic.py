@@ -39,8 +39,17 @@ from .. import (
 def convolve_input_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     """Convolution operator formulated from the input side.
 
-    Args    x, h - np.ndarray, arrays to convolve
-    Returns y - np.ndarray, convolved array
+    Parameters
+    ----------
+    x : np.ndarray
+        Array to convolve with h.
+    h : np.ndarray
+        Array to convolve with x.
+    
+    Returns
+    -------
+    y : np.ndarray
+        Convolved array.
     """
     # Array lengths
     nx = len(x)
@@ -61,8 +70,17 @@ def convolve_input_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
     """Convolution operator formulated from the output side.
 
-    Args    x, h - np.ndarray, arrays to convolve
-    Returns y - np.ndarray, convolved array
+    Parameters
+    ----------
+    x : np.ndarray
+        Array to convolve with h.
+    h : np.ndarray
+        Array to convolve with x.
+    
+    Returns
+    -------
+    y : np.ndarray
+        Convolved array.
     """
     # Array lengths
     nx = len(x)
@@ -85,11 +103,19 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
 def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
-    """Negate a random variable by negating the x-values, and flipping the
-    probability densities left for right.
+    """Negate a random variable expressed as a PDF.
 
-    Args    pdf, PDF to negate
-    Returns neg_pdf, negated PDF
+    Negating the x-values, and flip the probability densities left for right.
+
+    Parameters
+    ----------
+    pdf: PDF
+        PDF to negate.
+    
+    Returns
+    -------
+    neg_pdf : PDF
+        Negated PDF.
     """
     if verbose:
         print("Negate PDF")
@@ -143,9 +169,19 @@ def add_variables(
     side convolution: that is, looping over the summed value array (iterator
     z or i) and the input value arrays (iterator k or j).
 
-    Args    pdf1, pdf2 - PDFs to add
-            name - str, name of summed PDF
-    Returns sum_pdf - summed PDF
+    Parameters
+    ----------
+    pdf1 : PDF
+        PDF to add to pdf2.
+    pdf2 : PDF
+        PDF to add to pdf1.
+    name : str
+        Name of summed PDF.
+    
+    Returns
+    -------
+    sum_pdf : PDF
+        Summed PDF.
     """
     if verbose:
         print("Adding variables")
@@ -221,12 +257,21 @@ def subtract_variables(
     It then computes the probability density at each difference value by
     flipping negating the second PDF and adding it to the first.
 
-    Args    pdf1 - PDF from which to subtract pdf2
-            pdf2 - PDF to subtract from pdf1
-            limit_positive - bool, enforce condition that values must be
-                positive
-            name - str, name of differenced PDF
-    Returns difference_pdf - differenced PDF
+    Parameters
+    ----------
+    pdf1 : PDF
+        PDF from which to subtract pdf2.
+    pdf2 : PDF
+        PDF to subtract from pdf1.
+    limit_positive : bool
+        Enforce condition that values must be positive.
+    name : str
+        Name of differenced PDF.
+    
+    Returns
+    -------
+    difference_pdf : PDF
+        Differenced PDF.
     """
     if verbose:
         print("Subtracting variables")
@@ -300,12 +345,27 @@ def multiply_variables(
 
         fZ(z) = integral(fX(x).fY(z/x) 1/|x| dx)
 
-    Args    pdf1, pdf2 - PDFs to multiply
-            dp - float, product sample spacing
-            min_product - float, minimum-allowable product to consider
-            max_product - float, maximim-allowable product to consider
-            name - str, name of product PDF
-    Returns prod_pdf - multiplied PDF
+    Parameters
+    ----------
+    pdf1 : PDF
+        PDF to multiply with pdf2.
+    pdf2 : PDF
+        PDF to multiply with pdf1.
+    dp : float
+        Product sample spacing.
+    min_product : float
+        Minimum-allowable product to consider.
+    max_product : float
+        Maximim-allowable product to consider.
+    name : str
+        Name of product PDF.
+    variable_type : str
+        Variable quantity.
+    
+    Returns
+    -------
+    prod_pdf : PDF
+        Product PDF.
     """
     if verbose:
         print("Multiplying variables")
@@ -409,13 +469,27 @@ def divide_variables(
     This results in slightly incrased accuracy over Zechar and Frankel's
     implementation, and greatly increased speed.
 
-    Args    numerator - PDF
-            denominator - PDF
-            dq - float, quotient sample spacing
-            min_quotient - float, minimum-allowable quotient to consider
-            max_quotient - float, maximum-allowable quotient to consider
-            name - str, name of quotient PDF
-    Returns quot_pdf - divided PDF
+    Parameters
+    ----------
+    numerator : PDF
+        Numerator distribution.
+    denominator : PDF
+        Denominator distribution.
+    dq : float
+        Quotient sample spacing.
+    min_quotient : float
+        Minimum-allowable quotient to consider.
+    max_quotient : float
+        Maximum-allowable quotient to consider.
+    name : str
+        Name of quotient PDF.
+    variable_type : str
+        Variable quantity.
+    
+    Returns
+    -------
+    quot_pdf : PDF
+        Quotient PDF.
     """
     if verbose:
         print("Dividing variables")

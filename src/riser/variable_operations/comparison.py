@@ -44,8 +44,17 @@ def compute_cosine_similarity(
     Pearson coefficient without mean-centering.
     Because PDFs are never negative, mean-centering is not necessary.
 
-    Args    pdf1, pdf2 - PDFs to correlate
-    Returns r - float, Pearson correlation coefficient
+    Parameters
+    ----------
+    pdf1 : PDF
+        PDF to correlate with pdf2.
+    pdf2 : PDF
+        PDF to correlate with pdf1.
+
+    Returns
+    -------
+    r : float
+        Pearson correlation coefficient.
     """
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
@@ -79,11 +88,19 @@ def cross_correlate_variables(
     stationary signals and wraps the shifted part of the signal back around,
     this function zero-pads the second signal outside the defined portion.
 
-    Args    ref_pdf - PDF, reference variable to be held fixed
-            sec_pdf - PDF, secondary variable to cross-correlate against
-                reference
-    Returns lags - np.ndarray, lag integers
-            corr_vals - np.ndarrays, correlation values
+    Parameters
+    ----------
+    ref_pdf : PDF
+        Reference variable to be held fixed.
+    sec_pdf : PDF
+        Secondary variable to cross-correlate against reference.
+
+    Returns
+    -------
+    lags : np.ndarray
+        Lag integers.
+    corr_vals : np.ndarray
+        Correlation values.
     """
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
@@ -132,8 +149,9 @@ def cross_correlate_variables(
 def compute_overlap_index(
     pdfs: list[PDFs.PDF], verbose: bool = False
 ) -> tuple[np.ndarray, float]:
-    """Compute the overlap index for two or more PDFs according to
-    (Pastore and Calcgni, 2019):
+    """Compute the overlap index for two or more PDFs.
+
+    Pastore and Calcgni (2019)
 
         n(A, B) = integral(min[fA(x), fB(x)] dx)
 
@@ -141,9 +159,17 @@ def compute_overlap_index(
 
         n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
 
-    Args    pdfs - list[PDF], PDFs for which to compute the overlap index
-    Returns eta - float, overlap metric
-            px_min - np.ndarray
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs for which to compute the overlap index.
+
+    Returns
+    -------
+    px_min - np.ndarray
+        Minimum of PDFs at each value.
+    eta : float
+        Overlap metric.
     """
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
@@ -174,14 +200,25 @@ def compute_ks_statistic(
     verbose: bool = False,
 ) -> tuple[float, int]:
     """Compute the Komolgorov-Smirnov statistic for two PDFs.
+
     The K-S statistic (D) is the largest difference between the CDFs of the
-    two PDFs.
+    two PDFs:
 
         D = sup |F1 - F2|
 
-    Args    pdf1, pdf2 - PDFs to compare
-    Returns ks_stat - float, K-S statistic
-            ks_ndx - int, index of K-S statistic location
+    Parameters
+    ----------
+    pdf1 : PDF
+        PDF to compare against pdf2.
+    pdf2 : PDF
+        PDF to compare against pdf1.
+
+    Returns
+    -------
+    ks_stat : float
+        K-S statistic.
+    ks_ndx : int
+        Index of K-S statistic location.
     """
     # Compute difference between CDFs
     cdf_diff = np.abs(pdf1.Px - pdf2.Px)

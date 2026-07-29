@@ -62,13 +62,20 @@ class ProbabilityDensityFunction:
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
 
-        Args    x - np.ndarray, domain values of the random variable
-                px - np.ndarray, probability density values
-                normalize_area - bool, scale px value to so the area = 1.0
-
-                name - str, brief descriptive identifier
-                variable_type - str, sampled quantity, e.g., age, displacement
-                unit - str, value unit
+        Parameters
+        ----------
+        x : np.ndarray
+            Domain values of the random variable.
+        px : np.ndarray
+            Probability density values.
+        normalize_area : bool
+            Scale px value to so the area = 1.0.
+        name : str
+            Brief descriptive identifier.
+        variable_type : str
+            Sampled quantity, e.g., age, displacement, slip rate.
+        unit : str
+            Value unit.
         """
         # Ensure domain values are numpy array
         x = np.array(x, dtype=float)
@@ -180,38 +187,100 @@ class ProbabilityDensityFunction:
 
 
     def pdf_at_value(self, x: float) -> float:
-        """Compute the value of the PDF at x.
+        """Compute the probability density of the PDF at x.
+
+        Parameters
+        ----------
+        x : float
+            Value at which to find the probability density.
+
+        Returns
+        -------
+        px : float
+            Probability density at value x.
         """
         return np.interp(x, self.x, self.px, left=0.0, right=0.0)
 
 
     def cdf_at_value(self, x: float) -> float:
         """Compute the value of the CDF at x.
+
+        Parameters
+        ----------
+        x : float
+            Value at which to find the CDF.
+
+        Returns
+        -------
+        Px : float
+            CDF at value x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
 
     def compute_probability_less_than(self, x: float) -> float:
         """Compute the probability that the vlaue is less than x.
+
+        Parameters
+        ----------
+        x : float
+            Value below which to find the probability.
+
+        Returns
+        -------
+        P : float
+            Probability that the true value is less than x.
         """
         return self.cdf_at_value(x)
 
 
     def compute_probability_greater_than(self, x: float) -> float:
         """Compute the probability that the value is greater than x.
+
+        Parameters
+        ----------
+        x : float
+            Value above which to find the probability.
+
+        Returns
+        -------
+        P : float
+            Probability that the true value is greater than x.
         """
         return 1.0 - self.cdf_at_value(x)
 
 
     def compute_probability_between(self, x1: float, x2: float) -> float:
         """Compute the probability that the value is between x1 and x2.
+
+        Parameters
+        ----------
+        x1 : float
+            Value above which to compute the probability.
+        x2 : float
+            Value below which to compute the probability.
+
+        Returns
+        -------
+        P : float
+            Probability that the true value is between x1 and x2.
         """
         return self.cdf_at_value(x2) - self.cdf_at_value(x1)
 
 
     def pit(self, y: float | np.ndarray) -> float | np.ndarray:
         """Compute probability inverse transform (PIT).
+
         Note: PIT interpolation requires a strictly increasing function.
+
+        Parameters
+        ----------
+        y : float or np.ndarray
+            Probability(s) at which to find the corresponding values.
+
+        Returns
+        -------
+        value(s) corresponding to the specified probability(s).
         """
         return np.interp(y, self.Px, self.x)
 

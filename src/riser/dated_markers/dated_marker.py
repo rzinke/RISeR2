@@ -40,8 +40,12 @@ class DatedMarker:
     ):
         """Initialize a DatedMarker.
 
-        Args    age - PDF defining the age of a dated marker
-                displacement - PDF defining the displacement of a dated marker
+        Parameters
+        ----------
+        age : PDF
+            PDF defining the age of the dated marker.
+        displacement : PDF
+            PDF defining the displacement of the dated marker.
         """
         # Check inputs
         if not isinstance(age, PDFs.PDF):

@@ -23,7 +23,7 @@ from .. import probability_functions as PDFs
 
 #################### FORMATION METHODS ####################
 def samples_to_pdf_histogram(
-    samples:np.ndarray,
+    samples: np.ndarray,
     *,
     xmin: float | None = None,
     xmax: float | None = None,
@@ -34,22 +34,38 @@ def samples_to_pdf_histogram(
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
+
     Note: The number of histogram values will be 1 less than the number of bin
     edges, leaving the question of what value is represented by each probability
     density.
+
     Here, the probability densities are set to correspond to the left edge of
     each bin and the final bin is set to zero. This is because, for slip rate
     estimates, the smaller values should be preserved and the larger values
     trail toward zero. The bins are defined as half-open, [), where the left
     value is included.
 
-    Args    samples - np.ndarray, discrete samples
-            xmin, xmax - float, min/max values
-            dx - float, value-step
-            name - str, brief descriptive identifier
-            variable_type - str, sampled quantity, e.g., age, displacement
-            unit - str, value unit
-    Returns pdf - Empirical PDF based on samples
+    Parameters
+    ----------
+    samples : np.ndarray
+        Discrete samples from which to form the PDF.
+    xmin : float
+        Minimum value to consider.
+    xmax : float
+        Maximum value to consider.
+    dx : float
+        Value array step.
+    name : str
+        Brief descriptive identifier for output PDF.
+    variable_type : str
+        Sampled quantity for output PDF.
+    unit : str
+        Value unit for output PDF.
+
+    Returns
+    -------
+    pdf : PDF
+        Empirical PDF based on samples.
     """
     if verbose:
         print("Converting samples to PDF using histogram method")
@@ -84,7 +100,7 @@ def samples_to_pdf_histogram(
 
 
 def samples_to_pdf_kde(
-    samples:np.ndarray,
+    samples: np.ndarray,
     *,
     xmin: float | None = None,
     xmax: float | None = None,
@@ -96,18 +112,33 @@ def samples_to_pdf_kde(
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
     with a Gaussian kernel.
+
     This method is not recommended for converting slip rate samples into PDFs
     because slip rates skew toward faster values, and an adaptive kernel
     is necessary to adjust the bandwidth between more frequent samples at
     smaller values, to sparser samples at larger values.
 
-    Args    samples - np.ndarray, discrete samples
-            xmin, xmax - float, min/max values
-            dx - float, value-step
-            name - str, brief descriptive identifier
-            variable_type - str, sampled quantity, e.g., age, displacement
-            unit - str, value unit
-    Returns pdf - Empirical PDF based on samples
+    Parameters
+    ----------
+    samples : np.ndarray
+        Discrete samples from which to form the PDF.
+    xmin : float
+        Minimum value to consider.
+    xmax : float
+        Maximum value to consider.
+    dx : float
+        Value array step.
+    name : str
+        Brief descriptive identifier for output PDF.
+    variable_type : str
+        Sampled quantity for output PDF.
+    unit : str
+        Value unit for output PDF.
+
+    Returns
+    -------
+    pdf : PDF
+        Empirical PDF based on samples.
     """
     if verbose:
         print("Converting samples to PDF using KDE")
@@ -130,7 +161,7 @@ def samples_to_pdf_kde(
     px = kde.pdf(x)
 
     # Form histogram data into PDF
-    pdf = PDF(
+    pdf = PDFs.PDF(
         x=x,
         px=px,
         name=name,
@@ -147,8 +178,20 @@ PDF_FORMATION_METHODS = {
 }
 
 
-def get_pdf_formation_function(method: str, verbose: bool=False) -> "Callable":
+def get_pdf_formation_function(
+    method: str, verbose: bool = False
+) -> "Callable":
     """Retrieve a PDF formation function by name.
+
+    Parameters
+    ----------
+    method : str
+        PDF formation method.
+
+    Returns
+    -------
+    Callable
+        Function by which to form the PDF.
     """
     # Format method input
     method = method.lower()

@@ -45,10 +45,19 @@ def compute_probability_between_variables(
     Machinery: The CDFs of the first and second PDFs are pre-computed during
     PDF instantiation. Leverage these to compute the "between-PDF".
 
-    Args    pdf1 - smaller PDF
-            pdf2 - larger PDF
-            name - str, name of "between" PDF
-    Returns gap_pdf - PDF describing values between the two input variables
+    Parameters
+    ----------
+    pdf1 : PDF
+        Smaller PDF.
+    pdf2 : PDF
+        Larger PDF.
+    name : str
+        Name of "between" PDF.
+
+    Returns
+    -------
+    gap_pdf : PDF
+        PDF describing values between the two input variables.
     """
     if verbose:
         print("Computing probability of a value between two variables.")

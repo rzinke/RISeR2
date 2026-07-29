@@ -21,6 +21,8 @@ __all__ = [
 
 
 # Import modules
+import matplotlib
+
 from .. import (
     units,
     probability_functions as PDFs,
@@ -32,8 +34,17 @@ from .. import (
 def formulate_axis_label(variable_type: str, unit: str) -> str:
     """Formulate an axis label in a standardized manner.
 
-    Args    pdf - PDF from which to draw the metadata
-    Returns ax_label - str, standardized axis label
+    Parameters
+    ----------
+    variable_type : str
+        Variable type from which to draw the metadata.
+    unit : str
+        Unit.
+
+    Returns
+    -------
+    ax_label : str
+        Standardized axis label.
     """
     # Set variable type if available
     ax_label = (
@@ -49,8 +60,15 @@ def formulate_axis_label(variable_type: str, unit: str) -> str:
 def axis_label_from_pdf(pdf: PDFs.PDF) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
-    Args    pdf - PDF from which to draw the metadata
-    Returns ax_label - str, standardized axis label
+    Parameters
+    ----------
+    pdf : PDF
+        PDF from which to draw the metadata.
+
+    Returns
+    -------
+    ax_label : str
+        Standardized axis label.
     """
     # Set variable type
     variable_type = pdf.variable_type
@@ -64,8 +82,15 @@ def axis_label_from_pdf(pdf: PDFs.PDF) -> str:
 def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
     """Formulate an axis label from PDF metadata in a standardized manner.
 
-    Args    pdfs - list[PDF], PDFs from which to draw the metadata
-    Returns ax_label - str, standardized axis label
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs from which to draw the metadata.
+
+    Returns
+    -------
+    ax_label : str
+        Standardized axis label.
     """
     # Set variable type
     variable_type = variable_types.check_same_pdf_variable_types(pdfs)
@@ -78,7 +103,7 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
 
 #################### PDF PLOTTING ####################
 def plot_pdf_line(
-    ax,
+    ax: matplotlib.axes.Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -91,13 +116,22 @@ def plot_pdf_line(
 ) -> None:
     """Basic line plot of a probability density function (PDF).
 
-    Args    ax - pyplot axis
-            pdf - PDF, probability density function to plot
-            color - str, PDF color
-            linewidth - float, PDF linewidth
-            zorder - int, position on plot
-            offset - float, y-axis offset
-            scale - float, y-axis scale
+    Parameters
+    ----------
+    ax
+        Pyplot axis.
+    pdf : PDF
+        Probability density function to plot.
+    color : str
+        PDF color.
+    linewidth : float
+        PDF linewidth.
+    zorder : int
+        Position on plot.
+    offset : float
+        y-axis offset.
+    scale : float
+        y-axis scale.
     """
     # Plot PDF
     ax.plot(
@@ -111,7 +145,7 @@ def plot_pdf_line(
 
 
 def plot_pdf_filled(
-    ax,
+    ax: matplotlib.axes.Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -124,6 +158,25 @@ def plot_pdf_filled(
     scale: float = 1.0,
 ) -> None:
     """Filled plot of a probability density function (PDF).
+
+    Parameters
+    ----------
+    ax
+        Pyplot axis.
+    pdf : PDF
+        Probability density function to plot.
+    color : str
+        PDF color.
+    linewidth : float
+        PDF linewidth.
+    zorder : int
+        Position on plot.
+    alpha : float
+        PDF fill opacity.
+    offset : float
+        y-axis offset.
+    scale : float
+        y-axis scale.
     """
     # Plot filled PDF
     ax.fill_between(
@@ -148,7 +201,7 @@ def plot_pdf_filled(
 
 
 def plot_pdf_labeled(
-    ax,
+    ax: matplotlib.axes.Axes,
     pdf: PDFs.PDF,
     *,
     # Style args
@@ -161,6 +214,25 @@ def plot_pdf_labeled(
     scale: float = 1.0,
 ) -> None:
     """Labeled plot of a PDF.
+
+    Parameters
+    ----------
+    ax
+        Pyplot axis.
+    pdf : PDF
+        Probability density function to plot.
+    color : str
+        PDF color.
+    linewidth : float
+        PDF linewidth.
+    zorder : int
+        Position on plot.
+    alpha : float
+        Opacity.
+    offset : float
+        y-axis offset.
+    scale : float
+        y-axis scale.
     """
     # Plot filled PDF
     plot_pdf_filled(
@@ -193,7 +265,7 @@ def plot_pdf_labeled(
 
 # PDF Confidence
 def plot_pdf_confidence_range(
-    ax,
+    ax: matplotlib.axes.Axes,
     pdf: PDFs.PDF,
     conf_range: PDFs.analytics.ConfidenceRange,
     *,
@@ -207,6 +279,29 @@ def plot_pdf_confidence_range(
     scale: float = 1.0,
 ) -> None:
     """Plot confidence ranges as fields overlying a PDF.
+
+    Parameters
+    ----------
+    ax
+        Pyplot axis.
+    pdf : PDF
+        Probability density function to plot.
+    conf_range : ConfidenceRange
+        PDF confidence range.
+    color : str
+        PDF color.
+    linewidth : float
+        PDF linewidth.
+    zorder : int
+        Position on plot.
+    alpha : float
+        Opacity.
+    incl_label : bool
+        Include label in PDF plot.
+    offset : float
+        y-axis offset.
+    scale : float
+        y-axis scale.
     """
     # Formulate label
     label = (
@@ -233,23 +328,37 @@ def plot_pdf_confidence_range(
 
 # Multi-PDF
 def plot_pdf_stack(
-    ax,
-    pdfs: dict,
+    ax: matplotlib.axes.Axes,
+    pdfs: dict[str, PDFs.PDF],
     height: float = 0.9,
-    colors: dict | None = None,
-    conf_ranges: dict | None = None,
-    priors: dict | None = None,
+    colors: dict[str, str] | None = None,
+    conf_ranges: dict[str, PDFs.analytics.ConfidenceRange] | None = None,
+    priors: dict[str, PDFs.PDF] | None = None,
     same_height: bool | None = False,
 ) -> None:
     """Plot multiple PDFs as rows on the same figure.
+
     Check all PDFs for the maximum px value, scale the largest max to 1.0,
     and scale the other PDF maxima accordingly.
 
-    Args    ax - axis on which to plot
-            pdfs - dict, PDFs stored by PDF name
-            conf_ranges - dict, ConfidenceRanges stored by PDF name
-            height - float, height of hightest PDF peak relative to line
-                spacing
+    Parameters
+    ----------
+    ax
+        Axis on which to plot PDF stack.
+    pdfs : dict[str, PDF]
+        PDFs stored by PDF name.
+    conf_ranges : dict[str, ConfidenceRange]
+        Confidence ranges stored by PDF name.
+    height : float
+        Height of hightest PDF peak relative to line spacing.
+    colors : dict[str, str]
+        PDF colors.
+    conf_ranges : dict[str, ConfidenceRange]
+        PDF confidence ranges.
+    priors : dict[str, PDF]
+        PDF prior distributions.
+    same_height : bool
+        Scale PDF modes to the same height.
     """
     # Set defaults
     if colors is None:

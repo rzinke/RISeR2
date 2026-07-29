@@ -26,6 +26,17 @@ def plot_mc_picks(
     max_picks: int = 500,
 ) -> None:
     """Plot valid displacement-age picks.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the picks.
+    age_picks : np.ndarray
+        Age values to plot.
+    disp_picks : np.ndarray
+        Displacement values to plot.
+    max_picks : int
+        Maximum number of picks to plot.
     """
     # Plot lines connecting points
     ax.plot(

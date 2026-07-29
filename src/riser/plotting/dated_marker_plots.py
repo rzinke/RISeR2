@@ -29,6 +29,11 @@ from .pdf_plots import axis_label_from_pdf, axis_label_from_pdfs
 #################### DATED MARKER PLOTTING ####################
 def set_origin_zero(ax) -> None:
     """Set the plot origin at zero.
+
+    Parameters
+    ----------
+    ax
+        Axes to set at zero.
     """
     ax.set_xlim([0, ax.get_xlim()[1]])
     ax.set_ylim([0, ax.get_ylim()[1]])
@@ -39,6 +44,13 @@ def format_marker_plot(
     markers: dated_markers.DatedMarker | dict[str, dated_markers.DatedMarker],
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    markers : DatedMarker or dict[str, DatedMarker]
+        Dated markers to plot.
     """
     if type(markers) == dated_markers.DatedMarker:
         # Axis labels based on single marker
@@ -76,6 +88,21 @@ def plot_marker_whisker(
     label: bool = False,
 ) -> None:
     """Plot a dated marker as a cross.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    marker : DatedMarker
+        Dated marker to plot.
+    confidence : float
+        Confidence range to plot.
+    color : str
+        Marker color.
+    zorder : int
+        Order in which to plot the dated markers relative to other items.
+    label : bool
+        Label the dated markers.
     """
     # Compute age confidence limits
     age_median = PDFs.analytics.pdf_median(marker.age)
@@ -109,12 +136,14 @@ def plot_marker_whisker(
 
     # Label if requested
     if label:
-        ax.text(1.01 * age_median, 1.01 * disp_median, marker.name)
+        ax.text(
+            1.01 * age_median, 1.01 * disp_median, marker.name, color=color
+        )
 
 
 def plot_markers_whisker(
     ax,
-    markers: dict,
+    markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -123,6 +152,21 @@ def plot_markers_whisker(
     label: bool = False,
 ) -> None:
     """Plot a dated marker as a cross.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    markers : dict[str, DatedMarker]
+        Dated markers to plot.
+    confidence : float
+        Confidence range to plot.
+    color : str
+        Marker color.
+    zorder : int
+        Order in which to plot the dated markers relative to other items.
+    label : bool
+        Label the dated markers.
     """
     for marker in markers.values():
         plot_marker_whisker(
@@ -145,6 +189,21 @@ def plot_marker_rectangle(
     label: bool = False,
 ) -> None:
     """Plot a dated marker as a rectangle.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    marker : DatedMarker
+        Dated marker to plot.
+    confidence : float
+        Confidence range to plot.
+    color : str
+        Marker color.
+    zorder : int
+        Order in which to plot the dated markers relative to other items.
+    label : bool
+        Label the dated markers.
     """
     # Compute age confidence limits
     age_range = PDFs.analytics.compute_interquantile_range(
@@ -189,7 +248,7 @@ def plot_marker_rectangle(
 
 def plot_markers_rectangle(
     ax,
-    markers: dict,
+    markers: dict[str, dated_markers.DatedMarker],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -198,6 +257,21 @@ def plot_markers_rectangle(
     label: bool = False,
 ) -> None:
     """Plot dated markers as rectangles.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    markers : dict[str, DatedMarker]
+        Dated markers to plot.
+    confidence : float
+        Confidence range to plot.
+    color : str
+        Marker color.
+    zorder : int
+        Order in which to plot the dated markers relative to other items.
+    label : bool
+        Label the dated markers.
     """
     for marker in markers.values():
         plot_marker_rectangle(
@@ -212,9 +286,9 @@ def plot_markers_rectangle(
 
 def plot_markers_joint_pdf(
     ax,
-    markers: dict,
+    markers: dict[str, dated_markers.DatedMarker],
     *,
-    n: int = 1000,
+    n: int = 1_000,
     xmin: float = 0.0,
     ymin: float = 0.0,
     xmax: float = 0.0,
@@ -224,6 +298,27 @@ def plot_markers_joint_pdf(
     label: bool = False,
 ) -> None:
     """Plot markers as joint PDFs.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot the dated marker.
+    markers : dict[str, DatedMarker]
+        Dated markers to plot.
+    n : int
+        Number of grid points to use in x and y.
+    xmin : float
+        Minimum x-axis value.
+    ymin : float
+        Minimum y-axis value.
+    xmax : float
+        Maximum x-axis value.
+    ymax : float
+        Maximum y-axis value.
+    cmap : str
+        Density colormap.
+    label : bool
+        Label the dated markers.
     """
     # Determine plot limits based on markers if necessary
     if xmax == 0:
@@ -280,6 +375,16 @@ def get_markers_plot(
     marker_plot_type: str, verbose: bool = False
 ) -> "Callable":
     """Retrieve a dated markers plot by type.
+
+    Parameters
+    ----------
+    marker_plot_type : str
+        Marker plot type.
+
+    Returns
+    -------
+    Callable
+        Marker plot function.
     """
     if marker_plot_type not in DATED_MARKER_PLOT_TYPES:
         raise ValueError(
@@ -295,7 +400,7 @@ def get_markers_plot(
 
 def plot_markers(
     ax,
-    markers: dict,
+    markers: dict[str, dated_markers.DatedMarker],
     marker_plot_type = "whisker",
     *,
     confidence: float = constants.Psigma["2"],
@@ -306,6 +411,27 @@ def plot_markers(
     label: bool = False,
 ) -> None:
     """Plot multiple dated markers.
+
+    Parameters
+    ----------
+    ax
+        Axis on which to plot dated markers.
+    markers : dict[str, DatedMarker]
+        Dated markers to plot.
+    marker_plot_type : str
+        Marker plot type.
+    confidence : float
+        Confidence range to plot.
+    xmin : float
+        Minimum x-axis value.
+    ymin : float
+        Minimum y-axis value.
+    xmax : float
+        Maximum x-axis value.
+    ymax : float
+        Maximum y-axis value.
+    label : bool
+        Label the dated markers.
     """
     # Arguments common to any plot
     plt_args = {
