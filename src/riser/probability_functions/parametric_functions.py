@@ -9,10 +9,13 @@ __all__ = [
     "boxcar",
     "triangular",
     "gaussian",
-    "cumulative_gaussian",
+    "exponential",
+    "lognormal",
     "get_function_by_name",
     "check_number_inputs",
     "determine_min_max_limits",
+    "cumulative_gaussian",
+    "cumulative_lognormal",
 ]
 
 
@@ -45,11 +48,24 @@ def check_mass_against_value_range(
     xmax : float
         Theoretical maximum value of significance to check against value array.
     """
-    if (
-        xmin < x.min() - 10**-precision.RISER_PRECISION
-        or xmax > x.max() + 10**-precision.RISER_PRECISION
-    ):
-        warnings.warn("PDF mass lies outside the specified value range")
+    # Check for probability density below x domain
+    mass_below = (xmin < x.min() - 10**-precision.RISER_PRECISION)
+
+    # Check for probability density above x domain
+    mass_above = (xmax > x.max() + 10**-precision.RISER_PRECISION)
+
+    if mass_below and not mass_above:
+        warnings.warn(
+            "Significant probability lies below the specified PDF value range"
+        )
+    elif mass_above and not mass_below:
+        warnings.warn(
+            "Significant probability lies above the specified PDF value range"
+        )
+    elif mass_above and mass_below:
+        warnings.warn(
+            "Significant probability lies outside the specified PDF value range"
+        )
 
 
 #################### PARAMETRIC FUNCTIONS ####################
@@ -184,10 +200,8 @@ def trapezoidal(
     # Checks
     check_mass_against_value_range(x, x1, x4)
 
-    # Number of data points
+    # Initialize probability density values
     n = len(x)
-
-    # Initialize probability values
     px = np.zeros(n)
 
     # Left side
@@ -256,16 +270,22 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     px : np.ndarray
         Probability density values.
     """
-    # Check inputs
-    if not np.all(x > 0):
-        raise ValueError("All values of `x` must be > 0.")
+    # Checks
+    check_mass_against_value_range(x, 0, 10 * scale)
+
+    # Initialize probability density values
+    n = len(x)
+    px = np.zeros(n)
+
+    # Indices over which function is non-zero
+    nonzero_ndx = x > 0
 
     # Distribution components
     a = 1 / scale
-    f = np.exp(-x / scale)
+    f = np.exp(-x[nonzero_ndx] / scale)
 
     # Probability density
-    px = a * f
+    px[nonzero_ndx] = a * f
 
     return px
 
@@ -287,16 +307,23 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     px : np.ndarray
         Probability density values.
     """
-    # Check inputs
-    if not np.all(x > 0):
-        raise ValueError("All values of `x` must be > 0.")
+    # Checks
+    xmax = np.exp(mu + 4 * sigma)
+    check_mass_against_value_range(x, 0, xmax)
+
+    # Initialize probability density values
+    n = len(x)
+    px = np.zeros(n)
+
+    # Indices over which function is non-zero
+    nonzero_ndx = x > 0
 
     # Distribution components
-    a = 1 / (x * sigma * np.sqrt(2 * np.pi))
-    f = np.exp(-0.5 * (np.log(x) - mu)**2 / sigma**2)
+    a = 1 / (x[nonzero_ndx] * sigma * np.sqrt(2 * np.pi))
+    f = np.exp(-0.5 * (np.log(x[nonzero_ndx]) - mu)**2 / sigma**2)
 
     # Probability density
-    px = a * f
+    px[nonzero_ndx] = a * f
 
     return px
 
@@ -372,7 +399,8 @@ def check_number_inputs(distribution: str, variables: list[float]) -> bool:
     # Check necessary number of values specified
     if n_vars_specd != n_vars_reqd:
         raise ValueError(
-            f"{n_vals_reqd} must be specified for a {distribution} distribution"
+            f"{n_vars_reqd} values must be specified for a "
+            f"{distribution} distribution, got {n_vars_specd}"
         )
 
     return True
@@ -423,8 +451,30 @@ def determine_min_max_limits(
         # Max value
         xmax = mu + sigma_lim
 
+    elif distribution in ["exponential"]:
+        # Parse values
+        scale = values[0]
+
+        # Min value
+        xmin = 0
+
+        # Max value
+        xmax = 10 * scale
+
+    elif distribution in ["lognormal"]:
+        # Parse values
+        mu, sigma = values
+
+        # Min value
+        xmin = 0
+
+        # Max value
+        xmax = np.exp(mu + 4 * sigma)
+
     else:
-        return None, None
+        raise ValueError(
+            f"Min/max limits for distribution '{distribution}' not supported"
+        )
 
     # Report if requested
     if verbose:
@@ -471,7 +521,7 @@ def cumulative_lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     Px : np.ndarray
         Cumulative probability values.
     """
-    return cumulative_gaussian(x, mu, sigma) * (np.log(x) - mu) / sigma
+    return cumulative_gaussian(np.log(x), mu, sigma)
 
 
 # end of file
