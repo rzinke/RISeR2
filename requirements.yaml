@@ -4,7 +4,7 @@ channels:
 dependencies:
   - numpy
   - matplotlib
-  - python>=3.13
+  - python>=3.12
   - scipy
   - toml
   - tqdm

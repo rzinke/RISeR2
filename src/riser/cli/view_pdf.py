@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Rob Zinke
-# (c) 2025 all rights reserved
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 # Constants
 from riser import constants
