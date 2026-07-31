@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Rob Zinke
-# (c) 2025 all rights reserved
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 """
 Define a method for integrating a probability density function that is

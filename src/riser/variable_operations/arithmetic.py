@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Rob Zinke
-# (c) 2025 all rights reserved
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 """
 These functions carry out arithmetic between variables:
