@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riser"
+version = "1.1.0"
+license = {file = "LICENSE"}
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "tqdm",
+]
+
+[project.scripts]
+riser-add-variables = "riser.cli.add_variables:main"
+riser-calyr-to-age = "riser.cli.calyr_to_age:main"
+riser-combine-variables = "riser.cli.combine_variables:main"
+riser-compute-gap-probabilities = "riser.cli.compute_gap_probabilities:main"
+riser-compute-ks-statistic = "riser.cli.compute_ks_statistic:main"
+riser-compute-overlap-index = "riser.cli.compute_overlap_index:main"
+riser-compute-slip-rate = "riser.cli.compute_slip_rate:main"
+riser-compute-slip-rates = "riser.cli.compute_slip_rates:main"
+riser-compute-slip-rates-mc = "riser.cli.compute_slip_rates_mc:main"
+riser-cross-correlate-variables = "riser.cli.cross_correlate_variables:main"
+riser-divide-variables = "riser.cli.divide_variables:main"
+riser-interpolate-pdf = "riser.cli.interpolate_pdf:main"
+riser-make-pdf = "riser.cli.make_pdf:main"
+riser-merge-variables = "riser.cli.merge_variables:main"
+riser-multiply-variables = "riser.cli.multiply_variables:main"
+riser-subtract-variables = "riser.cli.subtract_variables:main"
+riser-view-displacement-age-history = "riser.cli.view_displacement_age_history:main"
+riser-view-pdf = "riser.cli.view_pdf:main"
+riser-view-pdf-stack = "riser.cli.view_pdf_stack:main"
