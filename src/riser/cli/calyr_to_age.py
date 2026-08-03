@@ -103,19 +103,21 @@ def main():
 
     # Read calendar years file
     calyr, calpx, metadata = PDFs.readers.read_calendar_file(
-        inps.date_fname, verbose=inps.verbose)
+        fname=inps.date_fname,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.input_unit,
+        verbose=inps.verbose,
+    )
 
     # Convert calendar year to years before present (ypb)
     if inps.verbose:
         print(f"Shifting dates relative to reference: {inps.reference_date}")
     ybp = inps.reference_date - calyr
 
-    # Check input units
-    input_unit = units.get_priority_unit(metadata.get("unit"), inps.input_unit)
-
     # Scale from input units to output units
     x = units.scale_values_by_units(
-        ybp, input_unit, inps.output_unit, verbose=inps.verbose
+        ybp, metadata["unit"], inps.output_unit, verbose=inps.verbose
     )
 
     # Flip left for right, so age is increasing
