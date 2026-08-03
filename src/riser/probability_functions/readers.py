@@ -236,6 +236,12 @@ def read_pdf(
         File name.
     normalize_area : bool
         Scale px value to so the area = 1.0.
+    name : str
+        Brief descriptive identifier of the PDF.
+    variable_type : str
+        Quality that the PDF represents, e.g., age, displacement, slip rate.
+    unit : str
+        Value unit.
 
     Returns
     -------
@@ -309,7 +315,12 @@ def read_pdfs(
 
 
 def read_calendar_file(
-    fname: str, verbose: bool = False
+    fname: str,
+    *,
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, dict[str, str]]:
     """Convert a PDF in calendar years to one in age.
 
@@ -321,6 +332,12 @@ def read_calendar_file(
     ----------
     fname : str
         Name of calendar year file.
+    name : str
+        Brief descriptive identifier of the PDF.
+    variable_type : str
+        Quality that the PDF represents, e.g., age, displacement, slip rate.
+    unit : str
+        Value unit.
 
     Returns
     -------
@@ -344,7 +361,17 @@ def read_calendar_file(
         print(f"{len(header_lines)} header lines")
 
     # Retrieve metadata
-    metadata = parse_metadata_from_header(header_lines, verbose=verbose)
+    file_metadata = parse_metadata_from_header(header_lines, verbose=verbose)
+
+    # Check metadata from file against user-specified metadata
+    user_metadata = {
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
+    }
+    metadata = reconcile_metadata(
+        user_metadata, file_metadata, verbose=verbose
+    )
 
     # Parse data lines
     data_lines = [line for line in lines if line[0] != "#" and len(line) > 1]
