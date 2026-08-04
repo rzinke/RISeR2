@@ -9,6 +9,12 @@ Functions for plotting variable pairs.
 
 # Public API
 __all__ = [
+    "plot_marker_whisker",
+    "plot_markers_whisker",
+    "plot_marker_rectangle",
+    "plot_markers_rectangle",
+    "plot_markers_joint_pdf",
+    "get_markers_plot",
     "plot_markers",
 ]
 
@@ -41,7 +47,9 @@ def set_origin_zero(ax: Axes) -> None:
 
 def format_marker_plot(
     ax: Axes,
-    markers: variable_pair.VariablePair | dict[str, variable_pair.VariablePair],
+    markers: (
+        variable_pairs.VariablePair | dict[str, variable_pairs.VariablePair]
+    ),
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
 
