@@ -15,7 +15,7 @@ import warnings
 import numpy as np
 from tqdm import tqdm
 
-from .. import dated_markers
+from .. import variable_pairs
 
 
 #################### SAMPLING CRITERIA ####################
@@ -149,7 +149,7 @@ def get_sample_criterion(
 
 #################### MONTE CARLO SAMPLING ####################
 def sample_monte_carlo(
-    markers: dict[str, dated_markers.DatedMarker],
+    markers: dict[str, variable_pairs.DatedMarker],
     criterion: SampleCriterion,
     *,
     n_samples: int = 10_000,

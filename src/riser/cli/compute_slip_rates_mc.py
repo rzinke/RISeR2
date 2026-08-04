@@ -13,7 +13,7 @@ from riser import (
     constants,
     units,
     probability_functions as PDFs,
-    dated_markers,
+    variable_pairs,
     plotting,
 )
 
@@ -133,7 +133,7 @@ def main():
     )
 
     # Read markers
-    markers = dated_markers.read_markers_from_config(
+    markers = variable_pairs.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 
