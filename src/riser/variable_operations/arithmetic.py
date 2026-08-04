@@ -132,9 +132,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        name=neg_name,
-        variable_type=pdf.variable_type,
-        unit=pdf.unit,
+        **pdf.metadata.__dict__,
     )
 
     return neg_pdf
@@ -418,9 +416,9 @@ def multiply_variables(
         x=p,
         px=pp,
         name=name,
+        normalize_area=True,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True,
     )
 
     return prod_pdf
@@ -535,10 +533,10 @@ def divide_variables(
     quot_pdf = PDFs.PDF(
         x=q,
         px=pq,
+        normalize_area=True,
         name=name,
         variable_type=variable_type,
         unit=unit,
-        normalize_area=True
     )
 
     return quot_pdf
