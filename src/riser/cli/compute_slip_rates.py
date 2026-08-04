@@ -133,7 +133,7 @@ def main():
     marker_fig, marker_ax = plt.subplots()
 
     # Plot markers
-    plotting.plot_markers(
+    plotting.plot_variable_pairs(
         ax=marker_ax,
         markers=markers,
         marker_plot_type="whisker",

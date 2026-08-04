@@ -9,13 +9,13 @@ Functions for plotting variable pairs.
 
 # Public API
 __all__ = [
-    "plot_marker_whisker",
-    "plot_markers_whisker",
-    "plot_marker_rectangle",
-    "plot_markers_rectangle",
-    "plot_markers_joint_pdf",
+    "plot_variable_pair_whisker",
+    "plot_variable_pairs_whisker",
+    "plot_variable_pair_rectangle",
+    "plot_variable_pairs_rectangle",
+    "plot_variable_pairs_joint_pdf",
     "get_markers_plot",
-    "plot_markers",
+    "plot_variable_pairs",
 ]
 
 
@@ -85,7 +85,7 @@ def format_marker_plot(
     ax.set_ylabel(x2_label)
 
 
-def plot_marker_whisker(
+def plot_variable_pair_whisker(
     ax: Axes,
     marker: variable_pairs.VariablePair,
     confidence: float = constants.Psigma["2"],
@@ -146,7 +146,7 @@ def plot_marker_whisker(
         ax.text(1.01 * x1_center, 1.01 * x2_center, marker.name, color=color)
 
 
-def plot_markers_whisker(
+def plot_variable_pairs_whisker(
     ax: Axes,
     markers: dict[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
@@ -174,7 +174,7 @@ def plot_markers_whisker(
         Label the variable pairs.
     """
     for marker in markers.values():
-        plot_marker_whisker(
+        plot_variable_pair_whisker(
             ax=ax,
             marker=marker,
             color=color,
@@ -183,7 +183,7 @@ def plot_markers_whisker(
         )
 
 
-def plot_marker_rectangle(
+def plot_variable_pair_rectangle(
     ax: Axes,
     marker: variable_pairs.VariablePair,
     confidence: float = constants.Psigma["2"],
@@ -247,7 +247,7 @@ def plot_marker_rectangle(
     ax.set_ylim([0, 1.1 * x2_vals[1]])
 
 
-def plot_markers_rectangle(
+def plot_variable_pairs_rectangle(
     ax: Axes,
     markers: dict[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
@@ -275,7 +275,7 @@ def plot_markers_rectangle(
         Label the variable pairs.
     """
     for marker in markers.values():
-        plot_marker_rectangle(
+        plot_variable_pair_rectangle(
             ax=ax,
             marker=marker,
             confidence=confidence,
@@ -285,7 +285,7 @@ def plot_markers_rectangle(
         )
 
 
-def plot_markers_joint_pdf(
+def plot_variable_pairs_joint_pdf(
     ax: Axes,
     markers: dict[str, variable_pairs.VariablePair],
     *,
@@ -356,9 +356,9 @@ def plot_markers_joint_pdf(
 
 
 VARIABLE_PAIR_PLOT_TYPES = {
-    "whisker": plot_markers_whisker,
-    "rectangle": plot_markers_rectangle,
-    "pdf": plot_markers_joint_pdf,
+    "whisker": plot_variable_pairs_whisker,
+    "rectangle": plot_variable_pairs_rectangle,
+    "pdf": plot_variable_pairs_joint_pdf,
 }
 
 
@@ -389,7 +389,7 @@ def get_markers_plot(
     return VARIABLE_PAIR_PLOT_TYPES.get(marker_plot_type)
 
 
-def plot_markers(
+def plot_variable_pairs(
     ax: Axes,
     markers: dict[str, variable_pairs.VariablePair],
     marker_plot_type = "whisker",

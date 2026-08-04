@@ -116,7 +116,7 @@ def main():
 
 
     # Plot markers
-    plotting.plot_markers(
+    plotting.plot_variable_pairs(
         ax=marker_ax,
         markers=markers,
         marker_plot_type=inps.marker_plot_type,
