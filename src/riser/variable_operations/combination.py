@@ -74,7 +74,7 @@ def combine_variables(
         x=pdfs[0].x,
         px=px,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return joint_pdf
@@ -140,7 +140,7 @@ def merge_variables(
         x=pdfs[0].x,
         px=px,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return merged_pdf

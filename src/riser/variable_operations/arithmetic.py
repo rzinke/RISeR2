@@ -132,7 +132,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        **pdf.metadata.__dict__,
+        **pdf.metadata.as_dict(),
     )
 
     return neg_pdf
@@ -213,7 +213,7 @@ def add_variables(
         x=xx,
         px=pxx,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return sum_pdf
@@ -310,7 +310,7 @@ def subtract_variables(
         x=xx,
         px=pxx,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return diff_pdf
@@ -411,14 +411,19 @@ def multiply_variables(
     else:
         unit = None
 
+    # Format metadata
+    metadata = PDFs.PDFmetadata(
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+    )
+
     # Form results into PDF
     prod_pdf = PDFs.PDF(
         x=p,
         px=pp,
-        name=name,
         normalize_area=True,
-        variable_type=variable_type,
-        unit=unit,
+        **metadata.as_dict(),
     )
 
     return prod_pdf
@@ -529,14 +534,19 @@ def divide_variables(
     else:
         unit = None
 
+    # Format metadata
+    metadata = PDFs.PDFmetadata(
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+    )
+
     # Form results into PDF
     quot_pdf = PDFs.PDF(
         x=q,
         px=pq,
         normalize_area=True,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
+        **metadata.as_dict(),
     )
 
     return quot_pdf
