@@ -36,7 +36,7 @@ class VariablePair:
             One of the two paired random variables.
         x2 : PDF
             The other of the two paired random variables.
-        name : str
+        name : str, optional
             Brief descriptive identifier of the marker.
         """
         # Set variables

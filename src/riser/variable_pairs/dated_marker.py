@@ -46,6 +46,9 @@ class DatedMarker(VariablePair):
             PDF defining the age of the dated marker.
         displacement : PDF
             PDF defining the displacement of the dated marker.
+        name : str, optional
+            Brief descriptive identifier of the marker.
+
         """
         # Initialize object
         super().__init__(

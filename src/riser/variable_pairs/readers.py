@@ -48,19 +48,19 @@ def initialize_dated_marker_from_files(
         Name of displacement PDF file.
     kwargs : dict
         Metadata for marker and age, displacement PDFs
-    marker_name : str
+    marker_name : str, optional
         Marker name.
-    age_name : str
+    age_name : str, optional
         Descriptive name of age PDF.
-    age_variable_type : str
+    age_variable_type : str, optional
         Age variable type (e.g., age).
-    age_unit : str
+    age_unit : str, optional
         Age physical unit.
-    displacement_name : str
+    displacement_name : str, optional
         Descriptive name of displacement PDF.
-    displacement_variable_type : str
+    displacement_variable_type : str, optional
         Displacement variable type (e.g., displacement).
-    displacement_unit : str
+    displacement_unit : str, optional
         Displacement physical unit.
 
     Returns

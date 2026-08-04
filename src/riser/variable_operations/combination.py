@@ -42,7 +42,7 @@ def combine_variables(
     ----------
     pdfs : list[PDF]
         List of PDFs to combine.
-    name : str
+    name : str, optional
         Descriptive name of combined PDF.
 
     Returns
@@ -108,7 +108,7 @@ def merge_variables(
     ----------
     pdfs : list[PDF]
         List of PDFs to merge.
-    name : str
+    name : str, optional
         Descriptive name of merged PDF.
 
     Returns

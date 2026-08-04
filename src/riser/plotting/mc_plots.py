@@ -35,7 +35,7 @@ def plot_mc_picks(
         Age values to plot.
     disp_picks : np.ndarray
         Displacement values to plot.
-    max_picks : int
+    max_picks : int, optional
         Maximum number of picks to plot.
     """
     # Plot lines connecting points

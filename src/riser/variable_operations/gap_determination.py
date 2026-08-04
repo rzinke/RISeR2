@@ -50,7 +50,7 @@ def compute_probability_between_variables(
         Smaller PDF.
     pdf2 : PDF
         Larger PDF.
-    name : str
+    name : str, optional
         Name of "between" PDF.
 
     Returns

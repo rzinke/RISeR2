@@ -81,9 +81,9 @@ def get_common_metadata(
     ----------
     metadata_list : list[PDFmetadata]
         List of metadata objects from which to find common metadata values.
-    name : str
+    name : str, optional
         Name of resulting PDF.
-    warn : bool
+    warn : bool, optional
         Raise a warning if metadata values differ between PDFs.
 
     Returns
