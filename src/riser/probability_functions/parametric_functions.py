@@ -225,6 +225,20 @@ def trapezoidal(
     return px
 
 
+def _gaussian_limits(mu, sigma):
+    # Area of PDF to be covered
+    target_coverage = sp.stats.norm.cdf(4)
+
+    # Distance from mean at which the area is covered
+    sigma_lim = sp.stats.norm.ppf(target_coverage)
+
+    # Distances at which coverage is met
+    xmin = mu - sigma_lim
+    xmax = mu + sigma_lim
+
+    # Target domain limits
+    return xmin, xmax
+
 def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Gaussian function.
 
@@ -243,6 +257,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
+    xmin, xmax = _gaussian_limits(mu, sigma)
     check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
 
     a = 1 / (sigma * np.sqrt(2 * np.pi))
@@ -253,6 +268,18 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
 
     return px
 
+
+def _exponential_limits(scale):
+    # Minimum distance
+    xmin = 0
+
+    # Area of PDF to be covered
+    target_coverage = sp.stats.norm.cdf(4)
+
+    # Distance from zero at which the area is covered
+    xmax = sp.stats.expon.ppf(target_coverage)
+
+    return xmin, xmax
 
 def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     """Exponential function.
@@ -270,7 +297,8 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    check_mass_against_value_range(x, 0, 10 * scale)
+    xmin, xmax = _exponential_limits(scale)
+    check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
     n = len(x)
@@ -288,6 +316,18 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
 
     return px
 
+
+def _lognormal_limits(mu, sigma):
+    # Minimum distance
+    xmin = 0
+
+    # Area of PDF to be covered
+    target_coverage = sp.stats.norm.cdf(4)
+
+    # Distance from zero at which the area is covered
+    xmax = np.exp(mu + sp.stats.norm.ppf(target_coverage) * sigma)
+
+    return xmin, xmax
 
 def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Log-normal function.
@@ -307,8 +347,8 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmax = np.exp(mu + 4 * sigma)
-    check_mass_against_value_range(x, 0, xmax)
+    xmin, xmax = _lognormal_limits(mu, sigma)
+    check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
     n = len(x)
@@ -327,6 +367,52 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return px
 
 
+def _students_t_limits(dof, mu, scale):
+    # Target coverage - 0.99997
+    target_coverage = sp.stats.norm.cdf(4)
+
+    # Distances from mean at which the area is covered
+    sigma_lim = sp.stats.t.ppf(target_coverage, df=dof) * scale
+
+    # Distances at which coverage is met
+    xmin = mu - sigma_lim
+    xmax = mu + sigma_lim
+
+    # Target domain limits
+    return xmin, xmax
+
+def students_t(
+    x: np.ndarray, dof: float, mu: float, scale: float
+) -> np.ndarray:
+    """Student's t-distribution function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    dof : float
+        Degrees of freedom (N - 1 for sample size N)
+    mu : float
+        Location of the distribution (sample mean).
+    scale : float
+        Scale parameter of the exponential function
+        (standard error of the mean).
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
+    """
+    # Checks
+    xmin, xmax = _students_t_limits(dof, mu, scale)
+    check_mass_against_value_range(x, xmin, xmax)
+
+    # Probability density
+    px = sp.stats.t.pdf(x, df=dof, loc=mu, scale=scale)
+
+    return px
+
+
 PARAMETRIC_FUNCTIONS = {
     "boxcar": boxcar,
     "triangular": triangular,
@@ -334,6 +420,7 @@ PARAMETRIC_FUNCTIONS = {
     "gaussian": gaussian,
     "exponential": exponential,
     "lognormal": lognormal,
+    "students_t": students_t,
 }
 
 
@@ -362,7 +449,7 @@ def get_function_by_name(distribution: str) -> "Callable":
 
 
 #################### CHECKS ####################
-def check_number_inputs(distribution: str, variables: list[float]) -> bool:
+def check_number_inputs(distribution: str, variables: list[float]) -> None:
     """Check that the appropriate number of inputs are provided for the given
     distribution.
 
@@ -402,12 +489,11 @@ def check_number_inputs(distribution: str, variables: list[float]) -> bool:
             f"{distribution} distribution, got {n_vars_specd}"
         )
 
-    return True
-
 
 def determine_min_max_limits(
     distribution: str,
     values: list[float],
+    *,
     limit_positive: bool = False,
     verbose: bool = False,
 ) -> tuple[float, float]:
@@ -419,6 +505,8 @@ def determine_min_max_limits(
         Parametric function.
     values : list[float]
         Parameter values.
+    limit_positive : bool, optional
+        Limit the function limits to positive values only.
 
     Returns
     -------
