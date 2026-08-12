@@ -4,7 +4,7 @@
 
 # Public API
 __all__ = [
-    "read_markers_from_config",
+    "read_dated_markers_from_config",
 ]
 
 
@@ -21,7 +21,7 @@ from .dated_marker import DatedMarker
 
 
 #################### MARKER READERS ####################
-def initialize_marker_from_files(
+def initialize_dated_marker_from_files(
     age_fname: str,
     displacement_fname: str,
     *,
@@ -48,19 +48,19 @@ def initialize_marker_from_files(
         Name of displacement PDF file.
     kwargs : dict
         Metadata for marker and age, displacement PDFs
-    marker_name : str
+    marker_name : str, optional
         Marker name.
-    age_name : str
+    age_name : str, optional
         Descriptive name of age PDF.
-    age_variable_type : str
+    age_variable_type : str, optional
         Age variable type (e.g., age).
-    age_unit : str
+    age_unit : str, optional
         Age physical unit.
-    displacement_name : str
+    displacement_name : str, optional
         Descriptive name of displacement PDF.
-    displacement_variable_type : str
+    displacement_variable_type : str, optional
         Displacement variable type (e.g., displacement).
-    displacement_unit : str
+    displacement_unit : str, optional
         Displacement physical unit.
 
     Returns
@@ -101,7 +101,7 @@ def initialize_marker_from_files(
     return marker
 
 
-def read_markers_from_config(
+def read_dated_markers_from_config(
     fname: str, verbose: bool = False
 ) -> dict[str, DatedMarker]:
     """Read marker data from a TOML configuration file.
@@ -153,7 +153,7 @@ def read_markers_from_config(
             )
 
         # Initialize marker
-        marker = initialize_marker_from_files(
+        marker = initialize_dated_marker_from_files(
             marker_name=marker_name,
             age_fname=age_fname,
             displacement_fname=displacement_fname,

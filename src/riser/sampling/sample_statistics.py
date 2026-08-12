@@ -64,13 +64,13 @@ def compute_sample_confidence(
     ----------
     samples : np.ndarray
         Discrete samples on which to compute statistics.
-    confidence : float
+    confidence : float, optional
         Confidence level.
-    name : str
+    name : str, optional
         Brief descriptive identifier.
-    variable_type : str
+    variable_type : str, optional
         Sampled quantity, e.g., age, displacement, slip rate.
-    unit : str
+    unit : str, optional
         Value unit.
 
     Returns

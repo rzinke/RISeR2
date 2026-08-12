@@ -16,10 +16,11 @@ from .. import (
     units,
     probability_functions as PDFs,
 )
+from .variable_pair import VariablePair
 
 
 #################### DATED MARKER ####################
-class DatedMarker:
+class DatedMarker(VariablePair):
     """A DatedMarker stores the pair of displacement-age values that
     constrain a slip rate.
 
@@ -45,31 +46,36 @@ class DatedMarker:
             PDF defining the age of the dated marker.
         displacement : PDF
             PDF defining the displacement of the dated marker.
+        name : str, optional
+            Brief descriptive identifier of the marker.
+
         """
-        # Check inputs
-        if not isinstance(age, PDFs.PDF):
-            raise TypeError(
-                f"Age must be provided as a PDF, "
-                f"got {type(age).__name__}"
-            )
-
-        if not isinstance(displacement, PDFs.PDF):
-            raise TypeError(
-                f"Displacement must be provided as a PDF, "
-                f"got {type(displacement).__name__}"
-            )
-
-        # Record age and displacement data - copy PDFs just in case
-        self.age = copy.deepcopy(age)
-        self.displacement = copy.deepcopy(displacement)
-
-        # Record metadata
-        self.name = name
+        # Initialize object
+        super().__init__(
+            x1=age,
+            x2=displacement,
+            name=name,
+        )
 
         # Check units
         self._check_units_()
 
+    @property
+    def age(self) -> PDFs.PDF:
+        return self.x1
 
+    @age.setter
+    def age(self, value):
+        self.x1 = value
+    
+    @property
+    def displacement(self) -> PDFs.PDF:
+        return self.x2
+
+    @displacement.setter
+    def displacement(self, value):
+        self.x2 = value
+    
     def _check_units_(self):
         """Check that the age measurement is some multiple of years,
         and the displacement unit is some multiple of meters.
@@ -111,7 +117,7 @@ class DatedMarker:
         # Report age
         print_str += (
             f"\n\tage: {self.age.name} "
-            f"{PDFs.analytics.pdf_mode(self.age)} "
+            f"{PDFs.analytics.pdf_mean(self.age)} "
             f"+- {PDFs.analytics.pdf_std(self.age):.2f} "
             f"{self.age.unit}"
         )
@@ -119,7 +125,7 @@ class DatedMarker:
         # Report displacement
         print_str += (
             f"\n\tdisplacement: {self.displacement.name} "
-            f"{PDFs.analytics.pdf_mode(self.displacement)} "
+            f"{PDFs.analytics.pdf_mean(self.displacement)} "
             f"+- {PDFs.analytics.pdf_std(self.displacement):.2f} "
             f"{self.displacement.unit}"
         )

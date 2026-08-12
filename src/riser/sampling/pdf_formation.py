@@ -48,17 +48,17 @@ def samples_to_pdf_histogram(
     ----------
     samples : np.ndarray
         Discrete samples from which to form the PDF.
-    xmin : float
+    xmin : float, optional
         Minimum value to consider.
-    xmax : float
+    xmax : float, optional
         Maximum value to consider.
-    dx : float
+    dx : float, optional
         Value array step.
-    name : str
+    name : str, optional
         Brief descriptive identifier for output PDF.
-    variable_type : str
+    variable_type : str, optional
         Sampled quantity for output PDF.
-    unit : str
+    unit : str, optional
         Value unit for output PDF.
 
     Returns
@@ -121,17 +121,17 @@ def samples_to_pdf_kde(
     ----------
     samples : np.ndarray
         Discrete samples from which to form the PDF.
-    xmin : float
+    xmin : float, optional
         Minimum value to consider.
-    xmax : float
+    xmax : float, optional
         Maximum value to consider.
-    dx : float
+    dx : float, optional
         Value array step.
-    name : str
+    name : str, optional
         Brief descriptive identifier for output PDF.
-    variable_type : str
+    variable_type : str, optional
         Sampled quantity for output PDF.
-    unit : str
+    unit : str, optional
         Value unit for output PDF.
 
     Returns

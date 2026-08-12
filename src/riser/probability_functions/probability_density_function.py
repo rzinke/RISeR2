@@ -71,11 +71,11 @@ class ProbabilityDensityFunction:
             Probability density values.
         normalize_area : bool
             Scale px value to so the area = 1.0.
-        name : str
+        name : str, optional
             Brief descriptive identifier of the PDF.
-        variable_type : str
+        variable_type : str, optional
             Quality that the PDF represents, e.g., age, displacement, slip rate.
-        unit : str
+        unit : str, optional
             Value unit.
         """
         # Ensure domain values are numpy array

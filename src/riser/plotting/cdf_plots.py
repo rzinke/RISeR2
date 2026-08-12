@@ -41,9 +41,9 @@ def plot_cdf_line(
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.
-    color : str
+    color : str, optional
         CDF line color.
-    linewidth : float
+    linewidth : float, optional
         CDF line width.
     """
     # Plot CDF
@@ -73,11 +73,11 @@ def plot_cdf_filled(
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.
-    color : str
+    color : str, optional
         CDF line color.
-    linewidth : float
+    linewidth : float, optional
         CDF line width.
-    alpha : float
+    alpha : float, optional
         CDF fill opacity.
     """
     # Plot filled PDF
@@ -114,10 +114,12 @@ def plot_cdf_labeled(
         Axis on which to plot the CDF.
     pdf : PDF
         PDF for which to plot the corresponding CDF.
-    color : str
+    color : str, optional
         CDF line color.
-    linewidth : float
+    linewidth : float, optional
         CDF line width.
+    alpha : float, optional
+        CDF fill opacity.
     """
     # Plot filled CDF
     plot_cdf_filled(

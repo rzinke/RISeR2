@@ -15,7 +15,7 @@ __all__ = [
 
 # Import modules
 import warnings
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, asdict, fields
 
 from .. import (
     variable_types,
@@ -65,6 +65,16 @@ class PDFmetadata:
                 f"got {type(self.unit).__name__}"
             )
 
+    def as_dict(self) -> dict[str, str]:
+        """Format the PDF metadata items as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            Metadata keys and values.
+        """
+        return asdict(self)
+
 
 METADATA_ITEMS = [field.name for field in fields(PDFmetadata)]
 
@@ -81,9 +91,9 @@ def get_common_metadata(
     ----------
     metadata_list : list[PDFmetadata]
         List of metadata objects from which to find common metadata values.
-    name : str
+    name : str, optional
         Name of resulting PDF.
-    warn : bool
+    warn : bool, optional
         Raise a warning if metadata values differ between PDFs.
 
     Returns

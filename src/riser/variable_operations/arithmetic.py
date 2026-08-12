@@ -132,9 +132,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        name=neg_name,
-        variable_type=pdf.variable_type,
-        unit=pdf.unit,
+        **pdf.metadata.as_dict(),
     )
 
     return neg_pdf
@@ -174,7 +172,7 @@ def add_variables(
         PDF to add to pdf2.
     pdf2 : PDF
         PDF to add to pdf1.
-    name : str
+    name : str, optional
         Name of summed PDF.
     
     Returns
@@ -215,7 +213,7 @@ def add_variables(
         x=xx,
         px=pxx,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return sum_pdf
@@ -259,9 +257,9 @@ def subtract_variables(
         PDF from which to subtract pdf2.
     pdf2 : PDF
         PDF to subtract from pdf1.
-    limit_positive : bool
+    limit_positive : bool, optional
         Enforce condition that values must be positive.
-    name : str
+    name : str, optional
         Name of differenced PDF.
     
     Returns
@@ -312,7 +310,7 @@ def subtract_variables(
         x=xx,
         px=pxx,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return diff_pdf
@@ -344,15 +342,15 @@ def multiply_variables(
         PDF to multiply with pdf2.
     pdf2 : PDF
         PDF to multiply with pdf1.
-    dp : float
+    dp : float, optional
         Product sample spacing.
-    min_product : float
+    min_product : float, optional
         Minimum-allowable product to consider.
-    max_product : float
+    max_product : float, optional
         Maximim-allowable product to consider.
-    name : str
+    name : str, optional
         Name of product PDF.
-    variable_type : str
+    variable_type : str, optional
         Variable quantity.
     
     Returns
@@ -413,14 +411,19 @@ def multiply_variables(
     else:
         unit = None
 
+    # Format metadata
+    metadata = PDFs.PDFmetadata(
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+    )
+
     # Form results into PDF
     prod_pdf = PDFs.PDF(
         x=p,
         px=pp,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
         normalize_area=True,
+        **metadata.as_dict(),
     )
 
     return prod_pdf
@@ -468,15 +471,15 @@ def divide_variables(
         Numerator distribution.
     denominator : PDF
         Denominator distribution.
-    dq : float
+    dq : float, optional
         Quotient sample spacing.
-    min_quotient : float
+    min_quotient : float, optional
         Minimum-allowable quotient to consider.
-    max_quotient : float
+    max_quotient : float, optional
         Maximum-allowable quotient to consider.
-    name : str
+    name : str, optional
         Name of quotient PDF.
-    variable_type : str
+    variable_type : str, optional
         Variable quantity.
     
     Returns
@@ -531,14 +534,19 @@ def divide_variables(
     else:
         unit = None
 
+    # Format metadata
+    metadata = PDFs.PDFmetadata(
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+    )
+
     # Form results into PDF
     quot_pdf = PDFs.PDF(
         x=q,
         px=pq,
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
-        normalize_area=True
+        normalize_area=True,
+        **metadata.as_dict(),
     )
 
     return quot_pdf

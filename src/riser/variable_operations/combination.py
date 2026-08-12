@@ -42,7 +42,7 @@ def combine_variables(
     ----------
     pdfs : list[PDF]
         List of PDFs to combine.
-    name : str
+    name : str, optional
         Descriptive name of combined PDF.
 
     Returns
@@ -74,7 +74,7 @@ def combine_variables(
         x=pdfs[0].x,
         px=px,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return joint_pdf
@@ -108,7 +108,7 @@ def merge_variables(
     ----------
     pdfs : list[PDF]
         List of PDFs to merge.
-    name : str
+    name : str, optional
         Descriptive name of merged PDF.
 
     Returns
@@ -140,7 +140,7 @@ def merge_variables(
         x=pdfs[0].x,
         px=px,
         normalize_area=True,
-        **metadata.__dict__,
+        **metadata.as_dict(),
     )
 
     return merged_pdf

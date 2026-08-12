@@ -13,7 +13,7 @@ from riser import (
     constants,
     units,
     probability_functions as PDFs,
-    dated_markers,
+    variable_pairs,
     plotting,
 )
 
@@ -133,7 +133,7 @@ def main():
     )
 
     # Read markers
-    markers = dated_markers.read_markers_from_config(
+    markers = variable_pairs.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 
@@ -158,7 +158,7 @@ def main():
     marker_fig, marker_ax = plt.subplots()
 
     # Plot markers
-    plotting.plot_markers(
+    plotting.plot_variable_pairs(
         ax=marker_ax,
         markers=markers,
         marker_plot_type="rectangle",

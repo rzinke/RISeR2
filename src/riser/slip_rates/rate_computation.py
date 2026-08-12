@@ -32,14 +32,14 @@ from .. import (
     variable_types,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    dated_markers,
+    variable_pairs,
 )
 from ..sampling import mc_sampling, pdf_formation, filtering
 
 
 #################### ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
-    marker: dated_markers.DatedMarker,
+    marker: variable_pairs.DatedMarker,
     *,
     dq: float = 0.01,
     limit_positive: bool = False,
@@ -52,11 +52,11 @@ def compute_slip_rate(
     ----------
     marker : DatedMarker
         Displacement-age pair used to calculate slip rate.
-    dq : float
+    dq : float, optional
         Quotient step.
-    limit_positive : bool
+    limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
-    max_rate : float
+    max_rate : float, optional
         Maximum quotient value to consider.
 
     Returns
@@ -85,7 +85,7 @@ def compute_slip_rate(
 
 
 def compute_slip_rates_analytical(
-    markers: dict[str, dated_markers.DatedMarker],
+    markers: dict[str, variable_pairs.DatedMarker],
     *,
     dq: float = 0.01,
     limit_positive: bool = False,
@@ -109,9 +109,9 @@ def compute_slip_rates_analytical(
         Dated markers bounding each interval.
     max_rate : float
         Maximum quotient value to consider.
-    dq : float
+    dq : float, optional
         Quotient step.
-    limit_positive : bool
+    limit_positive : bool, optional
         Enforce condition that displacement values must be positive.
 
     Returns
@@ -213,7 +213,7 @@ def compute_slip_rates_analytical(
 
 #################### MONTE CARLO COMPUTATION ####################
 def compute_slip_rates_mc(
-    markers: dict[str, dated_markers.DatedMarker],
+    markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
     max_rate: float = 100.0,
@@ -237,25 +237,25 @@ def compute_slip_rates_mc(
         Dated markers bounding each interval.
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
-    max_rate : float
+    max_rate : float, optional
         Maximum quotient value to consider.
-    dq : float
+    dq : float, optional
         Quotient step.
-    n_samples : int
+    n_samples : int, optional
         Number of valid samples to achieve.
-    hard_stop : float
+    hard_stop : float, optional
         Maximum slip rate to consider.
-    pdf_method : str
+    pdf_method : str, optional
         PDF formation method.
-    pdf_xmin : float
+    pdf_xmin : float, optional
         Minimum value to consider.
-    pdf_xmax : float
+    pdf_xmax : float, optional
         Maximum value to consider.
-    pdf_dx : float
+    pdf_dx : float, optional
         Value array step.
-    smoothing_type : str
+    smoothing_type : str, optional
         Smoothing filter type.
-    smoothing_width : int
+    smoothing_width : int, optional
         Smoothing filter width in number of samples.
 
     Returns

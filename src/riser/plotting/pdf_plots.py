@@ -121,15 +121,15 @@ def plot_pdf_line(
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
-    color : str
+    color : str, optional
         PDF color.
-    linewidth : float
+    linewidth : float, optional
         PDF linewidth.
-    zorder : int
+    zorder : int, optional
         Position on plot.
-    offset : float
+    offset : float, optional
         y-axis offset.
-    scale : float
+    scale : float, optional
         y-axis scale.
     """
     # Plot PDF
@@ -164,17 +164,17 @@ def plot_pdf_filled(
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
-    color : str
+    color : str, optional
         PDF color.
-    linewidth : float
+    linewidth : float, optional
         PDF linewidth.
-    zorder : int
+    zorder : int, optional
         Position on plot.
-    alpha : float
+    alpha : float, optional
         PDF fill opacity.
-    offset : float
+    offset : float, optional
         y-axis offset.
-    scale : float
+    scale : float, optional
         y-axis scale.
     """
     # Plot filled PDF
@@ -220,17 +220,17 @@ def plot_pdf_labeled(
         Pyplot axis.
     pdf : PDF
         Probability density function to plot.
-    color : str
+    color : str, optional
         PDF color.
-    linewidth : float
+    linewidth : float, optional
         PDF linewidth.
-    zorder : int
+    zorder : int, optional
         Position on plot.
-    alpha : float
+    alpha : float, optional
         Opacity.
-    offset : float
+    offset : float, optional
         y-axis offset.
-    scale : float
+    scale : float, optional
         y-axis scale.
     """
     # Plot filled PDF
@@ -287,19 +287,19 @@ def plot_pdf_confidence_range(
         Probability density function to plot.
     conf_range : ConfidenceRange
         PDF confidence range.
-    color : str
+    color : str, optional
         PDF color.
-    linewidth : float
+    linewidth : float, optional
         PDF linewidth.
-    zorder : int
+    zorder : int, optional
         Position on plot.
-    alpha : float
+    alpha : float, optional
         Opacity.
-    incl_label : bool
+    incl_label : bool, optional
         Include label in PDF plot.
-    offset : float
+    offset : float, optional
         y-axis offset.
-    scale : float
+    scale : float, optional
         y-axis scale.
     """
     # Formulate label
@@ -346,15 +346,15 @@ def plot_pdf_stack(
         Axis on which to plot PDF stack.
     pdfs : dict[str, PDF]
         PDFs stored by PDF name.
-    height : float
+    height : float, optional
         Height of hightest PDF peak relative to line spacing.
-    colors : dict[str, str]
+    colors : dict[str, str], optional
         PDF colors.
-    conf_ranges : dict[str, ConfidenceRange]
+    conf_ranges : dict[str, ConfidenceRange], optional
         Confidence ranges stored by PDF name.
-    priors : dict[str, PDF]
+    priors : dict[str, PDF], optional
         PDF prior distributions.
-    same_height : bool
+    same_height : bool, optional
         Scale PDF modes to the same height.
     """
     # Set defaults

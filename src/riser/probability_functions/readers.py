@@ -221,8 +221,8 @@ def parse_data_lines(
 
 def read_pdf(
     fname: str,
-    normalize_area: bool = True,
     *,
+    normalize_area: bool = True,
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
@@ -234,13 +234,13 @@ def read_pdf(
     ----------
     fname : str
         File name.
-    normalize_area : bool
+    normalize_area : bool, optional
         Scale px value to so the area = 1.0.
-    name : str
+    name : str, optional
         Brief descriptive identifier of the PDF.
-    variable_type : str
+    variable_type : str, optional
         Quality that the PDF represents, e.g., age, displacement, slip rate.
-    unit : str
+    unit : str, optional
         Value unit.
 
     Returns
@@ -332,11 +332,11 @@ def read_calendar_file(
     ----------
     fname : str
         Name of calendar year file.
-    name : str
+    name : str, optional
         Brief descriptive identifier of the PDF.
-    variable_type : str
+    variable_type : str, optional
         Quality that the PDF represents, e.g., age, displacement, slip rate.
-    unit : str
+    unit : str, optional
         Value unit.
 
     Returns

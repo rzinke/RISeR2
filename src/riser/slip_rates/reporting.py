@@ -184,11 +184,11 @@ def write_slip_rates_report(
         Slip rates computation description.
     slip_rates : dict[str, PDF]
         Incremental slip rate PDFs.
-    pdf_statistics : dict[str, PDFstatistics]
+    pdf_statistics : dict[str, PDFstatistics], optional
         Slip rate PDF statistics.
-    confidence_ranges : dict[str, ConfidenceRange]
+    confidence_ranges : dict[str, ConfidenceRange], optional
         Slip rate PDF confidence ranges.
-    sample_statistics : dict[str, SampleStatistics]
+    sample_statistics : dict[str, SampleStatistics], optional
         Slip rate sample statistics.
     """
     # Check that slip rate statistical products pertain to same pairs
