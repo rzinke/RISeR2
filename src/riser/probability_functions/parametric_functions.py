@@ -257,7 +257,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _gaussian_limits(mu, sigma)
+    xmin, xmax = _gaussian_limits_(mu, sigma)
     check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
 
     a = 1 / (sigma * np.sqrt(2 * np.pi))
@@ -297,7 +297,7 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _exponential_limits(scale)
+    xmin, xmax = _exponential_limits_(scale)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
@@ -347,7 +347,7 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _lognormal_limits(mu, sigma)
+    xmin, xmax = _lognormal_limits_(mu, sigma)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
@@ -404,7 +404,7 @@ def students_t(
         Probability density values.
     """
     # Checks
-    xmin, xmax = _students_t_limits(dof, mu, scale)
+    xmin, xmax = _students_t_limits_(dof, mu, scale)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Probability density
