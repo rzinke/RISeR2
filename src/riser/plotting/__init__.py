@@ -1,4 +1,7 @@
 # src/riser/plotting/__init__.py
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 """
 Plotting functions.
@@ -20,3 +23,6 @@ __all__ = (
     + filter_plots.__all__
     + mc_plots.__all__
 )
+
+
+# end of file

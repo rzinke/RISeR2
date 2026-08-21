@@ -1,4 +1,7 @@
 # src/riser/sampling/__init__.py
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 """
 These features deal with samples or realizations of a PDF.
@@ -19,3 +22,6 @@ from . import filtering
 from . import mc_sampling
 from . import pdf_formation
 from . import sample_statistics
+
+
+# end of file
