@@ -31,9 +31,9 @@ class PDFmetadata:
 
     name: str | None = None
 
-    variable_type: variable_types.VariableType.__value__ | None = None
+    variable_type: variable_types.VariableType | None = None
 
-    unit: units.Unit.__value__ | None = None
+    unit: units.Unit | None = None
 
     def __post_init__(self) -> None:
         # Check name

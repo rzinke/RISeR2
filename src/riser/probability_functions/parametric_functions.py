@@ -21,6 +21,8 @@ __all__ = [
 # Import modules
 import warnings
 import inspect
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import scipy as sp
@@ -413,7 +415,7 @@ def students_t(
     return px
 
 
-PARAMETRIC_FUNCTIONS = {
+PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
     "boxcar": boxcar,
     "triangular": triangular,
     "trapezoidal": trapezoidal,
@@ -424,7 +426,7 @@ PARAMETRIC_FUNCTIONS = {
 }
 
 
-def get_function_by_name(distribution: str) -> "Callable":
+def get_function_by_name(distribution: str) -> Callable[..., Any]:
     """Retrieve one of the parametric functions defined above by name.
 
     Parameters
@@ -445,7 +447,7 @@ def get_function_by_name(distribution: str) -> "Callable":
         )
 
     # Return function
-    return PARAMETRIC_FUNCTIONS.get(distribution)
+    return PARAMETRIC_FUNCTIONS[distribution]
 
 
 #################### CHECKS ####################

@@ -31,6 +31,8 @@ __all__ = [
 from dataclasses import dataclass
 from collections.abc import Iterator
 import copy
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
@@ -578,7 +580,7 @@ DEFAULT_CONFIDENCE_METRIC = "HPD"
 
 def get_pdf_confidence_function(
     metric: str, verbose: bool = False
-) -> "Callable":
+) -> Callable[..., Any]:
     """Retrieve a confidence function by name.
 
     Parameters

@@ -21,9 +21,9 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### UNIT SCALING ####################
-def determine_scaling_appropriate(
+def determine_if_scaling_appropriate(
     pdf: PDF,
-    unit_out: str,
+    unit_out: str | None,
     verbose: bool = False,
 ) -> bool:
     """Determine if scaling a PDF is appropriate based on units.
@@ -35,7 +35,7 @@ def determine_scaling_appropriate(
     ----------
     pdf : PDF
         PDF to scale by change in output units.
-    unit_out : str
+    unit_out : str or None
         Unit by which to scale the PDF.
 
     Returns
@@ -43,51 +43,56 @@ def determine_scaling_appropriate(
     bool
         True if scaling is appropriate otherwise False.
     """
-    # Check if unit specified for PDF
-    pdf_unit_defined = (pdf.unit is not None)
+    # Check if input/output units are defined
+    if pdf.unit is None or unit_out is None:
+        if verbose:
+            print(
+                f"Cannot scale PDF: "
+                f"Input unit ({pdf.unit}) and output unit ({unit_out}) "
+                f"cannot be 'None'"
+            )
 
-    # Check if output unit specified
-    out_unit_defined = (unit_out is not None)
-
-    # Flag warning if user expects scaling for output but no input unit
-    if not pdf_unit_defined and out_unit_defined:
-        warnings.warn(
-            "PDF unit must be defined for scaling (got 'None') "
-            "but output unit specified as '{unit_out}'"
-        )
+        return False
 
     # Parse unit scale and base
     pdf_scale, pdf_base = units.parse_unit(pdf.unit)
     out_scale, out_base = units.parse_unit(unit_out)
 
     # Check base units are same
-    same_base = (out_base == pdf_base)
-
-    # Check scales are different
-    output_scalar = (out_scale != pdf_scale)
-
-    # Check all criteria met
-    if all(
-        [
-            pdf_unit_defined,
-            out_unit_defined,
-            same_base,
-            output_scalar,
-        ]
-    ):
+    if not out_base == pdf_base:
         if verbose:
             print(
-                f"Scaling PDF input unit ({pdf.unit}) "
-                f"to output unit ({unit_out})"
+                f"Cannot scale PDF: "
+                f"Input base unit ({pdf_base}) different from "
+                f"output base unit ({out_base})"
             )
-        return True
-    else:
+
         return False
+
+    # Check scales are different
+    if out_scale == pdf_scale:
+        if verbose:
+            print(
+                f"PDF scaling not necessary: "
+                f"Input scale ({pdf_scale}) is equivalent to "
+                f"output scale ({out_scale})"
+            )
+
+        return False
+
+    # Report scaling
+    if verbose:
+        print(
+            f"Scaling PDF input unit ({pdf.unit}) "
+            f"to output unit ({unit_out})"
+        )
+
+    return True
 
 
 def scale_pdf_by_units(
     pdf: PDF,
-    unit_out: str,
+    unit_out: str | None,
     verbose: bool = False,
 ) -> PDF:
     """Scale the values of a PDF from the input unit to the output.
@@ -101,7 +106,7 @@ def scale_pdf_by_units(
     ----------
     pdf : PDF
         PDF to scale by change in output units.
-    unit_out : str
+    unit_out : str or None
         Unit by which to scale the PDF.
 
     Returns
@@ -110,7 +115,7 @@ def scale_pdf_by_units(
         PDF with value axis scaled by the change in output units.
     """
     # Check if scaling is appropriate
-    if determine_scaling_appropriate(
+    if determine_if_scaling_appropriate(
         pdf=pdf,
         unit_out=unit_out,
         verbose=verbose,

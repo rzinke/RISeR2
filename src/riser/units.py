@@ -2,6 +2,25 @@
 #
 # Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
+"""
+Unit parsing and scaling for RISeR2.
+
+Convention for functions in this module that accept a unit string:
+
+- Functions that COMPUTE a result from a unit (parse_unit,
+  scale_values_by_units) require a real unit and raise if given `None`.
+  There is no meaningful default scale or base to fall back on, so
+  continuing silently would risk propagating an incorrect value rather
+  than failing clearly.
+- Functions that VALIDATE a unit (check_base_unit_supported) accept
+  `None` but warn, since silently skipping validation would hide the
+  exact condition the check exists to catch.
+- Functions that DESCRIBE whether an operation is possible
+  (determine_if_scaling_appropriate, in probability_functions.scaling)
+  accept `None` and return a plain False/no-op, since "no unit means
+  no scaling" is an expected, legitimate outcome for a caller to receive.
+"""
+
 # Public API
 __all__ = [
     "BASE_UNITS",
@@ -37,10 +56,41 @@ import numpy as np
 type Unit = str
 
 
+#################### UNIT CHECKS ####################
+def check_base_unit_supported(base_unit: str | None) -> None:
+    """Check that the base unit is supported.
+
+    Warns if base unit is `None`.
+
+    Parameters
+    ----------
+    base_unit : str or None
+        Base unit.
+
+    Returns
+    -------
+    None
+    """
+    # Warn if base unit is None
+    if base_unit is None:
+        warnings.warn(
+            "Base unit 'None' is not supported for unit-based operations"
+        )
+
+        return
+
+    # Check base unit is supported
+    if base_unit not in BASE_UNITS:
+        raise ValueError(
+            f"Base unit '{base_unit}' not supported. "
+            f"Use one of {', '.join(BASE_UNITS)}"
+        )
+
+
 #################### UNIT PARSING ####################
 def parse_unit(
-    unit: str | None, verbose: bool = False
-) -> tuple[float, str] | tuple[None, None]:
+    unit: str, verbose: bool = False
+) -> tuple[float, str]:
     """Determine the components of a unit.
 
     Currently only works with simple units (e.g., m, y) and not compound units
@@ -48,8 +98,8 @@ def parse_unit(
 
     Parameters
     ----------
-    unit : str or None
-        Unit to parse.
+    unit : str
+        Unit to parse (cannot be `None`).
 
     Returns
     -------
@@ -58,76 +108,47 @@ def parse_unit(
     base : str
         Unit base.
     """
-    if unit is None:
-        if verbose:
-            print("Unit is 'None'")
+    # Check if unit as an exponent
+    if unit[-1].isdigit():
+        raise ValueError("Exponents are not currently supported")
 
-        return None, None
+    # Check unit formatting based on length
+    if len(unit) > 2:
+        raise ValueError("Unit not recognized")
 
+    # Determine unit scale
+    if len(unit) == 2:
+        # Unit prefix
+        prefix = unit[0]
+
+        # Determine scale from prefix
+        scale = UNIT_SCALES.get(prefix)
+
+        # Check prefix is valid
+        if scale is None:
+            raise ValueError(f"Unit prefix '{prefix}' not supported")
     else:
-        # Check if unit as an exponent
-        if unit[-1].isdigit():
-            raise ValueError("Exponents are not currently supported")
+        # Set scale
+        scale = 1.0
 
-        # Check unit formatting based on length
-        if len(unit) > 2:
-            raise ValueError("Unit not recognized")
+    # Determine base unit
+    base = unit[-1]
 
-        # Determine unit scale
-        if len(unit) == 2:
-            # Unit prefix
-            prefix = unit[0]
+    # Check that base is valid
+    check_base_unit_supported(base)
 
-            # Determine scale from prefix
-            scale = UNIT_SCALES.get(prefix)
+    # Report if requested
+    if verbose:
+        print(f"Unit: {scale:E} {base}")
 
-            # Check prefix is valid
-            if scale is None:
-                raise ValueError(f"Prefix '{prefix}' not supported")
-        else:
-            # Set scale
-            scale = 1.0
-
-        # Determine base unit
-        base = unit[-1]
-
-        # Check that base is valid
-        check_base_unit_supported(base)
-
-        # Report if requested
-        if verbose:
-            print(f"Unit: {scale:E} {base}")
-
-        return scale, base
-
-
-#################### UNIT CHECKS ####################
-def check_base_unit_supported(base_unit: str):
-    """Check that the base unit is supported.
-
-    Parameters
-    ----------
-    base_unit : str
-        Base unit.
-
-    Returns
-    -------
-    bool
-        True if base unit is supported.
-    """
-    # Check base unit is appropriate
-    if base_unit not in BASE_UNITS:
-        raise ValueError(
-            f"Base unit '{base_unit}' not supported. "
-            f"Use one of {', '.join(BASE_UNITS)}"
-        )
+    return scale, base
 
 
 #################### UNIT SCALING ####################
 def scale_values_by_units(
     values: float | np.ndarray,
-    unit_in: str,
-    unit_out: str,
+    unit_in: str | None,
+    unit_out: str | None,
     verbose: bool = False,
 ) -> float | np.ndarray:
     """Scale values from the input unit to the output.
@@ -139,9 +160,9 @@ def scale_values_by_units(
     ----------
     values : float or np.ndarray
         Values to scale by change in output units.
-    unit_in : str
+    unit_in : str or None
         Original unit.
-    unit_out : str
+    unit_out : str or None
         Output unit.
 
     Returns
@@ -153,14 +174,10 @@ def scale_values_by_units(
         print(f"Scaling from {unit_in} to {unit_out}")
 
     # Check if scaling is appropriate
-    if unit_in is None:
+    if unit_in is None or unit_out is None:
         raise ValueError(
-            "Original unit must be defined for scaling. Got 'None'."
-        )
-
-    if unit_out is None:
-        raise ValueError(
-            "Output unit must be defined for scaling. Got 'None'."
+            f"Neither input unit ({unit_in}) nor output unit ({unit_out}) "
+            f"can be 'None'"
         )
 
     # Check if compound unit
@@ -168,7 +185,10 @@ def scale_values_by_units(
     if any(
         [char in unit for unit in [unit_in, unit_out] for char in operators]
     ):
-        raise ValueError("Compound units not currently supported")
+        raise ValueError(
+            f"Compound units not currently supported, "
+            f"got input unit '{unit_in}' and output unit '{unit_out}'"
+        )
 
     # Parse input and output units
     scale_in, base_in = parse_unit(unit_in)

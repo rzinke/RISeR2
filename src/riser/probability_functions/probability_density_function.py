@@ -142,7 +142,7 @@ class ProbabilityDensityFunction:
         area = self._compute_area_()
         self._px /= area
 
-    def _compute_cdf_(self) -> None:
+    def _compute_cdf_(self) -> np.ndarray:
         """Compute the cumulative distribution function.
         """
         # Cumulative integration
@@ -299,15 +299,15 @@ class ProbabilityDensityFunction:
 
     # Metadata properties
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         return self.metadata.name
 
     @property
-    def variable_type(self) -> str:
+    def variable_type(self) -> str | None:
         return self.metadata.variable_type
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> str | None:
         return self.metadata.unit
 
 
