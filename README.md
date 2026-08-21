@@ -12,33 +12,28 @@ Earthquake fault slip rates describe the displacement accumulation rate across a
 *Example incremental slip rates. Three incremental rates are computed between pairs of among four dated displacement markers (Marker 01&ndash;Marker 04). The exact value of each incremental slip rate is uncertain, therefore possible slip rate values are expressed as probability densities. Blue fields show the most probabilty 68.2% of values.*
 
 ## Setup
-RISeR2 is optimally used as a set of command line tools, which form an adaptable pipeline for handling and computing probability functions. These scripts have been tested for Linux/UNIX systems. To use these scripts, clone the GitHub repository to a location of your choice, which will be referred to as `RISER2_HOME`. Once cloned, you must append the filepaths to your `$PATH` AND `$PYTHONPATH` variables.
+RISeR2 is optimally used as a set of command line tools, which form an adaptable pipeline for handling and computing probability functions. These scripts have been tested for UNIX-based systems. To use these scripts, clone the GitHub repository to a location of your choice and navigate to that folder.
 
-If you are running BASH (`echo $SHELL = bash`), add the following paths to your `~/.bashrc` file for a Linux system or `~/.bash_profile` for a Mac system:
+Note: It is recommended to use a Python package manager such conda or mamba. Create a new environment with the necessary packages installed and activate it:
+
 ```
-RISER2_HOME=<path to repo>
-
-export PATH="${PATH}:${RISER2_HOME}/src/riser/cli"
-export PYTHONPATH="${PYTHONPATH}:${RISER2_HOME}/src"
-```
-
-If you are running CSH/TCSH (echo $SHELL = (t)csh), add the following paths to your ~/.cshrc or ~/.tcshrc file:
-```
-set RISER2_HOME=<path to repo>
-
-setenv PATH $PATH\:"$RISER2_HOME/src/riser/cli"
-setenv PYTHONPATH $PYTHONPATH\:"${RISER2_HOME}/src"
+conda env create -n riser -f requirements.yaml
+conda activate riser
 ```
 
-If you are using Windows, it is recommended you set additional environmental variables.
+Then install RISeR2 into that environment:
+
+```
+pip install -e .
+```
 
 
 ## Top-level Functions and Examples
 RISeR2 provides three command line functions for determining slip rates:
 
- - `compute_slip_rate.py`
- - `compute_slip_rates.py`
- - `compute_slip_rates_mc.py`
+ - `riser-compute-slip-rate`
+ - `riser-compute-slip-rates`
+ - `riser-compute-slip-rates-mc`
 
 Each tool is designed for different scenarios, and to incorporate different assumptions. See [Slip rate determination](#slip-rate-determination).
 
@@ -77,11 +72,11 @@ Data points defining displacement-time history of a fault are encoded as a **`Da
 
 ### Slip rate determination
 
-`compute_slip_rate.py` is used to determine the slip rate of a fault since present day, based on a single DatedMarker. It uses the analytical formulation (a weighted convolution) of Bird (2007).
+`riser-compute-slip-rate` is used to determine the slip rate of a fault since present day, based on a single DatedMarker. It uses the analytical formulation (a weighted convolution) of Bird (2007).
 
-`compute_slip_rates.py` is used to compute incremental slip rates between multiple DateMarkers using convolution-based analytical formulas. It assumes that neither the change in age between markers $\Delta t$, nor the change in displacement $\Delta u$ are negative.
+`riser-compute-slip-rates` is used to compute incremental slip rates between multiple DateMarkers using convolution-based analytical formulas. It assumes that neither the change in age between markers $\Delta t$, nor the change in displacement $\Delta u$ are negative.
 
-`compute_slip_rates_mc.py` invokes Monte Carlo-style sampling of the ages and displacements of multiple DateMarkers in a slip history. The age and displacement PDFs are sampled according to their non-parametric forms using the **Probability Inverse Transform (PIT)** method. Multiple conditions can be enforced on whether the random samples are valid and accepted, or invalid and rejected in the process of **rejection sampling** (discussed in this context in Zinke et al., 2019). Like Gold & Cowgill (2012), `compute_slip_rates_mc.py` enforces the assumption that the fault did not slip backwards (inversely to its overall kinematics) at any point in its history. This can be especially important in cases where ages and/or displacements uncertainties overlap. A maximum-allowable slip rate may also be provided, to avoid possibilities in which the fault slipped unrealistically fast over multiple earthquake cycles.
+`riser-compute-slip-rates` invokes Monte Carlo-style sampling of the ages and displacements of multiple DateMarkers in a slip history. The age and displacement PDFs are sampled according to their non-parametric forms using the **Probability Inverse Transform (PIT)** method. Multiple conditions can be enforced on whether the random samples are valid and accepted, or invalid and rejected in the process of **rejection sampling** (discussed in this context in Zinke et al., 2019). Like Gold & Cowgill (2012), `compute_slip_rates_mc.py` enforces the assumption that the fault did not slip backwards (inversely to its overall kinematics) at any point in its history. This can be especially important in cases where ages and/or displacements uncertainties overlap. A maximum-allowable slip rate may also be provided, to avoid possibilities in which the fault slipped unrealistically fast over multiple earthquake cycles.
 
 
 ## References
