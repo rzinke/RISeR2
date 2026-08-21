@@ -225,7 +225,7 @@ def trapezoidal(
     return px
 
 
-def _gaussian_limits(mu, sigma):
+def _gaussian_limits_(mu, sigma) -> tuple[float, float]:
     # Area of PDF to be covered
     target_coverage = sp.stats.norm.cdf(4)
 
@@ -269,7 +269,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return px
 
 
-def _exponential_limits(scale):
+def _exponential_limits_(scale) -> tuple[float, float]:
     # Minimum distance
     xmin = 0
 
@@ -317,7 +317,7 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     return px
 
 
-def _lognormal_limits(mu, sigma):
+def _lognormal_limits_(mu, sigma) -> tuple[float, float]:
     # Minimum distance
     xmin = 0
 
@@ -367,7 +367,7 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return px
 
 
-def _students_t_limits(dof, mu, scale):
+def _students_t_limits_(dof, mu, scale) -> tuple[float, float]:
     # Target coverage - 0.99997
     target_coverage = sp.stats.norm.cdf(4)
 

@@ -20,7 +20,7 @@ from .. import variable_pairs
 
 #################### SAMPLING CRITERIA ####################
 class SampleCriterion:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         return
 
     def check_pass_fail(
@@ -48,7 +48,7 @@ class SampleCriterion:
         )
 
 class PassAll(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def check_pass_fail(
@@ -62,7 +62,7 @@ class PassAll(SampleCriterion):
         return True
 
 class PassNonnegative(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def check_pass_fail(
@@ -83,7 +83,7 @@ class PassNonnegative(SampleCriterion):
             return False
 
 class PassNonnegativeBounded(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
         # Record maximum allowable sample rate

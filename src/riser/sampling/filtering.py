@@ -45,7 +45,7 @@ class FIRFilter:
 
     filter_type = None
 
-    def __init__(self, h: np.ndarray):
+    def __init__(self, h: np.ndarray) -> None:
         """Initialize a generic FIRFilter.
 
         Parameters
@@ -59,17 +59,17 @@ class FIRFilter:
         # Ensure neutral gain
         self._normalize_gain_()
 
-    def _normalize_gain_(self):
+    def _normalize_gain_(self) -> None:
         """Ensure that the filter does not change the overall gain of the
         data series to which it applies.
         """
         # Scale sum to 1.0
         self.h /= np.sum(self.h)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.h)
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = f"{len(self.h)}-width {self.filter_type} filter"
 
         return print_str
@@ -80,7 +80,7 @@ class MeanFilter(FIRFilter):
     """
     filter_type = "mean"
 
-    def __init__(self, width: int):
+    def __init__(self, width: int) -> None:
         """Initialize a moving mean filter.
 
         Parameters
@@ -101,7 +101,7 @@ class GaussFilter(FIRFilter):
     """
     filter_type = "gaussian"
 
-    def __init__(self, width: int):
+    def __init__(self, width: int) -> None:
         """Width is the total width.
 
         For a 2-sigma range, 1 sigma should be one half of half the width.

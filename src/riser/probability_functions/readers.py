@@ -29,7 +29,7 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### CHECKS ####################
-def check_extension(fname: str, ext: str):
+def check_extension(fname: str, ext: str) -> None:
     """Check that the filename has the appropriate extension.
 
     Parameters

@@ -29,6 +29,7 @@ __all__ = [
 
 # Import modules
 from dataclasses import dataclass
+from collections.abc import Iterator
 import copy
 
 import numpy as np
@@ -357,7 +358,7 @@ class PDFstatistics:
     unit: str | None = None
 
     # Reporting
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = f"PDF:"
         if self.name is not None:
             print_str += f" {self.name}"
@@ -425,10 +426,10 @@ class ConfidenceRange:
     variable_type: str | None = None
     unit: str | None = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[float, float]]:
         yield from self.range_values
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "PDF confidence range:"
         if self.pdf_name is not None:
             print_str += f" {self.pdf_name}"

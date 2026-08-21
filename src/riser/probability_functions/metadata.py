@@ -35,7 +35,7 @@ class PDFmetadata:
 
     unit: units.Unit.__value__ | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Check name
         if self.name is not None and not isinstance(self.name, str):
             raise TypeError(

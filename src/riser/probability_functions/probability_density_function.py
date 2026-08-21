@@ -58,7 +58,7 @@ class ProbabilityDensityFunction:
         name: str | None = None,
         variable_type: str | None = None,
         unit: str | None = None,
-    ):
+    ) -> None:
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
@@ -291,7 +291,7 @@ class ProbabilityDensityFunction:
         return np.interp(y, self.Px, self.x)
 
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the PDF array.
         """
         return len(self._x)
@@ -311,7 +311,7 @@ class ProbabilityDensityFunction:
         return self.metadata.unit
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "PDF"
 
         # Add metadata to print string

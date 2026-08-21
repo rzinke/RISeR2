@@ -27,7 +27,7 @@ class VariablePair:
         x1: PDFs.PDF,
         x2: PDFs.PDF,
         name: str | None = None,
-    ):
+    ) -> None:
         """Initialize a VariablePair.
 
         Parameters
@@ -51,11 +51,11 @@ class VariablePair:
         return self._x1
 
     @x1.setter
-    def x1(self, value):
+    def x1(self, value: PDFs.PDF) -> None:
         if not isinstance(value, PDFs.PDF):
             raise TypeError(
                 f"Variable `x1` must be provided as a PDF, "
-                f"got {type(x1).__name__}"
+                f"got {type(value).__name__}"
             )
 
         # Set x1 value - deep copy just in case
@@ -66,17 +66,17 @@ class VariablePair:
         return self._x2
 
     @x2.setter
-    def x2(self, value):
+    def x2(self, value: PDFs.PDF) -> None:
         if not isinstance(value, PDFs.PDF):
             raise TypeError(
                 f"Variable `x2` must be provided as a PDF, "
-                f"got {type(x2).__name__}"
+                f"got {type(value).__name__}"
             )
 
         # Set x2 value - deep copy just in case
         self._x2 = copy.deepcopy(value)
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = f"VariablePair "
 
         # Report marker name

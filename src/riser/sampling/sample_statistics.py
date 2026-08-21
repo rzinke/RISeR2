@@ -31,7 +31,7 @@ class SampleStatistics:
     variable_type: str
     unit: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "Sample statistics:"
         if self.name is not None:
             print_str += f" {self.name}"

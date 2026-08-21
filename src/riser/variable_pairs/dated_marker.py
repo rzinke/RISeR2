@@ -37,7 +37,7 @@ class DatedMarker(VariablePair):
         age: PDFs.PDF,
         displacement: PDFs.PDF,
         name: str | None = None,
-    ):
+    ) -> None:
         """Initialize a DatedMarker.
 
         Parameters
@@ -65,7 +65,7 @@ class DatedMarker(VariablePair):
         return self.x1
 
     @age.setter
-    def age(self, value):
+    def age(self, value: PDFs.PDF) -> None:
         self.x1 = value
     
     @property
@@ -73,10 +73,10 @@ class DatedMarker(VariablePair):
         return self.x2
 
     @displacement.setter
-    def displacement(self, value):
+    def displacement(self, value: PDFs.PDF) -> None:
         self.x2 = value
     
-    def _check_units_(self):
+    def _check_units_(self) -> None:
         """Check that the age measurement is some multiple of years,
         and the displacement unit is some multiple of meters.
         """
@@ -111,7 +111,7 @@ class DatedMarker(VariablePair):
                 )
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = f"DatedMarker {self.displacement.name}, comprising:"
 
         # Report age
