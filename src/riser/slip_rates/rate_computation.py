@@ -71,7 +71,7 @@ def compute_slip_rate(
     min_rate = 0.0 if limit_positive else -100.0
 
     # Divide displacement by age
-    slip_rate = var_ops.divide_variables(
+    slip_rate = var_ops.arithmetic.divide_variables(
         numerator=marker.displacement,
         denominator=marker.age,
         dq=dq,
@@ -131,12 +131,12 @@ def compute_slip_rates_analytical(
 
     # Warn of metadata mismatches for ages
     PDFs.metadata.get_common_metadata(
-        [marker.age for marker in markers.values()]
+        [marker.age.metadata for marker in markers.values()]
     )
 
     # Warn of metadata mismatches for displacements
     PDFs.metadata.get_common_metadata(
-        [marker.displacement for marker in markers.values()]
+        [marker.displacement.metadata for marker in markers.values()]
     )
 
     # Set mimimum slip rate
@@ -162,7 +162,7 @@ def compute_slip_rates_analytical(
         )
 
         # Compute age difference - negative ages not supported
-        DeltaT = var_ops.subtract_variables(
+        DeltaT = var_ops.arithmetic.subtract_variables(
             pdf1=older_age,
             pdf2=younger_age,
             limit_positive=limit_positive,
@@ -177,7 +177,7 @@ def compute_slip_rates_analytical(
         )
 
         # Compute displacement difference
-        DeltaU = var_ops.subtract_variables(
+        DeltaU = var_ops.arithmetic.subtract_variables(
             pdf1=older_displacement,
             pdf2=younger_displacement,
             limit_positive=limit_positive,
@@ -187,7 +187,7 @@ def compute_slip_rates_analytical(
         rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         # Divide displacement by age
-        slip_rate = var_ops.divide_variables(
+        slip_rate = var_ops.arithmetic.divide_variables(
             numerator=DeltaU,
             denominator=DeltaT,
             dq=dq,
@@ -281,12 +281,12 @@ def compute_slip_rates_mc(
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(
-        [marker.age for marker in markers.values()]
+        [marker.age.metadata for marker in markers.values()]
     )
 
     # Warn of metadata mismatches for displacements
     displacement_metadata = PDFs.metadata.get_common_metadata(
-        [marker.displacement for marker in markers.values()]
+        [marker.displacement.metadata for marker in markers.values()]
     )
 
     # Determine slip rate unit

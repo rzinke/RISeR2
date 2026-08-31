@@ -70,7 +70,7 @@ def main():
     )
 
     # Compute K-S statistic
-    ks_stat, ks_ndx = var_ops.compute_ks_statistic(pdf1, pdf2, verbose=True)
+    ks_stat, ks_ndx = var_ops.comparison.compute_ks_statistic(pdf1, pdf2, verbose=True)
 
     # Plot functions if requested
     if inps.plot:

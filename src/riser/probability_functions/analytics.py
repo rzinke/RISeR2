@@ -337,7 +337,7 @@ def pdf_median(pdf: PDF) -> float:
     median : float
         Median of PDF.
     """
-    return pdf.pit(0.5).item()
+    return pdf.pit(0.5)
 
 
 #################### STATISTICAL SUMMARIES ####################
@@ -607,7 +607,7 @@ def get_pdf_confidence_function(
     if verbose:
         print(f"Confidence metric: {metric}")
 
-    return PDF_CONFIDENCE_METRICS.get(metric)
+    return PDF_CONFIDENCE_METRICS[metric]
 
 
 def compute_pdf_confidence_range(

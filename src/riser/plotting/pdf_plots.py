@@ -30,14 +30,14 @@ from .. import (
 
 
 #################### GENERAL LABELING ####################
-def formulate_axis_label(variable_type: str, unit: str) -> str:
+def formulate_axis_label(variable_type: str | None, unit: str | None) -> str:
     """Formulate an axis label in a standardized manner.
 
     Parameters
     ----------
-    variable_type : str
+    variable_type : str or None
         Variable type from which to draw the metadata.
-    unit : str
+    unit : str or None
         Unit.
 
     Returns
@@ -92,7 +92,9 @@ def axis_label_from_pdfs(pdfs: list[PDFs.PDF]) -> str:
         Standardized axis label.
     """
     # Find common metadata values
-    common_metadata = PDFs.metadata.get_common_metadata(pdfs)
+    common_metadata = PDFs.metadata.get_common_metadata(
+        [pdf.metadata for pdf in pdfs]
+    )
 
     return formulate_axis_label(
         variable_type=common_metadata.variable_type,
@@ -385,7 +387,7 @@ def plot_pdf_stack(
         if priors.get(name) is not None:
             plot_pdf_line(
                 ax,
-                priors.get(name),
+                priors[name],
                 color="darkgrey",
                 zorder=3,
                 offset=i,
@@ -407,7 +409,7 @@ def plot_pdf_stack(
             plot_pdf_confidence_range(
                 ax,
                 pdf,
-                conf_range=conf_ranges.get(name),
+                conf_range=conf_ranges[name],
                 zorder=1,
                 offset=i,
                 scale=scale,

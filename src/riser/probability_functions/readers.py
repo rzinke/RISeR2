@@ -96,7 +96,7 @@ def parse_metadata_from_header(
 
 
 def reconcile_metadata(
-    user_metadata: dict[str, str],
+    user_metadata: dict[str, str | None],
     file_metadata: dict[str, str],
     verbose: bool = False,
 ) -> dict[str, str]:
@@ -197,8 +197,8 @@ def parse_data_lines(
         print("Reading data from file")
 
     # Empty lists for x, px
-    x = []
-    px = []
+    x_values = []
+    px_values = []
 
     # Loop through lines
     for line in data_lines:
@@ -206,15 +206,15 @@ def parse_data_lines(
         line = format_data_line(line)
 
         # Parse x, px from line
-        line_x, line_px = line.split(",")
+        x_value, px_value = line.split(",")
 
         # Record to list
-        x.append(float(line_x))
-        px.append(float(line_px))
+        x_values.append(float(x_value))
+        px_values.append(float(px_value))
 
     # Convert lists to numpy arrays
-    x = np.array(x)
-    px = np.array(px)
+    x = np.array(x_values)
+    px = np.array(px_values)
 
     return x, px
 
@@ -377,8 +377,8 @@ def read_calendar_file(
     data_lines = [line for line in lines if line[0] != "#" and len(line) > 1]
 
     # Empty lists for x, px
-    calyr = []
-    calpx = []
+    calyr_values = []
+    calpx_values = []
 
     # Loop through lines
     for line in data_lines:
@@ -389,12 +389,12 @@ def read_calendar_file(
         line_calyr, line_px = line.split(",")
 
         # Record to list
-        calyr.append(float(line_calyr))
-        calpx.append(float(line_px))
+        calyr_values.append(float(line_calyr))
+        calpx_values.append(float(line_px))
 
     # Convert lists to numpy arrays
-    calyr = np.array(calyr)
-    calpx = np.array(calpx)
+    calyr = np.array(calyr_values)
+    calpx = np.array(calpx_values)
 
     return calyr, calpx, metadata
 
@@ -435,7 +435,7 @@ def create_header_from_pdf(pdf: PDF) -> str:
     return header
 
 
-def pdf_data_to_str(pdf: PDF) -> str:
+def pdf_data_to_str(pdf: PDF) -> list[str]:
     """Format the data of a PDF into string format.
 
     Parameters
@@ -445,7 +445,7 @@ def pdf_data_to_str(pdf: PDF) -> str:
 
     Returns
     -------
-    str
+    list[str]
         Block of PDF data.
     """
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]

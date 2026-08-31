@@ -47,11 +47,13 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
 
     # Raise warning if a single value is not representative
     if diff_x_std > precision.RISER_PRECISION:
-        warnings.warn(f"Sample spacing varies by {diff_x_std}. "
-                      f"A single value might not be representative.")
+        warnings.warn(
+            f"Sample spacing varies by {diff_x_std}. "
+            f"A single value might not be representative."
+        )
 
     # Representative spacing value
-    dx = precision.fix_precision(np.median(diff_x))
+    dx = float(precision.fix_precision(np.median(diff_x)))
 
     # Report if requested
     if verbose:
@@ -62,7 +64,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
 
 def sample_spacing_array_from_pdf(
     pdf: PDF, verbose: bool = False
-) -> np.ndarray:
+) -> float | np.ndarray:
     """Return an array of the changes in x (dx) for a discrete PDF.
 
     In classical calculus, dx is a single scalar number, which assumes that the
@@ -85,7 +87,7 @@ def sample_spacing_array_from_pdf(
 
     Returns
     -------
-    dx : np.ndarray
+    dx : float or np.ndarray
         dx values.
     """
     # Deteremine differences between x-samples

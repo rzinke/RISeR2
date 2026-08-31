@@ -101,15 +101,23 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 
 
 #################### RANDOM VARIABLE ARITHMETIC ####################
-def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
+def negate_variable(
+    pdf: PDFs.PDF,
+    normalize_area: bool = False,
+    verbose: bool = False,
+) -> PDFs.PDF:
     """Negate a random variable expressed as a PDF.
 
     Negating the x-values, and flip the probability densities left for right.
 
     Parameters
     ----------
-    pdf: PDF
+    pdf : PDF
         PDF to negate.
+    normalize_area : bool
+        Scale px value to so the area = 1.0.
+        Because negation is pure reflection, it should not automatically
+        normalize the area unless explicitly specified.
     
     Returns
     -------
@@ -132,6 +140,7 @@ def negate_variable(pdf: PDFs.PDF, verbose: bool = False) -> PDFs.PDF:
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
+        normalize_area=normalize_area,
         **pdf.metadata.as_dict(),
     )
 
@@ -188,7 +197,7 @@ def add_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1, pdf2], name=name, warn=True
+        [pdf1.metadata, pdf2.metadata], name=name, warn=True
     )
 
     # Parameters
@@ -224,7 +233,7 @@ def subtract_variables(
     pdf2: PDFs.PDF,
     *,
     limit_positive: bool = False,
-    name: str = None,
+    name: str | None = None,
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
@@ -275,7 +284,7 @@ def subtract_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1, pdf2], name=name, warn=True
+        [pdf1.metadata, pdf2.metadata], name=name, warn=True
     )
 
     # Parameters
@@ -323,7 +332,7 @@ def multiply_variables(
     dp: float = 0.01,
     min_product: float = -100.0,
     max_product: float = 100.0,
-    name: str = None,
+    name: str | None = None,
     variable_type: str | None = None,
     verbose: bool = False,
 ) -> PDFs.PDF:

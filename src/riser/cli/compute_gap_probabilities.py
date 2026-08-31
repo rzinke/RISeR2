@@ -76,7 +76,7 @@ def main():
     )
 
     # Compute summed PDF
-    gap_pdf = var_ops.compute_probability_between_variables(
+    gap_pdf = var_ops.gap_determination.compute_probability_between_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
 

@@ -58,7 +58,7 @@ def combine_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        pdfs, name=name, warn=True
+        [pdf.metadata for pdf in pdfs], name=name, warn=True
     )
 
     # Base PDF
@@ -124,7 +124,7 @@ def merge_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        pdfs, name=name, warn=True
+        [pdf.metadata for pdf in pdfs], name=name, warn=True
     )
 
     # Base PDF

@@ -133,7 +133,7 @@ def main():
     )
 
     # Read markers
-    markers = variable_pairs.read_dated_markers_from_config(
+    markers = variable_pairs.readers.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 

@@ -43,7 +43,7 @@ class SampleCriterion:
         bool
             Pass (True) or fail (False).
         """
-        return NotImplementedError(
+        raise NotImplementedError(
             "check_pass_fail not implemented. Override with child class."
         )
 
@@ -124,7 +124,7 @@ SAMPLE_CRITERIA = {
 
 def get_sample_criterion(
     criterion_name: str, verbose: bool = False
-) -> SampleCriterion:
+) -> type[SampleCriterion]:
     """Retrieve a sample criterion by name.
 
     Parameters
@@ -144,7 +144,7 @@ def get_sample_criterion(
             f"Use one of {', '.join(SAMPLE_CRITERIA.keys())}"
         )
 
-    return SAMPLE_CRITERIA.get(criterion_name)
+    return SAMPLE_CRITERIA[criterion_name]
 
 
 #################### MONTE CARLO SAMPLING ####################
@@ -154,7 +154,7 @@ def sample_monte_carlo(
     *,
     n_samples: int = 10_000,
     seed_val: int = 0,
-    hard_stop: float = 1_000_000_000,
+    hard_stop: int = 1_000_000_000,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Sample valid possible slip rates using a Monte Carlo method.
@@ -174,7 +174,7 @@ def sample_monte_carlo(
         Number of valid samples to achieve.
     seed_val : int
         Random number generator seed value.
-    hard_stop : float
+    hard_stop : int
         Maximum slip rate to consider.
 
     Returns

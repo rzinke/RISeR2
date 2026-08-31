@@ -71,7 +71,7 @@ def main():
     denom_pdf = PDFs.readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Compute quotient of PDFs
-    quot_pdf = var_ops.divide_variables(
+    quot_pdf = var_ops.arithmetic.divide_variables(
         numer_pdf, denom_pdf, name=inps.name, verbose=inps.verbose
     )
 

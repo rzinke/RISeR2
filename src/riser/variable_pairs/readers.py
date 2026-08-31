@@ -175,25 +175,39 @@ def read_dated_markers_from_config(
     for i, marker in enumerate(markers.values()):
         if i > 0:
             # Compute reference age/displacement
-            ref_age = PDFs.analytics.pdf_mean(ref_marker.age)
-            ref_disp = PDFs.analytics.pdf_mean(ref_marker.displacement)
+            ref_age = PDFs.analytics.pdf_mean(
+                ref_marker.age  # type: ignore[has-type]
+            )
+            ref_disp = PDFs.analytics.pdf_mean(
+                ref_marker.displacement  # type: ignore[has-type]
+            )
 
             # Compute marker age/displacement
-            marker_age = PDFs.analytics.pdf_mean(marker.age)
-            marker_disp = PDFs.analytics.pdf_mean(marker.displacement)
+            marker_age = PDFs.analytics.pdf_mean(
+                marker.age  # type: ignore[has-type]
+            )
+            marker_disp = PDFs.analytics.pdf_mean(
+                marker.displacement  # type: ignore[has-type]
+            )
 
             # Check that marker is older/larger than previous
             if marker_age < ref_age:
+                marker_name = marker.name
+                ref_marker_name = ref_marker.name  # type: ignore[has-type]
+
                 warnings.warn(
-                    f"Marker '{marker.name}' appears to be younger than "
-                    f"'{ref_marker.name}'. Confirm marker order.",
+                    f"Marker '{marker_name}' appears to be younger than "
+                    f"'{ref_marker_name}'. Confirm marker order.",
                     stacklevel=3,
                 )
 
             if marker_disp < ref_disp:
+                marker_name = marker.name
+                ref_marker_name = ref_marker.name  # type: ignore[has-type]
+
                 warnings.warn(
-                    f"Marker '{marker.name}' appears to be less displaced than "
-                    f"'{ref_marker.name}'. Confirm marker order.",
+                    f"Marker '{marker_name}' appears to be less displaced than "
+                    f"'{ref_marker_name}'. Confirm marker order.",
                     stacklevel=3,
                 )
 

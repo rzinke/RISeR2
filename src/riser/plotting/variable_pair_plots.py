@@ -20,6 +20,10 @@ __all__ = [
 
 
 # Import modules
+import warnings
+from typing.Any import Any
+from collections.abc import Callable
+
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
@@ -32,6 +36,12 @@ from .. import (
 from .pdf_plots import axis_label_from_pdf, axis_label_from_pdfs
 
 
+#################### WARNINGS ####################
+nameless_label_warning = (
+    "`label` flag was passed, but no name was given to variable pair"
+)
+
+
 #################### VARIABLE PAIR PLOTTING ####################
 def set_origin_zero(ax: Axes) -> None:
     """Set the plot origin at zero.
@@ -41,8 +51,8 @@ def set_origin_zero(ax: Axes) -> None:
     ax
         Axes to set at zero.
     """
-    ax.set_xlim([0, ax.get_xlim()[1]])
-    ax.set_ylim([0, ax.get_ylim()[1]])
+    ax.set_xlim((0, ax.get_xlim()[1]))
+    ax.set_ylim((0, ax.get_ylim()[1]))
 
 
 def format_marker_plot(
@@ -143,7 +153,12 @@ def plot_variable_pair_whisker(
 
     # Label if requested
     if label:
-        ax.text(1.01 * x1_center, 1.01 * x2_center, marker.name, color=color)
+        if marker.name is not None:
+            ax.text(
+                1.01 * x1_center, 1.01 * x2_center, marker.name, color=color
+            )
+        else:
+            warnings.warn(nameless_label_warning)
 
 
 def plot_variable_pairs_whisker(
@@ -240,11 +255,14 @@ def plot_variable_pair_rectangle(
 
     # Label if requested
     if label:
-        ax.text(x1_vals[1], x2_vals[1], marker.name, color=color)
+        if marker.name is not None:
+            ax.text(x1_vals[1], x2_vals[1], marker.name, color=color)
+        else:
+            warnings.warn(nameless_label_warning)
 
     # Adjust axis limits
-    ax.set_xlim([0, 1.1 * x1_vals[1]])
-    ax.set_ylim([0, 1.1 * x2_vals[1]])
+    ax.set_xlim((0, 1.1 * x1_vals[1]))
+    ax.set_ylim((0, 1.1 * x2_vals[1]))
 
 
 def plot_variable_pairs_rectangle(
@@ -347,15 +365,18 @@ def plot_variable_pairs_joint_pdf(
 
         # Label if requested
         if label:
-            x1_mode = PDFs.analytics.pdf_mode(marker.x1)
-            x2_mode = PDFs.analytics.pdf_mode(marker.x2)
-            ax.text(x1_mode, x2_mode, marker_name, color="royalblue")
+            if not marker_name is None:
+                x1_mode = PDFs.analytics.pdf_mode(marker.x1)
+                x2_mode = PDFs.analytics.pdf_mode(marker.x2)
+                ax.text(x1_mode, x2_mode, marker_name, color="royalblue")
+            else:
+                warnings.warn(nameless_label_warning)
 
     # Plot joint probability
     ax.pcolormesh(X1, X2, Pjoint.T, cmap=cmap)
 
 
-VARIABLE_PAIR_PLOT_TYPES = {
+VARIABLE_PAIR_PLOT_TYPES: dict[str, Callable[..., Any]] = {
     "whisker": plot_variable_pairs_whisker,
     "rectangle": plot_variable_pairs_rectangle,
     "pdf": plot_variable_pairs_joint_pdf,
@@ -364,7 +385,7 @@ VARIABLE_PAIR_PLOT_TYPES = {
 
 def get_markers_plot(
     marker_plot_type: str, verbose: bool = False
-) -> "Callable":
+) -> Callable[..., Any]:
     """Retrieve a variable pairs plot by type.
 
     Parameters
@@ -384,9 +405,9 @@ def get_markers_plot(
         )
 
     if verbose:
-        print(f"Retrieving '{marker_type}'-type variable pairs plot")
+        print(f"Retrieving '{marker_plot_type}'-type variable pairs plot")
 
-    return VARIABLE_PAIR_PLOT_TYPES.get(marker_plot_type)
+    return VARIABLE_PAIR_PLOT_TYPES[marker_plot_type]
 
 
 def plot_variable_pairs(

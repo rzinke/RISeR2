@@ -76,7 +76,7 @@ def main():
     )
 
     # Compute summed PDF
-    sum_pdf = var_ops.add_variables(
+    sum_pdf = var_ops.arithmetic.add_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
 

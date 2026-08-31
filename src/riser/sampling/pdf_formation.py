@@ -14,6 +14,8 @@ __all__ = [
 
 
 # Import modules
+from collections.abc import Callable
+
 import numpy as np
 import scipy as sp
 
@@ -84,7 +86,7 @@ def samples_to_pdf_histogram(
     px, _ = np.histogram(samples, bins=x, density=True)
 
     # Handle edge cases
-    px = np.pad(px, (0, 1), 'constant')
+    px = np.pad(px, (0, 1), "constant")
 
     # Form histogram data into PDF
     pdf = PDFs.PDF(
@@ -179,7 +181,7 @@ PDF_FORMATION_METHODS = {
 
 def get_pdf_formation_function(
     method: str, verbose: bool = False
-) -> "Callable":
+) -> Callable:
     """Retrieve a PDF formation function by name.
 
     Parameters
@@ -206,7 +208,7 @@ def get_pdf_formation_function(
     if verbose:
         print(f"PDF formation method: {method}")
 
-    return PDF_FORMATION_METHODS.get(method)
+    return PDF_FORMATION_METHODS[method]
 
 
 # end of file

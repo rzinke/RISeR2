@@ -72,7 +72,7 @@ def main():
     )
 
     # Cross-correlate PDFs
-    lags, corr_vals = var_ops.cross_correlate_variables(
+    lags, corr_vals = var_ops.comparison.cross_correlate_variables(
         ref_pdf, sec_pdf, verbose=inps.verbose
     )
 

@@ -31,6 +31,8 @@ __all__ = [
 
 # Import modules
 import copy
+from collections.abc import Callable
+from typing import Literal
 
 import numpy as np
 import scipy as sp
@@ -43,7 +45,7 @@ class FIRFilter:
     """Base class for a 1D FIR filter
     """
 
-    filter_type = None
+    filter_type: str | None = None
 
     def __init__(self, h: np.ndarray) -> None:
         """Initialize a generic FIRFilter.
@@ -54,7 +56,7 @@ class FIRFilter:
             Filter kernel.
         """
         # Filter values
-        self.h = h
+        self.h = h.copy()
 
         # Ensure neutral gain
         self._normalize_gain_()
@@ -124,7 +126,9 @@ FILTER_TYPES = {
 }
 
 
-def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
+def get_filter_by_name(
+    filter_type: str, verbose: bool = False
+) -> Callable[[int], FIRFilter]:
     """Retrieve an FIRFilter class by name.
 
     Parameters
@@ -140,7 +144,7 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     # Check filter specification is valid
     if filter_type not in FILTER_TYPES:
         raise ValueError(
-            f"Filter type not valid. "
+            f"Filter type '{filter_type}' not valid. "
             f"Use one of {', '.join(FILTER_TYPES)}"
         )
 
@@ -148,7 +152,7 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     if verbose:
         print(f"Retrieving {filter_type} filter")
 
-    return FILTER_TYPES.get(filter_type)
+    return FILTER_TYPES[filter_type]
 
 
 #################### FILTER APPLICATION ####################
@@ -177,6 +181,8 @@ def filter_pdf(
         Filter type.
     filter_width : int
         Filter width in samples (dx units).
+    edge_padding : str
+        Method for padding to mitigate edge effects.
     """
     # Construct filter
     filt = get_filter_by_name(filter_type)(filter_width)
@@ -185,15 +191,23 @@ def filter_pdf(
     if verbose:
         print(f"Applying {filt}")
 
+    # Convert edge padding argument to padding mode
+    padding_mode: Literal["constant", "edge"]
+    if edge_padding == "zeros":
+        padding_mode = "constant"
+    elif edge_padding == "edges":
+        padding_mode = "edge"
+    else:
+        raise ValueError(
+            f"Edge padding '{edge_padding}' not supported. "
+            f"Use one of 'zeros', 'edges'."
+        )
+
     # Filter half-width
     w2 = filter_width // 2
 
-    # Pad values
-    if edge_padding in ["zero", "zeros"]:
-        edge_padding = "constant"
-
     # Pad PDF
-    px = np.pad(pdf.px, (w2, w2), edge_padding)
+    px = np.pad(pdf.px, (w2, w2), padding_mode)
 
     # Apply filter to PDF
     px = sp.signal.convolve(px, filt.h, "same")

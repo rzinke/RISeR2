@@ -63,7 +63,7 @@ def main():
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs)
 
     # Compute overlap index
-    px_min, eta = var_ops.compute_overlap_index(pdfs, verbose=True)
+    px_min, eta = var_ops.comparison.compute_overlap_index(pdfs, verbose=True)
 
     # Plot function if requested
     if inps.plot:

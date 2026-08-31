@@ -145,12 +145,12 @@ def parse_unit(
 
 
 #################### UNIT SCALING ####################
-def scale_values_by_units(
-    values: float | np.ndarray,
+def scale_values_by_units[Values: (float, np.ndarray)](
+    values: Values,
     unit_in: str | None,
     unit_out: str | None,
     verbose: bool = False,
-) -> float | np.ndarray:
+) -> Values:
     """Scale values from the input unit to the output.
 
     Currently only works with simple units (e.g., m, y) and not compound units

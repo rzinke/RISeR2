@@ -60,7 +60,7 @@ def compute_cosine_similarity(
 
     # Warn of metadata mismatches
     PDFs.metadata.get_common_metadata(
-        [pdf1, pdf2], warn=True
+        [pdf1.metadata, pdf2.metadata], warn=True
     )
 
     # Centered arrays
@@ -108,7 +108,7 @@ def cross_correlate_variables(
 
     # Warn of metadata mismatches
     PDFs.metadata.get_common_metadata(
-        [ref_pdf, sec_pdf], warn=True
+        [ref_pdf.metadata, sec_pdf.metadata], warn=True
     )
 
     # Define integer lags
@@ -179,7 +179,7 @@ def compute_overlap_index(
 
     # Warn of metadata mismatches
     PDFs.metadata.get_common_metadata(
-        pdfs, warn=True
+        [pdf.metadata for pdf in pdfs], warn=True
     )
 
     # Arrange PDFs into matrix
@@ -229,7 +229,7 @@ def compute_ks_statistic(
     cdf_diff = np.abs(pdf1.Px - pdf2.Px)
 
     # Find maximum difference
-    ks_ndx = np.argmax(cdf_diff)
+    ks_ndx = int(np.argmax(cdf_diff))
     ks_stat = cdf_diff[ks_ndx]
 
     # Report if requested

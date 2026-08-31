@@ -65,7 +65,9 @@ def compute_probability_between_variables(
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Get common metadata
-    metadata = PDFs.metadata.get_common_metadata([pdf1, pdf2], warn=True)
+    metadata = PDFs.metadata.get_common_metadata(
+        [pdf1.metadata, pdf2.metadata], warn=True,
+    )
 
     # Compute probabilities between variables
     px = pdf1.Px * (1 - pdf2.Px)

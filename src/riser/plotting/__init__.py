@@ -16,6 +16,12 @@ from .mc_plots import *
 
 
 # Public API
+from . import pdf_plots
+from . import cdf_plots
+from . import variable_pair_plots
+from . import filter_plots
+from . import mc_plots
+
 __all__ = (
     pdf_plots.__all__
     + cdf_plots.__all__

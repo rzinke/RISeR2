@@ -11,13 +11,13 @@ of observations, e.g., the displacement and age of a geologic feature.
 # Import modules
 from .variable_pair import VariablePair
 from .dated_marker import DatedMarker
-from .readers import *
+from . import readers
 
 # Public API
 __all__ = (
-    variable_pair.__all__
-    + dated_marker.__all__
-    + readers.__all__
+    "VariablePair",
+    "DatedMarker",
+    "readers",
 )
 
 

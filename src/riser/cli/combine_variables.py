@@ -67,7 +67,9 @@ def main():
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
     # Compute joint PDF
-    joint_pdf = var_ops.combine_variables(pdfs, verbose=inps.verbose)
+    joint_pdf = var_ops.combination.combine_variables(
+        pdfs, verbose=inps.verbose
+    )
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)

@@ -67,7 +67,7 @@ def main():
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=True)
 
     # Compute merged PDF
-    merged_pdf = var_ops.merge_variables(pdfs, verbose=inps.verbose)
+    merged_pdf = var_ops.combination.merge_variables(pdfs, verbose=inps.verbose)
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, merged_pdf, verbose=inps.verbose)

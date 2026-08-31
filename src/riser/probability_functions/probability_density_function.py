@@ -191,34 +191,34 @@ class ProbabilityDensityFunction:
         return self._Px
 
 
-    def pdf_at_value(self, x: float) -> float:
+    def pdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the probability density of the PDF at x.
 
         Parameters
         ----------
-        x : float
-            Value at which to find the probability density.
+        x : float or np.ndarray
+            Value(s) at which to find the probability density.
 
         Returns
         -------
-        px : float
-            Probability density at value x.
+        px : float or np.ndarray
+            Probability density at value(s) x.
         """
         return np.interp(x, self.x, self.px, left=0.0, right=0.0)
 
 
-    def cdf_at_value(self, x: float) -> float:
+    def cdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the value of the CDF at x.
 
         Parameters
         ----------
-        x : float
-            Value at which to find the CDF.
+        x : float or np.ndarray
+            Value(s) at which to find the CDF.
 
         Returns
         -------
-        Px : float
-            CDF at value x.
+        Px : float or np.ndarray
+            CDF at value(s) x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
@@ -273,7 +273,7 @@ class ProbabilityDensityFunction:
         return self.cdf_at_value(x2) - self.cdf_at_value(x1)
 
 
-    def pit(self, y: float | np.ndarray) -> float | np.ndarray:
+    def pit[Numeric: (float, np.ndarray)](self, y: Numeric) -> Numeric:
         """Compute probability inverse transform (PIT).
 
         Note: PIT interpolation requires a strictly increasing function.

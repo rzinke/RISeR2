@@ -23,6 +23,8 @@ import numpy as np
 def check_precision(x: float) -> None:
     """Check that value is above precision limit.
 
+    Warn-only.
+
     Parameters
     ----------
     x : float
@@ -34,18 +36,18 @@ def check_precision(x: float) -> None:
         )
 
 
-def fix_precision(x: float) -> float:
+def fix_precision[Numeric: (float, np.ndarray)](x: Numeric) -> Numeric:
     """Round to a tiny digit to compensate for machine error.
 
     Parameters
     ----------
-    x : float
-        Value for which to fix precision.
+    x : float or np.ndarray
+        Value(s) for which to fix precision.
 
     Returns
     -------
-    float
-        Value with fixed precision.
+    float or np.ndarray
+        Value(s) with fixed precision.
     """
     return np.round(x, RISER_PRECISION)
 
