@@ -21,7 +21,7 @@ __all__ = [
 
 # Import modules
 import warnings
-from typing.Any import Any
+from typing import Any
 from collections.abc import Callable
 
 import numpy as np
