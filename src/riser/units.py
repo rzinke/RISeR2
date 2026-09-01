@@ -57,11 +57,6 @@ type Unit = str
 
 
 #################### UNIT CHECKS ####################
-BASE_UNIT_NONE_WARNING = (
-    "Base unit 'None' not supported for unit-based operations"
-)
-
-
 def _check_against_compound_unit_(unit: str) -> None:
     """Ensure that the unit is not a compound unit, e.g.,
     'm/y', 'm^2', 'N.m' etc.
@@ -70,6 +65,10 @@ def _check_against_compound_unit_(unit: str) -> None:
     ----------
     unit : str
         Unit to parse (cannot be `None`).
+
+    Returns
+    -------
+    None
     """
     # Check for operators
     operators = [".", "/", "^"]
@@ -113,7 +112,10 @@ def check_base_unit_supported(base_unit: str | None) -> None:
     """
     # Warn if base unit is None
     if base_unit is None:
-        warnings.warn(BASE_UNIT_NONE_WARNING)
+        warnings.warn(
+            f"Base unit 'None' not supported for unit-based operations. "
+            f"Use one of {', '.join(BASE_UNITS)}"
+        )
 
         return
 
