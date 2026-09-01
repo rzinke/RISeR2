@@ -27,6 +27,14 @@ Then install RISeR2 into that environment:
 pip install -e .
 ```
 
+OR
+
+```
+pip install -e ".[dev]"
+```
+
+if you are developing.
+
 
 ## Top-level Functions and Examples
 RISeR2 provides three command line functions for determining slip rates:

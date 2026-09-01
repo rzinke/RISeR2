@@ -20,6 +20,8 @@ dev = [
     "mypy",
     "types-toml",
     "scipy-stubs",
+    "types-tqdm",
+    "pytest",
 ]
 
 [project.scripts]

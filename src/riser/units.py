@@ -40,8 +40,8 @@ UNIT_SCALES = {
     "d": 0.1,
     "D": 10.,
     "C": 100.,
-    "k": 1000.,
-    "M": 1000000.,
+    "k": 1_000.,
+    "M": 1_000_000.,
 }
 
 
@@ -57,10 +57,50 @@ type Unit = str
 
 
 #################### UNIT CHECKS ####################
+BASE_UNIT_NONE_WARNING = (
+    "Base unit 'None' not supported for unit-based operations"
+)
+
+
+def _check_against_compound_unit_(unit: str) -> None:
+    """Ensure that the unit is not a compound unit, e.g.,
+    'm/y', 'm^2', 'N.m' etc.
+
+    Parameters
+    ----------
+    unit : str
+        Unit to parse (cannot be `None`).
+    """
+    # Check for operators
+    operators = [".", "/", "^"]
+    for operator in operators:
+        if operator in unit:
+            raise ValueError(
+                f"Compound units with operators ({', '.join(operators)}) "
+                f"currently not supported"
+            )
+
+    # Check unit does not have an exponent
+    for char in unit:
+        if char.isdigit():
+            raise ValueError(
+                f"Compound units with exponents {char} "
+                f"currently not supported"
+            )
+
+    # Check unit is not longer than <[prefix]><base>
+    if len(unit) > 2:
+        raise ValueError(
+            "Unit must be composed of <prefix (optional)><base>"
+        )
+
+
 def check_base_unit_supported(base_unit: str | None) -> None:
     """Check that the base unit is supported.
 
     Warns if base unit is `None`.
+    Silent if base unit is valid.
+    Raises if base unit is not supported.
 
     Parameters
     ----------
@@ -73,9 +113,7 @@ def check_base_unit_supported(base_unit: str | None) -> None:
     """
     # Warn if base unit is None
     if base_unit is None:
-        warnings.warn(
-            "Base unit 'None' is not supported for unit-based operations"
-        )
+        warnings.warn(BASE_UNIT_NONE_WARNING)
 
         return
 
@@ -93,6 +131,10 @@ def parse_unit(
 ) -> tuple[float, str]:
     """Determine the components of a unit.
 
+    Check the unit is valid based on its overall form.
+    Determine the unit scale.
+    Determine the base unit.
+
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
 
@@ -108,13 +150,8 @@ def parse_unit(
     base : str
         Unit base.
     """
-    # Check if unit as an exponent
-    if unit[-1].isdigit():
-        raise ValueError("Exponents are not currently supported")
-
-    # Check unit formatting based on length
-    if len(unit) > 2:
-        raise ValueError("Unit not recognized")
+    # Check overall unit validity
+    _check_against_compound_unit_(unit)
 
     # Determine unit scale
     if len(unit) == 2:
@@ -153,6 +190,11 @@ def scale_values_by_units[Values: (float, np.ndarray)](
 ) -> Values:
     """Scale values from the input unit to the output.
 
+    Raise error if input or output units are None.
+    Parse the input and output units into scales and bases.
+    Determine the scale factor.
+    Scale the input units.
+
     Currently only works with simple units (e.g., m, y) and not compound units
     (e.g., m/y).
 
@@ -178,16 +220,6 @@ def scale_values_by_units[Values: (float, np.ndarray)](
         raise ValueError(
             f"Neither input unit ({unit_in}) nor output unit ({unit_out}) "
             f"can be 'None'"
-        )
-
-    # Check if compound unit
-    operators = [".", "/"]
-    if any(
-        [char in unit for unit in [unit_in, unit_out] for char in operators]
-    ):
-        raise ValueError(
-            f"Compound units not currently supported, "
-            f"got input unit '{unit_in}' and output unit '{unit_out}'"
         )
 
     # Parse input and output units
