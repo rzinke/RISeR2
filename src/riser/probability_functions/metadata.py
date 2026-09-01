@@ -27,6 +27,9 @@ from .. import (
 @dataclass(frozen=True)
 class PDFmetadata:
     """Store PDF metadata items.
+
+    Metadata are optional.
+    That is, each piece of metadata can assume a value or be None.
     """
 
     name: str | None = None

@@ -21,16 +21,17 @@ import numpy as np
 
 #################### ROUNDING ####################
 def check_precision(x: float) -> None:
-    """Check that value is above precision limit.
+    """Check that the magnitude of an error is above precision limit.
 
-    Warn-only.
+    Warn-only if precision is at or below the threshold.
+    Silent if precision is above the threshold.
 
     Parameters
     ----------
     x : float
         Value for which to check precision.
     """
-    if x <= 10 ** -RISER_PRECISION:
+    if np.abs(x) <= 10 ** -RISER_PRECISION:
         warnings.warn(
             "Number is less than optimal precision of the RISeR library"
         )

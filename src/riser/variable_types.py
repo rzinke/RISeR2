@@ -59,7 +59,7 @@ def check_variable_type_supported(variable_type: str | None) -> None:
         return
 
     # Check if variable type is supported
-    if not variable_type in SUPPORTED_VARIABLE_TYPES:
+    if variable_type not in SUPPORTED_VARIABLE_TYPES:
         raise ValueError(
             f"Variable type '{variable_type}' not supported. "
             f"Use one of {', '.join(SUPPORTED_VARIABLE_TYPES)}"
