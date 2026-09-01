@@ -1,0 +1,78 @@
+Incremental slip rates from analytical formulation (2026 08 31:16 11 03)
+
+Sample statistics: Feat 2-Feat 1 (m/ky)
+68.27 % : (1.982 - 7.363)
+PDF: Feat 2-Feat 1 (m/ky)
+  mode: 2.190
+median: 3.345
+  mean: 5.245
+   std: 6.212
+   var: 38.586
+  skew: 4.274
+  kurt: 26.283
+PDF confidence range: Feat 2-Feat 1 (m/ky)
+HPD 68.27 %
+	(1.260 - 4.760)
+	(4.820 - 4.840)
+
+
+Sample statistics: Feat 3-Feat 2 (m/ky)
+68.27 % : (2.285 - 11.648)
+PDF: Feat 3-Feat 2 (m/ky)
+  mode: 2.570
+median: 4.364
+  mean: 7.447
+   std: 8.652
+   var: 74.848
+  skew: 2.982
+  kurt: 13.260
+PDF confidence range: Feat 3-Feat 2 (m/ky)
+HPD 68.27 %
+	(1.140 - 6.720)
+	(6.770 - 6.850)
+	(6.890 - 6.900)
+	(7.100 - 7.130)
+
+
+Sample statistics: Feat 4-Feat 3 (m/ky)
+68.27 % : (12.355 - 34.408)
+PDF: Feat 4-Feat 3 (m/ky)
+  mode: 14.850
+median: 18.986
+  mean: 22.599
+   std: 11.615
+   var: 134.918
+  skew: 1.203
+  kurt: 3.802
+PDF confidence range: Feat 4-Feat 3 (m/ky)
+HPD 68.27 %
+	(8.870 - 8.880)
+	(9.130 - 9.180)
+	(9.260 - 23.710)
+	(23.770 - 24.190)
+	(24.250 - 24.620)
+	(24.640 - 25.310)
+	(25.420 - 25.610)
+	(25.710 - 25.770)
+	(25.820 - 25.840)
+	(25.940 - 25.970)
+	(26.050 - 26.120)
+	(26.300 - 26.320)
+	(26.370 - 26.420)
+	(26.980 - 27.000)
+
+
+Sample statistics: Feat 5-Feat 4 (m/ky)
+68.27 % : (2.838 - 12.599)
+PDF: Feat 5-Feat 4 (m/ky)
+  mode: 3.230
+median: 5.386
+  mean: 8.197
+   std: 8.447
+   var: 71.359
+  skew: 2.905
+  kurt: 13.114
+PDF confidence range: Feat 5-Feat 4 (m/ky)
+HPD 68.27 %
+	(1.460 - 8.090)
+	(8.140 - 8.200)

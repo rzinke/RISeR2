@@ -1,0 +1,10 @@
+Incremental slip rates from analytical formulation (2026 08 31:16 10 36)
+
+PDF: Marker 1 (mm/y)
+  mode: 2.947
+median: 3.000
+  mean: 3.031
+   std: 0.329
+   var: 0.108
+  skew: 0.611
+  kurt: 3.754

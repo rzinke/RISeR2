@@ -1,0 +1,26 @@
+Incremental slip rates from analytical formulation (2026 08 31:16 10 47)
+
+PDF: Feat 2-Feat 1 (mm/y)
+  mode: 2.241
+median: 2.875
+  mean: 3.344
+   std: 1.670
+   var: 2.789
+  skew: 1.475
+  kurt: 5.160
+PDF confidence range: Feat 2-Feat 1 (mm/y)
+HPD 68.27 %
+	(1.481 - 3.801)
+
+
+PDF: Feat 3-Feat 2 (mm/y)
+  mode: 2.631
+median: 2.992
+  mean: 3.262
+   std: 1.160
+   var: 1.346
+  skew: 1.782
+  kurt: 7.672
+PDF confidence range: Feat 3-Feat 2 (mm/y)
+HPD 68.27 %
+	(2.011 - 3.660)
