@@ -192,22 +192,23 @@ def read_dated_markers_from_config(
 
             # Check that marker is older/larger than previous
             if marker_age < ref_age:
-                marker_name = marker.name
-                ref_marker_name = ref_marker.name  # type: ignore[has-type]
+                marker_display_name = marker.name
+                ref_marker_display_name = ref_marker.name  # type: ignore[has-type]
 
                 warnings.warn(
-                    f"Marker '{marker_name}' appears to be younger than "
-                    f"'{ref_marker_name}'. Confirm marker order.",
+                    f"Marker '{marker_display_name}' appears to be younger "
+                    f"than '{ref_marker_display_name}'. Confirm marker order.",
                     stacklevel=3,
                 )
 
             if marker_disp < ref_disp:
-                marker_name = marker.name
-                ref_marker_name = ref_marker.name  # type: ignore[has-type]
+                marker_display_name = marker.name
+                ref_marker_display_name = ref_marker.name  # type: ignore[has-type]
 
                 warnings.warn(
-                    f"Marker '{marker_name}' appears to be less displaced than "
-                    f"'{ref_marker_name}'. Confirm marker order.",
+                    f"Marker '{marker_display_name}' appears to be less "
+                    f"displaced than '{ref_marker_display_name}'. "
+                    f"Confirm marker order.",
                     stacklevel=3,
                 )
 
