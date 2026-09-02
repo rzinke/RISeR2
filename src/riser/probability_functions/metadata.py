@@ -9,6 +9,7 @@ Class to organize PDF metadata items.
 # Public API
 __all__ = [
     "PDFmetadata",
+    "METADATA_ITEMS",
     "get_common_metadata",
 ]
 

@@ -44,17 +44,10 @@ class ProbabilityDensityFunction:
     than or equal to value x.
     """
 
-    metadata_items = (
-            "name",
-            "variable_type",
-            "unit",
-        )
-
     def __init__(
         self,
         x: np.ndarray,
         px: np.ndarray,
-        normalize_area: bool = True,
         name: str | None = None,
         variable_type: str | None = None,
         unit: str | None = None,
@@ -69,8 +62,6 @@ class ProbabilityDensityFunction:
             Domain values of the random variable.
         px : np.ndarray
             Probability density values.
-        normalize_area : bool
-            Scale px value to so the area = 1.0.
         name : str, optional
             Brief descriptive identifier of the PDF.
         variable_type : str, optional
@@ -113,8 +104,7 @@ class ProbabilityDensityFunction:
         self._check_nonnegative_()
 
         # Normalize area under the curve
-        if normalize_area:
-            self._normalize_area_()
+        self._normalize_area_()
 
         # Condition 3: Check PDF area
         self._check_unit_area_()
@@ -170,11 +160,8 @@ class ProbabilityDensityFunction:
         """Check that the area under the curve is 1.0.
         """
         area = self._compute_area_()
-        if np.abs(1.0 - area) > precision.RISER_PRECISION:
-            raise ValueError(
-                f"PDF area should be 1.0, got {area}. "
-                f"Suggest setting `normalize_area` to True."
-            )
+        if np.abs(1.0 - area) > 10 ** -precision.RISER_PRECISION:
+            raise ValueError(f"PDF area should be 1.0, got {area}.")
 
 
     # Mathematical properties

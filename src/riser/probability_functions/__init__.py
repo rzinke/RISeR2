@@ -20,6 +20,7 @@ from .metadata import PDFmetadata
 from .probability_density_function import ProbabilityDensityFunction as PDF
 from . import analytics
 from . import interpolation
+from . import metadata
 from . import parametric_functions
 from . import readers
 from . import scaling
@@ -31,6 +32,7 @@ __all__ = [
     "PDF",
     "analytics",
     "interpolation",
+    "metadata",
     "parametric_functions",
     "readers",
     "scaling",
