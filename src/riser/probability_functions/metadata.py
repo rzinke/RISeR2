@@ -87,8 +87,14 @@ def get_common_metadata(
     metadata_list: list[PDFmetadata],
     name: str | None = None,
     warn: bool = False,
+    verbose: bool = False,
 ) -> PDFmetadata:
     """Find the common metadata values among a set of metadata objects.
+
+    Fields that do not share common values across all metadata objects are set
+    to None.
+
+    Name can be explicitly overridden.
 
     Parameters
     ----------
@@ -104,41 +110,50 @@ def get_common_metadata(
     PDFmetadata
         Metadata with common values.
     """
-    # Check whether variable type is the same among all metadata
-    variable_type = metadata_list[0].variable_type
-    if not all(
-        metadata.variable_type == variable_type for metadata in metadata_list
-    ):
-        # Warn of differences
-        if warn:
-            warnings.warn(
-                "`variable_type` differs between PDFs",
-                stacklevel=2,
-            )
+    if verbose:
+        print(
+            f"Determining common field values for {len(metadata_list)} "
+            f"metadata objects"
+        )
 
-        # Reset variable type
-        variable_type = None
+    # Initialize common metadata dict
+    metadata_dict = {}
 
-    # Check whether unit is the same among all metadata
-    unit = metadata_list[0].unit
-    if not all(
-        metadata.unit == unit for metadata in metadata_list
-    ):
-        # Warn of differences
-        if warn:
-            warnings.warn(
-                "`unit` differs between PDFs",
-                stacklevel=2,
-            )
+    # Loop through metadata fields
+    for field in METADATA_ITEMS:
+        # Get reference field value
+        ref_value = getattr(metadata_list[0], field)
 
-        # Reset unit
-        unit = None
+        # Check whether field is the same among all metadata objects
+        if all(
+            getattr(metadata, field) == ref_value for metadata in metadata_list
+        ):
+            # Use common field value
+            metadata_dict[field] = ref_value
 
-    return PDFmetadata(
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
-    )
+        else:
+            if warn:
+                warnings.warn(
+                    f"`{field}` differs between PDF metadata, "
+                    f"defaulting to 'None'",
+                    stacklevel=2,
+                )
+
+            # Set non-common field values to None
+            metadata_dict[field] = None
+
+        # Report field value
+        if verbose:
+            print(f"\t{field}: {metadata_dict[field]}")
+
+    # Override name
+    if name is not None:
+        metadata_dict["name"] = name
+
+        if verbose:
+            print(f"Name set to '{metadata_dict['name']}'")
+
+    return PDFmetadata(**metadata_dict)
 
 
 # end of file
