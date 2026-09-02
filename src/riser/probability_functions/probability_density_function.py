@@ -76,8 +76,7 @@ class ProbabilityDensityFunction:
         nx = len(x)
         if nx < 2:
             raise ValueError(
-                f"A PDF must consist of at least 2 values, "
-                f"got {nx}"
+                f"A PDF must consist of at least 2 values, got {nx}"
             )
 
         # Record domain values
@@ -129,7 +128,17 @@ class ProbabilityDensityFunction:
         return integration.integrate(x=self._x, px=self._px)
 
     def _normalize_area_(self) -> None:
+        # Compute area based on inputs
         area = self._compute_area_()
+
+        # Check if area is approximately zero
+        if area <= 10 ** -precision.RISER_PRECISION:
+            raise ValueError(
+                "Total probability is too close to 0.0. "
+                "Cannot normalize area."
+            )
+
+        # Normalize area to 1.0
         self._px /= area
 
     def _compute_cdf_(self) -> np.ndarray:
