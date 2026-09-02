@@ -79,7 +79,6 @@ def compute_probability_between_variables(
         name=name,
         variable_type=metadata.variable_type,
         unit=metadata.unit,
-        normalize_area=True,
     )
 
     return gap_pdf

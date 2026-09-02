@@ -132,7 +132,6 @@ def scale_pdf_by_units(
         scaled_pdf = PDF(
             x=scaled_values,
             px=pdf.px,
-            normalize_area=True,
             name=pdf.name,
             variable_type=pdf.variable_type,
             unit=unit_out,

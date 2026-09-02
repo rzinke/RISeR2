@@ -70,7 +70,6 @@ def initialize_dated_marker_from_files(
     # Read age PDF
     age = PDFs.readers.read_pdf(
         fname=age_fname,
-        normalize_area=True,
         name=age_name,
         variable_type=age_variable_type,
         unit=age_unit,
@@ -80,7 +79,6 @@ def initialize_dated_marker_from_files(
     # Read displacement PDF
     displacement = PDFs.readers.read_pdf(
         fname=displacement_fname,
-        normalize_area=True,
         name=displacement_name,
         variable_type=displacement_variable_type,
         unit=displacement_unit,

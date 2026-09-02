@@ -235,7 +235,6 @@ def filter_pdf(
     filt_pdf = PDFs.PDF(
         x=pdf.x,
         px=px,
-        normalize_area=True,
         name=pdf.name,
         variable_type=pdf.variable_type,
         unit=pdf.unit,

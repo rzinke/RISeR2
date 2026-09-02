@@ -103,7 +103,6 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 #################### RANDOM VARIABLE ARITHMETIC ####################
 def negate_variable(
     pdf: PDFs.PDF,
-    normalize_area: bool = False,
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Negate a random variable expressed as a PDF.
@@ -114,10 +113,6 @@ def negate_variable(
     ----------
     pdf : PDF
         PDF to negate.
-    normalize_area : bool
-        Scale px value to so the area = 1.0.
-        Because negation is pure reflection, it should not automatically
-        normalize the area unless explicitly specified.
     
     Returns
     -------
@@ -140,7 +135,6 @@ def negate_variable(
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        normalize_area=normalize_area,
         **pdf.metadata.as_dict(),
     )
 
@@ -221,7 +215,6 @@ def add_variables(
     sum_pdf = PDFs.PDF(
         x=xx,
         px=pxx,
-        normalize_area=True,
         **metadata.as_dict(),
     )
 
@@ -318,7 +311,6 @@ def subtract_variables(
     diff_pdf = PDFs.PDF(
         x=xx,
         px=pxx,
-        normalize_area=True,
         **metadata.as_dict(),
     )
 
@@ -431,7 +423,6 @@ def multiply_variables(
     prod_pdf = PDFs.PDF(
         x=p,
         px=pp,
-        normalize_area=True,
         **metadata.as_dict(),
     )
 
@@ -554,7 +545,6 @@ def divide_variables(
     quot_pdf = PDFs.PDF(
         x=q,
         px=pq,
-        normalize_area=True,
         **metadata.as_dict(),
     )
 

@@ -54,7 +54,7 @@ def parse_metadata_from_header(
     """Parse the header of a PDF file.
 
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
-    those listed in PDF.metadata_items, and are demarkated by the item
+    those listed in METATDATA_ITEMS, and are demarkated by the item
     name, a colon, and a space.
 
     Parameters
@@ -222,7 +222,6 @@ def parse_data_lines(
 def read_pdf(
     fname: str,
     *,
-    normalize_area: bool = True,
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
@@ -234,8 +233,6 @@ def read_pdf(
     ----------
     fname : str
         File name.
-    normalize_area : bool, optional
-        Scale px value to so the area = 1.0.
     name : str, optional
         Brief descriptive identifier of the PDF.
     variable_type : str, optional
@@ -283,13 +280,13 @@ def read_pdf(
         print(f"{len(data_lines)} data lines")
 
     # Instatiate PDF object
-    pdf = PDF(x, px, normalize_area=normalize_area, **metadata)
+    pdf = PDF(x, px, **metadata)
 
     return pdf
 
 
 def read_pdfs(
-    fnames: list[str], normalize_area: bool = True, verbose: bool = False
+    fnames: list[str], verbose: bool = False
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
@@ -297,8 +294,6 @@ def read_pdfs(
     ----------
     fnames : list[str]
         File names.
-    normalize_area : bool
-        Scale px value to so the area = 1.0.
 
     Returns
     -------
@@ -417,7 +412,7 @@ def create_header_from_pdf(pdf: PDF) -> str:
     header_lines = []
 
     # Loop through header items
-    for meta_item in PDF.metadata_items:
+    for meta_item in METADATA_ITEMS:
         # Determine if PDF contains a metadata item
         if hasattr(pdf, meta_item) and getattr(pdf, meta_item) is not None:
             # Get metadata item
