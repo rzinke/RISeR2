@@ -39,21 +39,20 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     dx : float
         Sample spacing (single value).
     """
-    # Deteremine differences between x-samples
+    # Deteremine threshold for regular sampling based on CoV
     diff_x = np.diff(pdf.x)
-
-    # Determine regularity of sampling
     diff_x_std = np.std(diff_x)
+    diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
 
     # Raise warning if a single value is not representative
-    if diff_x_std > precision.RISER_PRECISION:
+    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
         warnings.warn(
             f"Sample spacing varies by {diff_x_std}. "
             f"A single value might not be representative."
         )
 
     # Representative spacing value
-    dx = float(precision.fix_precision(np.median(diff_x)))
+    dx = precision.fix_precision(np.median(diff_x))
 
     # Report if requested
     if verbose:
@@ -64,7 +63,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
 
 def sample_spacing_array_from_pdf(
     pdf: PDF, verbose: bool = False
-) -> float | np.ndarray:
+) -> np.ndarray:
     """Return an array of the changes in x (dx) for a discrete PDF.
 
     In classical calculus, dx is a single scalar number, which assumes that the
@@ -87,7 +86,7 @@ def sample_spacing_array_from_pdf(
 
     Returns
     -------
-    dx : float or np.ndarray
+    dx : np.ndarray
         dx values.
     """
     # Deteremine differences between x-samples
@@ -100,10 +99,13 @@ def sample_spacing_array_from_pdf(
     if verbose:
         print(f"Sample spacing mean {np.mean(diff_x)}, std {diff_x_std}")
 
+    # Deteremine threshold for regular sampling based on CoV
+    diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
+
     # Check regularity against machine error
-    if diff_x_std > precision.RISER_PRECISION:
+    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
         # Irregular sampling of PDF
-        return precision.fix_precision(np.diff(pdf.x, append=0))
+        return precision.fix_precision(np.diff(pdf.x, append=pdf.x[-1]))
     else:
         # Regular sampling
         return precision.fix_precision(
@@ -197,13 +199,17 @@ def create_precise_value_array(
 
 
 #################### CHECKS ####################
-def check_pdfs_sampling(pdfs: list[PDF]):
+def check_pdfs_sampling(pdfs: list[PDF]) -> None:
     """Check that all PDFs are sampled over the same value array.
 
     Parameters
     ----------
     pdfs : list[PDF]
         PDFs to check.
+
+    Returns
+    -------
+    None
     """
     # Initial value array
     x0 = pdfs[0].x
