@@ -85,4 +85,37 @@ class TestInterpolatePdf:
         assert pdf_intp.unit == self.pdf.unit
 
 
+class TestInterpolatePDFs:
+    def test_interpolation(self):
+        pdf1 = PDFs.PDF(
+            x=np.linspace(0.0, 2.0, 3),
+            px=np.array([0.0, 1.0, 0.0]),
+        )
+        pdf2 = PDFs.PDF(
+            x=np.linspace(-2.0, .0, 5),
+            px=np.array([0.0, 0.5, 1.0, 0.5, 0.0]),
+        )
+
+        pdf1_intp, pdf2_intp = PDFs.interpolation.interpolate_pdfs(
+            [pdf1, pdf2]
+        )
+
+        np.testing.assert_allclose(
+            pdf1_intp.x,
+            np.array([-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]),
+        )
+        np.testing.assert_allclose(
+            pdf1_intp.px,
+            np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0]),
+        )
+        np.testing.assert_allclose(
+            pdf2_intp.x,
+            np.array([-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]),
+        )
+        np.testing.assert_allclose(
+            pdf2_intp.px,
+            np.array([0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0]),
+        )
+
+
 # end of file
