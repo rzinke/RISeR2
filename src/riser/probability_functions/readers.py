@@ -37,7 +37,11 @@ def check_extension(fname: str, ext: str) -> None:
     fname : str
         Filename.
     ext : str
-        Filename extension.
+        Expected filename extension.
+
+    Returns
+    -------
+    None
     """
     # Get filename extension
     fname_ext = fname.split(".")[-1]
@@ -77,18 +81,21 @@ def parse_metadata_from_header(
     for line in header_lines:
         # Loop through header items
         for meta_item in METADATA_ITEMS:
+            # Determine metadata prefix
+            prefix = f"# {meta_item}: "
+
             # Determine if header line contains a metadata item
-            if line.startswith(f"# {meta_item.capitalize()}"):
+            if line.lower().startswith(prefix):
                 # Strip newline character
                 line = line.strip("\n")
 
                 # Split metadata value from key
-                meta_value = line.split(": ")[1]
+                meta_value = line.split(": ", 1)[1]
 
                 # Record to metadata dictionary
                 metadata[meta_item] = meta_value
 
-                # Report if requested
+                # Report metadata value
                 if verbose:
                     print(f"{meta_item}: {meta_value}")
 
@@ -250,7 +257,7 @@ def read_pdf(
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
-    lines = [line for line in lines if len(line) > 3]
+    lines = [line for line in lines if line.strip()]
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
@@ -348,7 +355,7 @@ def read_calendar_file(
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
-    lines = [line for line in lines if len(line) > 3]
+    lines = [line for line in lines if line.strip()]
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
@@ -419,7 +426,7 @@ def create_header_from_pdf(pdf: PDF) -> str:
             meta_value = getattr(pdf, meta_item)
 
             # Format metadata item in header string
-            header_str = f"# {meta_item.capitalize()}: {meta_value}\n"
+            header_str = f"# {meta_item}: {meta_value}\n"
 
             # Append to list
             header_lines.append(header_str)
