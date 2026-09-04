@@ -5,17 +5,11 @@
 # Public API
 __all__ = [
     "PARAMETRIC_FUNCTIONS",
-    "uniform",
-    "triangular",
-    "gaussian",
-    "exponential",
-    "lognormal",
     "get_function_by_name",
+    "CUMULATIVE_PARAMETRIC_FUNCTIONS",
+    "get_cumulative_function_by_name",
     "check_number_inputs",
     "determine_min_max_limits",
-    "cumulative_uniform",
-    "cumulative_gaussian",
-    "cumulative_lognormal",
 ]
 
 
@@ -96,10 +90,8 @@ def uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
     # Checks
     check_mass_against_value_range(x, a, b)
 
-    # Number of data points
-    n = len(x)
-
     # Initialize probability density values
+    n = len(x)
     px = np.zeros(n)
 
     # Probability density values
@@ -139,10 +131,8 @@ def triangular(
     # Checks
     check_mass_against_value_range(x, a, b)
 
-    # Number of data points
+    # Initialize probability density values
     n = len(x)
-
-    # Initialize probability values
     px = np.zeros(n)
 
     # Left side
@@ -161,7 +151,7 @@ def triangular(
 
 
 def trapezoidal(
-    x: np.ndarray, x1: float, x2: float, x3: float, x4: float
+    x: np.ndarray, a: float, b: float, c: float, d: float
 ) -> np.ndarray:
     """Trapezoidal function with unit area.
 
@@ -169,14 +159,14 @@ def trapezoidal(
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    x1 : float
-        Minimum value with non-zero probability density.
-    x2 : float
-        Minimum value of the boxcar portion of the function.
-    x3 : float
-        Maximum value of the boxcar portion of the function.
-    x4 : float
-        Maximum value with non-zero probability density.
+    a : float
+        Left base of trapezoid.
+    b : float
+        Left edge of boxcar portion.
+    c : float
+        Right edge of boxcar portion.
+    d : float
+        Right base of trapezoid.
 
     Returns
     -------
@@ -184,37 +174,33 @@ def trapezoidal(
         Probability density values.
     """
     # Ensure proper ordering
-    if not x1 <= x2 <= x3 <= x4:
+    if not a <= b <= c <= d:
         raise ValueError(
-            f"`x1` ({x1}) must be <= than `x2` ({x2}) "
-            f"must be <= `x3` ({x3}) must be <= `x4` ({x4})"
+            f"`a` ({a}) must be <= than `b` ({b}) "
+            f"must be <= `c` ({c}) must be <= `d` ({d})"
         )
 
     # Checks
-    check_mass_against_value_range(x, x1, x4)
+    check_mass_against_value_range(x, a, d)
 
     # Initialize probability density values
     n = len(x)
     px = np.zeros(n)
 
+    # Normalization coefficient
+    coef = 2 / (d + c - a - b)
+
     # Left side
-    m = 1 / (x2 - x1)
-    b = 1 - m * x2
-    left_ndx = (x > x1) * (x < x2)
-    px[left_ndx] = m * x[left_ndx] + b
+    left_ndx = (a <= x) & (x < b)
+    px[left_ndx] = coef * (x[left_ndx] - a) / (b - a)
 
     # Boxcar
-    boxcar_ndx = (x >= x2) * (x <= x3)
-    px[boxcar_ndx] = 1.0
+    boxcar_ndx = (b <= x) & (x < c)
+    px[boxcar_ndx] = coef
 
     # Right side
-    m = -1 / (x4 - x3)
-    b = 0 - m * x4
-    right_ndx = (x > x3) & (x < x4)
-    px[right_ndx] = m * x[right_ndx] + b
-
-    # Normalize area
-    px /= integration.integrate(x=x, px=px)
+    right_ndx = (c <= x) & (x <= d)
+    px[right_ndx] = coef * (d - x[right_ndx]) / (d - c)
 
     return px
 
@@ -227,8 +213,8 @@ def _gaussian_limits_(mu, sigma) -> tuple[float, float]:
     sigma_lim = sp.stats.norm.ppf(target_coverage)
 
     # Distances at which coverage is met
-    xmin = mu - sigma_lim
-    xmax = mu + sigma_lim
+    xmin = mu - sigma * sigma_lim
+    xmax = mu + sigma * sigma_lim
 
     # Target domain limits
     return xmin, xmax
@@ -252,7 +238,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """
     # Checks
     xmin, xmax = _gaussian_limits_(mu, sigma)
-    check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
+    check_mass_against_value_range(x, xmin, xmax)
 
     a = 1 / (sigma * np.sqrt(2 * np.pi))
     f = np.exp(-0.5 * (x - mu)**2 / sigma**2)
@@ -271,7 +257,7 @@ def _exponential_limits_(scale) -> tuple[float, float]:
     target_coverage = sp.stats.norm.cdf(4)
 
     # Distance from zero at which the area is covered
-    xmax = sp.stats.expon.ppf(target_coverage)
+    xmax = scale * sp.stats.expon.ppf(target_coverage)
 
     return xmin, xmax
 
@@ -299,14 +285,14 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     px = np.zeros(n)
 
     # Indices over which function is non-zero
-    nonzero_ndx = x > 0
+    nonnegative_ndx = (x >= 0)
 
     # Distribution components
     a = 1 / scale
-    f = np.exp(-x[nonzero_ndx] / scale)
+    f = np.exp(-x[nonnegative_ndx] / scale)
 
     # Probability density
-    px[nonzero_ndx] = a * f
+    px[nonnegative_ndx] = a * f
 
     return px
 
@@ -349,14 +335,14 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     px = np.zeros(n)
 
     # Indices over which function is non-zero
-    nonzero_ndx = x > 0
+    positive_ndx = x > 0
 
     # Distribution components
-    a = 1 / (x[nonzero_ndx] * sigma * np.sqrt(2 * np.pi))
-    f = np.exp(-0.5 * (np.log(x[nonzero_ndx]) - mu)**2 / sigma**2)
+    a = 1 / (x[positive_ndx] * sigma * np.sqrt(2 * np.pi))
+    f = np.exp(-0.5 * (np.log(x[positive_ndx]) - mu)**2 / sigma**2)
 
     # Probability density
-    px[nonzero_ndx] = a * f
+    px[positive_ndx] = a * f
 
     return px
 
@@ -397,6 +383,10 @@ def students_t(
     px : np.ndarray
         Probability density values.
     """
+    # Check degrees of freedom is positive
+    if dof <= 0:
+        raise ValueError(f"`dof` must be positive, got {dof}")
+
     # Checks
     xmin, xmax = _students_t_limits_(dof, mu, scale)
     check_mass_against_value_range(x, xmin, xmax)
@@ -615,7 +605,7 @@ def cumulative_triangular(
     Returns
     -------
     px : np.ndarray
-        Probability density values.
+        Cumulative probability values.
     """
     # Ensure proper ordering
     if not a <= c <= b:
@@ -639,6 +629,74 @@ def cumulative_triangular(
 
     # Far right
     far_ndx = (b <= x)
+    Px[far_ndx] = 1.0
+
+    return Px
+
+
+def cumulative_trapezoidal(
+    x: np.ndarray, a: float, b: float, c: float, d: float
+) -> np.ndarray:
+    """Cumulative trapezoidal function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Left base of trapezoid.
+    b : float
+        Left edge of boxcar portion.
+    c : float
+        Right edge of boxcar portion.
+    d : float
+        Right base of trapezoid.
+
+    Returns
+    -------
+    px : np.ndarray
+        Cumulative probability values.
+    """
+    # Ensure proper ordering
+    if not a <= b <= c <= d:
+        raise ValueError(
+            f"`a` ({a}) must be <= than `b` ({b}) "
+            f"must be <= `c` ({c}) must be <= `d` ({d})"
+        )
+
+    # Initialize cumulative probability values
+    n = len(x)
+    Px = np.zeros(n)
+
+    # Common coefficient
+    coef = 1 / (d + c - a - b)
+
+    # Left side
+    left_ndx = (a <= x) & (x < b)
+    Px[left_ndx] = (
+        coef
+        / (b - a)
+        * (x[left_ndx] - a) ** 2
+    )
+
+    # Boxcar
+    boxcar_ndx = (b <= x) & (x < c)
+    Px[boxcar_ndx] = (
+        coef
+        * (2 * x[boxcar_ndx] - a - b)
+    )
+
+    # Right side
+    right_ndx = (c <= x) & (x <= d)
+    Px[right_ndx] = (
+        1
+        - coef
+        / (d - c)
+        * (d - x[right_ndx]) ** 2
+    )
+
+    # Far right
+    far_ndx = (x > d)
     Px[far_ndx] = 1.0
 
     return Px
@@ -681,7 +739,50 @@ def cumulative_lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     Px : np.ndarray
         Cumulative probability values.
     """
-    return cumulative_gaussian(np.log(x), mu, sigma)
+    # Initialize cumulative probability values
+    n = len(x)
+    Px = np.zeros(n)
+
+    # Indices over which function is non-zero
+    positive_ndx = x > 0
+
+    # Cumulative probability values
+    Px[positive_ndx] = cumulative_gaussian(np.log(x[positive_ndx]), mu, sigma)
+
+    return Px
+
+
+CUMULATIVE_PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
+    "uniform": cumulative_uniform,
+    "triangular": cumulative_triangular,
+    "trapezoidal": cumulative_trapezoidal,
+    "gaussian": cumulative_gaussian,
+    "lognormal": cumulative_lognormal,
+}
+
+
+def get_cumulative_function_by_name(distribution: str) -> Callable[..., Any]:
+    """Retrieve one of the cumulative parametric functions by name.
+
+    Parameters
+    ----------
+    distribution : str
+        Parametric function name.
+
+    Returns
+    -------
+    fcn : Callable
+        Cumulative parameteric function.
+    """
+    # Check that the desired function is defined here
+    if distribution not in CUMULATIVE_PARAMETRIC_FUNCTIONS:
+        raise ValueError(
+            f"Cumulative function '{distribution}' is not defined. "
+            f"Use one of {', '.join(CUMULATIVE_PARAMETRIC_FUNCTIONS.keys())}"
+        )
+
+    # Return function
+    return CUMULATIVE_PARAMETRIC_FUNCTIONS[distribution]
 
 
 # end of file
