@@ -5,7 +5,7 @@
 # Public API
 __all__ = [
     "PARAMETRIC_FUNCTIONS",
-    "boxcar",
+    "uniform",
     "triangular",
     "gaussian",
     "exponential",
@@ -13,6 +13,7 @@ __all__ = [
     "get_function_by_name",
     "check_number_inputs",
     "determine_min_max_limits",
+    "cumulative_uniform",
     "cumulative_gaussian",
     "cumulative_lognormal",
 ]
@@ -70,16 +71,21 @@ def check_mass_against_value_range(
 
 
 #################### PARAMETRIC FUNCTIONS ####################
-def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
-    """Boxcar function with unit area.
+def uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Uniform (boxcar) function with unit area.
+
+    U(a, b) = f(x) = 1 / (b - a) for (a <= x <= b)
+                     0 for (x < a or x > b)
+
+    This assigns non-zeros values within the closed interval [a, b].
 
     Parameters
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    xmin : float
+    a : float
         Minimum value with non-zero probability density.
-    xmax : float
+    b : float
         Maximum value with non-zero probability density.
 
     Returns
@@ -88,26 +94,23 @@ def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    check_mass_against_value_range(x, xmin, xmax)
+    check_mass_against_value_range(x, a, b)
 
     # Number of data points
     n = len(x)
 
-    # Initialize probability values
+    # Initialize probability density values
     px = np.zeros(n)
 
     # Probability density values
-    boxcar_ndx = (x > xmin) & (x < xmax)
-    px[boxcar_ndx] = 1.0
-
-    # Normalize area
-    px /= np.sum(px)
+    boxcar_ndx = (x >= a) & (x <= b)
+    px[boxcar_ndx] = 1 / (b - a)
 
     return px
 
 
 def triangular(
-    x:np.ndarray, xmin: float, xmode: float, xmax: float
+    x:np.ndarray, a: float, c: float, b: float
 ) -> np.ndarray:
     """Triangular function with unit area.
 
@@ -115,12 +118,12 @@ def triangular(
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    xmin : float
-        Minimum value with non-zero probability density.
-    xmode : float
-        Value of peak probability density.
-    xmax : float
-        Maximum value with non-zero probability density.
+    a : float
+        Left base of the triangle.
+    c : float
+        Peak of the triangle.
+    b : float
+        Right base of the triangle.
 
     Returns
     -------
@@ -128,14 +131,13 @@ def triangular(
         Probability density values.
     """
     # Ensure proper ordering
-    if not xmin <= xmode <= xmax:
+    if not a <= c <= b:
         raise ValueError(
-            f"`xmin` ({xmin}) must be <= than `xmode` ({xmode}) "
-            f"must be <= `xmax` ({xmax})"
+            f"`a` ({a}) must be <= than `c` ({c}) must be <= `b` ({b})"
         )
 
     # Checks
-    check_mass_against_value_range(x, xmin, xmax)
+    check_mass_against_value_range(x, a, b)
 
     # Number of data points
     n = len(x)
@@ -144,26 +146,16 @@ def triangular(
     px = np.zeros(n)
 
     # Left side
-    m = 1 / (xmode - xmin)
-    b = 1 - m * xmode
-    left_ndx = (x >= xmin) & (x < xmode)
-    px[left_ndx] = m * x[left_ndx] + b
+    left_ndx = (a <= x) & (x < c)
+    px[left_ndx] = 2 * (x[left_ndx] - a) / ((b - a) * (c - a))
 
     # Peak
-    peak_ndx = (x >= xmode) & (x <= xmode)
-    px[peak_ndx] = 1.0
+    peak_ndx = (x == c)
+    px[peak_ndx] = 2 / (b - a)
 
     # Right side
-    m = -1 / (xmax - xmode)
-    b = 0 - m * xmax
-    right_ndx = (x > xmode) & (x <= xmax)
-    px[right_ndx] = m * x[right_ndx] + b
-
-    # Ensure all values > 0 (rounding error)
-    px[px < 0] = 0
-
-    # Normalize based on area of triangle
-    px *= 2 / (xmax - xmin)
+    right_ndx = (c < x) & (x <= b)
+    px[right_ndx] = 2 * (b - x[right_ndx]) / ((b - a) * (b - c))
 
     return px
 
@@ -416,7 +408,7 @@ def students_t(
 
 
 PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
-    "boxcar": boxcar,
+    "uniform": uniform,
     "triangular": triangular,
     "trapezoidal": trapezoidal,
     "gaussian": gaussian,
@@ -518,7 +510,7 @@ def determine_min_max_limits(
         Maximum value.
     """
     # Behave based on function type
-    if distribution in ["boxcar", "triangular", "trapezoidal"]:
+    if distribution in ["uniform", "triangular", "trapezoidal"]:
         # Use first and last values
         xmin = values[0]
         xmax = values[-1]
@@ -573,6 +565,85 @@ def determine_min_max_limits(
 
 
 #################### PARAMETRIC CDFS ####################
+def cumulative_uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Cumulative uniform function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Minimum value with non-zero probability density.
+    b : float
+        Maximum value with non-zero probability density.
+
+    Returns
+    -------
+    Px : np.ndarray
+        Cumulative probability values.
+    """
+    # Number of data points
+    n = len(x)
+
+    # Initialize cumulative probability values
+    Px = np.zeros(n)
+
+    # Cumulative probability values
+    boxcar_ndx = (x >= a) & (x <= b)
+    Px[boxcar_ndx] = (x[boxcar_ndx] - a) / (b - a)
+    Px[x > b] = 1.0
+
+    return Px
+
+
+def cumulative_triangular(
+    x:np.ndarray, a: float, c: float, b: float
+) -> np.ndarray:
+    """Cumulative triangular function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Left base of the triangle.
+    c : float
+        Peak of the triangle.
+    b : float
+        Right base of the triangle.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
+    """
+    # Ensure proper ordering
+    if not a <= c <= b:
+        raise ValueError(
+            f"`a` ({a}) must be <= than `c` ({c}) must be <= `b` ({b})"
+        )
+
+    # Number of data points
+    n = len(x)
+
+    # Initialize cumulative probability values
+    Px = np.zeros(n)
+
+    # Left side
+    left_ndx = (a < x) & (x <= c)
+    Px[left_ndx] = (x[left_ndx] - a)**2 / ((b - a) * (c - a))
+
+    # Right side
+    right_ndx = (c < x) & (x < b)
+    Px[right_ndx] = 1 - (b - x[right_ndx])**2 / ((b - a) * (b - c))
+
+    # Far right
+    far_ndx = (b <= x)
+    Px[far_ndx] = 1.0
+
+    return Px
+
+
 def cumulative_gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Cumulative Gaussian function.
 
