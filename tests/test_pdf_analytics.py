@@ -8,7 +8,10 @@ from dataclasses import dataclass
 import numpy as np
 import pytest
 
-from riser import probability_functions as PDFs
+from riser import (
+    constants,
+    probability_functions as PDFs,
+)
 
 
 # Function parameters
@@ -260,6 +263,48 @@ class TestComputePdfStatistics:
         assert pdf_stats.kurtosis == pytest.approx(
             PDFs.analytics.pdf_kurtosis(pdf)
         )
+
+
+class TestConfidenceRange:
+    def test_iterates_single_range(self):
+        conf_range = PDFs.analytics.ConfidenceRange(
+            metric="CI", confidence=0.68, range_values=((0.1, 0.9),)
+        )
+        assert list(conf_range) == [(0.1, 0.9)]
+
+    def test_iterates_multiple_ranges(self):
+        conf_range = PDFs.analytics.ConfidenceRange(
+            metric="HPD",
+            confidence=0.95,
+            range_values=((0.1, 0.3), (0.6, 0.9)),
+        )
+        assert list(conf_range) == [(0.1, 0.3), (0.6, 0.9)]
+
+    def test_returns_a_str(self):
+        conf_range = PDFs.analytics.ConfidenceRange(
+            metric="CI", confidence=0.68, range_values=((0.1, 0.9),),
+            pdf_name="x", variable_type="age", unit="y",
+        )
+        assert isinstance(str(conf_range), str)
+
+
+class TestComputeInterquantileRange:
+    @pytest.mark.parametrize(
+        "confidence, expected",
+        [
+            (constants.Psigma["1"], [(-1.0, 3.0)]),
+            (constants.Psigma["2"], [(-3.0, 5.0)]),
+        ],
+    )
+    def test_iterates_single_range(self, confidence, expected):
+        pdf = PDFs.PDF(x=SHIFT_NORM["x"], px=SHIFT_NORM["px"])
+        conf_range = PDFs.analytics.compute_interquantile_range(
+            pdf=pdf, confidence=confidence,
+        )
+        conf_list = list(conf_range)
+        assert len(conf_list) == 1
+        for conf_result, expected_result in zip(conf_list, expected):
+            assert conf_result == pytest.approx(expected_result)
 
 
 # end of file
