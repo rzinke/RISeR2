@@ -11,7 +11,7 @@ __all__ = [
     "sample_spacing_from_pdf",
     "sample_spacing_array_from_pdf",
     "value_array_params_from_pdfs",
-    "create_precise_value_array",
+    "precise_array",
     "check_pdfs_sampling",
 ]
 
@@ -162,7 +162,7 @@ def value_array_params_from_pdfs(
 
 
 #################### VALUE ARRAYS ####################
-def create_precise_value_array(
+def precise_array(
     xmin: float, xmax: float, dx: float, verbose: bool = False
 ) -> np.ndarray:
     """Create an array (vector) of values over the PDF domain.

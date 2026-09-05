@@ -72,10 +72,8 @@ class TestValueArrayParamsFromPDFs:
 
 
 class TestCreatePreciseValueArray:
-    def test_create_precise_value_array(self):
-        x = PDFs.value_arrays.create_precise_value_array(
-            xmin=0, xmax=2.0, dx=0.5
-        )
+    def test_precise_array(self):
+        x = PDFs.value_arrays.precise_array(xmin=0, xmax=2.0, dx=0.5)
         assert np.all(x == np.array([0.0, 0.5, 1.0, 1.5, 2.0]))
 
 

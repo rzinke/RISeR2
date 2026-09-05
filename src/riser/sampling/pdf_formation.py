@@ -80,7 +80,7 @@ def samples_to_pdf_histogram(
     dx = np.sqrt(n_samples) if dx is None else dx
 
     # Create histogram value array
-    x = PDFs.value_arrays.create_precise_value_array(xmin, xmax, dx)
+    x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
 
     # Bin points in histogram
     px, _ = np.histogram(samples, bins=x, density=True)
@@ -153,7 +153,7 @@ def samples_to_pdf_kde(
     dx = np.sqrt(n_samples) if dx is None else dx
 
     # Create histogram value array
-    x = PDFs.value_arrays.create_precise_value_array(xmin, xmax, dx)
+    x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
 
     # Compute KDE
     kde = sp.stats.gaussian_kde(samples)

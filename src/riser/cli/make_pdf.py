@@ -128,9 +128,7 @@ def main():
     precision.check_precision(dx)
 
     # Create x-array
-    x = PDFs.value_arrays.create_precise_value_array(
-        xmin, xmax, dx, verbose=inps.verbose
-    )
+    x = PDFs.value_arrays.precise_array(xmin, xmax, dx, verbose=inps.verbose)
 
     # Retrieve parameteric function
     para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)

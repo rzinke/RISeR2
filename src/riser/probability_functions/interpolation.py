@@ -86,9 +86,7 @@ def interpolate_pdfs(pdfs: list[PDF], verbose: bool = False) -> list[PDF]:
     )
 
     # Create value array
-    x = value_arrays.create_precise_value_array(
-        xmin, xmax, dx, verbose=verbose
-    )
+    x = value_arrays.precise_array(xmin, xmax, dx, verbose=verbose)
 
     # Resample PDFs
     pdfs_resamp = [interpolate_pdf(pdf, x) for pdf in pdfs]

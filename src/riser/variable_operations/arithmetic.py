@@ -378,7 +378,7 @@ def multiply_variables(
     ])
 
     # Create product value array
-    p = PDFs.value_arrays.create_precise_value_array(prod_min, prod_max, dp)
+    p = PDFs.value_arrays.precise_array(prod_min, prod_max, dp)
 
     # Initialize product probability density array
     n = len(p)
@@ -511,7 +511,7 @@ def divide_variables(
     ])
 
     # Create quotient value array
-    q = PDFs.value_arrays.create_precise_value_array(quot_min, quot_max, dq)
+    q = PDFs.value_arrays.precise_array(quot_min, quot_max, dq)
 
     # Initialize quotient probability density array
     nq = len(q)
