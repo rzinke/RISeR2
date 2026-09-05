@@ -50,8 +50,12 @@ def expected_value(
 ) -> float:
     """Compute the expected value of a random variable X.
 
-    Note the change in x can be explicitly defined as a single number
+    The change in x can be explicitly defined as a single number
     (e.g., 0.01) or determined directly from the value array.
+
+    Note: This uses a forward-difference-style numerical integration.
+    For best accuracy, a sufficiently fine and uniformly-spaced x array
+    is strongly preferred.
 
     Parameters
     ----------
@@ -98,7 +102,7 @@ def compute_raw_moment(
     theta_n : float
         Raw moment.
     """
-    theta_n = np.sum(x**n * px * dx)
+    theta_n = expected_value(x**n, px, dx)
 
     return theta_n
 
