@@ -369,6 +369,9 @@ class PDFstatistics:
         if self.name is not None:
             print_str += f" {self.name}"
 
+        if self.variable_type is not None:
+            print_str += f" - {self.variable_type}"
+
         if self.unit is not None:
             print_str += f" ({self.unit})"
 
