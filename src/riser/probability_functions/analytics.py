@@ -606,7 +606,7 @@ def get_pdf_confidence_function(
     # Check metric is supported
     if metric not in PDF_CONFIDENCE_METRICS:
         raise ValueError(
-            f"PDF confidene metric '{metric}' not supported. "
+            f"PDF confidence metric '{metric}' not supported. "
             f"Use one of {', '.join(PDF_CONFIDENCE_METRICS)}"
         )
 

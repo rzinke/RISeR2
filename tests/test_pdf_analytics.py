@@ -60,6 +60,18 @@ SHIFT_NORM = {
     "dx": _dx_shift,
 }
 
+_dx_bimodal = 0.001
+_x_bimodal = PDFs.value_arrays.precise_array(-10.0, 10.0, _dx_bimodal)
+_px_bimodal = (
+    PDFs.parametric_functions.triangular(_x_bimodal, a=-2.0, c=-1.0, b=0.0)
+    + PDFs.parametric_functions.triangular(_x_bimodal, a=0.0, c=1.0, b=2.0)
+)
+BIMODAL = {
+    "x": _x_bimodal,
+    "px": _px_bimodal,
+    "dx": _dx_bimodal,
+}
+
 
 # Tests
 class TestExpectedValue:
@@ -305,6 +317,88 @@ class TestComputeInterquantileRange:
         assert len(conf_list) == 1
         for conf_result, expected_result in zip(conf_list, expected):
             assert conf_result == pytest.approx(expected_result)
+
+
+class TestComputeHighestPosteriorDensity:
+    @pytest.mark.parametrize(
+        "confidence, expected",
+        [
+            (constants.Psigma["1"], [(-1.0, 3.0)]),
+            (constants.Psigma["2"], [(-3.0, 5.0)]),
+        ],
+    )
+    def test_single_peak(self, confidence, expected):
+        pdf = PDFs.PDF(x=SHIFT_NORM["x"], px=SHIFT_NORM["px"])
+        conf_range = PDFs.analytics.compute_highest_posterior_density(
+            pdf=pdf, confidence=confidence,
+        )
+        conf_list = list(conf_range)
+        assert len(conf_list) == 1
+        tolerance = 4 * SHIFT_NORM["dx"]
+        for conf_result, expected_result in zip(conf_list, expected):
+            assert conf_result == pytest.approx(expected_result, abs=tolerance)
+
+    @pytest.mark.parametrize(
+        "confidence, expected",
+        [
+            (constants.Psigma["1"],
+             [(-1.436697, -0.563303), (0.563303, 1.436697)]
+            ),
+            (constants.Psigma["2"],
+             [(-1.786692, -0.213308), (0.213308, 1.786692)]
+            ),
+        ],
+    )
+    def test_multi_peak(self, confidence, expected):
+        pdf = PDFs.PDF(x=BIMODAL["x"], px=BIMODAL["px"])
+        conf_range = PDFs.analytics.compute_highest_posterior_density(
+            pdf=pdf, confidence=confidence,
+        )
+        conf_list = list(conf_range)
+        assert len(conf_list) == 2
+        tolerance = 4 * BIMODAL["dx"]
+        for conf_result, expected_result in zip(conf_list, expected):
+            assert conf_result == pytest.approx(expected_result, abs=tolerance)
+
+
+class TestGetPdfConfidenceFunction:
+    def test_case_insensitive_dispatch(self):
+        fn_upper = PDFs.analytics.get_pdf_confidence_function("HPD")
+        fn_lower = PDFs.analytics.get_pdf_confidence_function("hpd")
+        assert (
+            fn_upper
+            is fn_lower
+            is PDFs.analytics.compute_highest_posterior_density
+        )
+
+    def test_iqr_maps_correctly(self):
+        fn = PDFs.analytics.get_pdf_confidence_function("IQR")
+        assert fn is PDFs.analytics.compute_interquantile_range
+
+    def test_unknown_metric_raises(self):
+        with pytest.raises(ValueError, match="not supported"):
+            PDFs.analytics.get_pdf_confidence_function("xyz")
+
+
+class TestComputePdfConfidenceRange:
+    @pytest.mark.parametrize(
+        "metric, direct_fcn",
+        [
+            ("IQR", PDFs.analytics.compute_interquantile_range),
+            ("HPD", PDFs.analytics.compute_highest_posterior_density),
+        ],
+    )
+    def test_dispatches_to_correct_function(self, metric, direct_fcn):
+        pdf = PDFs.PDF(x=SHIFT_NORM["x"], px=SHIFT_NORM["px"])
+        confidence = constants.Psigma["1"]
+
+        direct_result = list(direct_fcn(pdf=pdf, confidence=confidence))
+        result_from_dispatch = list(
+            PDFs.analytics.compute_pdf_confidence_range(
+                pdf, metric=metric, confidence=confidence
+            )
+        )
+        assert direct_result == result_from_dispatch
 
 
 # end of file
