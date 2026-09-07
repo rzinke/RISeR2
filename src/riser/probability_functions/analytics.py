@@ -509,59 +509,53 @@ def compute_highest_posterior_density(
     conf_range : ConfidenceRange
         Confidence range of PDF based on the highest posterior density.
     """
-    # Value index numbers
-    val_nbs = np.array([*range(len(pdf))])
-
-    # Compute probabilities
+    # Compute probability at each step from probability density function
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
     p_i = pdf.px * dx
 
-    # Sort the probabilities from largest to smallest
-    sort_ndx = np.argsort(p_i)
-    sort_ndx = sort_ndx[::-1]
+    # Order probabilities from highest to lowest (tallest to shortest)
+    sort_ndx = np.argsort(p_i)  # lowest-highest
+    sort_ndx = sort_ndx[::-1]  # highest-lowest
 
-    vals_sort = val_nbs[sort_ndx]
+    # Sort relevant PDF values according to probabilities
     x_sort = pdf.x[sort_ndx]
     px_sort = pdf.px[sort_ndx]
     p_i_sort = p_i[sort_ndx]
 
-    # Sum probabilities until they reach the specified confidence limit
+    # Compute running sum of probabilities, from zero to unit
     P_sort = np.cumsum(p_i_sort)
 
-    # Determine which values meet confidence bounds
+    # Find last index at which summed probability is <= the desired confidence
     conf_ndxs = (P_sort <= confidence)
+    k_star = np.sum(conf_ndxs) - 1
 
-    # Keep x, px value probability pairs that are within confidence limits
-    x_sort_conf = x_sort[conf_ndxs]
-    px_sort_conf = px_sort[conf_ndxs]
-    vals_sort_conf = vals_sort[conf_ndxs]
+    # Find exact probability density value corresponding to desired confidence
+    # by interpolating between discrete points
+    t = (confidence - P_sort[k_star]) / (P_sort[k_star + 1] - P_sort[k_star])
+    h = px_sort[k_star] + t * (px_sort[k_star + 1] - px_sort[k_star])
 
-    # Un-sort values in confidence limit by x-value
-    unsort_ndx = np.argsort(x_sort_conf)
+    # Find every place px changes across threshold h, sign changes are
+    # cluster edges
+    thresh = np.where(pdf.px >= h, 1., -1.)
+    thresh_diff = np.diff(thresh, append=-1.)
 
-    x_conf = x_sort_conf[unsort_ndx]
-    px_conf = px_sort_conf[unsort_ndx]
-    vals_conf = vals_sort_conf[unsort_ndx]
+    cluster_starts = []
+    cluster_ends = []
+    for i in range(len(pdf)-1):
+        if thresh_diff[i] != 0.:
+            # Interpolate the exact crossing location at each edge
+            t = (h - pdf.px[i]) / (pdf.px[i+1] - pdf.px[i])
+            x_star = pdf.x[i] + t * (pdf.x[i+1] - pdf.x[i])
+            if thresh_diff[i] == 2.:
+                cluster_starts.append(x_star)
+            else:
+                cluster_ends.append(x_star)
 
-    # Number of values in confidence limit
-    n_conf = len(x_conf)
-
-    # Group values by continuity
-    clusters = []
-    cluster_start = x_conf[0]
-    for i in range(1, n_conf):
-        if (
-            (vals_conf[i] - vals_conf[i-1]) > 1
-            or (i == n_conf-1)
-        ):
-            # Cluster end
-            cluster_end = x_conf[i-1]
-
-            # Record cluster
-            clusters.append((cluster_start, cluster_end))
-
-            # Start next cluster
-            cluster_start = x_conf[i]
+    clusters = [
+        # Pair consecutive edges
+        (cluster_start, cluster_end) for cluster_start, cluster_end in
+        zip(cluster_starts, cluster_ends)
+    ]
 
     # Format values into ConfidenceRange object
     conf_range = ConfidenceRange(
