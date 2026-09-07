@@ -21,7 +21,7 @@ description = "View the PDF of a random variable and its properties."
 
 examples = """Examples:
 view_pdf.py pdf_file.txt
-view_pdf.py pdf_file.txt --show-confidence --confidence-limits 0.9545 --confidence-methods IQR
+view_pdf.py pdf_file.txt --show-confidence --confidence-limits 0.9545 --confidence-method IQR
 view_pdf.py pdf_file.txt -o pdf_fig.png --no-show
 """
 

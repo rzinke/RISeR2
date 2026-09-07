@@ -14,6 +14,13 @@ from . import variable_pair_plots
 from . import filter_plots
 from . import mc_plots
 
+from .pdf_plots import *
+from .cdf_plots import *
+from .variable_pair_plots import *
+from .filter_plots import *
+from .mc_plots import *
+
+
 # Public API
 __all__ = (
     # PDF plots

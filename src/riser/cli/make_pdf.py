@@ -26,9 +26,9 @@ description = (
 )
 
 examples = """Examples:
-make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
-make_pdf.py -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
-make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
+riser-make-pdf -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
+riser-make-pdf -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
+riser-make-pdf -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
 
 def create_parser():
