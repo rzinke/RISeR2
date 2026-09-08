@@ -41,7 +41,7 @@ from ..sampling import mc_sampling, pdf_formation, filtering
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
-    dq: float = 0.01,
+    dr: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -52,8 +52,8 @@ def compute_slip_rate(
     ----------
     marker : DatedMarker
         Displacement-age pair used to calculate slip rate.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
     max_rate : float, optional
@@ -68,13 +68,13 @@ def compute_slip_rate(
         print("Computing slip rate")
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive else -100.0
+    min_rate = 0.0 if limit_positive else None
 
     # Divide displacement by age
     slip_rate = var_ops.arithmetic.divide_variables(
         numerator=marker.displacement,
         denominator=marker.age,
-        dq=dq,
+        dz=dr,
         min_quotient=min_rate,
         max_quotient=max_rate,
         name=marker.name,
@@ -87,7 +87,7 @@ def compute_slip_rate(
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
-    dq: float = 0.01,
+    dr: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -109,8 +109,8 @@ def compute_slip_rates_analytical(
         Dated markers bounding each interval.
     max_rate : float
         Maximum quotient value to consider.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     limit_positive : bool, optional
         Enforce condition that displacement values must be positive.
 
@@ -190,7 +190,7 @@ def compute_slip_rates_analytical(
         slip_rate = var_ops.arithmetic.divide_variables(
             numerator=DeltaU,
             denominator=DeltaT,
-            dq=dq,
+            dz=dr,
             min_quotient=min_rate,
             max_quotient=max_rate,
             name=rate_name,
@@ -217,7 +217,7 @@ def compute_slip_rates_mc(
     criterion: mc_sampling.SampleCriterion,
     *,
     max_rate: float = 100.0,
-    dq: float = 0.01,
+    dr: float = 0.01,
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
     pdf_method: str = "histogram",
@@ -239,8 +239,8 @@ def compute_slip_rates_mc(
         Criterion by which to evaluate validity of samples.
     max_rate : float, optional
         Maximum quotient value to consider.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     n_samples : int, optional
         Number of valid samples to achieve.
     hard_stop : float, optional

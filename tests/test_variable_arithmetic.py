@@ -16,6 +16,10 @@ from riser import (
 # Tests
 class TestConvolveInputSide:
     def test_matches_numpy_reference(self):
+        """Check that the output of this library's bespoke input-side
+        convolution function matches that of the standard numpy convolution
+        function.
+        """
         x = np.array([1.0, 2.0, 3.0])
         h = np.array([0.5, 0.5])
         result = var_ops.arithmetic.convolve_input_side(x, h)
@@ -24,6 +28,10 @@ class TestConvolveInputSide:
 
 class TestConvolveOutputSide:
     def test_matches_numpy_reference(self):
+        """Check that the output of this library's bespoke output-side
+        convolution function matches that of the standard numpy convolution
+        function.
+        """
         x = np.array([1.0, 2.0, 3.0])
         h = np.array([0.5, 0.5])
         result = var_ops.arithmetic.convolve_output_side(x, h)
@@ -31,6 +39,9 @@ class TestConvolveOutputSide:
         np.testing.assert_allclose(result, expected)
 
     def test_matches_input_side_formulation(self):
+        """Check that the bespoke convolution functions of this library
+        produce consistent outputs.
+        """
         x = np.array([1.0, 2.0, 3.0, 4.0])
         h = np.array([0.5, 0.25, 0.25])
         result_output = var_ops.arithmetic.convolve_output_side(x, h)
@@ -40,6 +51,9 @@ class TestConvolveOutputSide:
 
 class TestNegateVariable:
     def test_negation_reflects_shape_correctly(self):
+        """The shape of a PDF should be reflected across 0.0.
+        This will be especially apparent for an asymmetric shape.
+        """
         x = PDFs.value_arrays.precise_array(0.0, 5.0, 0.01)
         px = PDFs.parametric_functions.triangular(x, a=0.0, c=1.0, b=5.0)
         pdf = PDFs.PDF(x, px)
@@ -59,6 +73,10 @@ class TestNegateVariable:
         ],
     )
     def test_name_handling(self, original_name, expected_name):
+        """Check that if no name is passed, no name is return.
+        Or is a name is passed, the name is signified to be the negated version
+        of the input.
+        """
         x = PDFs.value_arrays.precise_array(0.0, 5.0, 0.5)
         px = PDFs.parametric_functions.triangular(x, a=0.0, c=1.0, b=5.0)
         pdf = PDFs.PDF(
@@ -78,6 +96,11 @@ class TestNegateVariable:
 
 class TestAddVariables:
     def test_gaussian_sum_closed_form(self):
+        """The sum of two Gaussians will be Gaussian in shape.
+        The mean of the sum will be the sum of the input means.
+        The standard deviation will be the root sum of squares of the
+        input standard deviations.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
 
         sigma1 = 1.5
@@ -96,6 +119,9 @@ class TestAddVariables:
         )
 
     def test_rejects_mismatched_sampling(self):
+        """Passing functions that are sampled on different value arrays
+        should raise an error.
+        """
         dx = 0.01
 
         x1 = PDFs.value_arrays.precise_array(-4.0, 8.0, dx)
@@ -119,6 +145,11 @@ class TestAddVariables:
         ],
     )
     def test_different_metadata_warn(self, vartype1, unit1, vartype2, unit2):
+        """Adding variables of fundamentally different types or units is not
+        consistent with physics.
+        However, variable types are not strictly enforced in this library, so
+        only a warning should be raised.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
 
         px1 = PDFs.parametric_functions.gaussian(x, mu=2.0, sigma=1.5)
@@ -131,6 +162,11 @@ class TestAddVariables:
             var_ops.arithmetic.add_variables(pdf1, pdf2)
 
     def test_name(self, recwarn):
+        """Different variables are expected to have different names, so no
+        warning should be raised when different names are passed.
+        Explicitly passing a name to `add_variables` should asribe that name
+        to the resulting PDF.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
         vartype = "age"
         unit = "y"
@@ -161,6 +197,11 @@ class TestAddVariables:
 
 class TestSubtractVariables:
     def test_gaussian_sum_closed_form(self):
+        """Similar to addition, the subtraction of two Gaussian variables
+        should produce a Gaussian with a mean that is the difference of the
+        input means, and a standard deviation that is the root sum of squares
+        of the inputs.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
 
         sigma1 = 1.5
@@ -179,6 +220,9 @@ class TestSubtractVariables:
         )
 
     def test_limit_positive(self):
+        """If subtraction outputs are limited only to positive values, the
+        resulting distribution should follow a truncated distribution.
+        """
         dx = 0.001
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, dx)
 
@@ -210,6 +254,9 @@ class TestSubtractVariables:
         np.testing.assert_allclose(pdf_diff.px, px_expected, atol=1e-4)
 
     def test_rejects_mismatched_sampling(self):
+        """Passing functions that are sampled on different value arrays
+        should raise an error.
+        """
         dx = 0.01
 
         x1 = PDFs.value_arrays.precise_array(-4.0, 8.0, dx)
@@ -233,6 +280,8 @@ class TestSubtractVariables:
         ],
     )
     def test_different_metadata_warn(self, vartype1, unit1, vartype2, unit2):
+        """Warn is variables of fundamentally different types are passed.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
 
         px1 = PDFs.parametric_functions.gaussian(x, mu=2.0, sigma=1.5)
@@ -245,6 +294,9 @@ class TestSubtractVariables:
             var_ops.arithmetic.subtract_variables(pdf1, pdf2)
 
     def test_name(self, recwarn):
+        """Passing variables with different names should not raise a warning.
+        An explicitly passed named should be ascribed to the resulting PDF.
+        """
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
         vartype = "age"
         unit = "y"
@@ -275,13 +327,19 @@ class TestSubtractVariables:
 
 class TestMultiplyVariables:
     def test_uniform_product_closed_form(self):
+        """The product of two uniform distributions defined over the interval
+        [0.0, 1.0] should result in a distribution of the form -ln(z).
+
+        The accuracy of the result is highly dependent on the spacing of the
+        input grids.
+        """
         dx = 1E-4
         x = PDFs.value_arrays.precise_array(0.0, 1.0, dx)
         px = PDFs.parametric_functions.uniform(x, 0.0, 1.0)
         pdf1 = PDFs.PDF(x=x, px=px)
         pdf2 = PDFs.PDF(x=x, px=px)
 
-        pdf_prod = var_ops.arithmetic.multiply_variables(pdf1, pdf2, dp=dx)
+        pdf_prod = var_ops.arithmetic.multiply_variables(pdf1, pdf2, dz=dx)
 
         check_ndx = (pdf_prod.x > 1E-2)
 
@@ -294,6 +352,9 @@ class TestMultiplyVariables:
 
 class TestDivideVariables:
     def test_ratio_of_normals_is_cauchy(self):
+        """The quotient of two standard normal distributions should follow
+        a Cauchy distribution.
+        """
         dx = 0.001
         x = PDFs.value_arrays.precise_array(-8.0, 8.0, dx)
         px = PDFs.parametric_functions.gaussian(x, mu=0.0, sigma=1.0)
@@ -302,7 +363,7 @@ class TestDivideVariables:
 
         min_q, max_q = -20.0, 20.0
         pdf_quot = var_ops.arithmetic.divide_variables(
-            numerator, denominator, dq=0.01,
+            numerator, denominator, dz=0.01,
             min_quotient=min_q, max_quotient=max_q,
         )
 

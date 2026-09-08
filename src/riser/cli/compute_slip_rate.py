@@ -64,8 +64,8 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Enforce the condition that values are >= to 0.")
     rate_args.add_argument("--max-rate", dest="max_rate",
-        type=float, default=100,
-        help="Maximum slip rate to consider. [100]")
+        type=float,
+        help="Maximum slip rate to consider.")
     rate_args.add_argument("--dv", dest="dv",
         type=float, default=0.01,
         help="Slip rate step. [0.01]")

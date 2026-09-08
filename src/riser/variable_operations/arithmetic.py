@@ -367,7 +367,7 @@ def multiply_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
-    dp: float = 0.01,
+    dz: float = 0.01,
     min_product: float | None = None,
     max_product: float | None = None,
     name: str | None = None,
@@ -389,7 +389,7 @@ def multiply_variables(
         PDF to multiply with pdf2.
     pdf2 : PDF
         PDF to multiply with pdf1.
-    dp : float, optional
+    dz : float, optional
         Product sample spacing.
     min_product : float, optional
         Minimum-allowable product to consider.
@@ -419,11 +419,11 @@ def multiply_variables(
     prod_max = np.max(corners) if max_product is None else max_product
 
     # Create product value array
-    p = PDFs.value_arrays.precise_array(prod_min, prod_max, dp)
+    z = PDFs.value_arrays.precise_array(prod_min, prod_max, dz)
 
     # Initialize product probability density array
-    n = len(p)
-    pp = np.zeros(n)
+    n = len(z)
+    pz = np.zeros(n)
 
     # Absolute values of pdf1
     x1_abs = np.abs(pdf1.x)
@@ -439,13 +439,13 @@ def multiply_variables(
     # Loop through values in the product
     for i in range(n):
         # Compute PDF2 target values (z / x)
-        x2 = p[i] / x1_nonzero
+        x2 = z[i] / x1_nonzero
 
         # Equivalent PDF2 density at each target value
         px2 = pdf2.pdf_at_value(x2)
 
         # Sum densities at product value
-        pp[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
+        pz[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
 
     # Determine product unit
     if pdf1.unit is not None and pdf2.unit is not None:
@@ -462,8 +462,8 @@ def multiply_variables(
 
     # Form results into PDF
     pdf_prod = PDFs.PDF(
-        x=p,
-        px=pp,
+        x=z,
+        px=pz,
         **metadata.as_dict(),
     )
 
@@ -474,7 +474,7 @@ def divide_variables(
     numerator: PDFs.PDF,
     denominator: PDFs.PDF,
     *,
-    dq: float = 0.01,
+    dz: float = 0.01,
     min_quotient: float | None = None,
     max_quotient: float | None = None,
     name: str | None = None,
@@ -521,7 +521,7 @@ def divide_variables(
         Numerator distribution.
     denominator : PDF
         Denominator distribution.
-    dq : float, optional
+    dz : float, optional
         Quotient sample spacing.
     min_quotient : float, optional
         Minimum-allowable quotient to consider. Required if denominator's
@@ -570,22 +570,22 @@ def divide_variables(
         quot_max = np.max(corners) if max_quotient is None else max_quotient
 
     # Create quotient value array
-    q = PDFs.value_arrays.precise_array(quot_min, quot_max, dq)
+    z = PDFs.value_arrays.precise_array(quot_min, quot_max, dz)
 
     # Initialize quotient probability density array
-    nq = len(q)
-    pq = np.zeros(nq)
+    nz = len(z)
+    pz = np.zeros(nz)
 
     # Loop through values in quotient
-    for i in range(nq):
+    for i in range(nz):
         # Compute target numerator values (rate * denominator values)
-        numer_x = q[i] * denominator.x
+        numer_x = z[i] * denominator.x
 
         # Equivalent numerator density at each target numator value
         numer_px = numerator.pdf_at_value(numer_x)
 
         # Sum densities at quotient value
-        pq[i] = np.sum(denominator.px * numer_px * np.abs(denominator.x))
+        pz[i] = np.sum(denominator.px * numer_px * np.abs(denominator.x))
 
     # Determine quotient unit
     if numerator.unit is not None and denominator.unit is not None:
@@ -602,8 +602,8 @@ def divide_variables(
 
     # Form results into PDF
     pdf_quot = PDFs.PDF(
-        x=q,
-        px=pq,
+        x=z,
+        px=pz,
         **metadata.as_dict(),
     )
 
