@@ -22,6 +22,7 @@ __all__ = [
 
 
 # Import modules
+import warnings
 import copy
 
 import numpy as np
@@ -95,7 +96,7 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
         for j in range(nh):
             # Check if valid
             if (i - j >= 0) and (i - j < nx):
-                y[i] += x[j] * h[i - j]
+                y[i] += x[i - j] * h[j]
 
     return y
 
@@ -131,11 +132,15 @@ def negate_variable(
     # Formulate output name
     neg_name = f"(negative) {pdf.name}" if pdf.name is not None else None
 
+    # Compose metadata
+    metadata_dict = pdf.metadata.as_dict()
+    metadata_dict["name"] = neg_name
+
     # Form results into PDF
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        **pdf.metadata.as_dict(),
+        **metadata_dict,
     )
 
     return neg_pdf
@@ -152,9 +157,9 @@ def add_variables(
     their values (Z).
 
     Theory:
-    For discrete PDFs, think of variable addition as a sum of joint
-    probabilties as a function of values. This is exactly convolution, and is
-    mathematically best expressed from the "output side".
+    For discrete PDFs, variable addition is a sum of joint probabilties as a
+    function of values. This is exactly convolution, and is mathematically best
+    expressed from the "output side".
 
         P(Z = z) = sum(P(X = k).P(Y = z - k))
         or
@@ -165,9 +170,12 @@ def add_variables(
     It creates an output array based on the input PDFs values, with the
     minimum sum being twice the minimum input, and the maximum sum being twice
     the maximum input.
-    It then computes the probability density at each summed value using output
-    side convolution: that is, looping over the summed value array (iterator
-    z or i) and the input value arrays (iterator k or j).
+
+    It then computes the probability density at each summed value using
+    NumPy's own convolution (np.convolve, mode="full") for speed. See
+    convolve_output_side for an explicit, unoptimized implementation of the
+    identical output-side convolution algorithm described above, useful for
+    understanding or reimplementing the mechanics directly.
 
     Parameters
     ----------
@@ -180,7 +188,7 @@ def add_variables(
     
     Returns
     -------
-    sum_pdf : PDF
+    pdf_sum : PDF
         Summed PDF.
     """
     if verbose:
@@ -191,8 +199,22 @@ def add_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name, warn=True
+        [pdf1.metadata, pdf2.metadata], name=name,
     )
+
+    if pdf1.variable_type != pdf2.variable_type:
+        warnings.warn(
+            f"Variable type differs between input PDFs, "
+            f"defaulting to {metadata.variable_type}",
+            stacklevel=2,
+        )
+
+    if pdf1.unit != pdf2.unit:
+        warnings.warn(
+            f"Units differ between input PDFs, "
+            f"defaulting to {metadata.unit}",
+            stacklevel=2,
+        )
 
     # Parameters
     x_min = pdf1.x[0]
@@ -212,13 +234,13 @@ def add_variables(
     pxx = np.convolve(pdf1.px, pdf2.px, mode="full")
 
     # Form results into PDF
-    sum_pdf = PDFs.PDF(
+    pdf_sum = PDFs.PDF(
         x=xx,
         px=pxx,
         **metadata.as_dict(),
     )
 
-    return sum_pdf
+    return pdf_sum
 
 
 def subtract_variables(
@@ -243,6 +265,15 @@ def subtract_variables(
 
         P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
 
+    In the case of limiting the output distribution to only positive values,
+    the output becomes
+
+        P(Z | Z > 0) = P(Z) / P(Z > 0) for Z > 0
+
+    That is, the probability densities of values less than or equal to zero are 
+    set to 0.0 (truncated), and the remaining probability density values are 
+    re-normalized.
+
     Machinery:
     This function takes two PDFs that will be sampled on the same
     value axis.
@@ -260,7 +291,8 @@ def subtract_variables(
     pdf2 : PDF
         PDF to subtract from pdf1.
     limit_positive : bool, optional
-        Enforce condition that values must be positive.
+        Truncate the distribution at zero, i.e., enforce the condition that
+        values must be positive.
     name : str, optional
         Name of differenced PDF.
     
@@ -277,8 +309,22 @@ def subtract_variables(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name, warn=True
+        [pdf1.metadata, pdf2.metadata], name=name,
     )
+
+    if pdf1.variable_type != pdf2.variable_type:
+        warnings.warn(
+            f"Variable type differs between input PDFs, "
+            f"defaulting to {metadata.variable_type}",
+            stacklevel=2,
+        )
+
+    if pdf1.unit != pdf2.unit:
+        warnings.warn(
+            f"Units differ between input PDFs, "
+            f"defaulting to {metadata.unit}",
+            stacklevel=2,
+        )
 
     # Parameters
     x_start = pdf1.x[0]
@@ -308,13 +354,13 @@ def subtract_variables(
         pxx = pxx[pos_ndx]
 
     # Form results into PDF
-    diff_pdf = PDFs.PDF(
+    pdf_diff = PDFs.PDF(
         x=xx,
         px=pxx,
         **metadata.as_dict(),
     )
 
-    return diff_pdf
+    return pdf_diff
 
 
 def multiply_variables(
@@ -356,7 +402,7 @@ def multiply_variables(
     
     Returns
     -------
-    prod_pdf : PDF
+    pdf_prod : PDF
         Product PDF.
     """
     if verbose:
@@ -420,13 +466,13 @@ def multiply_variables(
     )
 
     # Form results into PDF
-    prod_pdf = PDFs.PDF(
+    pdf_prod = PDFs.PDF(
         x=p,
         px=pp,
         **metadata.as_dict(),
     )
 
-    return prod_pdf
+    return pdf_prod
 
 
 def divide_variables(
@@ -484,7 +530,7 @@ def divide_variables(
     
     Returns
     -------
-    quot_pdf : PDF
+    pdf_quot : PDF
         Quotient PDF.
     """
     if verbose:
@@ -542,13 +588,13 @@ def divide_variables(
     )
 
     # Form results into PDF
-    quot_pdf = PDFs.PDF(
+    pdf_quot = PDFs.PDF(
         x=q,
         px=pq,
         **metadata.as_dict(),
     )
 
-    return quot_pdf
+    return pdf_quot
 
 
 # end of file
