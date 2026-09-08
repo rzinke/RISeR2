@@ -223,20 +223,20 @@ def add_variables(
     nx = len(pdf1)
 
     # Output array length
-    nxx = 2 * nx - 1
+    nz = 2 * nx - 1
 
     # Summed value array
-    xx_start = x_min + x_min
-    xx_final = x_max + x_max
-    xx = np.linspace(xx_start, xx_final, nxx)
+    z_start = x_min + x_min
+    z_final = x_max + x_max
+    z = np.linspace(z_start, z_final, nz)
 
     # Loop through output array
-    pxx = np.convolve(pdf1.px, pdf2.px, mode="full")
+    pz = np.convolve(pdf1.px, pdf2.px, mode="full")
 
     # Form results into PDF
     pdf_sum = PDFs.PDF(
-        x=xx,
-        px=pxx,
+        x=z,
+        px=pz,
         **metadata.as_dict(),
     )
 
@@ -333,30 +333,30 @@ def subtract_variables(
     nx = len(pdf1)
 
     # Output array length
-    nxx = 2 * nx - 1
+    nz = 2 * nx - 1
 
     # Differenced value array
-    xx_start = x_start - x_final
-    xx_final = x_final - x_start
-    xx = np.linspace(xx_start, xx_final, nxx)
+    z_start = x_start - x_final
+    z_final = x_final - x_start
+    z = np.linspace(z_start, z_final, nz)
 
     # Negate variable to be subtracted
     neg_pdf2 = negate_variable(pdf2)
 
     # Add negated PDF2 to PDF1
-    pxx = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
+    pz = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
 
     # Enforce condition that values must be positive
     if limit_positive:
         # Keep only values > 0
-        pos_ndx = (xx > 0)
-        xx = xx[pos_ndx]
-        pxx = pxx[pos_ndx]
+        pos_ndx = (z > 0)
+        z = z[pos_ndx]
+        pz = pz[pos_ndx]
 
     # Form results into PDF
     pdf_diff = PDFs.PDF(
-        x=xx,
-        px=pxx,
+        x=z,
+        px=pz,
         **metadata.as_dict(),
     )
 
@@ -475,8 +475,8 @@ def divide_variables(
     denominator: PDFs.PDF,
     *,
     dq: float = 0.01,
-    min_quotient: float = -100.0,
-    max_quotient: float = 100.0,
+    min_quotient: float | None = None,
+    max_quotient: float | None = None,
     name: str | None = None,
     variable_type: str | None = None,
     verbose: bool = False,
@@ -506,6 +506,15 @@ def divide_variables(
     This results in slightly incrased accuracy over Zechar and Frankel's
     implementation, and greatly increased speed.
 
+    Determining output limits:
+    Unlike multiplication, numer/denom is not bilinear, so its extrema are
+    only guaranteed to occur at the four corners of the input rectangle when
+    the denominator's range does not straddle zero (i.e., is entirely
+    positive or entirely negative). If it does straddle zero, numer/denom
+    approaches +/-infinity as denom approaches zero, so no finite natural
+    bound exists; min_quotient and max_quotient must be supplied explicitly
+    in that case.
+
     Parameters
     ----------
     numerator : PDF
@@ -515,14 +524,16 @@ def divide_variables(
     dq : float, optional
         Quotient sample spacing.
     min_quotient : float, optional
-        Minimum-allowable quotient to consider.
+        Minimum-allowable quotient to consider. Required if denominator's
+        range straddles zero.
     max_quotient : float, optional
-        Maximum-allowable quotient to consider.
+        Maximum-allowable quotient to consider. Required if denominator's
+        range straddles zero.
     name : str, optional
         Name of quotient PDF.
     variable_type : str, optional
         Variable quantity.
-    
+
     Returns
     -------
     pdf_quot : PDF
@@ -531,25 +542,32 @@ def divide_variables(
     if verbose:
         print("Dividing variables")
 
-    # All possible quotient values
-    quots_all = [
-        numer / denom
-        for numer in numerator.x
-        for denom in denominator.x
-        if denom != 0.0
-    ]
+    # Check whether denominator's range straddles (or touches) zero
+    denom_straddles_zero = (denominator.x[0] <= 0.0 <= denominator.x[-1])
 
-    # Define minimum quotient
-    quot_min = np.max([
-        np.nanmin(quots_all),
-        min_quotient,
-    ])
-
-    # Define maximum quotient
-    quot_max = np.min([
-        np.nanmax(quots_all),
-        max_quotient,
-    ])
+    if denom_straddles_zero:
+        # No finite natural bound exists: numer/denom -> +/-inf as
+        # denom -> 0, so the caller must supply explicit limits
+        if min_quotient is None or max_quotient is None:
+            raise ValueError(
+                "Denominator's range includes zero, so a natural quotient "
+                "range cannot be computed. `min_quotient` and "
+                "`max_quotient` must both be provided explicitly."
+            )
+        quot_min = min_quotient
+        quot_max = max_quotient
+    else:
+        # Denominator is entirely positive or entirely negative, so
+        # numer/denom is monotonic in each variable and its extrema over
+        # the input rectangle are achieved at one of the four corners
+        corners = [
+            numerator.x[0] / denominator.x[0],
+            numerator.x[0] / denominator.x[-1],
+            numerator.x[-1] / denominator.x[0],
+            numerator.x[-1] / denominator.x[-1],
+        ]
+        quot_min = np.min(corners) if min_quotient is None else min_quotient
+        quot_max = np.max(corners) if max_quotient is None else max_quotient
 
     # Create quotient value array
     q = PDFs.value_arrays.precise_array(quot_min, quot_max, dq)

@@ -292,4 +292,32 @@ class TestMultiplyVariables:
         )
 
 
+class TestDivideVariables:
+    def test_ratio_of_normals_is_cauchy(self):
+        dx = 0.001
+        x = PDFs.value_arrays.precise_array(-8.0, 8.0, dx)
+        px = PDFs.parametric_functions.gaussian(x, mu=0.0, sigma=1.0)
+        numerator = PDFs.PDF(x=x, px=px)
+        denominator = PDFs.PDF(x=x, px=px)
+
+        min_q, max_q = -20.0, 20.0
+        pdf_quot = var_ops.arithmetic.divide_variables(
+            numerator, denominator, dq=0.01,
+            min_quotient=min_q, max_quotient=max_q,
+        )
+
+        # divide_variables correctly returns the CONDITIONAL density given
+        # Z is within [min_q, max_q] -- the raw Cauchy pdf must be rescaled
+        # to account for the (non-negligible) tail mass outside that range
+        p_inside = sp.stats.cauchy.cdf(max_q) - sp.stats.cauchy.cdf(min_q)
+        px_expected = sp.stats.cauchy.pdf(pdf_quot.x) / p_inside
+
+        # avoid the extreme edges, where truncation itself distorts the shape
+        interior = (pdf_quot.x > -10) & (pdf_quot.x < 10)
+
+        np.testing.assert_allclose(
+            pdf_quot.px[interior], px_expected[interior], atol=1e-3
+        )
+
+
 # end of file
