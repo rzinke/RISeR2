@@ -368,8 +368,8 @@ def multiply_variables(
     pdf2: PDFs.PDF,
     *,
     dp: float = 0.01,
-    min_product: float = -100.0,
-    max_product: float = 100.0,
+    min_product: float | None = None,
+    max_product: float | None = None,
     name: str | None = None,
     variable_type: str | None = None,
     verbose: bool = False,
@@ -408,20 +408,15 @@ def multiply_variables(
     if verbose:
         print("Multiplying variables")
 
-    # All possible product values
-    prods_all = [x1 * x2 for x1 in pdf1.x for x2 in pdf2.x]
-
-    # Define minimum product
-    prod_min = np.max([
-        np.nanmin(prods_all),
-        min_product
-    ])
-
-    # Determine maximum product
-    prod_max = np.min([
-        np.nanmax(prods_all),
-        max_product
-    ])
+    # Use the four corner products to determine output array limits
+    corners = [
+        pdf1.x[0] * pdf2.x[0],
+        pdf1.x[0] * pdf2.x[-1],
+        pdf1.x[-1] * pdf2.x[0],
+        pdf1.x[-1] * pdf2.x[-1],
+    ]
+    prod_min = np.min(corners) if min_product is None else min_product
+    prod_max = np.max(corners) if max_product is None else max_product
 
     # Create product value array
     p = PDFs.value_arrays.precise_array(prod_min, prod_max, dp)

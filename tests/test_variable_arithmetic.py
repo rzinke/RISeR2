@@ -273,4 +273,23 @@ class TestSubtractVariables:
         assert pdf_diff.name == "X12"
 
 
+class TestMultiplyVariables:
+    def test_uniform_product_closed_form(self):
+        dx = 1E-4
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, dx)
+        px = PDFs.parametric_functions.uniform(x, 0.0, 1.0)
+        pdf1 = PDFs.PDF(x=x, px=px)
+        pdf2 = PDFs.PDF(x=x, px=px)
+
+        pdf_prod = var_ops.arithmetic.multiply_variables(pdf1, pdf2, dp=dx)
+
+        check_ndx = (pdf_prod.x > 1E-2)
+
+        px_expected = -np.log(pdf_prod.x[check_ndx])
+
+        np.testing.assert_allclose(
+            pdf_prod.px[check_ndx], px_expected, atol=5E-3
+        )
+
+
 # end of file
