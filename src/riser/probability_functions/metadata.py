@@ -69,12 +69,12 @@ class PDFmetadata:
                 f"got {type(self.unit).__name__}"
             )
 
-    def as_dict(self) -> dict[str, str]:
+    def as_dict(self) -> dict[str, str | None]:
         """Format the PDF metadata items as a dictionary.
 
         Returns
         -------
-        dict[str, str]
+        dict[str, str or None]
             Metadata keys and values.
         """
         return asdict(self)
