@@ -7,7 +7,9 @@
 RISeR2: Rejection sampling for Incremental Slip Rate calculation.
 """
 
-__version__ = "x.x.x"
+from importlib.metadata import version as _version
+
+__version__ = _version("riser")
 
 
 # Core modules (no internal dependency)

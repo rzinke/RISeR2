@@ -22,6 +22,7 @@ dev = [
     "scipy-stubs",
     "types-tqdm",
     "pytest",
+    "ruff",
 ]
 
 [project.scripts]
@@ -44,3 +45,9 @@ riser-subtract-variables = "riser.cli.subtract_variables:main"
 riser-view-displacement-age-history = "riser.cli.view_displacement_age_history:main"
 riser-view-pdf = "riser.cli.view_pdf:main"
 riser-view-pdf-stack = "riser.cli.view_pdf_stack:main"
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+ignore = ["UP009"]
