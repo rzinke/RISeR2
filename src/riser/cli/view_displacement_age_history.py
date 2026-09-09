@@ -9,10 +9,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 
 
@@ -125,7 +124,7 @@ def main():
 
     # Plot marginal distributions
     if inps.show_marginals:
-        for name, marker in markers.items():
+        for marker in markers.values():
             # Plot age
             age_ax.fill_between(
                 marker.age.x,

@@ -17,15 +17,11 @@ __all__ = [
 
 
 # Import modules
-import copy
-
 import numpy as np
 
 from .. import (
     integration,
     probability_functions as PDFs,
-    units,
-    variable_types,
 )
 
 
@@ -141,7 +137,7 @@ def cross_correlate_variables(
 
         # Normalize correlation value
         if corr_val != 0:
-            corr_val /= (ref_rss * np.sqrt(np.sum(px_secondary**2)))
+            corr_val /= norm
 
         # Update correlation value array
         corr_vals[i] = corr_val

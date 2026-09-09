@@ -23,18 +23,14 @@ __all__ = [
 
 
 # Import modules
-from datetime import datetime
-
 import numpy as np
 
 from .. import (
-    units,
-    variable_types,
     probability_functions as PDFs,
     variable_operations as var_ops,
     variable_pairs,
 )
-from ..sampling import mc_sampling, pdf_formation, filtering
+from ..sampling import filtering, mc_sampling, pdf_formation
 
 
 #################### ANALYTIC COMPUTATION ####################

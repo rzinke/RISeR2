@@ -13,8 +13,8 @@ __all__ = [
 import numpy as np
 
 from .. import (
-    precision,
     integration,
+    precision,
 )
 from .metadata import PDFmetadata
 

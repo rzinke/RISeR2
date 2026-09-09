@@ -28,18 +28,13 @@ __all__ = [
 
 
 # Import modules
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from collections.abc import Iterator
-import copy
-from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 
-from .. import (
-    constants,
-    precision,
-)
+from .. import constants
 from . import value_arrays
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
@@ -365,7 +360,7 @@ class PDFstatistics:
 
     # Reporting
     def __str__(self) -> str:
-        print_str = f"PDF:"
+        print_str = "PDF:"
         if self.name is not None:
             print_str += f" {self.name}"
 
@@ -483,7 +478,7 @@ def compute_interquantile_range(
     conf_range = ConfidenceRange(
         metric="IQR",
         confidence=confidence,
-        range_values=tuple([values]),
+        range_values=(values,),
         pdf_name=pdf.name,
         variable_type=pdf.variable_type,
         unit=pdf.unit,
@@ -518,7 +513,6 @@ def compute_highest_posterior_density(
     sort_ndx = sort_ndx[::-1]  # highest-lowest
 
     # Sort relevant PDF values according to probabilities
-    x_sort = pdf.x[sort_ndx]
     px_sort = pdf.px[sort_ndx]
     p_i_sort = p_i[sort_ndx]
 

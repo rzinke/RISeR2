@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 from riser import (
     constants,
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 from riser.slip_rates import rate_computation, reporting
 

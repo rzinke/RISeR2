@@ -8,15 +8,14 @@
 import argparse
 import warnings
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     precision,
+    probability_functions as PDFs,
     units,
     variable_types,
-    probability_functions as PDFs,
-    plotting,
 )
 
 
@@ -154,7 +153,7 @@ def main():
     # Plot function if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         # Plot PDF
         plotting.plot_pdf_labeled(ax, pdf)

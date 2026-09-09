@@ -13,8 +13,10 @@ __all__ = [
     "reporting",
 ]
 
-from . import rate_computation
-from . import reporting
+from . import (
+    rate_computation,
+    reporting,
+)
 
 
 # end of file

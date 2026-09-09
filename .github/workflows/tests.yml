@@ -24,5 +24,9 @@ jobs:
       - name: Run mypy
         run: mypy src/riser
 
+      - name: Run ruff
+        run: ruff check src/riser
+
       - name: Run pytest
         run: pytest tests/
+

@@ -8,10 +8,13 @@ Functions that carry out operations between two (or more) random variables.
 """
 
 # Import modules
-from . import arithmetic
-from . import combination
-from . import comparison
-from . import gap_determination
+from . import (
+    arithmetic,
+    combination,
+    comparison,
+    gap_determination,
+)
+
 
 # Public API
 __all__ = (

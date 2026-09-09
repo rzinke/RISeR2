@@ -7,14 +7,13 @@
 # Import modules
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from riser import (
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting,
 )
 
 

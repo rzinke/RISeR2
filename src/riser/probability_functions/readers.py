@@ -19,11 +19,6 @@ import warnings
 
 import numpy as np
 
-from .. import (
-    variable_types,
-    units,
-)
-
 from .metadata import METADATA_ITEMS
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
@@ -462,6 +457,10 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
         Output file name.
     pdf : PDF
         PDF to save.
+
+    Returns
+    -------
+    None
     """
     # Check that outname is a text file
     check_extension(outname, "txt")
@@ -475,12 +474,10 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
     # Write to file
     with open(outname, 'w') as outfile:
         # Write header
-        for header_line in header:
-            outfile.write(header_line)
+        outfile.write(header)
 
         # Write data
-        for datum in data:
-            outfile.write(datum)
+        outfile.writelines(data)
 
     # Report if requested
     if verbose:

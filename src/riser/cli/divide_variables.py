@@ -10,11 +10,11 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting,
 )
+
 
 #################### ARGUMENT PARSER ####################
 description = "Divide two random variables expressed as PDFs."

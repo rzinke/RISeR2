@@ -50,4 +50,8 @@ riser-view-pdf-stack = "riser.cli.view_pdf_stack:main"
 line-length = 80
 
 [tool.ruff.lint]
-ignore = ["UP009"]
+ignore = ["UP009", "RUF022"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-after-imports = 2

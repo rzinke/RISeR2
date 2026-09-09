@@ -77,7 +77,7 @@ class VariablePair:
         self._x2 = copy.deepcopy(value)
 
     def __str__(self) -> str:
-        print_str = f"VariablePair "
+        print_str = "VariablePair "
 
         # Report marker name
         if self.name is not None:

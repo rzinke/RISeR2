@@ -30,7 +30,6 @@ __all__ = [
 
 
 # Import modules
-import copy
 from collections.abc import Callable
 from typing import Literal
 

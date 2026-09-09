@@ -21,8 +21,8 @@ __all__ = [
 
 # Import modules
 import warnings
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 from matplotlib.axes import Axes
@@ -453,11 +453,7 @@ def plot_variable_pairs(
     }
 
     # Update plot arguments based on marker plot type
-    if marker_plot_type == "whisker":
-        # Update plot args
-        plt_args["confidence"] = confidence
-
-    elif marker_plot_type == "rectangle":
+    if marker_plot_type in ["whisker", "rectangle"]:
         # Update plot args
         plt_args["confidence"] = confidence
 

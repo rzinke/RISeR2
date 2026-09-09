@@ -145,14 +145,14 @@ def value_array_params_from_pdfs(
         xi_max = pdf.x.max()
 
         # Update min/max values
-        xmin = xi_min if xi_min < xmin else xmin
-        xmax = xi_max if xi_max > xmax else xmax
+        xmin = np.min([xi_min, xmin])
+        xmax = np.max([xi_max, xmax])
 
         # Sample spacing for each PDF
         dxi = sample_spacing_from_pdf(pdf)
 
         # Update dx value
-        dx = dxi if dxi < dx else dx
+        dx = np.min([dxi, dx])
 
     # Report if requested
     if verbose:

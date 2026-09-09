@@ -13,7 +13,6 @@ __all__ = [
 
 
 # Import modules
-import warnings
 import copy
 
 from .. import units
@@ -59,7 +58,7 @@ def determine_if_scaling_appropriate(
     out_scale, out_base = units.parse_unit(unit_out)
 
     # Check base units are same
-    if not out_base == pdf_base:
+    if out_base != pdf_base:
         if verbose:
             print(
                 f"Cannot scale PDF: "

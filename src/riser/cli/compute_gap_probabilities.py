@@ -10,9 +10,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting,
 )
 
 

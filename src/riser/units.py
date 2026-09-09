@@ -47,7 +47,6 @@ UNIT_SCALES = {
 
 # Import modules
 import warnings
-import copy
 
 import numpy as np
 

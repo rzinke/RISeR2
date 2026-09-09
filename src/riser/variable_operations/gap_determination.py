@@ -14,15 +14,7 @@ __all__ = [
 
 
 # Import modules
-import copy
-
-import numpy as np
-
-from .. import (
-    probability_functions as PDFs,
-    units,
-    variable_types,
-)
+from .. import probability_functions as PDFs
 
 
 #################### GAP BETWEEN VARIABLES ####################

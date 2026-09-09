@@ -23,15 +23,12 @@ __all__ = [
 
 # Import modules
 import warnings
-import copy
 
 import numpy as np
 
 from .. import (
-    probability_functions as PDFs,
     precision,
-    units,
-    variable_types,
+    probability_functions as PDFs,
 )
 
 
@@ -219,7 +216,6 @@ def add_variables(
     # Parameters
     x_min = pdf1.x[0]
     x_max = pdf1.x[-1]
-    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
     # Output array length
@@ -329,7 +325,6 @@ def subtract_variables(
     # Parameters
     x_start = pdf1.x[0]
     x_final = pdf1.x[-1]
-    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
     nx = len(pdf1)
 
     # Output array length

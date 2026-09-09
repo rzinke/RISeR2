@@ -6,13 +6,12 @@
 # Import modules
 import argparse
 
-import toml
 import matplotlib.pyplot as plt
+import toml
 
 from riser import (
-    units,
-    probability_functions as PDFs,
     plotting,
+    probability_functions as PDFs,
 )
 
 
@@ -85,7 +84,7 @@ def main():
     # Loop through PDFs in config file
     for pdf_name, pdf_spec in pdf_specs.items():
         # Check that a PDF file is specified
-        if "pdf file" not in pdf_spec.keys():
+        if "pdf file" not in pdf_spec:
             raise ValueError("A file name must be associated with each PDF")
 
         # Read PDF from file

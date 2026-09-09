@@ -7,13 +7,12 @@
 # Import modules
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting,
 )
 
 
@@ -70,7 +69,9 @@ def main():
     )
 
     # Compute K-S statistic
-    ks_stat, ks_ndx = var_ops.comparison.compute_ks_statistic(pdf1, pdf2, verbose=True)
+    _, ks_ndx = var_ops.comparison.compute_ks_statistic(
+        pdf1, pdf2, verbose=inps.verbose
+    )
 
     # Plot functions if requested
     if inps.plot:

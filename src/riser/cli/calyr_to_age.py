@@ -10,10 +10,10 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    units,
+    plotting,
     probability_functions as PDFs,
     sampling,
-    plotting,
+    units,
 )
 
 

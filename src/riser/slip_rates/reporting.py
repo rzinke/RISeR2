@@ -14,13 +14,15 @@ __all__ = [
 
 # Import modules
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 import numpy as np
 from matplotlib.figure import Figure
 
-from .. import probability_functions as PDFs
-from .. import sampling
+from .. import (
+    probability_functions as PDFs,
+    sampling,
+)
 
 
 #################### FILENAME FORMATTING ####################
@@ -192,24 +194,29 @@ def write_slip_rates_report(
         Slip rate sample statistics.
     """
     # Check that slip rate statistical products pertain to same pairs
-    if sample_statistics is not None:
-        if sample_statistics.keys() != slip_rates.keys():
-            raise ValueError(
-                "One SampleStatistics object must be provided for each "
-                "slip rate"
-            )
+    if (
+        sample_statistics is not None
+        and (sample_statistics.keys() != slip_rates.keys())
+    ):
+        raise ValueError(
+            "One SampleStatistics object must be provided for each slip rate"
+        )
 
-    if pdf_statistics is not None:
-        if pdf_statistics.keys() != slip_rates.keys():
-            raise ValueError(
-                "One PDFstatistics object must be provided for each slip rate"
-            )
+    if (
+        pdf_statistics is not None
+        and (pdf_statistics.keys() != slip_rates.keys())
+    ):
+        raise ValueError(
+            "One PDFstatistics object must be provided for each slip rate"
+        )
 
-    if confidence_ranges is not None:
-        if confidence_ranges.keys() != slip_rates.keys():
-            raise ValueError(
-                "One ConfidenceRange object must be provided for each slip rate"
-            )
+    if (
+        confidence_ranges is not None
+        and (confidence_ranges.keys() != slip_rates.keys())
+    ):
+        raise ValueError(
+            "One ConfidenceRange object must be provided for each slip rate"
+        )
 
     # Formulate outname
     outname = f"{output_prefix}_slip_rate_report.txt"
@@ -217,14 +224,13 @@ def write_slip_rates_report(
     # Write file contents
     with open(outname, 'w') as outfile:
         # Overall header
+        now = datetime.now(UTC).strftime('%Y %m %d:%H %M %S')
         outfile.write(
-            f"Incremental slip rates from {formulation} formulation "
-            f"({datetime.now().strftime('%Y %m %d:%H %M %S')})"
+            f"Incremental slip rates from {formulation} formulation ({now})"
         )
 
         # Loop through incremental slip rates based on marker pairs
-        for marker_pair in slip_rates.keys():
-            # Breathe
+        for marker_pair in slip_rates:
             outfile.write("\n\n")
 
             # Write sample statistics

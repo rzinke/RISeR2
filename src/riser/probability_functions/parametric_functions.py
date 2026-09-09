@@ -14,18 +14,15 @@ __all__ = [
 
 
 # Import modules
-import warnings
 import inspect
+import warnings
 from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 import scipy as sp
 
-from .. import (
-    precision,
-    integration,
-)
+from .. import precision
 
 
 #################### SUPPORT FUNCTIONS ####################

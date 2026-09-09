@@ -10,9 +10,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     probability_functions as PDFs,
     variable_operations as var_ops,
-    plotting,
 )
 
 
@@ -63,12 +63,14 @@ def main():
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs)
 
     # Compute overlap index
-    px_min, eta = var_ops.comparison.compute_overlap_index(pdfs, verbose=True)
+    px_min, _ = var_ops.comparison.compute_overlap_index(
+        pdfs, verbose=inps.verbse
+    )
 
     # Plot function if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         # Plot input PDFs
         for pdf in pdfs:

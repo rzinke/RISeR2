@@ -18,10 +18,12 @@ __all__ = [
 ]
 
 # Import modules
-from . import filtering
-from . import mc_sampling
-from . import pdf_formation
-from . import sample_statistics
+from . import (
+    filtering,
+    mc_sampling,
+    pdf_formation,
+    sample_statistics,
+)
 
 
 # end of file

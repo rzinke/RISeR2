@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 from riser import (
     constants,
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 from riser.slip_rates import rate_computation, reporting
 
@@ -117,7 +116,7 @@ def main():
         raise ValueError("Only one marker can be specified")
 
     # Use only first marker
-    marker = [*markers.values()][0]
+    marker = next(iter(markers.values()))
 
     # Scale input units to output units
     marker.age = PDFs.scaling.scale_pdf_by_units(

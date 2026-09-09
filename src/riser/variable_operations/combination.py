@@ -17,11 +17,7 @@ __all__ = [
 # Import modules
 import copy
 
-from .. import (
-    probability_functions as PDFs,
-    units,
-    variable_types,
-)
+from .. import probability_functions as PDFs
 
 
 #################### RANDOM VARIABLE COMBINATION ####################

@@ -10,11 +10,10 @@ __all__ = [
 
 # Import modules
 import warnings
-import copy
 
 from .. import (
-    units,
     probability_functions as PDFs,
+    units,
 )
 from .variable_pair import VariablePair
 

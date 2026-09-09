@@ -16,11 +16,11 @@ __all__ = [
 
 # Import modules
 import warnings
-from dataclasses import dataclass, asdict, fields
+from dataclasses import asdict, dataclass, fields
 
 from .. import (
-    variable_types,
     units,
+    variable_types,
 )
 
 

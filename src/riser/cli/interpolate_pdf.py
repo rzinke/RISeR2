@@ -7,12 +7,12 @@
 # Import modules
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from riser import (
-    probability_functions as PDFs,
     plotting,
+    probability_functions as PDFs,
 )
 
 
@@ -96,7 +96,7 @@ def main():
     # Plot if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         # Plot PDF
         plotting.plot_pdf_labeled(ax, pdf_resamp)

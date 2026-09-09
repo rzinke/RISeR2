@@ -8,21 +8,29 @@ Plotting functions.
 """
 
 # Import modules
-from . import pdf_plots
-from . import cdf_plots
-from . import variable_pair_plots
-from . import filter_plots
-from . import mc_plots
+from . import (  # noqa: I001
+    cdf_plots,
+    filter_plots,
+    mc_plots,
+    pdf_plots,
+    variable_pair_plots,
+)
 
-from .pdf_plots import *
 from .cdf_plots import *
-from .variable_pair_plots import *
 from .filter_plots import *
 from .mc_plots import *
+from .pdf_plots import *
+from .variable_pair_plots import *
 
 
 # Public API
 __all__ = (
+    # Submodules
+    "cdf_plots",
+    "filter_plots",
+    "mc_plots",
+    "pdf_plots",
+    "variable_pair_plots",
     # PDF plots
     "axis_label_from_pdf",
     "axis_label_from_pdfs",

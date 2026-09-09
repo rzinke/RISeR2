@@ -22,11 +22,7 @@ __all__ = [
 # Import modules
 from matplotlib.axes import Axes
 
-from .. import (
-    units,
-    probability_functions as PDFs,
-    variable_types,
-)
+from .. import probability_functions as PDFs
 
 
 #################### GENERAL LABELING ####################
@@ -373,7 +369,7 @@ def plot_pdf_stack(
     max_peak = 0
     for pdf in pdfs.values():
         px_max = pdf.px.max()
-        max_peak = px_max if px_max > max_peak else max_peak
+        max_peak = max(px_max, max_peak)
 
     # Loop through PDFs
     for i, (name, pdf) in enumerate(pdfs.items()):

@@ -9,9 +9,10 @@ of observations, e.g., the displacement and age of a geologic feature.
 """
 
 # Import modules
-from .variable_pair import VariablePair
-from .dated_marker import DatedMarker
 from . import readers
+from .dated_marker import DatedMarker
+from .variable_pair import VariablePair
+
 
 # Public API
 __all__ = (
