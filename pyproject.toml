@@ -23,6 +23,7 @@ dev = [
     "types-tqdm",
     "pytest",
     "ruff",
+    "sphinx",
 ]
 
 [project.scripts]

@@ -1,13 +1,13 @@
 # ***R***ejection sampling for ***I***ncremental ***S***lip ***R***ate calculation v.**2** &ndash; RISeR2
 
-![alt text](https://github.com/rzinke/RISeR2/blob/main/docs/RISeR_logo-name.png "RISeR")
+![alt text](https://github.com/rzinke/RISeR2/blob/main/assets/RISeR_logo-name.png "RISeR")
 
 ## Purpose
 Earthquake fault slip rates describe the displacement accumulation rate across a fault, averaged over some time interval. Slip rates are determined from geologic, geomorphic, or sedimentary markers recording measureable fault slip, and which can be dated using absolute geochronologic methods. Where multiple dateable displacement markers share a common slip history and record different epochs in that history, one can determine *incremental* slip rates. These average over shorter intervals relative to the oldest displacement, and can show the constancy or variability of fault slip over time.
 
 **RISeR2** is designed to measure incremental fault slip rates based on the dated displacement history of a fault while fully accounting for uncertainties in the ages, displacements, and derived slip rates. It allows enforcement of Bayesian conditions, including the assumption that the fault did not slip backward at any point in its history. The RISeR2 library hosts a set of analytical functions and sampling tools for computing slip rates; formatting, conditioning, and displaying data; and analyzing the results.
 
-![alt text](https://github.com/rzinke/RISeR2/blob/main/docs/incremental_slip_rates.png "incremental slip rates example")
+![alt text](https://github.com/rzinke/RISeR2/blob/main/assets/incremental_slip_rates.png "incremental slip rates example")
 
 *Example incremental slip rates. Three incremental rates are computed between pairs of among four dated displacement markers (Marker 01&ndash;Marker 04). The exact value of each incremental slip rate is uncertain, therefore possible slip rate values are expressed as probability densities. Blue fields show the most probabilty 68.2% of values.*
 
@@ -67,13 +67,13 @@ Strictly defined, a PDF is absolutely continuous (defined over infinitely many v
 
 **`PDFs`** are the fundamental object in the RISeR2 library. All ages, displacements, and slip rates are expressed as PDFs with the above properties. The PDF can be given a descriptive *name*, and a description of the *variable-type*, e.g., "age", "displacement", "slip rate". The PDF can also be assigned a *unit*&mdash;RISeR2 recognizes units conisisting of multiples of years (**y**) and meters (**m**).
 
-![alt text](https://github.com/rzinke/RISeR2/blob/main/docs/S1cal_age.png "example multi-modal PDF")
+![alt text](https://github.com/rzinke/RISeR2/blob/main/assets/S1cal_age.png "example multi-modal PDF")
 
 *Example of a multi-modal (multi-peaked) PDF. Blue field indicates the most probable 95.4% of values.*
 
 Data points defining displacement-time history of a fault are encoded as a **`DatedMarker`**, comprising a PDF representing *age*, and a PDF representing *displacement*. Like a PDF, a DatedMarker can carry a descriptive name. The unit (e.g., "m/y") is determined from the units of the constituent age and displacement PDFs.
 
-![alt text](https://github.com/rzinke/RISeR2/blob/main/docs/dated_markers.png "example dated markers")
+![alt text](https://github.com/rzinke/RISeR2/blob/main/assets/dated_markers.png "example dated markers")
 
 *Example of a series of dated displacement markers, defining the slip history of a hypothetical fault.*
 
