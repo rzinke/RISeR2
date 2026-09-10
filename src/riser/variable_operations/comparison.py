@@ -156,7 +156,7 @@ def compute_overlap_index(
 
     An alternative formulation is
 
-        n(A, B) = 1 - (1/2 integral[ |fA(x) - fB(x)| dx])
+        n(A, B) = 1 - (1/2 integral[ abs(fA(x) - fB(x)) dx])
 
     Parameters
     ----------
@@ -205,7 +205,7 @@ def compute_ks_statistic(
     The K-S statistic (D) is the largest difference between the CDFs of the
     two PDFs:
 
-        D = sup |F1 - F2|
+        D = sup abs(F1 - F2)
 
     Parameters
     ----------

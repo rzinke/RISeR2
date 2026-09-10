@@ -173,10 +173,12 @@ def write_slip_rates_report(
     """Write slip rate statistics to a file.
 
     Include:
-    Description, date, time
-    Slip rate name
-        slip rate stats
-        slip rate confidence intervals
+
+    - Description, date, time
+    - Slip rate name
+
+      - slip rate stats
+      - slip rate confidence intervals
 
     Parameters
     ----------

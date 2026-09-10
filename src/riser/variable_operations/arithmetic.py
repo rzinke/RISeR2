@@ -376,7 +376,7 @@ def multiply_variables(
     The equation for multiplication of PDFs is similar to that for division:
     It is a weighted convolution of X and Y, with the scaling factor 1/x:
 
-        fZ(z) = integral(fX(x).fY(z/x) 1/|x| dx)
+        fZ(z) = integral(fX(x).fY(z/x) 1/abs(x) dx)
 
     Parameters
     ----------
