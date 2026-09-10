@@ -27,7 +27,7 @@ import numpy as np
 
 from .. import (
     probability_functions as PDFs,
-    variable_operations as var_ops,
+    variable_functions as var_fcns,
     variable_pairs,
 )
 from ..sampling import filtering, mc_sampling, pdf_formation
@@ -67,7 +67,7 @@ def compute_slip_rate(
     min_rate = 0.0 if limit_positive else None
 
     # Divide displacement by age
-    slip_rate = var_ops.arithmetic.divide_variables(
+    slip_rate = var_fcns.transform.arithmetic.divide_variables(
         numerator=marker.displacement,
         denominator=marker.age,
         dz=dr,
@@ -136,7 +136,7 @@ def compute_slip_rates_analytical(
     )
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive else -100.0
+    min_rate = 0.0 if limit_positive else None
 
     # Empty dictionary to store slip rates
     slip_rates = {}
@@ -158,11 +158,13 @@ def compute_slip_rates_analytical(
         )
 
         # Compute age difference - negative ages not supported
-        DeltaT = var_ops.arithmetic.subtract_variables(
+        DeltaT = var_fcns.transform.arithmetic.subtract_variables(
             pdf1=older_age,
             pdf2=younger_age,
-            limit_positive=limit_positive,
         )
+
+        if limit_positive:
+            print("Check this HERE!!!")
 
         # Interpolate displacements on same axis
         (
@@ -173,17 +175,19 @@ def compute_slip_rates_analytical(
         )
 
         # Compute displacement difference
-        DeltaU = var_ops.arithmetic.subtract_variables(
+        DeltaU = var_fcns.transform.arithmetic.subtract_variables(
             pdf1=older_displacement,
             pdf2=younger_displacement,
-            limit_positive=limit_positive,
         )
+
+        if limit_positive:
+            print("Check this HERE!!!!")
 
         # Formulate incremental slip rate name
         rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         # Divide displacement by age
-        slip_rate = var_ops.arithmetic.divide_variables(
+        slip_rate = var_fcns.transform.arithmetic.divide_variables(
             numerator=DeltaU,
             denominator=DeltaT,
             dz=dr,

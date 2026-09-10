@@ -9,11 +9,11 @@ import pytest
 
 from riser import (
     probability_functions as PDFs,
-    variable_operations as var_ops,
+    variable_functions as var_fcns,
 )
 
 
-# Tests
+# Test bespoke convolution functions
 class TestConvolveInputSide:
     def test_matches_numpy_reference(self):
         """Check that the output of this library's bespoke input-side
@@ -22,9 +22,10 @@ class TestConvolveInputSide:
         """
         x = np.array([1.0, 2.0, 3.0])
         h = np.array([0.5, 0.5])
-        result = var_ops.arithmetic.convolve_input_side(x, h)
+        result = var_fcns.transform.arithmetic.convolve_input_side(x, h)
         expected = np.convolve(x, h, mode="full")
         np.testing.assert_allclose(result, expected)
+
 
 class TestConvolveOutputSide:
     def test_matches_numpy_reference(self):
@@ -34,7 +35,7 @@ class TestConvolveOutputSide:
         """
         x = np.array([1.0, 2.0, 3.0])
         h = np.array([0.5, 0.5])
-        result = var_ops.arithmetic.convolve_output_side(x, h)
+        result = var_fcns.transform.arithmetic.convolve_output_side(x, h)
         expected = np.convolve(x, h, mode="full")
         np.testing.assert_allclose(result, expected)
 
@@ -44,11 +45,12 @@ class TestConvolveOutputSide:
         """
         x = np.array([1.0, 2.0, 3.0, 4.0])
         h = np.array([0.5, 0.25, 0.25])
-        result_output = var_ops.arithmetic.convolve_output_side(x, h)
-        result_input = var_ops.arithmetic.convolve_input_side(x, h)
+        result_output = var_fcns.transform.arithmetic.convolve_output_side(x, h)
+        result_input = var_fcns.transform.arithmetic.convolve_input_side(x, h)
         np.testing.assert_allclose(result_output, result_input)
 
 
+# Test variable negation
 class TestNegateVariable:
     def test_negation_reflects_shape_correctly(self):
         """The shape of a PDF should be reflected across 0.0.
@@ -58,7 +60,7 @@ class TestNegateVariable:
         px = PDFs.parametric_functions.triangular(x, a=0.0, c=1.0, b=5.0)
         pdf = PDFs.PDF(x, px)
 
-        neg_pdf = var_ops.arithmetic.negate_variable(pdf)
+        neg_pdf = var_fcns.transform.arithmetic.negate_variable(pdf)
 
         assert PDFs.analytics.pdf_mean(neg_pdf) == pytest.approx(-2.0)
         assert PDFs.analytics.pdf_mode(neg_pdf) == pytest.approx(-1.0)
@@ -87,13 +89,14 @@ class TestNegateVariable:
             unit="y",
         )
 
-        neg_pdf = var_ops.arithmetic.negate_variable(pdf)
+        neg_pdf = var_fcns.transform.arithmetic.negate_variable(pdf)
 
         assert neg_pdf.name == expected_name
         assert neg_pdf.variable_type == "age"
         assert neg_pdf.unit == "y"
 
 
+# Test variable arithmetic
 class TestAddVariables:
     def test_gaussian_sum_closed_form(self):
         """The sum of two Gaussians will be Gaussian in shape.
@@ -111,7 +114,7 @@ class TestAddVariables:
         px2 = PDFs.parametric_functions.gaussian(x, mu=-1.0, sigma=sigma2)
         pdf2 = PDFs.PDF(x=x, px=px2)
 
-        pdf_sum = var_ops.arithmetic.add_variables(pdf1, pdf2)
+        pdf_sum = var_fcns.transform.arithmetic.add_variables(pdf1, pdf2)
 
         assert PDFs.analytics.pdf_mean(pdf_sum) == pytest.approx(1.0)
         assert PDFs.analytics.pdf_variance(pdf_sum) == pytest.approx(
@@ -135,7 +138,7 @@ class TestAddVariables:
         with pytest.raises(
             ValueError, match="Not all PDFs are sampled over same values"
         ):
-            var_ops.arithmetic.add_variables(pdf1, pdf2)
+            var_fcns.transform.arithmetic.add_variables(pdf1, pdf2)
 
     @pytest.mark.parametrize(
         "vartype1, unit1, vartype2, unit2",
@@ -159,7 +162,7 @@ class TestAddVariables:
         pdf2 = PDFs.PDF(x=x, px=px2, variable_type=vartype2, unit=unit2)
 
         with pytest.warns(UserWarning, match=""):
-            var_ops.arithmetic.add_variables(pdf1, pdf2)
+            var_fcns.transform.arithmetic.add_variables(pdf1, pdf2)
 
     def test_name(self, recwarn):
         """Different variables are expected to have different names, so no
@@ -189,7 +192,7 @@ class TestAddVariables:
             unit=unit,
         )
 
-        pdf_sum = var_ops.arithmetic.add_variables(pdf1, pdf2, name="X12")
+        pdf_sum = var_fcns.transform.arithmetic.add_variables(pdf1, pdf2, name="X12")
 
         assert len(recwarn) == 0
         assert pdf_sum.name == "X12"
@@ -212,46 +215,12 @@ class TestSubtractVariables:
         px2 = PDFs.parametric_functions.gaussian(x, mu=-1.0, sigma=sigma2)
         pdf2 = PDFs.PDF(x=x, px=px2)
 
-        pdf_diff = var_ops.arithmetic.subtract_variables(pdf1, pdf2)
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
 
         assert PDFs.analytics.pdf_mean(pdf_diff) == pytest.approx(3.0)
         assert PDFs.analytics.pdf_variance(pdf_diff) == pytest.approx(
             sigma1**2 + sigma2**2
         )
-
-    def test_limit_positive(self):
-        """If subtraction outputs are limited only to positive values, the
-        resulting distribution should follow a truncated distribution.
-        """
-        dx = 0.001
-        x = PDFs.value_arrays.precise_array(-20.0, 20.0, dx)
-
-        mu1 = 2.0
-        sigma1 = 1.5
-        px1 = PDFs.parametric_functions.gaussian(x, mu=2.0, sigma=sigma1)
-        pdf1 = PDFs.PDF(x=x, px=px1)
-
-        mu2 = 1.0
-        sigma2 = 2.0
-        px2 = PDFs.parametric_functions.gaussian(x, mu=1.0, sigma=sigma2)
-        pdf2 = PDFs.PDF(x=x, px=px2)
-
-        pdf_diff = var_ops.arithmetic.subtract_variables(
-            pdf1, pdf2, limit_positive=True
-        )
-
-        diff_mu = mu1 - mu2
-        diff_sigma = np.sqrt(sigma1**2 + sigma2**2)
-
-        px_expected = sp.stats.truncnorm.pdf(
-            x=pdf_diff.x,
-            a=(0.0 - diff_mu) / diff_sigma,
-            b=np.inf,
-            loc=diff_mu,
-            scale=diff_sigma,
-        )
-
-        np.testing.assert_allclose(pdf_diff.px, px_expected, atol=1e-4)
 
     def test_rejects_mismatched_sampling(self):
         """Passing functions that are sampled on different value arrays
@@ -270,7 +239,7 @@ class TestSubtractVariables:
         with pytest.raises(
             ValueError, match="Not all PDFs are sampled over same values"
         ):
-            var_ops.arithmetic.subtract_variables(pdf1, pdf2)
+            var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
 
     @pytest.mark.parametrize(
         "vartype1, unit1, vartype2, unit2",
@@ -291,7 +260,7 @@ class TestSubtractVariables:
         pdf2 = PDFs.PDF(x=x, px=px2, variable_type=vartype2, unit=unit2)
 
         with pytest.warns(UserWarning, match=""):
-            var_ops.arithmetic.subtract_variables(pdf1, pdf2)
+            var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
 
     def test_name(self, recwarn):
         """Passing variables with different names should not raise a warning.
@@ -319,7 +288,7 @@ class TestSubtractVariables:
             unit=unit,
         )
 
-        pdf_diff = var_ops.arithmetic.subtract_variables(pdf1, pdf2, name="X12")
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2, name="X12")
 
         assert len(recwarn) == 0
         assert pdf_diff.name == "X12"
@@ -339,7 +308,7 @@ class TestMultiplyVariables:
         pdf1 = PDFs.PDF(x=x, px=px)
         pdf2 = PDFs.PDF(x=x, px=px)
 
-        pdf_prod = var_ops.arithmetic.multiply_variables(pdf1, pdf2, dz=dx)
+        pdf_prod = var_fcns.transform.arithmetic.multiply_variables(pdf1, pdf2, dz=dx)
 
         check_ndx = (pdf_prod.x > 1E-2)
 
@@ -362,7 +331,7 @@ class TestDivideVariables:
         denominator = PDFs.PDF(x=x, px=px)
 
         min_q, max_q = -20.0, 20.0
-        pdf_quot = var_ops.arithmetic.divide_variables(
+        pdf_quot = var_fcns.transform.arithmetic.divide_variables(
             numerator, denominator, dz=0.01,
             min_quotient=min_q, max_quotient=max_q,
         )

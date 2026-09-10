@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025-2026 Robert Zinke. Licensed under the MIT License.
 
 """
 These functions carry out arithmetic between variables:
-    addition
-    subtraction
-    multiplication (product distribution)
-    division (ratio distribution)
+  - addition, i.e., X1 + X2
+  - subtraction, i.e., X1 - X2
+  - multiplication (product distribution), i.e., X1 * X2
+  - division (ratio distribution), i.e., X1 / X2
+
+and a function to negate (i.e., -1 * X1) a variable.
+
+This module also includes bespoke convolution functions that explicitly show
+the mechanics of how convolution is implemented.
+These functions are provided only for reference because they are many times
+slower than np.convolve.
 """
 
 
@@ -26,7 +33,7 @@ import warnings
 
 import numpy as np
 
-from .. import (
+from ... import (
     precision,
     probability_functions as PDFs,
 )
@@ -194,24 +201,13 @@ def add_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
+
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
         [pdf1.metadata, pdf2.metadata], name=name,
     )
-
-    if pdf1.variable_type != pdf2.variable_type:
-        warnings.warn(
-            f"Variable type differs between input PDFs, "
-            f"defaulting to {metadata.variable_type}",
-            stacklevel=2,
-        )
-
-    if pdf1.unit != pdf2.unit:
-        warnings.warn(
-            f"Units differ between input PDFs, "
-            f"defaulting to {metadata.unit}",
-            stacklevel=2,
-        )
 
     # Parameters
     x_min = pdf1.x[0]
@@ -243,7 +239,6 @@ def subtract_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
-    limit_positive: bool = False,
     name: str | None = None,
     verbose: bool = False,
 ) -> PDFs.PDF:
@@ -261,15 +256,6 @@ def subtract_variables(
 
         P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
 
-    In the case of limiting the output distribution to only positive values,
-    the output becomes
-
-        P(Z | Z > 0) = P(Z) / P(Z > 0) for Z > 0
-
-    That is, the probability densities of values less than or equal to zero are 
-    set to 0.0 (truncated), and the remaining probability density values are 
-    re-normalized.
-
     Machinery:
     This function takes two PDFs that will be sampled on the same
     value axis.
@@ -286,9 +272,6 @@ def subtract_variables(
         PDF from which to subtract pdf2.
     pdf2 : PDF
         PDF to subtract from pdf1.
-    limit_positive : bool, optional
-        Truncate the distribution at zero, i.e., enforce the condition that
-        values must be positive.
     name : str, optional
         Name of differenced PDF.
     
@@ -303,24 +286,13 @@ def subtract_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
+
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
         [pdf1.metadata, pdf2.metadata], name=name,
     )
-
-    if pdf1.variable_type != pdf2.variable_type:
-        warnings.warn(
-            f"Variable type differs between input PDFs, "
-            f"defaulting to {metadata.variable_type}",
-            stacklevel=2,
-        )
-
-    if pdf1.unit != pdf2.unit:
-        warnings.warn(
-            f"Units differ between input PDFs, "
-            f"defaulting to {metadata.unit}",
-            stacklevel=2,
-        )
 
     # Parameters
     x_start = pdf1.x[0]
@@ -340,13 +312,6 @@ def subtract_variables(
 
     # Add negated PDF2 to PDF1
     pz = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
-
-    # Enforce condition that values must be positive
-    if limit_positive:
-        # Keep only values > 0
-        pos_ndx = (z > 0)
-        z = z[pos_ndx]
-        pz = pz[pos_ndx]
 
     # Form results into PDF
     pdf_diff = PDFs.PDF(

@@ -11,6 +11,7 @@ __all__ = [
     "PDFmetadata",
     "METADATA_ITEMS",
     "get_common_metadata",
+    "check_physical_properties",
 ]
 
 
@@ -155,6 +156,35 @@ def get_common_metadata(
             print(f"Name set to '{metadata_dict['name']}'")
 
     return PDFmetadata(**metadata_dict)
+
+
+def check_physical_properties(metadata_list: list[PDFmetadata]) -> None:
+    """Warn if the physical properties of two metadata objects are different.
+
+    This only applies to the physical metadata fields:
+    - variable_type
+    - unit
+
+    Names may be expected to differ.
+    """
+    # Loop through physical fields
+    for field in ["variable_type", "unit"]:
+        # Define reference value
+        ref_value = getattr(metadata_list[0], field)
+
+        # Loop through metadata in list
+        for metadata in metadata_list[1:]:
+            # Retrieve field value of secondary metadata object
+            sec_value = getattr(metadata, field)
+
+            # Warn if values differ
+            if sec_value != ref_value:
+                warnings.warn(
+                    f"`{field}` differs between metadata "
+                    f"({sec_value} vs {ref_value}). "
+                    f"Comparison might be physcially unrealistic.",
+                    stacklevel=2,
+                )
 
 
 # end of file

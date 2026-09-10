@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025-2026 Robert Zinke. Licensed under the MIT License.
 
 """
-These functions are used to compare different random variables.
+Functions to quantitatively compare different variables
 """
 
 
 # Public API
 __all__ = [
-    "compute_cosine_similarity",
+    "cosine_similarity",
     "cross_correlate_variables",
-    "compute_overlap_index",
-    "compute_ks_statistic",
+    "overlap_index",
+    "ks_statistic",
 ]
 
 
 # Import modules
+import warnings
+
 import numpy as np
 
 from .. import (
@@ -25,8 +27,8 @@ from .. import (
 )
 
 
-#################### SIMILARITY METRICS ####################
-def compute_cosine_similarity(
+#################### COMPARISON FUNCTIONS ####################
+def cosine_similarity(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     verbose: bool = False,
@@ -55,9 +57,7 @@ def compute_cosine_similarity(
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Warn of metadata mismatches
-    PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], warn=True
-    )
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
     # Centered arrays
     px1_cntr = pdf1.px
@@ -103,8 +103,8 @@ def cross_correlate_variables(
     PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
 
     # Warn of metadata mismatches
-    PDFs.metadata.get_common_metadata(
-        [ref_pdf.metadata, sec_pdf.metadata], warn=True
+    PDFs.metadata.check_physical_properties(
+        [ref_pdf.metadata, sec_pdf.metadata]
     )
 
     # Define integer lags
@@ -145,7 +145,7 @@ def cross_correlate_variables(
     return lags, corr_vals
 
 
-def compute_overlap_index(
+def overlap_index(
     pdfs: list[PDFs.PDF], verbose: bool = False
 ) -> tuple[np.ndarray, float]:
     """Compute the overlap index for two or more PDFs.
@@ -195,7 +195,7 @@ def compute_overlap_index(
     return px_min, eta
 
 
-def compute_ks_statistic(
+def ks_statistic(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     verbose: bool = False,

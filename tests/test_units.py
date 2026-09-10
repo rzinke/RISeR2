@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025-2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -12,15 +12,21 @@ from riser import units
 # Tests
 class TestCheckBaseUnitSupported:
     def test_warn_if_none(self):
+        """Check that a warning is raised is no base unit is supported.
+        """
         with pytest.warns(UserWarning):
             units.check_base_unit_supported(None)
 
     @pytest.mark.parametrize("base_unit", ["y", "m"])
     def test_silent_if_valid(self, base_unit, recwarn):
+        """Check that no warning is raised if supported base units are passed.
+        """
         units.check_base_unit_supported(base_unit)
         assert len(recwarn) == 0
 
     def test_raise_if_not_supported(self):
+        """Check that an error is raised if an unsupported base unit is passed.
+        """
         with pytest.raises(ValueError):
             units.check_base_unit_supported("q")
 

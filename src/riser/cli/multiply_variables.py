@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from riser import (
     plotting,
     probability_functions as PDFs,
-    variable_operations as var_ops,
+    variable_functions as var_fcns,
 )
 
 
@@ -71,7 +71,7 @@ def main():
     pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
 
     # Compute product of PDFs
-    prod_pdf = var_ops.arithmetic.multiply_variables(
+    prod_pdf = var_fcns.arithmetic.multiply_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
 

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from riser import (
     plotting,
     probability_functions as PDFs,
-    variable_operations as var_ops,
+    variable_functions as var_fcns,
 )
 
 
@@ -76,7 +76,7 @@ def main():
     )
 
     # Compute summed PDF
-    sum_pdf = var_ops.arithmetic.add_variables(
+    sum_pdf = var_fcns.arithmetic.add_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
 

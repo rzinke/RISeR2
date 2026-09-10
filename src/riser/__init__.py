@@ -26,7 +26,7 @@ from . import (  # noqa: I001
 # Subpackages (imported in dependency order)
 from . import (
     probability_functions,
-    variable_operations,
+    variable_functions,
     variable_pairs,
     sampling,
     slip_rates,
@@ -48,7 +48,7 @@ __all__ = [
     "units",
     "variable_types",
     "probability_functions",
-    "variable_operations",
+    "variable_functions",
     "sampling",
     "variable_pairs",
     "slip_rates",

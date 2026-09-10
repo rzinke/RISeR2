@@ -235,4 +235,46 @@ class TestGetCommonMetadata:
             )
 
 
+class TestCheckPhysicalProperties:
+    @pytest.mark.parametrize(
+        "name1, vartype1, unit1, name2, vartype2, unit2",
+        [
+            (None, "age", "y", None, "age", "y"),
+            ("X1", "displacement", "m", "X2", "displacement", "m"),
+        ],
+    )
+    def test_same_properties_silent(
+        self, name1, vartype1, unit1, name2, vartype2, unit2, recwarn
+    ):
+        metadata1 = metadata.PDFmetadata(
+            name=name1, variable_type=vartype1, unit=unit1
+        )
+        metadata2 = metadata.PDFmetadata(
+            name=name2, variable_type=vartype2, unit=unit2
+        )
+        metadata.check_physical_properties([metadata1, metadata2])
+
+        assert len(recwarn) == 0
+
+
+    @pytest.mark.parametrize(
+        "name1, vartype1, unit1, name2, vartype2, unit2",
+        [
+            (None, "age", "y", None, "displacement", "y"),
+            ("X1", "displacement", "y", "X2", "displacement", "m"),
+        ],
+    )
+    def test_different_properties_warn(
+        self, name1, vartype1, unit1, name2, vartype2, unit2
+    ):
+        metadata1 = metadata.PDFmetadata(
+            name=name1, variable_type=vartype1, unit=unit1
+        )
+        metadata2 = metadata.PDFmetadata(
+            name=name2, variable_type=vartype2, unit=unit2
+        )
+        with pytest.warns(UserWarning, match="differs between metadata"):
+            metadata.check_physical_properties([metadata1, metadata2])
+
+
 # end of file
