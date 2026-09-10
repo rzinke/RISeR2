@@ -17,8 +17,6 @@ __all__ = [
 
 
 # Import modules
-import warnings
-
 import numpy as np
 
 from .. import (
@@ -37,7 +35,7 @@ def cosine_similarity(
 
         r = sum[f1 f2] / sqrt[sum(f1 ^ 2) . sum(f2 ^ 2)]
 
-    This is essentially a normalized dot product, and is equivalent to the
+    This is essentially a normalized dot product, and is analogous to the
     Pearson coefficient without mean-centering.
     Because PDFs are never negative, mean-centering is not necessary.
 
@@ -59,13 +57,9 @@ def cosine_similarity(
     # Warn of metadata mismatches
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
-    # Centered arrays
-    px1_cntr = pdf1.px
-    px2_cntr = pdf2.px
-
     # Compute coefficient
-    numer = np.sum(px1_cntr * px2_cntr)
-    denom = np.sqrt(np.sum(px1_cntr**2) * np.sum(px2_cntr**2))
+    numer = np.sum(pdf1.px * pdf2.px)
+    denom = np.sqrt(np.sum(pdf1.px**2) * np.sum(pdf2.px**2))
     r = numer / denom
 
     # Report if requested
@@ -76,8 +70,8 @@ def cosine_similarity(
 
 
 def cross_correlate_variables(
-    ref_pdf: PDFs.PDF,
-    sec_pdf: PDFs.PDF,
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute the cross correlation of the second variable against the first.
@@ -87,9 +81,9 @@ def cross_correlate_variables(
 
     Parameters
     ----------
-    ref_pdf : PDF
+    pdf1 : PDF
         Reference variable to be held fixed.
-    sec_pdf : PDF
+    pdf2 : PDF
         Secondary variable to cross-correlate against reference.
 
     Returns
@@ -100,28 +94,26 @@ def cross_correlate_variables(
         Correlation values.
     """
     # Check for consistent sampling
-    PDFs.value_arrays.check_pdfs_sampling([ref_pdf, sec_pdf])
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
     # Warn of metadata mismatches
-    PDFs.metadata.check_physical_properties(
-        [ref_pdf.metadata, sec_pdf.metadata]
-    )
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
     # Define integer lags
-    n = len(ref_pdf)
+    n = len(pdf1)
     lags = np.arange(-n+1, n, dtype=int)
 
     # Pre-allocate correlation values
     corr_vals = np.empty(2*n-1)
 
     # Pre-compute normalization factor for reference PDF
-    ref_rss = np.sqrt(np.sum(ref_pdf.px**2))
+    ref_rss = np.sqrt(np.sum(pdf1.px**2))
 
     # Compute correlation values
     for i, lag in enumerate(lags):
         # Shift the secondary signal by the integer amount
         # The other way to do this would be to zero-pad the array
-        px_secondary = np.roll(sec_pdf.px, lag)
+        px_secondary = np.roll(pdf2.px, lag)
 
         # Consider values outside the signal domain to be zero probability
         if lag < 0:
@@ -133,7 +125,7 @@ def cross_correlate_variables(
         norm = ref_rss * np.sqrt(np.sum(px_secondary**2))
 
         # Compute the correlation value
-        corr_val = np.sum(ref_pdf.px * px_secondary)
+        corr_val = np.sum(pdf1.px * px_secondary)
 
         # Normalize correlation value
         if corr_val != 0:
@@ -150,7 +142,7 @@ def overlap_index(
 ) -> tuple[np.ndarray, float]:
     """Compute the overlap index for two or more PDFs.
 
-    Pastore and Calcgni (2019)
+    Pastore and Calcagni (2019)
 
         n(A, B) = integral(min[fA(x), fB(x)] dx)
 
@@ -174,9 +166,7 @@ def overlap_index(
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
     # Warn of metadata mismatches
-    PDFs.metadata.get_common_metadata(
-        [pdf.metadata for pdf in pdfs], warn=True
-    )
+    PDFs.metadata.check_physical_properties([pdf.metadata for pdf in pdfs])
 
     # Arrange PDFs into matrix
     pxs = np.vstack([pdf.px for pdf in pdfs])
@@ -200,7 +190,7 @@ def ks_statistic(
     pdf2: PDFs.PDF,
     verbose: bool = False,
 ) -> tuple[float, int]:
-    """Compute the Komolgorov-Smirnov statistic for two PDFs.
+    """Compute the Kolmogorov-Smirnov statistic for two PDFs.
 
     The K-S statistic (D) is the largest difference between the CDFs of the
     two PDFs:
@@ -221,6 +211,12 @@ def ks_statistic(
     ks_ndx : int
         Index of K-S statistic location.
     """
+    # Check for consistent sampling
+    PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
+
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
+
     # Compute difference between CDFs
     cdf_diff = np.abs(pdf1.Px - pdf2.Px)
 

@@ -53,7 +53,7 @@ class TestPDFmetadata:
         )
 
     def test_dataclass_fields_match_metadata_items(self):
-        meta = metadata.PDFmetadata()
+        metadata.PDFmetadata()
         assert metadata.METADATA_ITEMS == ["name", "variable_type", "unit"]
 
     def test_metadata_items_hold_assignment(self):
@@ -222,14 +222,14 @@ class TestGetCommonMetadata:
         assert meta_cmmn.unit is None
 
     def test_silent_by_default_if_different(self, recwarn):
-        meta_cmmn = metadata.get_common_metadata(
+        metadata.get_common_metadata(
             metadata_list=[self.meta0, self.meta1]
         )
         assert len(recwarn) == 0
 
     def test_warn_if_different(self):
         with pytest.warns(UserWarning):
-            meta_cmmn = metadata.get_common_metadata(
+            metadata.get_common_metadata(
                 metadata_list=[self.meta0, self.meta1],
                 warn=True,
             )

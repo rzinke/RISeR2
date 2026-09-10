@@ -16,7 +16,6 @@ __all__ = [
 
 # Import modules
 import copy
-import warnings
 
 from .. import probability_functions as PDFs
 
@@ -31,7 +30,7 @@ def pool_variables(
 
     Combine distributions by summing them pointwise
 
-    fpool(x) = f1(x) + f2(y) + ... + f3(x) = sum(fi(x))
+    fpool(x) = f1(x) + f2(x) + ... + fn(x) = sum(fi(x))
 
     and normalizing the area.
 
@@ -59,36 +58,18 @@ def pool_variables(
         Pooled PDF.
     """
     if verbose:
-        print(f"Merging {len(pdfs)} PDFs")
+        print(f"Pooling {len(pdfs)} PDFs")
 
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
+
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf.metadata for pdf in pdfs])
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
         [pdf.metadata for pdf in pdfs], name=name
     )
-
-    for pdf in pdfs:
-        if (
-            pdf.variable_type is not None
-            and pdf.variable_type != metadata.variable_type
-        ):
-            warnings.warn(
-                f"Variable type differs between input PDFs, "
-                f"defaulting to {metadata.variable_type}",
-                stacklevel=2,
-            )
-
-        if (
-            pdf.unit is not None
-            and pdf.unit != metadata.unit
-        ):
-            warnings.warn(
-                f"Units differ between input PDFs, "
-                f"defaulting to {metadata.unit}",
-                stacklevel=2,
-            )
 
     # Initialize probability density array
     x = copy.deepcopy(pdfs[0].x)

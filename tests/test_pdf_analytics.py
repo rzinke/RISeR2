@@ -3,8 +3,6 @@
 # Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 # Import modules
-from dataclasses import dataclass
-
 import numpy as np
 import pytest
 

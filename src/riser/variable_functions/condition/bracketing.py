@@ -29,10 +29,10 @@ def infer_bracketed(
     values between two random variables.
 
     Theory: The probability of a value being between two uncertain values is
-    equal to the probability that a value is larger than the first value
-    (P(X <= x)) and smaller than the second value (1 - P(Y <= y)):
+    equal to the probability that a value is less than or equal to the first
+    value (P(X1 <= x)) and smaller than the second value (1 - P(X2 <= x)):
 
-        P(X < x < Y) = CDF_X . (1 - CDF_Y) = P(X <= x) * (1 - P(Y <= y))
+        P(X1 < x < X2) = CDF_X1 . (1 - CDF_X2) = P(X1 <= x) . (1 - P(X2 <= x))
 
     Machinery: The CDFs of the first and second PDFs are pre-computed during
     PDF instantiation. Leverage these to compute the "between-PDF".

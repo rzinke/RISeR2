@@ -12,6 +12,26 @@ from riser import (
 )
 
 
+def reject_mismatched_sampling_test(fcn):
+    """Passing functions that are sampled on different value arrays
+    should raise an error.
+    """
+    dx = 0.01
+
+    x1 = PDFs.value_arrays.precise_array(-4.0, 8.0, dx)
+    px1 = PDFs.parametric_functions.gaussian(x1, mu=2.0, sigma=1.5)
+    pdf1 = PDFs.PDF(x=x1, px=px1)
+
+    x2 = PDFs.value_arrays.precise_array(-9.0, 7.0, dx)
+    px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
+    pdf2 = PDFs.PDF(x=x2, px=px2)
+
+    with pytest.raises(
+        ValueError, match="Not all PDFs are sampled over same values"
+    ):
+        fcn(pdf1, pdf2)
+
+
 # Tests
 class TestComputeCosineSimilarity:
     def test_same_pdfs_returns_unit_similarity(self):
@@ -25,6 +45,9 @@ class TestComputeCosineSimilarity:
         r = var_fcns.compare.cosine_similarity(pdf, pdf)
         
         assert r == pytest.approx(1.0)
+
+    def test_rejects_mismatched_sampling(self):
+        reject_mismatched_sampling_test(var_fcns.compare.cosine_similarity)
 
 
 class TestCrossCorrelateVariables:
@@ -47,6 +70,11 @@ class TestCrossCorrelateVariables:
 
         assert corr_vals.max() == pytest.approx(1.0)
         assert lags[np.argmax(corr_vals)] == lag_expected
+
+    def test_rejects_mismatched_sampling(self):
+        reject_mismatched_sampling_test(
+            var_fcns.compare.cross_correlate_variables
+        )
 
 
 class TestOverlapIndex:
@@ -78,6 +106,22 @@ class TestOverlapIndex:
         np.testing.assert_allclose(px_min, np.zeros(len(x)))
         assert eta == pytest.approx(0.0)
 
+    def test_rejects_mismatched_sampling(self):
+        dx = 0.01
+
+        x1 = PDFs.value_arrays.precise_array(-4.0, 8.0, dx)
+        px1 = PDFs.parametric_functions.gaussian(x1, mu=2.0, sigma=1.5)
+        pdf1 = PDFs.PDF(x=x1, px=px1)
+
+        x2 = PDFs.value_arrays.precise_array(-9.0, 7.0, dx)
+        px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
+        pdf2 = PDFs.PDF(x=x2, px=px2)
+
+        with pytest.raises(
+            ValueError, match="Not all PDFs are sampled over same values"
+        ):
+            var_fcns.compare.overlap_index([pdf1, pdf2])
+
 
 class TestKSstatistic:
     def test_perfect_overlap(self):
@@ -90,21 +134,24 @@ class TestKSstatistic:
         px2 = PDFs.parametric_functions.triangular(x=x, a=a, c=c, b=b)
         pdf2 = PDFs.PDF(x=x, px=px2)
 
-        ks_stat, ks_ndx = var_fcns.compare.ks_statistic(pdf1, pdf2)
+        ks_stat, _ = var_fcns.compare.ks_statistic(pdf1, pdf2)
 
         assert ks_stat == pytest.approx(0.0)
 
-    def test(self):
+    def test_imperfect_overlap(self):
         x = PDFs.value_arrays.precise_array(0.0, 3.0, 0.001)
         px1 = PDFs.parametric_functions.triangular(x=x, a=1.0, c=1.0, b=3.0)
         pdf1 = PDFs.PDF(x=x, px=px1)
         px2 = PDFs.parametric_functions.uniform(x=x, a=1.0, b=3.0)
         pdf2 = PDFs.PDF(x=x, px=px2)
 
-        ks_stat, ks_ndx = var_fcns.compare.ks_statistic(pdf1, pdf2, verbose=True)
+        ks_stat, ks_ndx = var_fcns.compare.ks_statistic(pdf1, pdf2)
 
         assert ks_stat == pytest.approx(0.25)
         assert ks_ndx == 2000
+
+    def test_rejects_mismatched_sampling(self):
+        reject_mismatched_sampling_test(var_fcns.compare.ks_statistic)
 
 
 # end of file

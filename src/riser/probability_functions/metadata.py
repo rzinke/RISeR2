@@ -182,7 +182,7 @@ def check_physical_properties(metadata_list: list[PDFmetadata]) -> None:
                 warnings.warn(
                     f"`{field}` differs between metadata "
                     f"({sec_value} vs {ref_value}). "
-                    f"Comparison might be physcially unrealistic.",
+                    f"Comparison might be physically unrealistic.",
                     stacklevel=2,
                 )
 

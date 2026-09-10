@@ -4,8 +4,8 @@
 
 # Import modules
 import numpy as np
-import scipy.stats as st
 import pytest
+import scipy.stats as st
 
 from riser import probability_functions as PDFs
 

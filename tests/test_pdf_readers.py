@@ -152,13 +152,13 @@ class TestReadCalendarFile:
     def test_last_line_without_trailing_newline_not_dropped(self, tmp_path):
         fname = tmp_path / "test.txt"
         fname.write_text("0,0\n1,1\n2,0")
-        calyr, calpx, metadata = PDFs.readers.read_calendar_file(str(fname))
+        calyr, _, _ = PDFs.readers.read_calendar_file(str(fname))
         assert len(calyr) == 3
 
     def test_does_not_enforce_unit_area(self, tmp_path):
         fname = tmp_path / "test.txt"
         fname.write_text("1950,0.1\n1960,5.0\n1970,0.1\n")
-        calyr, calpx, metadata = PDFs.readers.read_calendar_file(str(fname))
+        _, calpx, _ = PDFs.readers.read_calendar_file(str(fname))
         np.testing.assert_allclose(calpx, [0.1, 5.0, 0.1])
 
 

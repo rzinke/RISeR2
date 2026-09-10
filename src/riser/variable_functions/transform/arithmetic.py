@@ -29,8 +29,6 @@ __all__ = [
 
 
 # Import modules
-import warnings
-
 import numpy as np
 
 from ... import (
@@ -137,14 +135,14 @@ def negate_variable(
     neg_name = f"(negative) {pdf.name}" if pdf.name is not None else None
 
     # Compose metadata
-    metadata_dict = pdf.metadata.as_dict()
-    metadata_dict["name"] = neg_name
+    metadict = pdf.metadata.as_dict()
+    metadict["name"] = neg_name
 
     # Form results into PDF
     neg_pdf = PDFs.PDF(
         x=neg_x,
         px=neg_px,
-        **metadata_dict,
+        **metadict,
     )
 
     return neg_pdf
