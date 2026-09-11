@@ -44,7 +44,8 @@ def combine_variables(
     pdf_combined : PDF
         Combined pdf.
     area : float
-        Area of the conditioned distribution, before scaling.
+        Likelihood of the combined estimate, reflecting how compatible the 
+        independent estimates are with one another.
     """
     if verbose:
         print(f"Combining {len(pdfs)} PDFs")

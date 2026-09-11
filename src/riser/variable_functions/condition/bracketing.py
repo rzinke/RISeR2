@@ -15,7 +15,10 @@ __all__ = [
 
 
 # Import modules
-from ... import probability_functions as PDFs
+from ... import (
+    integration,
+    probability_functions as PDFs,
+)
 from . import core
 
 
@@ -35,6 +38,8 @@ def infer_bracketed(
 
         P(X1 < x < X2) = CDF_X1 . (1 - CDF_X2) = P(X1 <= x) . (1 - P(X2 <= x))
 
+    The area is the expected size of the bracket, E[(X2 - X1)+].
+
     Machinery: The CDFs of the first and second PDFs are pre-computed during
     PDF instantiation. Leverage these to compute the "between-PDF".
 
@@ -52,7 +57,8 @@ def infer_bracketed(
     pdf_bracketed : PDF
         PDF describing values between the two input variables.
     area : float
-        Area of the conditioned distribution, before scaling.
+        Expected size of the bracket, E[(X2 - X1)+], in the same units as
+        pdf1 and pdf2.
     """
     if verbose:
         print("Computing probability density of values between two variables.")
@@ -65,21 +71,25 @@ def infer_bracketed(
 
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata]
+        [pdf1.metadata, pdf2.metadata], name=name
     )
 
     # Create a ones-distribution representing a shapeless prior
-    prior = PDFs.PDF(
-        x=pdf1.x,
-        px=core.flat_weight(pdf1.x),
-        **metadata.as_dict(),
-    )
+    prior_array = core.flat_weight(pdf1.x)
 
     # Compute the weighting distribution based on the shape of the priors
     weight = pdf1.Px * (1 - pdf2.Px)
 
     # Apply Bayesian condition
-    pdf_bracketed, area = core.condition(prior, weight, name=name)
+    # This is a no-op, written as Bayesian condition for consistency with
+    # other modules
+    px_bracketed = prior_array * weight
+
+    # Format results as PDF with normalized area
+    pdf_bracketed = PDFs.PDF(x=pdf1.x, px=px_bracketed, **metadata.as_dict())
+
+    # Compute the area under the curve
+    area = integration.integrate(x=pdf1.x, px=px_bracketed)
 
     return pdf_bracketed, area
 

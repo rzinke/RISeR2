@@ -32,8 +32,13 @@ def condition(
 
         posterior(x) ~ prior(x) . weighting(x)
 
-    The area-under-the-curve is recorded and the posterior distribution is
-    then normalized to unit area and formed into a PDF.
+    The resulting posterior distribution is then normalized to unit area and
+    when it is formed into a PDF.
+
+    The unnormalized area of the resulting distribution represents the fraction
+    of the prior distribution that remains after weighting is applied. 
+    The specific interpretation depends on the weight chosen by the calling 
+    function.
 
     Metadata are preserved unless explicitly overridden with the `name`
     parameter.
@@ -52,7 +57,7 @@ def condition(
     posterior : PDF
         Weighted prior.
     area : float
-        Area of the conditioned distribution, before scaling.
+        Area of the conditioned distribution before normalization.
     """
     # Check the size of the weighting array equals the size of the prior
     if len(weight) != len(prior):

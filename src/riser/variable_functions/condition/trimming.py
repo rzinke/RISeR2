@@ -56,8 +56,7 @@ def trim_variables(
     pdf2_trimmed : PDF
         pdf2, reshaped to reflect that it must follow pdf1.
     area : float
-        Area of the conditioned distributions, before scaling.
-        The unnormalized areas of both PDFs will be equal.
+        P(pdf1 < pdf2), or equivalently P(pdf2 > pdf1).
     """
     if verbose:
         print("Trimming variables")

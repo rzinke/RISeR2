@@ -47,7 +47,7 @@ def constrain_above(
     pdf_constrained : PDF
         Constrained PDF.
     area : float
-        Area of the conditioned distribution, before scaling.
+        The fraction of the prior retained by the constraint.
     """
     if verbose:
         print(f"Constraining PDF above {value}")
@@ -91,7 +91,7 @@ def constrain_below(
     pdf_constrained : PDF
         Constrained PDF.
     area : float
-        Area of the conditioned distribution, before scaling.
+        The fraction of the prior retained by the constraint.
     """
     if verbose:
         print(f"Constraining PDF below {value}")
