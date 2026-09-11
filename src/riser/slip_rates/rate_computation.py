@@ -159,12 +159,20 @@ def compute_slip_rates_analytical(
 
         # Compute age difference - negative ages not supported
         DeltaT = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_age,
-            pdf2=younger_age,
+            pdf1=older_age, pdf2=younger_age, verbose=verbose
         )
 
+        # Limit time difference to positive-only values
         if limit_positive:
-            print("Check this HERE!!!")
+            # Enforce condition that all values > 0
+            DeltaT, _ = var_fcns.condition.self_constraint.constrain_above(
+                pdf=DeltaT, value=0.0, name=DeltaT.name, verbose=verbose
+            )
+
+            # Crop to all-positive axis
+            DeltaT = PDFs.interpolation.interpolate_pdf(
+                pdf=DeltaT, x=DeltaT.x[DeltaT.x > 0]
+            )
 
         # Interpolate displacements on same axis
         (
@@ -176,12 +184,20 @@ def compute_slip_rates_analytical(
 
         # Compute displacement difference
         DeltaU = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_displacement,
-            pdf2=younger_displacement,
+            pdf1=older_displacement, pdf2=younger_displacement, verbose=verbose
         )
 
+        # Limit displacement difference to positive-only values
         if limit_positive:
-            print("Check this HERE!!!!")
+            # Enforce condition that all values > 0
+            DeltaU, _ = var_fcns.condition.self_constraint.constrain_above(
+                pdf=DeltaU, value=0.0, name=DeltaU.name, verbose=verbose
+            )
+
+            # Crop to all-positive axis
+            DeltaU = PDFs.interpolation.interpolate_pdf(
+                pdf=DeltaU, x=DeltaU.x[DeltaU.x > 0]
+            )
 
         # Formulate incremental slip rate name
         rate_name = f"{older_marker.name}-{younger_marker.name}"
