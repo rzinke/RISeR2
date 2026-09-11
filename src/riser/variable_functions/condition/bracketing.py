@@ -16,6 +16,7 @@ __all__ = [
 
 # Import modules
 from ... import probability_functions as PDFs
+from . import core
 
 
 #################### BRACKETING FUNCTIONS ####################
@@ -24,7 +25,7 @@ def infer_bracketed(
     pdf2: PDFs.PDF,
     name: str | None = None,
     verbose: bool = False,
-) -> PDFs.PDF:
+) -> tuple[PDFs.PDF, float]:
     """Compute a PDF representing the domain and probability densities of
     values between two random variables.
 
@@ -48,8 +49,10 @@ def infer_bracketed(
 
     Returns
     -------
-    bracketed_pdf : PDF
+    pdf_bracketed : PDF
         PDF describing values between the two input variables.
+    area : float
+        Area of the conditioned distribution, before scaling.
     """
     if verbose:
         print("Computing probability density of values between two variables.")
@@ -57,24 +60,28 @@ def infer_bracketed(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
+
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], warn=True,
+        [pdf1.metadata, pdf2.metadata]
     )
 
-    # Compute probabilities between variables
-    px = pdf1.Px * (1 - pdf2.Px)
-
-    # Form results into PDF
-    bracketed_pdf = PDFs.PDF(
-        pdf1.x,
-        px,
-        name=name,
-        variable_type=metadata.variable_type,
-        unit=metadata.unit,
+    # Create a ones-distribution representing a shapeless prior
+    prior = PDFs.PDF(
+        x=pdf1.x,
+        px=core.flat_weight(pdf1.x),
+        **metadata.as_dict(),
     )
 
-    return bracketed_pdf
+    # Compute the weighting distribution based on the shape of the priors
+    weight = pdf1.Px * (1 - pdf2.Px)
+
+    # Apply Bayesian condition
+    pdf_bracketed, area = core.condition(prior, weight, name=name)
+
+    return pdf_bracketed, area
 
 
 # end of file
