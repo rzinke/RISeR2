@@ -8,7 +8,7 @@ Functions that condition or weight one or more random variable(s).
 """
 
 # Import modules
-from . import (
+from . import (  # noqa: I001
     bracketing,
     combination,
     core,

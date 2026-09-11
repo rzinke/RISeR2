@@ -8,7 +8,7 @@ These functions are used to compute incremental slip rates.
 They implement the same basic concept:
 That slip rate v is the averaged change in displacement over the change in time
 
-    v = DeltaU / DeltaT
+    v = delta_u / delta_t
 
 Incremental slip rates average over shorter subsets of time within the overall
 record.
@@ -92,9 +92,9 @@ def compute_slip_rates_analytical(
     markers using analytical functions.
 
     First, compute the difference between each pair of adjacent displacements
-    and corresponding pairs of ages to get DeltaD's and DeltaT's.
-    Then, compute the slip rate over each increment by dividing the DeltaD by
-    the corresponding DeltaT.
+    and corresponding pairs of ages to get `delta_u`s and `delta_t`s.
+    Then, compute the slip rate over each increment by dividing the `delta_u`
+    by the corresponding `delta_t`.
 
     Note: Per the divide_variables operator, denominator (age) values cannot
     be negative.
@@ -108,7 +108,8 @@ def compute_slip_rates_analytical(
     dr : float, optional
         Rate step.
     limit_positive : bool, optional
-        Enforce condition that displacement values must be positive.
+        Enforce condition that time and displacement difference values must be
+        positive.
 
     Returns
     -------
@@ -158,45 +159,59 @@ def compute_slip_rates_analytical(
         )
 
         # Compute age difference - negative ages not supported
-        DeltaT = var_fcns.transform.arithmetic.subtract_variables(
+        delta_t = var_fcns.transform.arithmetic.subtract_variables(
             pdf1=older_age, pdf2=younger_age, verbose=verbose
         )
 
         # Limit time difference to positive-only values
         if limit_positive:
             # Enforce condition that all values > 0
-            DeltaT, _ = var_fcns.condition.self_constraint.constrain_above(
-                pdf=DeltaT, value=0.0, name=DeltaT.name, verbose=verbose
+            (delta_t,
+             area_t) = var_fcns.condition.self_constraint.constrain_above(
+                pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
             )
 
+            # Report trimming result
+            if verbose:
+                print(
+                    f"{(1.0 - area_t) * 100:.1f} % of original time "
+                    f"difference trimmed for {delta_t.name}"
+                )
+
             # Crop to all-positive axis
-            DeltaT = PDFs.interpolation.interpolate_pdf(
-                pdf=DeltaT, x=DeltaT.x[DeltaT.x > 0]
+            delta_t = PDFs.interpolation.interpolate_pdf(
+                pdf=delta_t, x=delta_t.x[delta_t.x > 0]
             )
 
         # Interpolate displacements on same axis
-        (
-            younger_displacement,
-            older_displacement,
-        ) = PDFs.interpolation.interpolate_pdfs(
+        (younger_displacement,
+         older_displacement) = PDFs.interpolation.interpolate_pdfs(
                 [younger_marker.displacement, older_marker.displacement]
         )
 
         # Compute displacement difference
-        DeltaU = var_fcns.transform.arithmetic.subtract_variables(
+        delta_u = var_fcns.transform.arithmetic.subtract_variables(
             pdf1=older_displacement, pdf2=younger_displacement, verbose=verbose
         )
 
         # Limit displacement difference to positive-only values
         if limit_positive:
             # Enforce condition that all values > 0
-            DeltaU, _ = var_fcns.condition.self_constraint.constrain_above(
-                pdf=DeltaU, value=0.0, name=DeltaU.name, verbose=verbose
+            (delta_u,
+             area_u) = var_fcns.condition.self_constraint.constrain_above(
+                pdf=delta_u, value=0.0, name=delta_u.name, verbose=verbose
             )
 
+            # Report trimming result
+            if verbose:
+                print(
+                    f"{(1.0 - area_u) * 100:.1f} % of original displacement "
+                    f"difference trimmed for {delta_u.name}"
+                )
+
             # Crop to all-positive axis
-            DeltaU = PDFs.interpolation.interpolate_pdf(
-                pdf=DeltaU, x=DeltaU.x[DeltaU.x > 0]
+            delta_u = PDFs.interpolation.interpolate_pdf(
+                pdf=delta_u, x=delta_u.x[delta_u.x > 0]
             )
 
         # Formulate incremental slip rate name
@@ -204,8 +219,8 @@ def compute_slip_rates_analytical(
 
         # Divide displacement by age
         slip_rate = var_fcns.transform.arithmetic.divide_variables(
-            numerator=DeltaU,
-            denominator=DeltaT,
+            numerator=delta_u,
+            denominator=delta_t,
             dz=dr,
             min_quotient=min_rate,
             max_quotient=max_rate,
@@ -323,11 +338,11 @@ def compute_slip_rates_mc(
         verbose=verbose,
     )
 
-    # Compute incremental differences between picks for rate = DeltaU / DeltaT
+    # Compute incremental differences between picks for rate = delta_u / delta_t
     age_diffs = np.diff(age_picks, axis=0)
     disp_diffs = np.diff(disp_picks, axis=0)
 
-    # Determine incremental slip rates from DeltaU / DeltaT
+    # Determine incremental slip rates from delta_u / delta_t
     rate_picks = disp_diffs / age_diffs
 
     # Retrieve slip rate picks-to-PDF formation function
