@@ -77,12 +77,12 @@ class TestExpectedValue:
         "var_dict, expected",
         [
             (TRI_ASYM, 7/3),
-            (TRI_IRREG, 1.125),
+            (TRI_IRREG, 0.875),
             (STD_NORM, 0.0),
         ],
     )
     def test_known_expected_values(self, var_dict, expected):
-        ev = PDFs.analytics.expected_value(**var_dict)
+        ev = PDFs.analytics.expected_value(x=var_dict["x"], px=var_dict["px"])
         assert ev == pytest.approx(expected)
 
 
@@ -91,14 +91,16 @@ class TestComputeRawMoment:
         "var_dict, n, expected",
         [
             (TRI_ASYM, 1, 7/3),
-            (TRI_IRREG, 1, 1.125),
+            (TRI_IRREG, 1, 0.875),
             (STD_NORM, 1, 0.0),
             (STD_NORM, 2, 1.0),
             (SHIFT_NORM, 1, 1.0),
         ],
     )
     def test_known_raw_moments(self, var_dict, n, expected):
-        theta_n = PDFs.analytics.compute_raw_moment(**var_dict, n=n)
+        theta_n = PDFs.analytics.compute_raw_moment(
+    x=var_dict["x"], px=var_dict["px"], n=n
+)
         assert theta_n == pytest.approx(expected)
 
 
@@ -114,7 +116,9 @@ class TestCentralMoment:
         ],
     )
     def test_known_central_moments(self, var_dict, n, expected):
-        mu_n = PDFs.analytics.compute_central_moment(**var_dict, n=n)
+        mu_n = PDFs.analytics.compute_central_moment(
+        x=var_dict["x"], px=var_dict["px"], n=n
+    )
         assert mu_n == pytest.approx(expected)
 
 
@@ -133,7 +137,9 @@ class TestStandardizedMoment:
         ],
     )
     def test_known_standardized_moments(self, var_dict, n, expected):
-        mu_n = PDFs.analytics.compute_standardized_moment(**var_dict, n=n)
+        mu_n = PDFs.analytics.compute_standardized_moment(
+            x=var_dict["x"], px=var_dict["px"], n=n
+        )
         assert mu_n == pytest.approx(expected)
 
 
@@ -142,7 +148,7 @@ class TestPdfMean:
         "var_dict, expected",
         [
             (TRI_ASYM, 7/3),
-            (TRI_IRREG, 1.125),
+            (TRI_IRREG, 0.875),
             (STD_NORM, 0.0),
             (SHIFT_NORM, 1.0),
         ],

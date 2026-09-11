@@ -34,23 +34,16 @@ from typing import Any
 
 import numpy as np
 
-from .. import constants
+from .. import constants, integration
 from . import value_arrays
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
-def expected_value(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray
-) -> float:
+def expected_value(x: np.ndarray, px: np.ndarray) -> float:
     """Compute the expected value of a random variable X.
 
-    The change in x can be explicitly defined as a single number
-    (e.g., 0.01) or determined directly from the value array.
-
-    Note: This uses a forward-difference-style numerical integration.
-    For best accuracy, a sufficiently fine and uniformly-spaced x array
-    is strongly preferred.
+        E = integral(x . f(x) dx)
 
     Parameters
     ----------
@@ -58,26 +51,21 @@ def expected_value(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
 
     Returns
     -------
     float
         Expected value.
     """
-    return np.sum(x * px * dx)
+    return integration.integrate(x=x, px=x * px)
 
 
-def compute_raw_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_raw_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth raw moment of a distribution.
 
     A raw moment is defined as:
 
-    theta_n = integral(x^n * f(x) dx)
+    theta_n = integral(x^n . f(x) dx)
 
     This is typically only used to compute the mean, mu, for which n = 1,
     i.e., the expected value.
@@ -88,28 +76,25 @@ def compute_raw_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
     theta_n : float
         Raw moment.
     """
-    theta_n = expected_value(x**n, px, dx)
+    theta_n = integration.integrate(x=x, px=(x**n) * px)
 
     return theta_n
 
 
-def compute_central_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_central_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth central moment of a distribution.
 
     A central moment is computed about the function mean, mu:
 
-    mu_n = integral((x - mu)^n * f(x) dx) = E[(X - mu)^n]
+    mu_n = integral((x - mu)^n . f(x) dx) = E[(X - mu)^n]
 
     Parameters
     ----------
@@ -117,9 +102,8 @@ def compute_central_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
@@ -127,17 +111,15 @@ def compute_central_moment(
         Central moment.
     """
     # Compute mean
-    mu = expected_value(x, px, dx)
+    mu = expected_value(x, px)
 
     # Compute central moment
-    mu_n = expected_value((x - mu)**n, px, dx)
+    mu_n = integration.integrate(x=x, px=((x - mu)**n) * px)
 
     return mu_n
 
 
-def compute_standardized_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_standardized_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth standardized moment of a distribution.
 
     A standardized moment is computed about the function mean, mu, and
@@ -151,9 +133,8 @@ def compute_standardized_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
@@ -161,12 +142,12 @@ def compute_standardized_moment(
         Standardized moment.
     """
     # Compute mean
-    mu = expected_value(x, px, dx)
+    mu = expected_value(x, px)
 
     # Compute central moment
     mu_std_n = (
-        expected_value((x - mu)**n, px, dx)
-        / expected_value((x - mu)**2, px, dx)**(n/2)
+        integration.integrate(x=x, px=((x - mu)**n) * px)
+        / integration.integrate(x=x, px=((x - mu)**2) * px)**(n/2)
     )
 
     return mu_std_n
@@ -193,11 +174,8 @@ def pdf_mean(pdf: PDF) -> float:
     mu : float
         Mean of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute expected value
-    mu = expected_value(pdf.x, pdf.px, dx)
+    mu = expected_value(pdf.x, pdf.px)
 
     return mu
 
@@ -205,7 +183,7 @@ def pdf_mean(pdf: PDF) -> float:
 def pdf_variance(pdf: PDF) -> float:
     """Compute the variance of a PDF.
 
-    sigma2 = E[(X - mu)^2] = integral((x - mu)^2 * f(x) * dx)
+    sigma2 = E[(X - mu)^2] = integral((x - mu)^2 . f(x) dx)
 
     Parameters
     ----------
@@ -217,14 +195,7 @@ def pdf_variance(pdf: PDF) -> float:
     variance : float
         Variance of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
-    # Compute expected value
-    mu = pdf_mean(pdf)
-
-    # Compute variance
-    sigma2 = np.sum((pdf.x - mu)**2 * pdf.px * dx)
+    sigma2 = compute_central_moment(pdf.x, pdf.px, n=2)
 
     return sigma2
 
@@ -234,7 +205,7 @@ def pdf_std(pdf: PDF) -> float:
 
     Recall that standard deviation is the square root of the variance.
 
-    sigma = sqrt(variance)
+        sigma = sqrt(variance)
 
     Parameters
     ----------
@@ -272,11 +243,8 @@ def pdf_skewness(pdf: PDF) -> float:
     gamma : float
         Skewness of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute third standardized moment
-    gamma = compute_standardized_moment(pdf.x, pdf.px, dx, n=3)
+    gamma = compute_standardized_moment(pdf.x, pdf.px, n=3)
 
     return gamma
 
@@ -298,11 +266,8 @@ def pdf_kurtosis(pdf: PDF) -> float:
     kappa : float
         Kurtosis of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute third standardized moment
-    kappa = compute_standardized_moment(pdf.x, pdf.px, dx, n=4)
+    kappa = compute_standardized_moment(pdf.x, pdf.px, n=4)
 
     return kappa
 
