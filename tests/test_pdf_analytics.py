@@ -12,7 +12,7 @@ from riser import (
 )
 
 
-# Function parameters
+# Uniform distribution with mean 0.5
 _dx_unif = 0.01
 _x_unif = PDFs.value_arrays.precise_array(-1.0, 2.0, _dx_unif)
 _px_unif = PDFs.parametric_functions.uniform(_x_unif, a=0.0, b=1.0)
@@ -22,6 +22,7 @@ UNIFORM = {
     "dx": _dx_unif,
 }
 
+# Asymmetric triangular distribution with mean 7 / 3
 _dx_asym = 0.01
 _x_asym = PDFs.value_arrays.precise_array(-3.0, 10.0, _dx_asym)
 _px_asym = PDFs.parametric_functions.triangular(_x_asym, a=-1.0, c=0.0, b=8.0)
@@ -31,6 +32,9 @@ TRI_ASYM = {
     "dx": _dx_asym,
 }
 
+# Irregularly and very coarsely sampled triangular distribution
+# Numerically determined mean (0.875) is not expected to match analytically
+# determined mean (1.0)
 _x_irreg = np.array([-1.0, 0.0, 0.5, 1.0, 2.0])
 _px_irreg = PDFs.parametric_functions.triangular(_x_irreg, a=0.0, c=1.0, b=2.0)
 _dx_irreg = np.diff(_x_irreg, append=_x_irreg[-1])
@@ -40,6 +44,7 @@ TRI_IRREG = {
     "dx": _dx_irreg,
 }
 
+# Standard normal distribution with fine point spacing and broad domain
 _dx_std = 0.001
 _x_std = PDFs.value_arrays.precise_array(-10.0, 10.0, _dx_std)
 _px_std = PDFs.parametric_functions.gaussian(_x_std, mu=0.0, sigma=1.0)
@@ -49,6 +54,7 @@ STD_NORM = {
     "dx": _dx_std,
 }
 
+# Shifted and wide Gaussian distribution with mean 1.0 and standard dev 2.0
 _dx_shift = 0.001
 _x_shift = PDFs.value_arrays.precise_array(-16.0, 24.0, _dx_shift)
 _px_shift = PDFs.parametric_functions.gaussian(_x_shift, mu=1.0, sigma=2.0)
@@ -58,6 +64,8 @@ SHIFT_NORM = {
     "dx": _dx_shift,
 }
 
+# Bimodal triangular distribution with asymmetric triangles.
+# Distribution is symmetric about 0.
 _dx_bimodal = 0.001
 _x_bimodal = PDFs.value_arrays.precise_array(-10.0, 10.0, _dx_bimodal)
 _px_bimodal = (
@@ -99,8 +107,8 @@ class TestComputeRawMoment:
     )
     def test_known_raw_moments(self, var_dict, n, expected):
         theta_n = PDFs.analytics.compute_raw_moment(
-    x=var_dict["x"], px=var_dict["px"], n=n
-)
+            x=var_dict["x"], px=var_dict["px"], n=n
+        )
         assert theta_n == pytest.approx(expected)
 
 
@@ -117,8 +125,8 @@ class TestCentralMoment:
     )
     def test_known_central_moments(self, var_dict, n, expected):
         mu_n = PDFs.analytics.compute_central_moment(
-        x=var_dict["x"], px=var_dict["px"], n=n
-    )
+            x=var_dict["x"], px=var_dict["px"], n=n
+        )
         assert mu_n == pytest.approx(expected)
 
 
@@ -196,6 +204,8 @@ class TestPdfSkewness:
         ],
     )
     def test_known_pdf_skewness(self, var_dict, expected):
+        """Zero skew is expected for symmetric functions.
+        """
         pdf = PDFs.PDF(x=var_dict["x"], px=var_dict["px"])
         skewness = PDFs.analytics.pdf_skewness(pdf)
         assert skewness == pytest.approx(expected)
@@ -210,6 +220,9 @@ class TestPdfKurtosis:
         ],
     )
     def test_known_pdf_kurtosis(self, var_dict, expected):
+        """Unlike the other moments, a zero-centered, symmetric distribution
+        should have a non-zero kurtosis (e.g., 3.0).
+        """
         pdf = PDFs.PDF(x=var_dict["x"], px=var_dict["px"])
         kurtosis = PDFs.analytics.pdf_kurtosis(pdf)
         assert kurtosis == pytest.approx(expected)
@@ -263,6 +276,9 @@ class TestComputePdfStatistics:
         [TRI_ASYM],
     )
     def test_returns_pdf_statistics(self, var_dict):
+        """Test each parameter in PDF statistics returns the value that would
+        be computed from the raw functions.
+        """
         pdf = PDFs.PDF(x=var_dict["x"], px=var_dict["px"])
         pdf_stats = PDFs.analytics.compute_pdf_statistics(pdf)
         assert isinstance(pdf_stats, PDFs.analytics.PDFstatistics)
