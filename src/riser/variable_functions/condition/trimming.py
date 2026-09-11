@@ -15,22 +15,32 @@ __all__ = [
 
 # Import modules
 from ... import probability_functions as PDFs
+from . import core
 
 
 #################### TRIMMING FUNCTIONS ####################
 def trim_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
+    name1: str | None = None,
+    name2: str | None = None,
     verbose: bool = False,
-) -> tuple[PDFs.PDF, PDFs.PDF]:
+) -> tuple[PDFs.PDF, PDFs.PDF, float]:
     """Trim two PDFs against each other, enforcing that pdf1 precedes pdf2.
 
     Theory:
     Given a known ordering constraint (pdf1 < pdf2), each variable's own
     distribution can be reshaped by conditioning on the other's CDF:
 
-        pdf1_trimmed(x) ~ pdf1(x) . (1 - CDF_pdf2(x))
-        pdf2_trimmed(x) ~ pdf2(x) . CDF_pdf1(x)
+        pdf1_trimmed(x) ~ pdf1(x) . (1 - CDF2(x))
+        pdf2_trimmed(x) ~ pdf2(x) . CDF1(x)
+
+    The areas of the two trimming results will be the same, because
+    
+        area1 = integral(pdf1(x) . (1 - CDF2(x)) dx) = P(X1 < X2)
+        area2 = integral(pdf2(x) . CDF1(x) dx) = P(X2 > X1)
+
+    which are equivalent statements.
 
     Parameters
     ----------
@@ -45,9 +55,12 @@ def trim_variables(
         pdf1, reshaped to reflect that it must precede pdf2.
     pdf2_trimmed : PDF
         pdf2, reshaped to reflect that it must follow pdf1.
+    area : float
+        Area of the conditioned distributions, before scaling.
+        The unnormalized areas of both PDFs will be equal.
     """
     if verbose:
-        print("Adding variables")
+        print("Trimming variables")
 
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
@@ -55,37 +68,21 @@ def trim_variables(
     # Warn of metadata mismatches
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
+    # Formulate default output names
+    default_name1 = f"{pdf1.name} trimmed" if pdf1.name is not None else None
+    default_name2 = f"{pdf2.name} trimmed" if pdf2.name is not None else None
+
     # Trim first variable relative to second
-    px1_trimmed = pdf1.px * (1 - pdf2.Px)
+    pdf1_trimmed, area = core.condition(
+        pdf1, (1 - pdf2.Px), name=name1 if name1 is not None else default_name1
+    )
 
     # Trim second variable relative to first
-    px2_trimmed = pdf2.px * pdf1.Px
-
-    # Formulate output names
-    trimmed_name1 = f"{pdf1.name} trimmed" if pdf1.name is not None else None
-    trimmed_name2 = f"{pdf2.name} trimmed" if pdf2.name is not None else None
-
-    # Format metadata for trimmed PDFs
-    metadict1 = pdf1.metadata.as_dict()
-    metadict1["name"] = trimmed_name1
-
-    metadict2 = pdf2.metadata.as_dict()
-    metadict2["name"] = trimmed_name2
-
-    # Format results as PDFs
-    pdf1_trimmed = PDFs.PDF(
-        x=pdf1.x,
-        px=px1_trimmed,
-        **metadict1,
+    pdf2_trimmed, _ = core.condition(
+        pdf2, pdf1.Px, name=name2 if name2 is not None else default_name2
     )
 
-    pdf2_trimmed = PDFs.PDF(
-        x=pdf2.x,
-        px=px2_trimmed,
-        **metadict2,
-    )
-
-    return pdf1_trimmed, pdf2_trimmed
+    return pdf1_trimmed, pdf2_trimmed, area
 
 
 # end of file

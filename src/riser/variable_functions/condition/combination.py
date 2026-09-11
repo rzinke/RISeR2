@@ -14,9 +14,8 @@ __all__ = [
 
 
 # Import modules
-import copy
-
 from ... import probability_functions as PDFs
+from . import core
 
 
 #################### COMBINATION FUNCTIONS ####################
@@ -24,12 +23,14 @@ def combine_variables(
     pdfs: list[PDFs.PDF],
     name: str | None = None,
     verbose: bool = False,
-) -> PDFs.PDF:
+) -> tuple[PDFs.PDF, float]:
     """Compute the joint probability mass function of two or more discrete
     random variables.
-    Note: Treating the PDFs as discrete greatly simplifies the calculations.
 
-    fcomb(x) = f1(x) * f2(x) * ... fn(x) = product(fi(x))
+        fcomb(x) = f1(x) . f2(x) . ... fn(x) = product(fi(x))
+
+    The area of the combined PDF indicates how similar or compatible the PDFs
+    are.
 
     Parameters
     ----------
@@ -40,8 +41,10 @@ def combine_variables(
 
     Returns
     -------
-    combined_pdf : PDF
+    pdf_combined : PDF
         Combined pdf.
+    area : float
+        Area of the conditioned distribution, before scaling.
     """
     if verbose:
         print(f"Combining {len(pdfs)} PDFs")
@@ -49,27 +52,31 @@ def combine_variables(
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf.metadata for pdf in pdfs])
+
     # Get common metadata
     metadata = PDFs.metadata.get_common_metadata(
-        [pdf.metadata for pdf in pdfs], name=name, warn=True
+        [pdf.metadata for pdf in pdfs], name=name
     )
 
-    # Base PDF
-    px = copy.deepcopy(pdfs[0].px)
-
-    # Loop through subsequent variables
-    for pdf in pdfs[1:]:
-        # Compute joint probability
-        px *= pdf.px
-
-    # Form results into PDF
-    combined_pdf = PDFs.PDF(
+    # Initialize the combined PDF based on the first PDF in the list
+    pdf_combined = PDFs.PDF(
         x=pdfs[0].x,
-        px=px,
+        px=pdfs[0].px,
         **metadata.as_dict(),
     )
 
-    return combined_pdf
+    # Initialize the area of the overlap
+    area = 1.0
+
+    # Loop through subsequent PDFs
+    for pdf in pdfs[1:]:
+        # Condition the combined PDF and area by each subsequent PDF
+        pdf_combined, area_per_step = core.condition(pdf_combined, pdf.px)
+        area *= area_per_step
+
+    return pdf_combined, area
 
 
 # end of file

@@ -30,7 +30,7 @@ def condition(
 ) -> tuple[PDFs.PDF, float]:
     """Weight a prior distribution, according to
 
-        posterior(x) = prior(x) . weighting(x)
+        posterior(x) ~ prior(x) . weighting(x)
 
     The area-under-the-curve is recorded and the posterior distribution is
     then normalized to unit area and formed into a PDF.
