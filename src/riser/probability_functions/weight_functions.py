@@ -107,13 +107,9 @@ class WeightFunction:
             raise ValueError(
                 f"Cannot normalize weight function to PDF. "
                 f"Total area is {area}"
-            )
-        
-        # Normalize area to 1.0
-        px = self.wx / self.area()
 
-        # Create PDF
-        pdf = PDF(x=self.x, px=px, **metadata)
+        # Create PDF - guarantees unit area
+        pdf = PDF(x=self.x, px=self.wx, **metadata)
 
         return pdf
 
