@@ -20,7 +20,7 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 class WeightFunction:
     """A density-like array of weight values used to update prior likelihoods.
 
-    Unlike a PDF, the area under the. urve does not need to equal 1.0.
+    Unlike a PDF, the area under the curve does not need to equal 1.0.
     """
     def __init__(
         self,
@@ -76,6 +76,7 @@ class WeightFunction:
     def __len__(self) -> int:
         return len(self.x)
 
+    @property
     def area(self) -> float:
         """Compute the area under the curve of the weight function.
 
@@ -100,7 +101,7 @@ class WeightFunction:
             with unit area guaranteed.
         """
         # Compute area
-        area = self.area()
+        area = self.area
 
         # Check that area is non-negative and finite.
         if not (0 < area < float("inf")):
