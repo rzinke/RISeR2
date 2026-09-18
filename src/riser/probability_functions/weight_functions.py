@@ -51,7 +51,13 @@ class WeightFunction:
         variable_type: str | None = None,
         unit: str | None = None,
     ) -> PDF:
-        """
+        """Normalize the area of the weight function to 1.0 and format as a PDF.
+    
+        Returns
+        -------
+        pdf : PDF
+            PDF with same shape as the original weighting function,
+            with unit area guaranteed.
         """
         # Normalize area to 1.0
         px = self.px / self.area()
