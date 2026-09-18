@@ -18,6 +18,10 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 
 #################### WEIGHT FUNCTION CLASS ####################
 class WeightFunction:
+    """A density-like array of weight values used to update prior likelihoods.
+
+    Unlike a PDF, the area under the. urve does not need to equal 1.0.
+    """
     def __init__(
         self,
         x: np.ndarray,
