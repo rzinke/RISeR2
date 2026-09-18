@@ -25,17 +25,21 @@ class WeightFunction:
     def __init__(
         self,
         x: np.ndarray,
-        px: np.ndarray,
+        wx: np.ndarray,
     ):
         """
         Parameters
         ----------
+        x : np.ndarray
+            Domain values corresponding to the values of a random variable.
+        wx : np.ndarray
+            Weight values.
 
         Returns
         -------
         """
         self.x = x
-        self.px = px
+        self.wx = wx
 
     def area(self) -> float:
         """Compute the area under the curve of the weight function.
@@ -47,7 +51,7 @@ class WeightFunction:
         area : float
             Area under the curve of the weight function.
         """
-        return integration.integrate(x=self.x, px=self.px)
+        return integration.integrate(x=self.x, px=self.wx)
 
     def normalize(self, **metadata) -> PDF:
         """Normalize the area of the weight function to 1.0 and format as a PDF.
@@ -71,7 +75,7 @@ class WeightFunction:
             )
         
         # Normalize area to 1.0
-        px = self.px / self.area()
+        px = self.wx / self.area()
 
         # Create PDF
         pdf = PDF(x=self.x, px=px, **metadata)
