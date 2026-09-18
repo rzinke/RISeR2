@@ -43,6 +43,7 @@ __all__ = [
     "scaling",
     "value_arrays",
     "WeightFunction",
+    "weight_functions",
 ]
 
 
