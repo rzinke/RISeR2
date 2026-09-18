@@ -24,7 +24,7 @@ from . import (
     readers,
     scaling,
     value_arrays,
-    weighting_functions,
+    weight_functions,
 )
 from .metadata import PDFmetadata
 from .probability_density_function import ProbabilityDensityFunction as PDF
@@ -41,7 +41,7 @@ __all__ = [
     "readers",
     "scaling",
     "value_arrays",
-    "weighting_functions",
+    "weight_functions",
 ]
 
 
