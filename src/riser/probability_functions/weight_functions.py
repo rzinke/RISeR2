@@ -17,7 +17,23 @@ from .. import integration
 
 #################### WEIGHT FUNCTION CLASS ####################
 class WeightFunction:
-    ...
+    def __init__(
+        self,
+        x: np.ndarray,
+        px: np.ndarray,
+    ):
+        """
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
+        self.x = x
+        self.px = px
+
+    def area(self):
+        return integration.integrate(x=self.x, px=self.px)
 
 
 # end of file
