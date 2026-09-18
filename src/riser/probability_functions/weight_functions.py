@@ -13,6 +13,7 @@ __all__ = [
 import numpy as np
 
 from .. import integration
+from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### WEIGHT FUNCTION CLASS ####################
@@ -44,10 +45,28 @@ class WeightFunction:
         """
         return integration.integrate(x=self.x, px=self.px)
 
-    def normalize(self, name: str, variable_type: str, unit: str) -> PDF:
+    def normalize(
+        self,
+        name: str | None = None,
+        variable_type: str | None = None,
+        unit: str | None = None,
+    ) -> PDF:
         """
         """
-        return
+        # Normalize area to 1.0
+        px = self.px / self.area()
+
+        # Create PDF
+        pdf = PDF(
+            x=self.x,
+            px=px,
+            name=name,
+            variable_type=variable_type,
+            unit=unit,
+        )
+
+        return pdf
+
 
 
 # end of file
