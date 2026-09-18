@@ -38,8 +38,43 @@ class WeightFunction:
         Returns
         -------
         """
-        self.x = x
-        self.wx = wx
+        # Ensure domain values are numpy array
+        x = np.array(x, dtype=float)
+
+        # Check number of domain values
+        nx = len(x)
+        if nx < 2:
+            raise ValueError(
+                f"A weighting function must consist of at least 2 values, got {nx}"
+            )
+
+        # Record domain values
+        self._x = x
+        
+        # Ensure weight values are numpy array
+        wx = np.array(wx, dtype=float)
+
+        # Check number of weight values
+        nwx = len(wx)
+        if nwx != nx:
+            raise ValueError(
+                f"The number of weight values `wx` ({nwx}) "
+                f"must equal the number of domain values `x` ({nx})"
+            )
+
+        # Record probability density values
+        self._wx = wx
+
+    @property
+    def x(self) -> np.ndarray:
+        return self._x
+
+    @property
+    def wx(self) -> np.ndarray:
+        return self._wx
+
+    def __len__(self) -> int:
+        return len(self.x)
 
     def area(self) -> float:
         """Compute the area under the curve of the weight function.
