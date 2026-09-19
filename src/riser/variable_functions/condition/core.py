@@ -91,7 +91,7 @@ def condition(
     post_weight = weigh(prior_weight, weight_function)
 
     # Compute area of result
-    area = integration.integrate(x=prior.x, px=post_weight)
+    area = integration.integrate(x=prior.x, px=post_weight.wx)
 
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
     posterior = PDFs.PDF(
