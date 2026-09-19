@@ -7,6 +7,8 @@
 __all__ = [
     "WeightFunction",
     "flat_weight",
+    "pass_above",
+    "pass_below",
 ]
 
 
@@ -138,6 +140,24 @@ def flat_weight(x: np.ndarray) -> WeightFunction:
         All-ones weight function.
     """
     return WeightFunction(x=x, wx=np.ones_like(x))
+
+
+def pass_above(x: np.ndarray, threshold: float) -> WeightFunction:
+    """Create a weight function with unit value above a threshold value.
+    """
+    wx = np.ones(len(x))
+    wx[x <= value] = 0
+
+    return WeightFunction(x=x, wx=wx)
+
+
+def pass_below(x: np.ndarray, threshold: float) -> WeightFunction:
+    """Create a weight function with unit value below a threshold value.
+    """
+    wx = np.ones(len(x))
+    wx[x <= value] = 0
+
+    return WeightFunction(x=x, wx=wx)
 
 
 # end of file
