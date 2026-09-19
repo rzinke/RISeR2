@@ -118,18 +118,20 @@ class WeightFunction:
 
 
 #################### WEIGHTING FUNCTIONS ####################
-def flat_weight(x: np.ndarray) -> np.ndarray:
-    """Create an array of unit-value weights based on the domain over which a
-    prior is defined.
-
-    This is a thin wrapper for `np.ones_like`.
+def flat_weight(x: np.ndarray) -> WeightFunction:
+    """Create a weight function with unit-value weights over the specified domain.
 
     Parameters
     ----------
     x : np.ndarray
         Domain values of the random variable.
+
+    Returns
+    -------
+    WeightFunction
+        All-ones weight function.
     """
-    return np.ones_like(x)
+    return WeightFunction(x=x, wx=np.ones_like(x))
 
 
 # end of file
