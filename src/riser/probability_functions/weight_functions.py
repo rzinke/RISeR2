@@ -142,20 +142,20 @@ def flat_weight(x: np.ndarray) -> WeightFunction:
     return WeightFunction(x=x, wx=np.ones_like(x))
 
 
-def pass_above(x: np.ndarray, threshold: float) -> WeightFunction:
+def pass_above(x: np.ndarray, threshold_value: float) -> WeightFunction:
     """Create a weight function with unit value above a threshold value, and zero below.
     """
     wx = np.ones(len(x))
-    wx[x <= value] = 0
+    wx[x <= threshold_value] = 0
 
     return WeightFunction(x=x, wx=wx)
 
 
-def pass_below(x: np.ndarray, threshold: float) -> WeightFunction:
+def pass_below(x: np.ndarray, threshold_value: float) -> WeightFunction:
     """Create a weight function with unit value below a threshold value, and zero above.
     """
     wx = np.ones(len(x))
-    wx[x <= value] = 0
+    wx[x <= threshold_value] = 0
 
     return WeightFunction(x=x, wx=wx)
 
