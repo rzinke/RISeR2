@@ -11,7 +11,6 @@ then renormalizing.
 # Public API
 __all__ = [
     "condition",
-    "flat_weight",
 ]
 
 
@@ -85,21 +84,5 @@ def condition(
     )
 
     return posterior, area
-
-
-#################### WEIGHTING FUNCTIONS ####################
-def flat_weight(x: np.ndarray) -> np.ndarray:
-    """Create an array of unit-value weights based on the domain over which a
-    prior is defined.
-
-    This is a thin wrapper for `np.ones_like`.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        Domain values of the random variable.
-    """
-    return np.ones_like(x)
-
 
 # end of file
