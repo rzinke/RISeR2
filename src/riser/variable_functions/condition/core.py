@@ -24,8 +24,20 @@ from riser import (
 
 
 #################### CONDITIONING FUNCTIONS ####################
+def weigh(
+    prior: PDFs.weight_functions.WeightFunction,
+    weight: PDFs.weight_functions.WeightFunction,
+) -> PDFs.weight_functions.WeightFunction:
+    """Primitive to reshape a prior by a weight function.
+    """
+    return PDFs.weight_functions.WeightFunction(
+        x=prior.x wx=prior.wx * weight.wx
+    )
+
 def condition(
-    prior: PDFs.PDF, weight: np.ndarray, *, name: str | None = None
+    prior: PDFs.PDF | PDFs.weight_functions.WeightFunction,
+    weight: PDFs.PDF | PDFs.weight_functions.WeightFunction,
+    **metadata,
 ) -> tuple[PDFs.PDF, float]:
     """Weight a prior distribution, according to
 
@@ -48,8 +60,6 @@ def condition(
         Prior to weight.
     weight : np.ndarray
         Weighting array.
-    name : str (optional)
-        Name override for weighted PDF.
 
     Returns
     -------
@@ -65,22 +75,23 @@ def condition(
             f"size of the prior domain ({len(prior)})"
         )
 
+    # Extract weights from prior
+    prior_weights = (
+        PDFs.weight_function.WeightFunction.from_pdf(prior)
+        if isinstance(prior, PDFs.PDF) else prior
+    )
+
     # Weight the probability densities of the prior
-    px_weighted = prior.px * weight
+    post_weight = weigh(prior_weight, weight)
 
     # Compute area of result
-    area = integration.integrate(x=prior.x, px=px_weighted)
-
-    # Formulate metadata of the posterior
-    metadict = prior.metadata.as_dict()
-    if name is not None:
-        metadict["name"] = name
+    area = integration.integrate(x=prior.x, px=post_weight)
 
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
     posterior = PDFs.PDF(
         x=prior.x,
-        px=px_weighted,
-        **metadict,
+        px=post_weight,
+        **metadata,
     )
 
     return posterior, area
