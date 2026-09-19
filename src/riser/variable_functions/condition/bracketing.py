@@ -15,10 +15,7 @@ __all__ = [
 
 
 # Import modules
-from ... import (
-    integration,
-    probability_functions as PDFs,
-)
+from ... import probability_functions as PDFs
 from . import core
 
 
