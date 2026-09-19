@@ -76,8 +76,8 @@ def condition(
         )
 
     # Extract weights from prior
-    prior_weights = (
-        PDFs.weight_function.WeightFunction.from_pdf(prior)
+    prior_weight = (
+        PDFs.weight_functions.WeightFunction.from_pdf(prior)
         if isinstance(prior, PDFs.PDF) else prior
     )
 
