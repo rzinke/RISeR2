@@ -10,6 +10,7 @@ then renormalizing.
 
 # Public API
 __all__ = [
+    "weigh",
     "condition",
 ]
 
@@ -81,8 +82,13 @@ def condition(
         if isinstance(prior, PDFs.PDF) else prior
     )
 
+    weight_function = (
+        PDFs.weight_functions.WeightFunction.from_pdf(weight)
+        if isinstance(weight, PDFs.PDF) else weight
+    )
+
     # Weight the probability densities of the prior
-    post_weight = weigh(prior_weight, weight)
+    post_weight = weigh(prior_weight, weight_function)
 
     # Compute area of result
     area = integration.integrate(x=prior.x, px=post_weight)
@@ -90,7 +96,7 @@ def condition(
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
     posterior = PDFs.PDF(
         x=prior.x,
-        px=post_weight,
+        px=post_weight.wx,
         **metadata,
     )
 
