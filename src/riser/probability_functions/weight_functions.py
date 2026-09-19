@@ -66,6 +66,12 @@ class WeightFunction:
         # Record probability density values
         self._wx = wx
 
+    @classmethod
+    def from_pdf(cls, pdf: PDF):
+        """Build a WeightFunction from a PDF.
+        """
+        return cls(x=pdf.x, wx=pdf.px)
+
     @property
     def x(self) -> np.ndarray:
         return self._x
