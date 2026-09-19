@@ -31,7 +31,7 @@ def weigh(
     """Primitive to reshape a prior by a weight function.
     """
     return PDFs.weight_functions.WeightFunction(
-        x=prior.x wx=prior.wx * weight.wx
+        x=prior.x, wx=prior.wx * weight.wx
     )
 
 def condition(
