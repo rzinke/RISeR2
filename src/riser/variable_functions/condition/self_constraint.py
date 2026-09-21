@@ -56,11 +56,7 @@ def constrain_above(
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
 
     # Create weighting array
-    trvial_weight = PDFs.weight_functions.flat_weight(pdf.x)
-    weight = PDFs.weight_functions.WeightFunction(
-        x=trivial_weight.x,
-        wx=trivial_weight.wx[trivial_weight.x <= value] = 0
-    )
+    weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
 
     # Constrain PDF
     pdf_constrained, area = core.condition(
@@ -102,11 +98,8 @@ def constrain_below(
     # Formulate default output name
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
 
-    trvial_weight = PDFs.weight_functions.flat_weight(pdf.x)
-    weight = PDFs.weight_functions.WeightFunction(
-        x=trivial_weight.x,
-        wx=trivial_weight.wx[trivial_weight.x >= value] = 0
-    )
+    # Create weighting array
+    weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
     
     # Constrain PDF
     pdf_constrained, area = core.condition(
