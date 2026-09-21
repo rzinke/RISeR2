@@ -31,8 +31,8 @@ def weigh(
     )
 
 def condition(
-    prior: PDFs.PDF | PDFs.weight_functions.WeightFunction | np.ndarray,
-    weight: PDFs.PDF | PDFs.weight_functions.WeightFunction | no.ndarray,
+    prior: PDFs.PDF | PDFs.weight_functions.WeightFunction,
+    weight: PDFs.PDF | PDFs.weight_functions.WeightFunction | np.ndarray,
     **metadata,
 ) -> tuple[PDFs.PDF, float]:
     """Weight a prior distribution, according to
@@ -52,7 +52,7 @@ def condition(
 
     Parameters
     ----------
-    prior : PDF or weight_function or np.ndarray
+    prior : PDF or weight_function
         Prior to weight.
     weight : PDF or weight_function or np.ndarray
         Weighting array.
@@ -73,10 +73,8 @@ def condition(
 
     # Extract weights from prior
     prior_weight = weight_function = (
-        PDFs.weight_functions.WeightFunction.from_pdf(weight)
+        PDFs.weight_functions.WeightFunction.from_pdf(prior)
         if isinstance(prior, PDFs.PDF)
-        else PDFs.weight_functions.WeightFunction(x=prior_weight.x, wx=weight)
-        if isinstance(prior, np.ndarray)
         else prior
     )
 
