@@ -90,16 +90,9 @@ def condition(
     # Weight the probability densities of the prior
     post_weight = weigh(prior_weight, weight_function)
 
-    # Compute area of result
-    area = integration.integrate(x=prior.x, px=post_weight.wx)
-
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
-    posterior = PDFs.PDF(
-        x=prior.x,
-        px=post_weight.wx,
-        **metadata,
-    )
+    posterior = post_weight.normalize(**metadata)
 
-    return posterior, area
+    return posterior, post_weight.area()
 
 # end of file
