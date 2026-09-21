@@ -99,7 +99,7 @@ def constrain_below(
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
 
     # Create weighting array
-    weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
+    weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x >= value)
     
     # Constrain PDF
     pdf_constrained, area = core.condition(
