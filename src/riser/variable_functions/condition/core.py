@@ -91,6 +91,7 @@ def condition(
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
     posterior = post_weight.normalize(**metadata)
 
-    return posterior, post_weight.area()
+    return posterior, post_weight.area
+
 
 # end of file
