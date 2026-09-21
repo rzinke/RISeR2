@@ -61,13 +61,6 @@ def combine_variables(
         [pdf.metadata for pdf in pdfs], name=name
     )
 
-    # Initialize the combined PDF based on the first PDF in the list
-    pdf_combined = PDFs.PDF(
-        x=pdfs[0].x,
-        px=pdfs[0].px,
-        **metadata.as_dict(),
-    )
-
     # Initialize posterior kernel
     kernel = PDFs.weight_functions.WeightFunction.from_pdf(pdfs[0])
 
