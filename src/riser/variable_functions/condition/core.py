@@ -16,10 +16,7 @@ __all__ = [
 
 
 # Import modules
-from riser import (
-    integration,
-    probability_functions as PDFs,
-)
+from riser import probability_functions as PDFs
 
 
 #################### CONDITIONING FUNCTIONS ####################
