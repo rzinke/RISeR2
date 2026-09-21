@@ -50,15 +50,19 @@ def constrain_above(
     if verbose:
         print(f"Constraining PDF above {value}")
 
+    # Retrieve metadata from PDF
+    metadata_dict = pdf.metadata.as_dict()
+
     # Formulate default output name
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
-
+    metadata_dict["name"] = name if name is not None else default_name
+    
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
 
     # Constrain PDF
     pdf_constrained, area = core.condition(
-        pdf, weight, name=name if name is not None else default_name
+        pdf, weight, **metadata_dict
     )
 
     return pdf_constrained, area
@@ -93,15 +97,19 @@ def constrain_below(
     if verbose:
         print(f"Constraining PDF below {value}")
 
+    # Retrieve metadata from PDF
+    metadata_dict = pdf.metadata.as_dict()
+
     # Formulate default output name
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
+    metadata_dict["name"] = name if name is not None else default_name
 
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x >= value)
     
     # Constrain PDF
     pdf_constrained, area = core.condition(
-        pdf, weight, name=name if name is not None else default_name
+        pdf, weight, **metadata_dict
     )
 
     return pdf_constrained, area
