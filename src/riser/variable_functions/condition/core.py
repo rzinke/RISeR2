@@ -10,23 +10,32 @@ then renormalizing.
 
 # Public API
 __all__ = [
+    "weigh",
     "condition",
-    "flat_weight",
 ]
 
 
 # Import modules
 import numpy as np
 
-from riser import (
-    integration,
-    probability_functions as PDFs,
-)
+from riser import probability_functions as PDFs
 
 
 #################### CONDITIONING FUNCTIONS ####################
+def weigh(
+    prior: PDFs.weight_functions.WeightFunction,
+    weight: PDFs.weight_functions.WeightFunction,
+) -> PDFs.weight_functions.WeightFunction:
+    """Primitive to reshape a prior by a weight function.
+    """
+    return PDFs.weight_functions.WeightFunction(
+        x=prior.x, wx=prior.wx * weight.wx
+    )
+
 def condition(
-    prior: PDFs.PDF, weight: np.ndarray, *, name: str | None = None
+    prior: PDFs.PDF | PDFs.weight_functions.WeightFunction,
+    weight: PDFs.PDF | PDFs.weight_functions.WeightFunction | np.ndarray,
+    **metadata,
 ) -> tuple[PDFs.PDF, float]:
     """Weight a prior distribution, according to
 
@@ -45,12 +54,10 @@ def condition(
 
     Parameters
     ----------
-    prior : PDF
+    prior : PDF or weight_function
         Prior to weight.
-    weight : np.ndarray
+    weight : PDF or weight_function or np.ndarray
         Weighting array.
-    name : str (optional)
-        Name override for weighted PDF.
 
     Returns
     -------
@@ -66,40 +73,29 @@ def condition(
             f"size of the prior domain ({len(prior)})"
         )
 
-    # Weight the probability densities of the prior
-    px_weighted = prior.px * weight
-
-    # Compute area of result
-    area = integration.integrate(x=prior.x, px=px_weighted)
-
-    # Formulate metadata of the posterior
-    metadict = prior.metadata.as_dict()
-    if name is not None:
-        metadict["name"] = name
-
-    # Format weighted prior as PDF (scaling carried out by PDF.__init__)
-    posterior = PDFs.PDF(
-        x=prior.x,
-        px=px_weighted,
-        **metadict,
+    # Extract weights from prior
+    prior_weight = (
+        PDFs.weight_functions.WeightFunction.from_pdf(prior)
+        if isinstance(prior, PDFs.PDF)
+        else prior
     )
 
-    return posterior, area
+    weight_function = (
+        PDFs.weight_functions.WeightFunction.from_pdf(weight)
+        if isinstance(weight, PDFs.PDF)
+        else PDFs.weight_functions.WeightFunction(x=prior_weight.x, wx=weight)
+        if isinstance(weight, np.ndarray)
+        else weight
+    )
 
 
-#################### WEIGHTING FUNCTIONS ####################
-def flat_weight(x: np.ndarray) -> np.ndarray:
-    """Create an array of unit-value weights based on the domain over which a
-    prior is defined.
+    # Weight the probability densities of the prior
+    post_weight = weigh(prior_weight, weight_function)
 
-    This is a thin wrapper for `np.ones_like`.
+    # Format weighted prior as PDF (scaling carried out by PDF.__init__)
+    posterior = post_weight.normalize(**metadata)
 
-    Parameters
-    ----------
-    x : np.ndarray
-        Domain values of the random variable.
-    """
-    return np.ones_like(x)
+    return posterior, post_weight.area
 
 
 # end of file

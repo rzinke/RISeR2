@@ -15,10 +15,7 @@ __all__ = [
 
 
 # Import modules
-from ... import (
-    integration,
-    probability_functions as PDFs,
-)
+from ... import probability_functions as PDFs
 from . import core
 
 
@@ -75,21 +72,15 @@ def infer_bracketed(
     )
 
     # Create a ones-distribution representing a shapeless prior
-    prior_array = core.flat_weight(pdf1.x)
+    prior = PDFs.weight_functions.flat_weight(pdf1.x)
 
     # Compute the weighting distribution based on the shape of the priors
-    weight = pdf1.Px * (1 - pdf2.Px)
+    weight = PDFs.weight_functions.WeightFunction(
+        x=pdf1.x, wx=pdf1.Px * (1 - pdf2.Px)
+    )
 
     # Apply Bayesian condition
-    # This is a no-op, written as Bayesian condition for consistency with
-    # other modules
-    px_bracketed = prior_array * weight
-
-    # Format results as PDF with normalized area
-    pdf_bracketed = PDFs.PDF(x=pdf1.x, px=px_bracketed, **metadata.as_dict())
-
-    # Compute the area under the curve
-    area = integration.integrate(x=pdf1.x, px=px_bracketed)
+    pdf_bracketed, area = core.condition(prior, weight, **metadata.as_dict())
 
     return pdf_bracketed, area
 

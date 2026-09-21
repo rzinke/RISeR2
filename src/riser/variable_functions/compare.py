@@ -49,7 +49,7 @@ def cosine_similarity(
     Returns
     -------
     r : float
-        Pearson correlation coefficient.
+        Cosine similarity index.
     """
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
