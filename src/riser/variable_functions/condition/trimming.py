@@ -71,7 +71,7 @@ def trim_variables(
 
     # Get common metadata
     metadata_dict = PDFs.metadata.get_common_metadata([pdf1.metadata, pdf2.metadata]).as_dict()
-    metadata_dict1 = cooy.copy(metadata_dict)
+    metadata_dict1 = copy.copy(metadata_dict)
     metadata_dict2 = copy.copy(metadata_dict)
 
     # Formulate trimmed PDF names
