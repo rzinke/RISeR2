@@ -58,7 +58,8 @@ def constrain_above(
     # Create weighting array
     trvial_weight = PDFs.weight_functions.flat_weight(pdf.x)
     weight = PDFs.weight_functions.WeightFunction(
-        x=trivial_weight.x, wx[trivial_weight.x <= value] = 0
+        x=trivial_weight.x,
+        wx=trivial_weight.wx[trivial_weight.x <= value] = 0
     )
 
     # Constrain PDF
@@ -103,7 +104,8 @@ def constrain_below(
 
     trvial_weight = PDFs.weight_functions.flat_weight(pdf.x)
     weight = PDFs.weight_functions.WeightFunction(
-        x=trivial_weight.x, wx[trivial_weight.x >= value] = 0
+        x=trivial_weight.x,
+        wx=trivial_weight.wx[trivial_weight.x >= value] = 0
     )
     
     # Constrain PDF
