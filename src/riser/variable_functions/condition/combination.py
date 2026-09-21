@@ -68,7 +68,7 @@ def combine_variables(
         **metadata.as_dict(),
     )
 
-    # Initialize first PDF as weight function
+    # Initialize posterior kernel
     kernel = PDFs.weight_functions.WeightFunction.from_pdf(pdfs[0])
 
     # Loop through subsequent PDFs
