@@ -68,14 +68,17 @@ def combine_variables(
         **metadata.as_dict(),
     )
 
-    # Initialize the area of the overlap
-    area = 1.0
+    # Initialize first PDF as weight function
+    kernel = PDFs.weight_functions.WeightFunction.from_pdf(pdfs[0])
 
     # Loop through subsequent PDFs
     for pdf in pdfs[1:]:
-        # Condition the combined PDF and area by each subsequent PDF
-        pdf_combined, area_per_step = core.condition(pdf_combined, pdf.px)
-        area *= area_per_step
+        # Condition the combined weight function
+        kernel = core.weigh(kernel, PDFs.weight_functions.WeightFunction.from_pdf(pdf))
+
+    # Convert the combined weight function to a PDF
+    pdf_combined = kernel.normalize(**metadata.as_dict())
+    area = kernel.area
 
     return pdf_combined, area
 
