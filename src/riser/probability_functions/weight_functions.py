@@ -7,8 +7,6 @@
 __all__ = [
     "WeightFunction",
     "flat_weight",
-    "pass_above",
-    "pass_below",
 ]
 
 
