@@ -16,8 +16,6 @@ __all__ = [
 
 
 # Import modules
-import numpy as np
-
 from ... import probability_functions as PDFs
 from . import core
 
