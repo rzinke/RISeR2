@@ -7,6 +7,7 @@
 __all__ = [
     "WeightFunction",
     "flat_weight",
+    "zero_where",
 ]
 
 
@@ -138,6 +139,28 @@ def flat_weight(x: np.ndarray) -> WeightFunction:
         All-ones weight function.
     """
     return WeightFunction(x=x, wx=np.ones_like(x))
+
+
+def zero_where(x: np.ndarray, condition: np.ndarray) -> WeightFunction:
+    """Create a weight function that is 1.0 everywhere, except 0.0 wherever
+    condition is True.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Domain values of the random variable.
+    condition : np.ndarray
+        Boolean array, same length as x. Wherever True, the weight is set
+        to zero.
+
+    Returns
+    -------
+    WeightFunction
+        All-ones weight function, zeroed where condition holds.
+    """
+    wx = np.ones_like(x)
+    wx[condition] = 0
+    return WeightFunction(x=x, wx=wx)
 
 
 # end of file
