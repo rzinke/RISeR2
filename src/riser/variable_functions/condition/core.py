@@ -16,6 +16,8 @@ __all__ = [
 
 
 # Import modules
+import numpy as no
+
 from riser import probability_functions as PDFs
 
 
