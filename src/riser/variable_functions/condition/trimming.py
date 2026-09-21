@@ -14,6 +14,8 @@ __all__ = [
 
 
 # Import modules
+import copy
+
 from ... import probability_functions as PDFs
 from . import core
 
@@ -67,16 +69,26 @@ def trim_variables(
     # Warn of metadata mismatches
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
-    # Formulate default output names
+    # Get common metadata
+    metadata_dict = PDFs.metadata.get_common_metadata([pdf1.metadata, pdf2.metadata]).as_dict()
+    metadata_dict1 = cooy.copy(metadata_dict)
+    metadata_dict2 = copy.copy(metadata_dict)
+
+    # Formulate trimmed PDF names
     default_name1 = f"{pdf1.name} trimmed" if pdf1.name is not None else None
     default_name2 = f"{pdf2.name} trimmed" if pdf2.name is not None else None
 
+    metadata_dict1["name"] = name1 if name1 is not None else default_name1
+    metadata_dict2["name"] = name2 if name2 is not None else default_name2
+    
     # Trim first variable relative to second
     weight_larger = PDFs.weight_functions.WeightFunction(
         x=pdf2.x, wx=(1 - pdf2.Px)
     )
     pdf1_trimmed, area = core.condition(
-        pdf1, weight_larger, name=name1 if name1 is not None else default_name1
+        pdf1,
+        weight_larger,
+        **metadata_dict1,
     )
 
     # Trim second variable relative to first
@@ -84,7 +96,9 @@ def trim_variables(
         x=pdf1.x, wx=pdf1.Px
     )
     pdf2_trimmed, _ = core.condition(
-        pdf2, weight_smaller, name=name2 if name2 is not None else default_name2
+        pdf2,
+        weight_smaller,
+        **metadata_dict2,
     )
 
     return pdf1_trimmed, pdf2_trimmed, area
