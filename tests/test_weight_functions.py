@@ -30,9 +30,9 @@ class TestWeightFunction:
     def test_construction_with_valid_inputs(self):
         x = np.array([0.0, 1.0])
         wx = np.array([1.0, 1.0])
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
-        np.testing.assert_allclose(weights.x, x)
-        np.testing.assert_allclose(weights.wx, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
+        np.testing.assert_allclose(weight.x, x)
+        np.testing.assert_allclose(weight.wx, wx)
 
     def test_too_few_values_raises(self):
         x = np.array([1.0])
@@ -83,9 +83,9 @@ class TestWeightFunction:
         need to be 1.0, unlike a PDF.
         """
         x = np.array([0.0, 1.0, 2.0])
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
 
-        assert weights.area == pytest.approx(expected_area)
+        assert weight.area == pytest.approx(expected_area)
 
 
 class TestWeightFunctionToPdf:
@@ -97,9 +97,9 @@ class TestWeightFunctionToPdf:
         x = np.array([0.0, 1.0, 2.0])
         wx = np.array([1.0, 1.0, 1.0])
 
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
 
-        pdf = weights.normalize()
+        pdf = weight.normalize()
         pdf_area = integration.integrate(x=pdf.x, px=pdf.px)
 
         assert isinstance(pdf, PDFs.PDF)
@@ -110,9 +110,9 @@ class TestWeightFunctionToPdf:
         x = np.array([0.0, 1.0, 2.0])
         wx = np.array([1.0, 1.0, 1.0])
 
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
 
-        pdf = weights.normalize()
+        pdf = weight.normalize()
 
         assert pdf.name is None
         assert pdf.variable_type is None
@@ -129,25 +129,25 @@ class TestWeightFunctionToPdf:
         x = np.array([0.0, 1.0, 2.0])
         wx = np.array([1.0, 1.0, 1.0])
 
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
 
-        pdf = weights.normalize(**metadata)
+        pdf = weight.normalize(**metadata)
 
         assert pdf.name == metadata["name"]
         assert pdf.variable_type == metadata["variable_type"]
         assert pdf.unit == metadata["unit"]
 
-    def test_all_zero_weights_raise(self):
+    def test_all_zero_weight_raise(self):
         """
         A PDF cannot be created from all-absolute zero values.
         """
         x = np.array([0.0, 1.0, 2.0])
         wx = np.array([0.0, 0.0, 0.0])
 
-        weights = PDFs.weight_functions.WeightFunction(x, wx)
+        weight = PDFs.weight_functions.WeightFunction(x, wx)
 
         with pytest.raises(ValueError, match="Total area is"):
-            weights.normalize()
+            weight.normalize()
 
 
 class TestWeightFunctionFromPdf:
@@ -157,20 +157,20 @@ class TestWeightFunctionFromPdf:
 
         pdf = PDFs.PDF(x, px)
 
-        weights = PDFs.weight_functions.WeightFunction.from_pdf(pdf)
+        weight = PDFs.weight_functions.WeightFunction.from_pdf(pdf)
 
-        np.testing.assert_allclose(weights.x, pdf.x)
-        np.testing.assert_allclose(weights.wx, pdf.px)        
+        np.testing.assert_allclose(weight.x, pdf.x)
+        np.testing.assert_allclose(weight.wx, pdf.px)        
 
 
 class TestFlatWeight:
     def test_flat_weight(self):
         x = np.array([0.0, 1.0, 2.0])
 
-        weights = PDFs.weight_functions.flat_weight(x)
+        weight = PDFs.weight_functions.flat_weight(x)
 
-        np.testing.assert_allclose(weights.x, x)
-        np.testing.assert_allclose(weights.wx, 1.0)
+        np.testing.assert_allclose(weight.x, x)
+        np.testing.assert_allclose(weight.wx, 1.0)
 
 
 class TestZeroWhere:
@@ -179,10 +179,10 @@ class TestZeroWhere:
 
         condition = x <= 0
 
-        weights = PDFs.weight_functions.zero_where(x, condition)
+        weight = PDFs.weight_functions.zero_where(x, condition)
 
         np.testing.assert_allclose(
-            weights.wx,
+            weight.wx,
             np.array([0.0, 0.0, 0.0, 1.0, 1.0]),
         )
 
@@ -191,10 +191,10 @@ class TestZeroWhere:
 
         condition = x >= 0
 
-        weights = PDFs.weight_functions.zero_where(x, condition)
+        weight = PDFs.weight_functions.zero_where(x, condition)
 
         np.testing.assert_allclose(
-            weights.wx,
+            weight.wx,
             np.array([1.0, 1.0, 0.0, 0.0, 0.0]),
         )
 

@@ -199,8 +199,31 @@ def precise_array(
 
 
 #################### CHECKS ####################
+def check_value_arrays_sampling(value_arrays: list[np.ndarray]) -> None:
+    """Check that all value arrays sample the same domain equally.
+
+    Parameters
+    ----------
+    value_arrays : list[np.ndarray]
+        Value arrays to check.
+
+    Returns
+    -------
+    None
+    """
+    # Initial value array
+    x0 = value_arrays[0]
+
+    # Loop through subsequent value arrays
+    for x in value_arrays[1:]:
+        if not np.array_equal(x, x0):
+            raise ValueError("Not all value arrays sample the same values")
+
+
 def check_pdfs_sampling(pdfs: list[PDF]) -> None:
     """Check that all PDFs are sampled over the same value array.
+
+    Thin wrapper for `check_value_arrays_sampling`.
 
     Parameters
     ----------
@@ -211,13 +234,7 @@ def check_pdfs_sampling(pdfs: list[PDF]) -> None:
     -------
     None
     """
-    # Initial value array
-    x0 = pdfs[0].x
-
-    # Loop through subsequent PDFs
-    for pdf in pdfs[1:]:
-        if not np.array_equal(pdf.x, x0):
-            raise ValueError("Not all PDFs are sampled over same values")
+    check_value_arrays_sampling([pdf.x for pdf in pdfs])
 
 
 # end of file

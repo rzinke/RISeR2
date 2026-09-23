@@ -88,7 +88,7 @@ class TestCheckPdfsSampling:
         pdf3 = PDFs.PDF(x=self.x3, px=self.px3)
         pdf5 = PDFs.PDF(x=self.x5, px=self.px5)
         with pytest.raises(
-            ValueError, match="Not all PDFs are sampled over same values"
+            ValueError, match="Not all value arrays sample the same values",
         ):
             PDFs.value_arrays.check_pdfs_sampling([pdf3, pdf5])
     

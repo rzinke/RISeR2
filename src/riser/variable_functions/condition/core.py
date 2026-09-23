@@ -28,6 +28,9 @@ def weigh(
 ) -> PDFs.weight_functions.WeightFunction:
     """Primitive to reshape a prior by a weight function.
     """
+    # Check PDFs sample same domain
+    PDFs.value_arrays.check_value_arrays_sampling([prior.x, weight.x])
+
     return PDFs.weight_functions.WeightFunction(
         x=prior.x, wx=prior.wx * weight.wx
     )
@@ -87,7 +90,6 @@ def condition(
         if isinstance(weight, np.ndarray)
         else weight
     )
-
 
     # Weight the probability densities of the prior
     post_weight = weigh(prior_weight, weight_function)

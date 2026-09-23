@@ -136,7 +136,7 @@ class TestAddVariables:
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
         with pytest.raises(
-            ValueError, match="Not all PDFs are sampled over same values"
+            ValueError, match="Not all value arrays"
         ):
             var_fcns.transform.arithmetic.add_variables(pdf1, pdf2)
 
@@ -192,7 +192,9 @@ class TestAddVariables:
             unit=unit,
         )
 
-        pdf_sum = var_fcns.transform.arithmetic.add_variables(pdf1, pdf2, name="X12")
+        pdf_sum = var_fcns.transform.arithmetic.add_variables(
+            pdf1, pdf2, name="X12"
+        )
 
         assert len(recwarn) == 0
         assert pdf_sum.name == "X12"
@@ -237,7 +239,7 @@ class TestSubtractVariables:
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
         with pytest.raises(
-            ValueError, match="Not all PDFs are sampled over same values"
+            ValueError, match="Not all value arrays"
         ):
             var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
 
@@ -288,7 +290,9 @@ class TestSubtractVariables:
             unit=unit,
         )
 
-        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2, name="X12")
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1, pdf2, name="X12"
+        )
 
         assert len(recwarn) == 0
         assert pdf_diff.name == "X12"
@@ -308,7 +312,9 @@ class TestMultiplyVariables:
         pdf1 = PDFs.PDF(x=x, px=px)
         pdf2 = PDFs.PDF(x=x, px=px)
 
-        pdf_prod = var_fcns.transform.arithmetic.multiply_variables(pdf1, pdf2, dz=dx)
+        pdf_prod = var_fcns.transform.arithmetic.multiply_variables(
+            pdf1, pdf2, dz=dx
+        )
 
         check_ndx = (pdf_prod.x > 1E-2)
 

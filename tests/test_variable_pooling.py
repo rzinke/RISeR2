@@ -48,7 +48,7 @@ class TestPoolVariables:
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
         with pytest.raises(
-            ValueError, match="Not all PDFs are sampled over same values"
+            ValueError, match="Not all value arrays"
         ):
             var_fcns.pool.pooling.pool_variables([pdf1, pdf2])
 

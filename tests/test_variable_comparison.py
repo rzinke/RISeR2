@@ -27,7 +27,7 @@ def reject_mismatched_sampling_test(fcn):
     pdf2 = PDFs.PDF(x=x2, px=px2)
 
     with pytest.raises(
-        ValueError, match="Not all PDFs are sampled over same values"
+        ValueError, match="Not all value arrays"
     ):
         fcn(pdf1, pdf2)
 
@@ -122,7 +122,7 @@ class TestOverlapIndex:
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
         with pytest.raises(
-            ValueError, match="Not all PDFs are sampled over same values"
+            ValueError, match="Not all value arrays"
         ):
             var_fcns.compare.comparison.overlap_index([pdf1, pdf2])
 
