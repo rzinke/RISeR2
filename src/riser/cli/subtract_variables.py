@@ -80,7 +80,7 @@ def main():
     )
 
     # Compute summed PDF
-    diff_pdf = var_fcns.arithmetic.subtract_variables(
+    diff_pdf = var_fcns.transform.arithmetic.subtract_variables(
         pdf1,
         pdf2,
         limit_positive=inps.limit_positive,
