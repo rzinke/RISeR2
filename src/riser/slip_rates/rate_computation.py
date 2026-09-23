@@ -67,9 +67,9 @@ def compute_slip_rate(
     min_rate = 0.0 if limit_positive else None
 
     # Divide displacement by age
-    slip_rate = var_fcns.transform.arithmetic.divide_variables(
-        numerator=marker.displacement,
-        denominator=marker.age,
+    slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
+        pdf1=marker.displacement,
+        pdf2=marker.age,
         dz=dr,
         min_quotient=min_rate,
         max_quotient=max_rate,
@@ -218,9 +218,9 @@ def compute_slip_rates_analytical(
         rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         # Divide displacement by age
-        slip_rate = var_fcns.transform.arithmetic.divide_variables(
-            numerator=delta_u,
-            denominator=delta_t,
+        slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
+            pdf1=delta_u,
+            pdf2=delta_t,
             dz=dr,
             min_quotient=min_rate,
             max_quotient=max_rate,

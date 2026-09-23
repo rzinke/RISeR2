@@ -331,7 +331,7 @@ def multiply_variables(
     name: str | None = None,
     variable_type: str | None = None,
     verbose: bool = False,
-) -> PDFs.PDF:
+) -> tuple[PDFs.PDF, float]:
     """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
     values (Z).
 
