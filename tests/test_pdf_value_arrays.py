@@ -77,6 +77,20 @@ class TestCreatePreciseValueArray:
         assert np.all(x == np.array([0.0, 0.5, 1.0, 1.5, 2.0]))
 
 
+class TestCheckValueArraySampling:
+    x3 = np.array([0.0, 1.0, 2.0])
+    x5 = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
+
+    def test_different_sampling_raises(self):
+        with pytest.raises(
+            ValueError, match="Not all value arrays sample the same values"
+        ):
+            PDFs.value_arrays.check_value_arrays_sampling([self.x3, self.x5])
+
+    def test_same_sampling_silent(self):
+        PDFs.value_arrays.check_value_arrays_sampling([self.x3, self.x3])
+
+
 class TestCheckPdfsSampling:
     x3 = np.array([0.0, 1.0, 2.0])
     px3 = np.array([0.0, 1.0, 0.0])
@@ -84,7 +98,7 @@ class TestCheckPdfsSampling:
     x5 = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
     px5 = np.array([0.0, 0.5, 1.0, 0.5, 0.0])
 
-    def test_different_sampling_raise(self):
+    def test_different_sampling_raises(self):
         pdf3 = PDFs.PDF(x=self.x3, px=self.px3)
         pdf5 = PDFs.PDF(x=self.x5, px=self.px5)
         with pytest.raises(
