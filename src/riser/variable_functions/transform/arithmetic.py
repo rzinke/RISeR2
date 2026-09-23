@@ -341,6 +341,9 @@ def multiply_variables(
 
         fZ(z) = integral(fX(x).fY(z/x) 1/abs(x) dx)
 
+    In the ideal case, the area of the product function will be 1.0,
+    indicating that the entire probability space is captured.
+
     Parameters
     ----------
     pdf1 : PDF
@@ -362,6 +365,8 @@ def multiply_variables(
     -------
     pdf_prod : PDF
         Product PDF.
+    area : float
+        Area of the non-normalized PDF.
     """
     if verbose:
         print("Multiplying variables")
@@ -375,6 +380,9 @@ def multiply_variables(
     ]
     prod_min = np.min(corners) if min_product is None else min_product
     prod_max = np.max(corners) if max_product is None else max_product
+
+    # Get PDF spacing
+    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf1)
 
     # Create product value array
     z = PDFs.value_arrays.precise_array(prod_min, prod_max, dz)
@@ -403,7 +411,10 @@ def multiply_variables(
         px2 = pdf2.pdf_at_value(x2)
 
         # Sum densities at product value
-        pz[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero)
+        pz[i] = np.sum(px1_nonzero * px2 / x1_abs_nonzero) * dx
+
+    # Format product distribution as weight function
+    prod = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Determine product unit
     if pdf1.unit is not None and pdf2.unit is not None:
@@ -418,19 +429,15 @@ def multiply_variables(
         unit=unit,
     )
 
-    # Form results into PDF
-    pdf_prod = PDFs.PDF(
-        x=z,
-        px=pz,
-        **metadata.as_dict(),
-    )
+    # Form results into PDF with unit area
+    pdf_prod = prod.normalize(**metadata.as_dict())
 
-    return pdf_prod
+    return pdf_prod, prod.area
 
 
 def divide_variables(
-    numerator: PDFs.PDF,
-    denominator: PDFs.PDF,
+    pdf1: PDFs.PDF,
+    pdf2: PDFs.PDF,
     *,
     dz: float = 0.01,
     min_quotient: float | None = None,
@@ -438,8 +445,8 @@ def divide_variables(
     name: str | None = None,
     variable_type: str | None = None,
     verbose: bool = False,
-) -> PDFs.PDF:
-    """Divide numerator by denominator.
+) -> tuple[PDFs.PDF, float]:
+    """Divide pdf1 by pdf2.
 
     Thoery:
     The equation for division of PDFs comes from Bird (2007) and later from
@@ -454,12 +461,15 @@ def divide_variables(
     probabilities. In this case, the distance-time joint probabilities are
     scaled by time.
 
+    In the ideal case, the area of the quotient function will be 1.0,
+    indicating that the entire probability space is captured.
+
     Machinery:
     Loop over the values in output array.
     An explicit nested for loop over each input variable is saved by using the
     interpolation function. Namely, the corresponding pX value to each vt
-    value is interpolated along the distance (numerator) PDF. The interpolated
-    numerator values can then be scaled by the corresponding time probability
+    value is interpolated along the distance (pdf1) PDF. The interpolated
+    pdf1 values can then be scaled by the corresponding time probability
     and time value, and summed directly.
     This results in slightly incrased accuracy over Zechar and Frankel's
     implementation, and greatly increased speed.
@@ -467,7 +477,7 @@ def divide_variables(
     Determining output limits:
     Unlike multiplication, numer/denom is not bilinear, so its extrema are
     only guaranteed to occur at the four corners of the input rectangle when
-    the denominator's range does not straddle zero (i.e., is entirely
+    the pdf2's range does not straddle zero (i.e., is entirely
     positive or entirely negative). If it does straddle zero, numer/denom
     approaches +/-infinity as denom approaches zero, so no finite natural
     bound exists; min_quotient and max_quotient must be supplied explicitly
@@ -475,17 +485,17 @@ def divide_variables(
 
     Parameters
     ----------
-    numerator : PDF
+    pdf1 : PDF
         Numerator distribution.
-    denominator : PDF
+    pdf2 : PDF
         Denominator distribution.
     dz : float, optional
         Quotient sample spacing.
     min_quotient : float, optional
-        Minimum-allowable quotient to consider. Required if denominator's
+        Minimum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
     max_quotient : float, optional
-        Maximum-allowable quotient to consider. Required if denominator's
+        Maximum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
     name : str, optional
         Name of quotient PDF.
@@ -496,12 +506,14 @@ def divide_variables(
     -------
     pdf_quot : PDF
         Quotient PDF.
+    area : float
+        Area of the non-normalized PDF.
     """
     if verbose:
         print("Dividing variables")
 
-    # Check whether denominator's range straddles (or touches) zero
-    denom_straddles_zero = (denominator.x[0] <= 0.0 <= denominator.x[-1])
+    # Check whether pdf2's range straddles (or touches) zero
+    denom_straddles_zero = (pdf2.x[0] <= 0.0 <= pdf2.x[-1])
 
     if denom_straddles_zero:
         # No finite natural bound exists: numer/denom -> +/-inf as
@@ -519,13 +531,16 @@ def divide_variables(
         # numer/denom is monotonic in each variable and its extrema over
         # the input rectangle are achieved at one of the four corners
         corners = [
-            numerator.x[0] / denominator.x[0],
-            numerator.x[0] / denominator.x[-1],
-            numerator.x[-1] / denominator.x[0],
-            numerator.x[-1] / denominator.x[-1],
+            pdf1.x[0] / pdf2.x[0],
+            pdf1.x[0] / pdf2.x[-1],
+            pdf1.x[-1] / pdf2.x[0],
+            pdf1.x[-1] / pdf2.x[-1],
         ]
         quot_min = np.min(corners) if min_quotient is None else min_quotient
         quot_max = np.max(corners) if max_quotient is None else max_quotient
+
+    # Get pdf2 spacing
+    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf2)
 
     # Create quotient value array
     z = PDFs.value_arrays.precise_array(quot_min, quot_max, dz)
@@ -536,18 +551,21 @@ def divide_variables(
 
     # Loop through values in quotient
     for i in range(nz):
-        # Compute target numerator values (rate * denominator values)
-        numer_x = z[i] * denominator.x
+        # Compute target pdf1 values (rate * pdf2 values)
+        numer_x = z[i] * pdf2.x
 
-        # Equivalent numerator density at each target numator value
-        numer_px = numerator.pdf_at_value(numer_x)
+        # Equivalent pdf1 density at each target numator value
+        numer_px = pdf1.pdf_at_value(numer_x)
 
         # Sum densities at quotient value
-        pz[i] = np.sum(denominator.px * numer_px * np.abs(denominator.x))
+        pz[i] = np.sum(pdf2.px * numer_px * np.abs(pdf2.x)) * dx
+
+    # Format quotient distribution as weight function
+    quot = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Determine quotient unit
-    if numerator.unit is not None and denominator.unit is not None:
-        unit = f"{numerator.unit}/{denominator.unit}"
+    if pdf1.unit is not None and pdf2.unit is not None:
+        unit = f"{pdf1.unit}/{pdf2.unit}"
     else:
         unit = None
 
@@ -558,14 +576,10 @@ def divide_variables(
         unit=unit,
     )
 
-    # Form results into PDF
-    pdf_quot = PDFs.PDF(
-        x=z,
-        px=pz,
-        **metadata.as_dict(),
-    )
+    # Form results into PDF with unit area
+    pdf_quot = quot.normalize(**metadata.as_dict())
 
-    return pdf_quot
+    return pdf_quot, quot.area
 
 
 # end of file

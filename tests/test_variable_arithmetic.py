@@ -312,7 +312,7 @@ class TestMultiplyVariables:
         pdf1 = PDFs.PDF(x=x, px=px)
         pdf2 = PDFs.PDF(x=x, px=px)
 
-        pdf_prod = var_fcns.transform.arithmetic.multiply_variables(
+        pdf_prod, area = var_fcns.transform.arithmetic.multiply_variables(
             pdf1, pdf2, dz=dx
         )
 
@@ -337,7 +337,7 @@ class TestDivideVariables:
         denominator = PDFs.PDF(x=x, px=px)
 
         min_q, max_q = -20.0, 20.0
-        pdf_quot = var_fcns.transform.arithmetic.divide_variables(
+        pdf_quot, area = var_fcns.transform.arithmetic.divide_variables(
             numerator, denominator, dz=0.01,
             min_quotient=min_q, max_quotient=max_q,
         )
@@ -348,7 +348,7 @@ class TestDivideVariables:
         p_inside = sp.stats.cauchy.cdf(max_q) - sp.stats.cauchy.cdf(min_q)
         px_expected = sp.stats.cauchy.pdf(pdf_quot.x) / p_inside
 
-        # avoid the extreme edges, where truncation itself distorts the shape
+        # Avoid the extreme edges, where truncation itself distorts the shape
         interior = (pdf_quot.x > -10) & (pdf_quot.x < 10)
 
         np.testing.assert_allclose(
