@@ -62,7 +62,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
