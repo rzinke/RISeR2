@@ -68,6 +68,14 @@ riser.probability\_functions.value\_arrays module
    :show-inheritance:
    :undoc-members:
 
+riser.probability\_functions.weight\_functions module
+-----------------------------------------------------
+
+.. automodule:: riser.probability_functions.weight_functions
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 Module contents
 ---------------
 

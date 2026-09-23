@@ -12,7 +12,7 @@ Subpackages
    riser.probability_functions
    riser.sampling
    riser.slip_rates
-   riser.variable_operations
+   riser.variable_functions
    riser.variable_pairs
 
 Submodules

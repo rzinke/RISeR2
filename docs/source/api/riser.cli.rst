@@ -20,38 +20,6 @@ riser.cli.calyr\_to\_age module
    :show-inheritance:
    :undoc-members:
 
-riser.cli.combine\_variables module
------------------------------------
-
-.. automodule:: riser.cli.combine_variables
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-riser.cli.compute\_gap\_probabilities module
---------------------------------------------
-
-.. automodule:: riser.cli.compute_gap_probabilities
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-riser.cli.compute\_ks\_statistic module
----------------------------------------
-
-.. automodule:: riser.cli.compute_ks_statistic
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-riser.cli.compute\_overlap\_index module
-----------------------------------------
-
-.. automodule:: riser.cli.compute_overlap_index
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 riser.cli.compute\_slip\_rate module
 ------------------------------------
 
@@ -76,14 +44,6 @@ riser.cli.compute\_slip\_rates\_mc module
    :show-inheritance:
    :undoc-members:
 
-riser.cli.cross\_correlate\_variables module
---------------------------------------------
-
-.. automodule:: riser.cli.cross_correlate_variables
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 riser.cli.divide\_variables module
 ----------------------------------
 
@@ -104,14 +64,6 @@ riser.cli.make\_pdf module
 --------------------------
 
 .. automodule:: riser.cli.make_pdf
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-riser.cli.merge\_variables module
----------------------------------
-
-.. automodule:: riser.cli.merge_variables
    :members:
    :show-inheritance:
    :undoc-members:
