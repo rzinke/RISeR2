@@ -17,7 +17,7 @@ __all__ = [
 # Import modules
 import copy
 
-from .. import probability_functions as PDFs
+from ... import probability_functions as PDFs
 
 
 #################### POOLING FUNCTIONS ####################

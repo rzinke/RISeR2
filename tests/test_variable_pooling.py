@@ -26,7 +26,7 @@ class TestPoolVariables:
         px3 = PDFs.parametric_functions.triangular(x=x, a=6.0, c=7.0, b=8.0)
         pdf3 = PDFs.PDF(x=x, px=px3)
 
-        pdf_pooled = var_fcns.pool.pool_variables([pdf1, pdf2, pdf3])
+        pdf_pooled = var_fcns.pool.pooling.pool_variables([pdf1, pdf2, pdf3])
 
         np.testing.assert_allclose(
             pdf_pooled.px,
@@ -50,7 +50,7 @@ class TestPoolVariables:
         with pytest.raises(
             ValueError, match="Not all PDFs are sampled over same values"
         ):
-            var_fcns.pool.pool_variables([pdf1, pdf2])
+            var_fcns.pool.pooling.pool_variables([pdf1, pdf2])
 
     @pytest.mark.parametrize(
         "vartype1, unit1, vartype2, unit2",
@@ -74,7 +74,7 @@ class TestPoolVariables:
         pdf2 = PDFs.PDF(x=x, px=px2, variable_type=vartype2, unit=unit2)
 
         with pytest.warns(UserWarning):
-            var_fcns.pool.pool_variables([pdf1, pdf2])
+            var_fcns.pool.pooling.pool_variables([pdf1, pdf2])
 
     def test_name(self, recwarn):
         """Different variables are expected to have different names, so no
@@ -104,7 +104,7 @@ class TestPoolVariables:
             unit=unit,
         )
 
-        pdf_sum = var_fcns.pool.pool_variables([pdf1, pdf2], name="X12")
+        pdf_sum = var_fcns.pool.pooling.pool_variables([pdf1, pdf2], name="X12")
 
         assert len(recwarn) == 0
         assert pdf_sum.name == "X12"

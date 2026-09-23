@@ -19,7 +19,7 @@ __all__ = [
 # Import modules
 import numpy as np
 
-from .. import (
+from ... import (
     integration,
     probability_functions as PDFs,
 )
