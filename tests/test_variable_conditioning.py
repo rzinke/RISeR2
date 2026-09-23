@@ -27,7 +27,22 @@ class TestCondition:
         assert posterior.px[-1] == pytest.approx(0.0)
         assert area == pytest.approx(0.5)
 
-    def test_different_sized_arrays_raise(self):
+    def test_different_sized_arrays_raise_weigh(self):
+        x3 = np.array([0.0, 1.0, 2.0])
+        wx3 = np.array([0.0, 1.0, 0.0])
+        weight3 = PDFs.weight_functions.WeightFunction(x3, wx3)
+
+        x5 = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
+        wx5 = np.array([0.0, 0.5, 1.0, 0.5, 0.0])
+        weight5 = PDFs.weight_functions.WeightFunction(x5, wx5)
+
+        with pytest.raises(
+            ValueError,
+            match="Not all value arrays sample the same values",
+        ):
+            var_fcns.condition.core.weigh(weight3, weight5)
+
+    def test_different_sized_arrays_raise_condition(self):
         x = PDFs.value_arrays.precise_array(0.0, 1.0, 0.1)
         px = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         prior = PDFs.PDF(x=x, px=px)
