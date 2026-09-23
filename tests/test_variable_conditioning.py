@@ -27,20 +27,20 @@ class TestCondition:
         assert posterior.px[-1] == pytest.approx(0.0)
         assert area == pytest.approx(0.5)
 
-    def test_different_sized_arrays_raise_weigh(self):
-        x3 = np.array([0.0, 1.0, 2.0])
-        wx3 = np.array([0.0, 1.0, 0.0])
-        weight3 = PDFs.weight_functions.WeightFunction(x3, wx3)
+    def test_different_valued_arrays_raise_weigh(self):
+        x5a = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
+        wx5a = np.array([0.0, 0.5, 1.0, 0.5, 0.0])
+        weight5a = PDFs.weight_functions.WeightFunction(x5a, wx5a)
 
-        x5 = np.array([0.0, 0.5, 1.0, 1.5, 2.0])
-        wx5 = np.array([0.0, 0.5, 1.0, 0.5, 0.0])
-        weight5 = PDFs.weight_functions.WeightFunction(x5, wx5)
+        x5b = np.array([0.0, 0.5, 1.0, 1.9, 2.0])
+        wx5b = np.array([0.0, 0.5, 1.0, 0.5, 0.0])
+        weight5b = PDFs.weight_functions.WeightFunction(x5b, wx5b)
 
         with pytest.raises(
             ValueError,
             match="Not all value arrays sample the same values",
         ):
-            var_fcns.condition.core.weigh(weight3, weight5)
+            var_fcns.condition.core.weigh(weight5a, weight5b)
 
     def test_different_sized_arrays_raise_condition(self):
         x = PDFs.value_arrays.precise_array(0.0, 1.0, 0.1)
