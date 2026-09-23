@@ -21,7 +21,7 @@ __all__ = [
 
 # Import modules
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any
 
 import numpy as np
@@ -58,7 +58,7 @@ def set_origin_zero(ax: Axes) -> None:
 def format_marker_plot(
     ax: Axes,
     markers: (
-        variable_pairs.VariablePair | dict[str, variable_pairs.VariablePair]
+        variable_pairs.VariablePair | Mapping[str, variable_pairs.VariablePair]
     ),
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
@@ -163,7 +163,7 @@ def plot_variable_pair_whisker(
 
 def plot_variable_pairs_whisker(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -267,7 +267,7 @@ def plot_variable_pair_rectangle(
 
 def plot_variable_pairs_rectangle(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -305,7 +305,7 @@ def plot_variable_pairs_rectangle(
 
 def plot_variable_pairs_joint_pdf(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     *,
     n: int = 1_000,
     x1min: float = 0.0,
@@ -412,7 +412,7 @@ def get_markers_plot(
 
 def plot_variable_pairs(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     marker_plot_type = "whisker",
     *,
     confidence: float = constants.Psigma["2"],

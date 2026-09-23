@@ -65,7 +65,7 @@ def cmd_parser(iargs=None):
     rate_args.add_argument("--max-rate", dest="max_rate",
         type=float,
         help="Maximum slip rate to consider.")
-    rate_args.add_argument("--dv", dest="dv",
+    rate_args.add_argument("--dr", dest="dr",
         type=float, default=0.01,
         help="Slip rate step. [0.01]")
 
@@ -147,7 +147,7 @@ def main() -> None:
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
-        dq=inps.dv,
+        dr=inps.dr,
         max_rate=inps.max_rate,
     )
 
@@ -185,6 +185,9 @@ def main() -> None:
     )
 
     # Save slip rate report to file
+    if marker.name is None:
+        raise AssertionError("Marker name is guaranteed non-None.")
+
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
         formulation="analytical",

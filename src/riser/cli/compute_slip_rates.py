@@ -150,7 +150,7 @@ def main() -> None:
         markers=markers,
         limit_positive=inps.limit_positive,
         max_rate=inps.max_rate,
-        dq=inps.dv,
+        dr=inps.dv,
         verbose=inps.verbose,
     )
 
