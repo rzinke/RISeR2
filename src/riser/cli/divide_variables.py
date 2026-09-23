@@ -71,9 +71,13 @@ def main():
     denom_pdf = PDFs.readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Compute quotient of PDFs
-    quot_pdf = var_fcns.arithmetic.divide_variables(
+    quot_pdf, area = var_fcns.arithmetic.divide_variables(
         numer_pdf, denom_pdf, name=inps.name, verbose=inps.verbose
     )
+
+    # Report non-normalized area
+    if inps.verbose:
+        print(f"Area of quotient, pre-normalization: {area:.4f} / 1.0")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, quot_pdf, verbose=inps.verbose)

@@ -71,9 +71,13 @@ def main():
     pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
 
     # Compute product of PDFs
-    prod_pdf = var_fcns.arithmetic.multiply_variables(
+    prod_pdf, area = var_fcns.arithmetic.multiply_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
+
+    # Report non-normalized area
+    if inps.verbose:
+        print(f"Area of product, pre-normalization: {area:.4f} / 1.0")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, prod_pdf, verbose=inps.verbose)
