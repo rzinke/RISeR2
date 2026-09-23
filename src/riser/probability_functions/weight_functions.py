@@ -22,8 +22,14 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 class WeightFunction:
     """A density-like array of weight values used to update prior likelihoods.
 
-    Unlike a PDF, the area under the curve does not need to equal 1.0.
+    Like a PDF, a weight function is continuous (monotonic) and everywhere
+    non-negative.
+
+    Unlike a PDF, the area under the curve does not necessarily equal 1.0.
+
+    A weight function does not carry metadata.
     """
+
     def __init__(
         self,
         x: np.ndarray,
@@ -36,9 +42,6 @@ class WeightFunction:
             Domain values corresponding to the values of a random variable.
         wx : np.ndarray
             Weight values.
-
-        Returns
-        -------
         """
         # Ensure domain values are numpy array
         x = np.array(x, dtype=float)
@@ -47,11 +50,15 @@ class WeightFunction:
         nx = len(x)
         if nx < 2:
             raise ValueError(
-                f"A weighting function must consist of at least 2 values, got {nx}"
+                f"A weight function must consist of at least 2 values, "
+                f"got {nx}"
             )
 
         # Record domain values
         self._x = x
+
+        # Check monotonic
+        self._check_monotonic_()
         
         # Ensure weight values are numpy array
         wx = np.array(wx, dtype=float)
@@ -67,11 +74,40 @@ class WeightFunction:
         # Record probability density values
         self._wx = wx
 
+        # Check non-negative
+        self._check_nonnegative_()
+
+    def _check_monotonic_(self) -> None:
+        """Check condition 1: Domain values increase monotonically.
+        """
+        diff_x = np.diff(self._x)
+        if np.any(diff_x <= 0):
+            raise ValueError("Domain values must strictly increase")
+
+    def _check_nonnegative_(self) -> None:
+        """Check no negative weight values.
+        """
+        if -1 in np.sign(self._wx):
+            raise ValueError("All weight values must be non-negative")
+
+
     @classmethod
     def from_pdf(cls, pdf: PDF):
         """Build a WeightFunction from a PDF.
+
+        Parameters
+        ----------
+        pdf : PDF
+            PDF to convert to a WeightFunction.
+
+        Returns
+        -------
+        WeightFunction
+            Weight function with domain of the input PDF, and weight values
+            matching those of the input PDF.
         """
         return cls(x=pdf.x, wx=pdf.px)
+
 
     @property
     def x(self) -> np.ndarray:
@@ -96,6 +132,7 @@ class WeightFunction:
             Area under the curve of the weight function.
         """
         return integration.integrate(x=self.x, px=self.wx)
+
 
     def normalize(self, **metadata) -> PDF:
         """Normalize the area of the weight function to 1.0 and format as a PDF.
@@ -126,7 +163,8 @@ class WeightFunction:
 
 #################### WEIGHTING FUNCTIONS ####################
 def flat_weight(x: np.ndarray) -> WeightFunction:
-    """Create a weight function with unit-value weights over the specified domain.
+    """Create a weight function with unit-value weights over the specified 
+    domain.
 
     Parameters
     ----------
@@ -160,6 +198,7 @@ def zero_where(x: np.ndarray, condition: np.ndarray) -> WeightFunction:
     """
     wx = np.ones_like(x)
     wx[condition] = 0
+
     return WeightFunction(x=x, wx=wx)
 
 

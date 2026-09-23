@@ -15,9 +15,9 @@ class TestProbabilityDensityFunction:
     Based on the definition of a PDF, test:
 
     1. Is a continuous random variable
-        x has two or more values
-        x increases monotonically
-        px has same number of values as x
+        `x` has two or more values
+        `x` increases monotonically
+        `px` has same number of values as `x`
 
     2. Is non-negative
 
