@@ -12,7 +12,9 @@ from . import comparison
 
 
 # Public API
-__all__ = "comparison"
+__all__ = (
+    "comparison",
+)
 
 
 # end of file

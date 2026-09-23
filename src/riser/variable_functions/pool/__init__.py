@@ -12,7 +12,9 @@ from . import pooling
 
 
 # Public API
-__all__ = "pooling"
+__all__ = (
+    "pooling",
+)
 
 
 # end of file
