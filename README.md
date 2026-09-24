@@ -12,7 +12,17 @@ Earthquake fault slip rates describe the displacement accumulation rate across a
 *Example incremental slip rates. Three incremental rates are computed between pairs of among four dated displacement markers (Marker 01&ndash;Marker 04). The exact value of each incremental slip rate is uncertain, therefore possible slip rate values are expressed as probability densities. Blue fields show the most probability 68.2% of values.*
 
 ## Setup
-RISeR2 can be used as a set of command line tools or as an API. The command line tools and modules form an adaptable pipeline for handling and computing probability density functions. These scripts have been tested for UNIX-based systems. To use these scripts, clone the GitHub repository to a location of your choice and navigate to that folder.
+RISeR2 can be used as a set of command line tools or as an API. The command line tools an adaptable pipeline for handling and computing probability density functions, and the API modules form a generalized PDF laboratory.
+
+### Installation
+To install RISeR2, simply run the following command in a UNIX shell:
+
+```
+pip install git+https://github.com/rzinke/RISeR2.git
+```
+
+### Development Setup
+To use these scripts, clone the GitHub repository to a location of your choice and navigate to that folder.
 
 Note: It is recommended to use a Python package manager such conda or mamba. Create a new environment with the necessary packages installed and activate it:
 
