@@ -12,7 +12,7 @@ Earthquake fault slip rates describe the displacement accumulation rate across a
 *Example incremental slip rates. Three incremental rates are computed between pairs of among four dated displacement markers (Marker 01&ndash;Marker 04). The exact value of each incremental slip rate is uncertain, therefore possible slip rate values are expressed as probability densities. Blue fields show the most probability 68.2% of values.*
 
 ## Setup
-RISeR2 can be used as a set of command line tools or as an API. The command line tools an adaptable pipeline for handling and computing probability density functions, and the API modules form a generalized PDF laboratory.
+RISeR2 can be used as a set of command line tools or as an API. The command line tools form an adaptable pipeline for handling and computing probability density functions, and the API modules form a generalized PDF laboratory.
 
 ### Installation
 To install RISeR2, simply run the following command in a UNIX shell:
@@ -55,7 +55,7 @@ RISeR2 provides three command line functions for determining slip rates:
 
 Each tool is designed for different scenarios, and to incorporate different assumptions. See [Slip rate determination](#slip-rate-determination).
 
-Example data sets and launch scripts can be found in the `$RISeR2/examples` folder.
+Example data sets and launch scripts can be found in the `RISeR2/examples` folder.
 
 
 ## Under the Hood
@@ -94,7 +94,7 @@ Data points defining displacement-time history of a fault are encoded as a **`Da
 
 `riser-compute-slip-rates` is used to compute incremental slip rates between multiple DateMarkers using convolution-based analytical formulas. It assumes that neither the change in age between markers $\Delta t$, nor the change in displacement $\Delta u$ are negative.
 
-`riser-compute-slip-rates-mc` invokes Monte Carlo-style sampling of the ages and displacements of multiple DateMarkers in a slip history. The age and displacement PDFs are sampled according to their non-parametric forms using the **Probability Inverse Transform (PIT)** method. Multiple conditions can be enforced on whether the random samples are valid and accepted, or invalid and rejected in the process of **rejection sampling** (discussed in this context in Zinke et al., 2019). Like Gold & Cowgill (2011), `riser-compute-slip-rates-mc.py` enforces the assumption that the fault did not slip backwards (inversely to its overall kinematics) at any point in its history. This can be especially important in cases where ages and/or displacements uncertainties overlap. A maximum-allowable slip rate may also be provided, to avoid possibilities in which the fault slipped unrealistically fast over multiple earthquake cycles.
+`riser-compute-slip-rates-mc` invokes Monte Carlo-style sampling of the ages and displacements of multiple DateMarkers in a slip history. The age and displacement PDFs are sampled according to their non-parametric forms using the **Probability Inverse Transform (PIT)** method. Multiple conditions can be enforced on whether the random samples are valid and accepted, or invalid and rejected in the process of **rejection sampling** (discussed in this context in Zinke et al., 2019). Like Gold & Cowgill (2011), `riser-compute-slip-rates-mc` enforces the assumption that the fault did not slip backwards (inversely to its overall kinematics) at any point in its history. This can be especially important in cases where ages and/or displacements uncertainties overlap. A maximum-allowable slip rate may also be provided, to avoid possibilities in which the fault slipped unrealistically fast over multiple earthquake cycles.
 
 
 ## References
