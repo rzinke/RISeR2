@@ -41,7 +41,7 @@ from .. import probability_functions as PDFs
 
 #################### FILTERS ####################
 class FIRFilter:
-    """Base class for a 1D FIR filter
+    """Base class for a 1D FIR filter.
     """
 
     filter_type: str | None = None
@@ -89,6 +89,12 @@ class MeanFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
+        # Width must be greater than 0
+        if width < 1:
+            raise ValueError(
+                f"Mean filter width must be at least 1, got {width}"
+            )
+
         # Create basic filter values
         h = np.ones(width)
 
@@ -112,6 +118,18 @@ class GaussFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
+        # Width must be greater than 1
+        if width < 2:
+            raise ValueError(
+                f"Gauss filter width must be at least 2, got {width}"
+            )
+
+        # Width must be an odd number
+        if width % 2 == 0:
+            raise ValueError(
+                f"Gauss filter width must be an odd number, got {width}"
+            )
+
         # Create basic filter values
         h = sp.signal.windows.gaussian(width, width / 4)
 
@@ -159,8 +177,10 @@ def filter_pdf(
     pdf: PDFs.PDF,
     filter_type: str,
     filter_width: int,
+    *,
     edge_padding: str = "zeros",
     preserve_edges: bool = False,
+    name: str | None = None,
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Apply a finite impulse response filter to the probability density
@@ -182,6 +202,15 @@ def filter_pdf(
         Filter width in samples (dx units).
     edge_padding : str
         Method for padding to mitigate edge effects.
+    preserve_edges : bool
+        Preserve PDF edges.
+    name : str, optional
+        Filtered PDF name override.
+
+    Returns
+    -------
+    pdf_filt : PDF
+        Filtered PDF.
     """
     # Construct filter
     filt = get_filter_by_name(filter_type)(filter_width)
@@ -230,16 +259,17 @@ def filter_pdf(
             # Apply filter to back edge
             px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
-    # Form results into PDF
-    filt_pdf = PDFs.PDF(
-        x=pdf.x,
-        px=px,
-        name=pdf.name,
-        variable_type=pdf.variable_type,
-        unit=pdf.unit,
-    )
+    # Format metadata
+    metadata_dict = pdf.metadata.as_dict()
 
-    return filt_pdf
+    # Override output PDF name
+    if name is not None:
+        metadata_dict["name"] = name
+
+    # Form results into PDF
+    pdf_filt = PDFs.PDF(x=pdf.x, px=px, **metadata_dict)
+
+    return pdf_filt
 
 
 # end of file
