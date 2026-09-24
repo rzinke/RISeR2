@@ -2,10 +2,10 @@ channels:
   - conda-forge
 
 dependencies:
-  - numpy
-  - matplotlib
   - python>=3.12
-  - scipy
-  - toml
-  - tqdm
+  - numpy>=2.0.0
+  - scipy>=1.13.0
+  - matplotlib>=3.9.0
+  - toml>=0.10.2
+  - tqdm>=4.67.1
   - pytest
