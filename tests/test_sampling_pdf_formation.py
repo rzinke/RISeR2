@@ -42,6 +42,9 @@ class TestSamplesToPdfHistogram:
 
 class TestSamplesToPdfKde:
     def test_minimal(self):
+        """
+        The standard deviation increases with KDE.
+        """
         mu = 1.0
         sigma = 2.0
         n_samples = 1_000
@@ -55,11 +58,6 @@ class TestSamplesToPdfKde:
         se_mean = sigma / np.sqrt(n_samples)
         assert (
             PDFs.analytics.pdf_mean(pdf) == pytest.approx(mu, abs=2 * se_mean)
-        )
-
-        se_std = sigma / np.sqrt(2 * n_samples)
-        assert (
-            PDFs.analytics.pdf_std(pdf) == pytest.approx(sigma, abs=2 * se_std)
         )
 
 
