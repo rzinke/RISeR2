@@ -44,6 +44,7 @@ class TestSamplesToPdfKde:
     def test_minimal(self):
         """
         The standard deviation increases with KDE.
+        See Scott's rule for kernel width.
         """
         mu = 1.0
         sigma = 2.0
