@@ -21,20 +21,13 @@ RISeR2 can be used as a set of command line tools or as an API. The command line
 To install RISeR2, simply run the following command in a UNIX shell:
 
 ```
-pip install git+https://github.com/rzinke/RISeR2.git
+pip install riser
 ```
 
 ### Development Setup
 To use these scripts, clone the GitHub repository to a location of your choice and navigate to that folder.
 
-Note: It is recommended to use a Python package manager such conda or mamba. Create a new environment with the necessary packages installed and activate it:
-
-```
-conda env create -n riser -f requirements.yaml
-conda activate riser
-```
-
-Then install RISeR2 into that environment:
+Note: It is recommended to use a Python package manager such as conda or mamba. Create a new environment with the necessary packages installed and activate it. Then install RISeR2 into that environment.
 
 ```
 pip install -e .
