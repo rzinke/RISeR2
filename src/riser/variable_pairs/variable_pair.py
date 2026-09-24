@@ -24,57 +24,57 @@ class VariablePair:
 
     def __init__(
         self,
-        x1: PDFs.PDF,
-        x2: PDFs.PDF,
+        pdf1: PDFs.PDF,
+        pdf2: PDFs.PDF,
         name: str | None = None,
     ) -> None:
         """Initialize a VariablePair.
 
         Parameters
         ----------
-        x1 : PDF
+        pdf1 : PDF
             One of the two paired random variables.
-        x2 : PDF
+        pdf2 : PDF
             The other of the two paired random variables.
         name : str, optional
             Brief descriptive identifier of the marker.
         """
         # Set variables
-        self.x1 = x1
-        self.x2 = x2
+        self.pdf1 = pdf1
+        self.pdf2 = pdf2
 
         # Record metadata
         self.name = name
 
     @property
-    def x1(self) -> PDFs.PDF:
-        return self._x1
+    def pdf1(self) -> PDFs.PDF:
+        return self._pdf1
 
-    @x1.setter
-    def x1(self, value: PDFs.PDF) -> None:
+    @pdf1.setter
+    def pdf1(self, value: PDFs.PDF) -> None:
         if not isinstance(value, PDFs.PDF):
             raise TypeError(
-                f"Variable `x1` must be provided as a PDF, "
+                f"Variable `pdf1` must be provided as a PDF, "
                 f"got {type(value).__name__}"
             )
 
-        # Set x1 value - deep copy just in case
-        self._x1 = copy.deepcopy(value)
+        # Set pdf1 value - deep copy just in case
+        self._pdf1 = copy.deepcopy(value)
 
     @property
-    def x2(self) -> PDFs.PDF:
-        return self._x2
+    def pdf2(self) -> PDFs.PDF:
+        return self._pdf2
 
-    @x2.setter
-    def x2(self, value: PDFs.PDF) -> None:
+    @pdf2.setter
+    def pdf2(self, value: PDFs.PDF) -> None:
         if not isinstance(value, PDFs.PDF):
             raise TypeError(
-                f"Variable `x2` must be provided as a PDF, "
+                f"Variable `pdf2` must be provided as a PDF, "
                 f"got {type(value).__name__}"
             )
 
-        # Set x2 value - deep copy just in case
-        self._x2 = copy.deepcopy(value)
+        # Set pdf2 value - deep copy just in case
+        self._pdf2 = copy.deepcopy(value)
 
     def __str__(self) -> str:
         print_str = "VariablePair "
@@ -86,21 +86,21 @@ class VariablePair:
         # Report x
         print_str += (
             f"comprising: "
-            f"\n\tx1: {self.x1.name} "
-            f"{PDFs.analytics.pdf_mean(self.x1):.2f} "
-            f"+- {PDFs.analytics.pdf_std(self.x1):.2f} "
+            f"\n\tpdf1: {self.pdf1.name} "
+            f"{PDFs.analytics.pdf_mean(self.pdf1):.2f} "
+            f"+- {PDFs.analytics.pdf_std(self.pdf1):.2f} "
         )
-        if self.x1.unit is not None:
-            print_str += f"{self.x1.unit}"
+        if self.pdf1.unit is not None:
+            print_str += f"{self.pdf1.unit}"
 
-        # Report x2
+        # Report pdf2
         print_str += (
-            f"\n\tx2: {self.x2.name} "
-            f"{PDFs.analytics.pdf_mean(self.x2):.2f} "
-            f"+- {PDFs.analytics.pdf_std(self.x2):.2f} "
+            f"\n\tpdf2: {self.pdf2.name} "
+            f"{PDFs.analytics.pdf_mean(self.pdf2):.2f} "
+            f"+- {PDFs.analytics.pdf_std(self.pdf2):.2f} "
         )
-        if self.x2.unit is not None:
-            print_str += f"{self.x2.unit}"
+        if self.pdf2.unit is not None:
+            print_str += f"{self.pdf2.unit}"
 
         return print_str
 

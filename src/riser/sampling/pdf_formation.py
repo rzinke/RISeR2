@@ -77,7 +77,7 @@ def samples_to_pdf_histogram(
 
     # Determine bin sizes
     n_samples = len(samples)
-    dx = np.sqrt(n_samples) if dx is None else dx
+    dx = 1 / np.sqrt(n_samples) if dx is None else dx
 
     # Create histogram value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
@@ -150,7 +150,7 @@ def samples_to_pdf_kde(
 
     # Determine bin sizes
     n_samples = len(samples)
-    dx = np.sqrt(n_samples) if dx is None else dx
+    dx = 1 / np.sqrt(n_samples) if dx is None else dx
 
     # Create histogram value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)

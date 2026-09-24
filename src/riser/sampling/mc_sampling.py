@@ -150,13 +150,22 @@ def sample_monte_carlo(
     seed_val: int = 0,
     hard_stop: int = 1_000_000_000,
     verbose: bool = False,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, float]:
     """Sample valid possible slip rates using a Monte Carlo method.
 
-    This method uses the inverse transform sampling method to randomly
+    This function uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
     The random samples are checked against a criterion, e.g., "no negative
     slip rates".
+
+    If no valid picks are found after the hard limit of trials is reached,
+    an error is raised.
+    A warning will be raised if the desired number of picks is not fully 
+    reached, but some valid picks are found. In that case, all valid picks
+    will be returned.
+
+    The proportion of valid samples to total samples is stored and returned
+    as a measure of how much area was rejected during the sampling process.
 
     Parameters
     ----------
@@ -165,7 +174,7 @@ def sample_monte_carlo(
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
     n_samples : int
-        Number of valid samples to achieve.
+        Desired number of valid samples to achieve.
     seed_val : int
         Random number generator seed value.
     hard_stop : int
@@ -177,6 +186,8 @@ def sample_monte_carlo(
         Age samples that meet the sample criterion.
     disp_picks : np.ndarray
         Displacement samples that meet the sample criterion.
+    success_rate : float
+        Fraction of successful picks to total trials.
     """
     if verbose:
         print(f"Initializing MC sampling for {n_samples} samples")
@@ -235,6 +246,10 @@ def sample_monte_carlo(
     # Close progress bar
     pbar.close()
 
+    # Crop to successful picks
+    age_picks = age_picks[:,:successes]
+    disp_picks = disp_picks[:,:successes]
+
     # Report if requested
     if verbose:
         print(
@@ -243,13 +258,22 @@ def sample_monte_carlo(
             f"\n\t{tossed} tossed"
         )
 
-    # Report if hard stop met
-    if i == (hard_stop - 1):
+    # Raise error if no valid samples found
+    if successes == 0:
+        raise RuntimeError(
+            f"No samples meet the specified criteria after {hard_stop} trials"
+        )
+
+    # Warn desired number of successful samples not found before hard stop
+    if successes < n_samples:
         warnings.warn(
             f"Only {successes} valid samples found before reaching trial limit"
         )
 
-    return age_picks, disp_picks
+    # Determine success rate
+    success_rate = successes / (successes + tossed)
+
+    return age_picks, disp_picks, success_rate
 
 
 # end of file

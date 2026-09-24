@@ -51,33 +51,17 @@ class DatedMarker(VariablePair):
         """
         # Initialize object
         super().__init__(
-            x1=age,
-            x2=displacement,
+            pdf1=age,
+            pdf2=displacement,
             name=name,
         )
 
         # Check units
-        self._check_units_()
+        self._check_age_unit_()
+        self._check_displacement_unit_()
 
-    @property
-    def age(self) -> PDFs.PDF:
-        return self.x1
-
-    @age.setter
-    def age(self, value: PDFs.PDF) -> None:
-        self.x1 = value
-    
-    @property
-    def displacement(self) -> PDFs.PDF:
-        return self.x2
-
-    @displacement.setter
-    def displacement(self, value: PDFs.PDF) -> None:
-        self.x2 = value
-    
-    def _check_units_(self) -> None:
-        """Check that the age measurement is some multiple of years,
-        and the displacement unit is some multiple of meters.
+    def _check_age_unit_(self) -> None:
+        """Check that the age measurement is some multiple of years.
         """
         # Check age
         if self.age.unit is None:
@@ -94,6 +78,9 @@ class DatedMarker(VariablePair):
                     f"got '{base_unit}'"
                 )
 
+    def _check_displacement_unit_(self) -> None:
+        """Check that the displacement unit is some multiple of meters.
+        """
         # Check displacement
         if self.displacement.unit is None:
             warnings.warn(
@@ -109,6 +96,26 @@ class DatedMarker(VariablePair):
                     f"got '{base_unit}'"
                 )
 
+    @property
+    def age(self) -> PDFs.PDF:
+        return self.pdf1
+
+    @age.setter
+    def age(self, value: PDFs.PDF) -> None:
+        self.pdf1 = value
+
+        self._check_age_unit_()
+    
+    @property
+    def displacement(self) -> PDFs.PDF:
+        return self.pdf2
+
+    @displacement.setter
+    def displacement(self, value: PDFs.PDF) -> None:
+        self.pdf2 = value
+
+        self._check_displacement_unit_()
+    
 
     def __str__(self) -> str:
         print_str = f"DatedMarker {self.displacement.name}, comprising:"
