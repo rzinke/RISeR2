@@ -330,7 +330,7 @@ def compute_slip_rates_mc(
         unit = None
 
     # Conduct Monte Carlo sampling - valid MC samples are called picks
-    age_picks, disp_picks = mc_sampling.sample_monte_carlo(
+    age_picks, disp_picks, _ = mc_sampling.sample_monte_carlo(
         markers=markers,
         criterion=criterion,
         n_samples=n_samples,
