@@ -247,7 +247,6 @@ def compute_slip_rates_mc(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
-    max_rate: float = 100.0,
     dr: float = 0.01,
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
@@ -268,14 +267,12 @@ def compute_slip_rates_mc(
         Dated markers bounding each interval.
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
-    max_rate : float, optional
-        Maximum quotient value to consider.
     dr : float, optional
         Rate step.
     n_samples : int, optional
         Number of valid samples to achieve.
     hard_stop : float, optional
-        Maximum slip rate to consider.
+        Maximum number of trials, regardless of success.
     pdf_method : str, optional
         PDF formation method.
     pdf_xmin : float, optional
