@@ -10,9 +10,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
-    variable_operations as var_ops,
     plotting,
+    probability_functions as PDFs,
+    variable_functions as var_fcns,
 )
 
 
@@ -62,7 +62,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -71,9 +71,13 @@ def main():
     pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
 
     # Compute product of PDFs
-    prod_pdf = var_ops.multiply_variables(
+    prod_pdf, area = var_fcns.transform.arithmetic.multiply_variables(
         pdf1, pdf2, name=inps.name, verbose=inps.verbose
     )
+
+    # Report non-normalized area
+    if inps.verbose:
+        print(f"Area of product, pre-normalization: {area:.4f} / 1.0")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, prod_pdf, verbose=inps.verbose)

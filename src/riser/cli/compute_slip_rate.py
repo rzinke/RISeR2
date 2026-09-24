@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 from riser import (
     constants,
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 from riser.slip_rates import rate_computation, reporting
 
@@ -64,9 +63,9 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Enforce the condition that values are >= to 0.")
     rate_args.add_argument("--max-rate", dest="max_rate",
-        type=float, default=100,
-        help="Maximum slip rate to consider. [100]")
-    rate_args.add_argument("--dv", dest="dv",
+        type=float,
+        help="Maximum slip rate to consider.")
+    rate_args.add_argument("--dr", dest="dr",
         type=float, default=0.01,
         help="Slip rate step. [0.01]")
 
@@ -100,7 +99,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -108,7 +107,7 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = variable_pairs.read_dated_markers_from_config(
+    markers = variable_pairs.readers.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 
@@ -117,7 +116,7 @@ def main():
         raise ValueError("Only one marker can be specified")
 
     # Use only first marker
-    marker = [*markers.values()][0]
+    marker = next(iter(markers.values()))
 
     # Scale input units to output units
     marker.age = PDFs.scaling.scale_pdf_by_units(
@@ -148,7 +147,7 @@ def main():
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
-        dq=inps.dv,
+        dr=inps.dr,
         max_rate=inps.max_rate,
     )
 
@@ -186,6 +185,9 @@ def main():
     )
 
     # Save slip rate report to file
+    if marker.name is None:
+        raise AssertionError("Marker name is guaranteed non-None.")
+
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
         formulation="analytical",

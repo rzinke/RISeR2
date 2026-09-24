@@ -8,10 +8,22 @@ version = "1.1.0"
 license = {file = "LICENSE"}
 requires-python = ">=3.12"
 dependencies = [
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "tqdm",
+    "matplotlib>=3.9.0",
+    "numpy>=2.0.0",
+    "scipy>=1.13.0",
+    "toml>=0.10.2",
+    "tqdm>=4.67.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "types-toml",
+    "scipy-stubs",
+    "types-tqdm",
+    "pytest",
+    "ruff",
+    "sphinx",
 ]
 
 [project.scripts]
@@ -34,3 +46,13 @@ riser-subtract-variables = "riser.cli.subtract_variables:main"
 riser-view-displacement-age-history = "riser.cli.view_displacement_age_history:main"
 riser-view-pdf = "riser.cli.view_pdf:main"
 riser-view-pdf-stack = "riser.cli.view_pdf_stack:main"
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+ignore = ["UP009", "RUF022"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-after-imports = 2

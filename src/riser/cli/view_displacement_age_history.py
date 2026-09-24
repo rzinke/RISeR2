@@ -9,10 +9,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 
 
@@ -81,12 +80,12 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
     # Read markers
-    markers = variable_pairs.read_dated_markers_from_config(
+    markers = variable_pairs.readers.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 
@@ -125,7 +124,7 @@ def main():
 
     # Plot marginal distributions
     if inps.show_marginals:
-        for name, marker in markers.items():
+        for marker in markers.values():
             # Plot age
             age_ax.fill_between(
                 marker.age.x,

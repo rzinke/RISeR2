@@ -8,15 +8,14 @@
 import argparse
 import warnings
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     precision,
+    probability_functions as PDFs,
     units,
     variable_types,
-    probability_functions as PDFs,
-    plotting,
 )
 
 
@@ -26,9 +25,9 @@ description = (
 )
 
 examples = """Examples:
-make_pdf.py -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
-make_pdf.py -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
-make_pdf.py -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
+riser-make-pdf -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
+riser-make-pdf -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
+riser-make-pdf -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
 
 def create_parser():
@@ -83,7 +82,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -128,9 +127,7 @@ def main():
     precision.check_precision(dx)
 
     # Create x-array
-    x = PDFs.value_arrays.create_precise_value_array(
-        xmin, xmax, dx, verbose=inps.verbose
-    )
+    x = PDFs.value_arrays.precise_array(xmin, xmax, dx, verbose=inps.verbose)
 
     # Retrieve parameteric function
     para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)
@@ -148,7 +145,6 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.unit,
-        normalize_area=True,
     )
 
     # Save to file
@@ -157,7 +153,7 @@ def main():
     # Plot function if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         # Plot PDF
         plotting.plot_pdf_labeled(ax, pdf)

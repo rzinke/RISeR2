@@ -20,7 +20,7 @@ from .. import variable_pairs
 
 #################### SAMPLING CRITERIA ####################
 class SampleCriterion:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         return
 
     def check_pass_fail(
@@ -43,12 +43,12 @@ class SampleCriterion:
         bool
             Pass (True) or fail (False).
         """
-        return NotImplementedError(
+        raise NotImplementedError(
             "check_pass_fail not implemented. Override with child class."
         )
 
 class PassAll(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def check_pass_fail(
@@ -62,7 +62,7 @@ class PassAll(SampleCriterion):
         return True
 
 class PassNonnegative(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def check_pass_fail(
@@ -77,13 +77,10 @@ class PassNonnegative(SampleCriterion):
         disp_diffs = np.diff(displacements)
 
         # Check condition
-        if age_diffs.min() > 0 and disp_diffs.min() >= 0:
-            return True
-        else:
-            return False
+        return age_diffs.min() > 0 and disp_diffs.min() >= 0
 
 class PassNonnegativeBounded(SampleCriterion):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
         # Record maximum allowable sample rate
@@ -105,14 +102,11 @@ class PassNonnegativeBounded(SampleCriterion):
         slip_rates = disp_diffs / age_diffs
 
         # Check condition
-        if (
+        return (
             age_diffs.min() > 0
             and disp_diffs.min() >= 0
             and slip_rates.max() <= self.max_sample_rate
-        ):
-            return True
-        else:
-            return False
+        )
 
 
 SAMPLE_CRITERIA = {
@@ -124,7 +118,7 @@ SAMPLE_CRITERIA = {
 
 def get_sample_criterion(
     criterion_name: str, verbose: bool = False
-) -> SampleCriterion:
+) -> type[SampleCriterion]:
     """Retrieve a sample criterion by name.
 
     Parameters
@@ -144,7 +138,7 @@ def get_sample_criterion(
             f"Use one of {', '.join(SAMPLE_CRITERIA.keys())}"
         )
 
-    return SAMPLE_CRITERIA.get(criterion_name)
+    return SAMPLE_CRITERIA[criterion_name]
 
 
 #################### MONTE CARLO SAMPLING ####################
@@ -154,15 +148,24 @@ def sample_monte_carlo(
     *,
     n_samples: int = 10_000,
     seed_val: int = 0,
-    hard_stop: float = 1_000_000_000,
+    hard_stop: int = 1_000_000_000,
     verbose: bool = False,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, float]:
     """Sample valid possible slip rates using a Monte Carlo method.
 
-    This method uses the inverse transform sampling method to randomly
+    This function uses the inverse transform sampling method to randomly
     sample the displacement and age PDFs constraining a DatedMarker.
     The random samples are checked against a criterion, e.g., "no negative
     slip rates".
+
+    If no valid picks are found after the hard limit of trials is reached,
+    an error is raised.
+    A warning will be raised if the desired number of picks is not fully 
+    reached, but some valid picks are found. In that case, all valid picks
+    will be returned.
+
+    The proportion of valid samples to total samples is stored and returned
+    as a measure of how much area was rejected during the sampling process.
 
     Parameters
     ----------
@@ -171,10 +174,10 @@ def sample_monte_carlo(
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
     n_samples : int
-        Number of valid samples to achieve.
+        Desired number of valid samples to achieve.
     seed_val : int
         Random number generator seed value.
-    hard_stop : float
+    hard_stop : int
         Maximum slip rate to consider.
 
     Returns
@@ -183,6 +186,8 @@ def sample_monte_carlo(
         Age samples that meet the sample criterion.
     disp_picks : np.ndarray
         Displacement samples that meet the sample criterion.
+    success_rate : float
+        Fraction of successful picks to total trials.
     """
     if verbose:
         print(f"Initializing MC sampling for {n_samples} samples")
@@ -241,6 +246,10 @@ def sample_monte_carlo(
     # Close progress bar
     pbar.close()
 
+    # Crop to successful picks
+    age_picks = age_picks[:,:successes]
+    disp_picks = disp_picks[:,:successes]
+
     # Report if requested
     if verbose:
         print(
@@ -249,13 +258,22 @@ def sample_monte_carlo(
             f"\n\t{tossed} tossed"
         )
 
-    # Report if hard stop met
-    if i == (hard_stop - 1):
+    # Raise error if no valid samples found
+    if successes == 0:
+        raise RuntimeError(
+            f"No samples meet the specified criteria after {hard_stop} trials"
+        )
+
+    # Warn desired number of successful samples not found before hard stop
+    if successes < n_samples:
         warnings.warn(
             f"Only {successes} valid samples found before reaching trial limit"
         )
 
-    return age_picks, disp_picks
+    # Determine success rate
+    success_rate = successes / (successes + tossed)
+
+    return age_picks, disp_picks, success_rate
 
 
 # end of file

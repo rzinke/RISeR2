@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Create marginal distributions
+echo "Creating PDFs"
+X1name="tmp/pdf1.txt"
+riser-make-pdf -d triangular -s 3 4 5 -dx 0.1 \
+    --variable-type "displacement" --unit "m" -o $X1name
+
+X2name="tmp/pdf2.txt"
+riser-make-pdf -d triangular -s 5 6 7 -dx 0.1 \
+    --variable-type "displacement" --unit "m" -o $X2name
+
+
+# Compute joint probability
+echo ""
+echo "Computing gap"
+X12name="tmp/gap_pdf.txt"
+riser-compute-gap-probabilities $X1name $X2name --name "gap" -o $X12name -v -p

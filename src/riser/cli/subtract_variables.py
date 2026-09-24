@@ -10,9 +10,9 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    probability_functions as PDFs,
-    variable_operations as var_ops,
     plotting,
+    probability_functions as PDFs,
+    variable_functions as var_fcns,
 )
 
 
@@ -66,7 +66,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -80,13 +80,24 @@ def main():
     )
 
     # Compute summed PDF
-    diff_pdf = var_ops.subtract_variables(
+    diff_pdf = var_fcns.transform.arithmetic.subtract_variables(
         pdf1,
         pdf2,
-        limit_positive=inps.limit_positive,
         name=inps.name,
         verbose=inps.verbose,
     )
+
+    # Limit to positive values only
+    if inps.limit_positive:
+        diff_pdf, area = var_fcns.condition.self_constraint.constrain_above(
+            pdf=diff_pdf,
+            value=0.0,
+            verbose=inps.verbose,
+        )
+
+        # Report area retained
+        if inps.verbose:
+            print(f"Fraction of difference retained: {area:.3f}")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, diff_pdf, verbose=inps.verbose)

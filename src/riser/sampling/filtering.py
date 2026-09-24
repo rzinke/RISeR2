@@ -30,7 +30,8 @@ __all__ = [
 
 
 # Import modules
-import copy
+from collections.abc import Callable
+from typing import Literal
 
 import numpy as np
 import scipy as sp
@@ -40,12 +41,12 @@ from .. import probability_functions as PDFs
 
 #################### FILTERS ####################
 class FIRFilter:
-    """Base class for a 1D FIR filter
+    """Base class for a 1D FIR filter.
     """
 
-    filter_type = None
+    filter_type: str | None = None
 
-    def __init__(self, h: np.ndarray):
+    def __init__(self, h: np.ndarray) -> None:
         """Initialize a generic FIRFilter.
 
         Parameters
@@ -54,22 +55,22 @@ class FIRFilter:
             Filter kernel.
         """
         # Filter values
-        self.h = h
+        self.h = h.copy()
 
         # Ensure neutral gain
         self._normalize_gain_()
 
-    def _normalize_gain_(self):
+    def _normalize_gain_(self) -> None:
         """Ensure that the filter does not change the overall gain of the
         data series to which it applies.
         """
         # Scale sum to 1.0
         self.h /= np.sum(self.h)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.h)
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = f"{len(self.h)}-width {self.filter_type} filter"
 
         return print_str
@@ -80,7 +81,7 @@ class MeanFilter(FIRFilter):
     """
     filter_type = "mean"
 
-    def __init__(self, width: int):
+    def __init__(self, width: int) -> None:
         """Initialize a moving mean filter.
 
         Parameters
@@ -88,6 +89,12 @@ class MeanFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
+        # Width must be greater than 0
+        if width < 1:
+            raise ValueError(
+                f"Mean filter width must be at least 1, got {width}"
+            )
+
         # Create basic filter values
         h = np.ones(width)
 
@@ -101,7 +108,7 @@ class GaussFilter(FIRFilter):
     """
     filter_type = "gaussian"
 
-    def __init__(self, width: int):
+    def __init__(self, width: int) -> None:
         """Width is the total width.
 
         For a 2-sigma range, 1 sigma should be one half of half the width.
@@ -111,6 +118,18 @@ class GaussFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
+        # Width must be greater than 1
+        if width < 2:
+            raise ValueError(
+                f"Gauss filter width must be at least 2, got {width}"
+            )
+
+        # Width must be an odd number
+        if width % 2 == 0:
+            raise ValueError(
+                f"Gauss filter width must be an odd number, got {width}"
+            )
+
         # Create basic filter values
         h = sp.signal.windows.gaussian(width, width / 4)
 
@@ -124,7 +143,9 @@ FILTER_TYPES = {
 }
 
 
-def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
+def get_filter_by_name(
+    filter_type: str, verbose: bool = False
+) -> Callable[[int], FIRFilter]:
     """Retrieve an FIRFilter class by name.
 
     Parameters
@@ -140,7 +161,7 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     # Check filter specification is valid
     if filter_type not in FILTER_TYPES:
         raise ValueError(
-            f"Filter type not valid. "
+            f"Filter type '{filter_type}' not valid. "
             f"Use one of {', '.join(FILTER_TYPES)}"
         )
 
@@ -148,7 +169,7 @@ def get_filter_by_name(filter_type: str, verbose: bool = False) -> FIRFilter:
     if verbose:
         print(f"Retrieving {filter_type} filter")
 
-    return FILTER_TYPES.get(filter_type)
+    return FILTER_TYPES[filter_type]
 
 
 #################### FILTER APPLICATION ####################
@@ -156,8 +177,10 @@ def filter_pdf(
     pdf: PDFs.PDF,
     filter_type: str,
     filter_width: int,
+    *,
     edge_padding: str = "zeros",
     preserve_edges: bool = False,
+    name: str | None = None,
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Apply a finite impulse response filter to the probability density
@@ -177,6 +200,17 @@ def filter_pdf(
         Filter type.
     filter_width : int
         Filter width in samples (dx units).
+    edge_padding : str
+        Method for padding to mitigate edge effects.
+    preserve_edges : bool
+        Preserve PDF edges.
+    name : str, optional
+        Filtered PDF name override.
+
+    Returns
+    -------
+    pdf_filt : PDF
+        Filtered PDF.
     """
     # Construct filter
     filt = get_filter_by_name(filter_type)(filter_width)
@@ -185,15 +219,23 @@ def filter_pdf(
     if verbose:
         print(f"Applying {filt}")
 
+    # Convert edge padding argument to padding mode
+    padding_mode: Literal["constant", "edge"]
+    if edge_padding == "zeros":
+        padding_mode = "constant"
+    elif edge_padding == "edges":
+        padding_mode = "edge"
+    else:
+        raise ValueError(
+            f"Edge padding '{edge_padding}' not supported. "
+            f"Use one of 'zeros', 'edges'."
+        )
+
     # Filter half-width
     w2 = filter_width // 2
 
-    # Pad values
-    if edge_padding in ["zero", "zeros"]:
-        edge_padding = "constant"
-
     # Pad PDF
-    px = np.pad(pdf.px, (w2, w2), edge_padding)
+    px = np.pad(pdf.px, (w2, w2), padding_mode)
 
     # Apply filter to PDF
     px = sp.signal.convolve(px, filt.h, "same")
@@ -217,17 +259,17 @@ def filter_pdf(
             # Apply filter to back edge
             px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
-    # Form results into PDF
-    filt_pdf = PDFs.PDF(
-        x=pdf.x,
-        px=px,
-        normalize_area=True,
-        name=pdf.name,
-        variable_type=pdf.variable_type,
-        unit=pdf.unit,
-    )
+    # Format metadata
+    metadata_dict = pdf.metadata.as_dict()
 
-    return filt_pdf
+    # Override output PDF name
+    if name is not None:
+        metadata_dict["name"] = name
+
+    # Form results into PDF
+    pdf_filt = PDFs.PDF(x=pdf.x, px=px, **metadata_dict)
+
+    return pdf_filt
 
 
 # end of file

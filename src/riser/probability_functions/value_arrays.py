@@ -11,7 +11,7 @@ __all__ = [
     "sample_spacing_from_pdf",
     "sample_spacing_array_from_pdf",
     "value_array_params_from_pdfs",
-    "create_precise_value_array",
+    "precise_array",
     "check_pdfs_sampling",
 ]
 
@@ -39,16 +39,17 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     dx : float
         Sample spacing (single value).
     """
-    # Deteremine differences between x-samples
+    # Deteremine threshold for regular sampling based on CoV
     diff_x = np.diff(pdf.x)
-
-    # Determine regularity of sampling
     diff_x_std = np.std(diff_x)
+    diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
 
     # Raise warning if a single value is not representative
-    if diff_x_std > precision.RISER_PRECISION:
-        warnings.warn(f"Sample spacing varies by {diff_x_std}. "
-                      f"A single value might not be representative.")
+    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
+        warnings.warn(
+            f"Sample spacing varies by {diff_x_std}. "
+            f"A single value might not be representative."
+        )
 
     # Representative spacing value
     dx = precision.fix_precision(np.median(diff_x))
@@ -98,10 +99,13 @@ def sample_spacing_array_from_pdf(
     if verbose:
         print(f"Sample spacing mean {np.mean(diff_x)}, std {diff_x_std}")
 
+    # Deteremine threshold for regular sampling based on CoV
+    diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
+
     # Check regularity against machine error
-    if diff_x_std > precision.RISER_PRECISION:
+    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
         # Irregular sampling of PDF
-        return precision.fix_precision(np.diff(pdf.x, append=0))
+        return precision.fix_precision(np.diff(pdf.x, append=pdf.x[-1]))
     else:
         # Regular sampling
         return precision.fix_precision(
@@ -141,14 +145,14 @@ def value_array_params_from_pdfs(
         xi_max = pdf.x.max()
 
         # Update min/max values
-        xmin = xi_min if xi_min < xmin else xmin
-        xmax = xi_max if xi_max > xmax else xmax
+        xmin = np.min([xi_min, xmin])
+        xmax = np.max([xi_max, xmax])
 
         # Sample spacing for each PDF
         dxi = sample_spacing_from_pdf(pdf)
 
         # Update dx value
-        dx = dxi if dxi < dx else dx
+        dx = np.min([dxi, dx])
 
     # Report if requested
     if verbose:
@@ -158,7 +162,7 @@ def value_array_params_from_pdfs(
 
 
 #################### VALUE ARRAYS ####################
-def create_precise_value_array(
+def precise_array(
     xmin: float, xmax: float, dx: float, verbose: bool = False
 ) -> np.ndarray:
     """Create an array (vector) of values over the PDF domain.
@@ -195,21 +199,42 @@ def create_precise_value_array(
 
 
 #################### CHECKS ####################
-def check_pdfs_sampling(pdfs: list[PDF]):
+def check_value_arrays_sampling(value_arrays: list[np.ndarray]) -> None:
+    """Check that all value arrays sample the same domain equally.
+
+    Parameters
+    ----------
+    value_arrays : list[np.ndarray]
+        Value arrays to check.
+
+    Returns
+    -------
+    None
+    """
+    # Initial value array
+    x0 = value_arrays[0]
+
+    # Loop through subsequent value arrays
+    for x in value_arrays[1:]:
+        if not np.array_equal(x, x0):
+            raise ValueError("Not all value arrays sample the same values")
+
+
+def check_pdfs_sampling(pdfs: list[PDF]) -> None:
     """Check that all PDFs are sampled over the same value array.
+
+    Thin wrapper for `check_value_arrays_sampling`.
 
     Parameters
     ----------
     pdfs : list[PDF]
         PDFs to check.
-    """
-    # Initial value array
-    x0 = pdfs[0].x
 
-    # Loop through subsequent PDFs
-    for pdf in pdfs[1:]:
-        if not np.array_equal(pdf.x, x0):
-            raise ValueError("Not all PDFs are sampled over same values")
+    Returns
+    -------
+    None
+    """
+    check_value_arrays_sampling([pdf.x for pdf in pdfs])
 
 
 # end of file

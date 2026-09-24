@@ -10,13 +10,11 @@ __all__ = [
 
 # Import modules
 import warnings
+from itertools import pairwise
 
 import toml
 
-from .. import (
-    units,
-    probability_functions as PDFs,
-)
+from .. import probability_functions as PDFs
 from .dated_marker import DatedMarker
 
 
@@ -70,7 +68,6 @@ def initialize_dated_marker_from_files(
     # Read age PDF
     age = PDFs.readers.read_pdf(
         fname=age_fname,
-        normalize_area=True,
         name=age_name,
         variable_type=age_variable_type,
         unit=age_unit,
@@ -80,7 +77,6 @@ def initialize_dated_marker_from_files(
     # Read displacement PDF
     displacement = PDFs.readers.read_pdf(
         fname=displacement_fname,
-        normalize_area=True,
         name=displacement_name,
         variable_type=displacement_variable_type,
         unit=displacement_unit,
@@ -172,33 +168,36 @@ def read_dated_markers_from_config(
         markers[marker_name] = marker
 
     # Check that markers are ordered youngest/smallest to oldest/largest
-    for i, marker in enumerate(markers.values()):
-        if i > 0:
-            # Compute reference age/displacement
-            ref_age = PDFs.analytics.pdf_mean(ref_marker.age)
-            ref_disp = PDFs.analytics.pdf_mean(ref_marker.displacement)
+    for ref_marker, marker in pairwise(markers.values()):
+        # Compute reference age/displacement
+        ref_age = PDFs.analytics.pdf_mean(ref_marker.age)
+        ref_disp = PDFs.analytics.pdf_mean(ref_marker.displacement)
 
-            # Compute marker age/displacement
-            marker_age = PDFs.analytics.pdf_mean(marker.age)
-            marker_disp = PDFs.analytics.pdf_mean(marker.displacement)
+        # Compute marker age/displacement
+        marker_age = PDFs.analytics.pdf_mean(marker.age)
+        marker_disp = PDFs.analytics.pdf_mean(marker.displacement)
 
-            # Check that marker is older/larger than previous
-            if marker_age < ref_age:
-                warnings.warn(
-                    f"Marker '{marker.name}' appears to be younger than "
-                    f"'{ref_marker.name}'. Confirm marker order.",
-                    stacklevel=3,
-                )
+        # Check that marker is older/larger than previous
+        if marker_age < ref_age:
+            marker_display_name = marker.name
+            ref_marker_display_name = ref_marker.name
 
-            if marker_disp < ref_disp:
-                warnings.warn(
-                    f"Marker '{marker.name}' appears to be less displaced than "
-                    f"'{ref_marker.name}'. Confirm marker order.",
-                    stacklevel=3,
-                )
+            warnings.warn(
+                f"Marker '{marker_display_name}' appears to be younger "
+                f"than '{ref_marker_display_name}'. Confirm marker order.",
+                stacklevel=3,
+            )
 
-        # Update reference marker
-        ref_marker = marker
+        if marker_disp < ref_disp:
+            marker_display_name = marker.name
+            ref_marker_display_name = ref_marker.name
+
+            warnings.warn(
+                f"Marker '{marker_display_name}' appears to be less "
+                f"displaced than '{ref_marker_display_name}'. "
+                f"Confirm marker order.",
+                stacklevel=3,
+            )
 
     return markers
 

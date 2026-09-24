@@ -1,0 +1,12 @@
+["Age 1"]
+"pdf file" = "tmp/age1.txt"
+"color" = "blue"
+"prior" = "tmp/age1_prior.txt"
+["Age 2"]
+"pdf file" = "tmp/age2.txt"
+"color" = "blue"
+"prior" = "tmp/age2_prior.txt"
+["Age 3"]
+"pdf file" = "tmp/age3.txt"
+["Age 4"]
+"pdf file" = "tmp/age4.txt"

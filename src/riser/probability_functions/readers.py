@@ -19,17 +19,12 @@ import warnings
 
 import numpy as np
 
-from .. import (
-    variable_types,
-    units,
-)
-
 from .metadata import METADATA_ITEMS
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### CHECKS ####################
-def check_extension(fname: str, ext: str):
+def check_extension(fname: str, ext: str) -> None:
     """Check that the filename has the appropriate extension.
 
     Parameters
@@ -37,7 +32,11 @@ def check_extension(fname: str, ext: str):
     fname : str
         Filename.
     ext : str
-        Filename extension.
+        Expected filename extension.
+
+    Returns
+    -------
+    None
     """
     # Get filename extension
     fname_ext = fname.split(".")[-1]
@@ -54,7 +53,7 @@ def parse_metadata_from_header(
     """Parse the header of a PDF file.
 
     Retrieve the metadata pertinent to the PDF. Metadata items correspond to
-    those listed in PDF.metadata_items, and are demarkated by the item
+    those listed in METATDATA_ITEMS, and are demarkated by the item
     name, a colon, and a space.
 
     Parameters
@@ -77,18 +76,21 @@ def parse_metadata_from_header(
     for line in header_lines:
         # Loop through header items
         for meta_item in METADATA_ITEMS:
+            # Determine metadata prefix
+            prefix = f"# {meta_item}: "
+
             # Determine if header line contains a metadata item
-            if line.startswith(f"# {meta_item.capitalize()}"):
+            if line.lower().startswith(prefix):
                 # Strip newline character
                 line = line.strip("\n")
 
                 # Split metadata value from key
-                meta_value = line.split(": ")[1]
+                meta_value = line.split(": ", 1)[1]
 
                 # Record to metadata dictionary
                 metadata[meta_item] = meta_value
 
-                # Report if requested
+                # Report metadata value
                 if verbose:
                     print(f"{meta_item}: {meta_value}")
 
@@ -96,7 +98,7 @@ def parse_metadata_from_header(
 
 
 def reconcile_metadata(
-    user_metadata: dict[str, str],
+    user_metadata: dict[str, str | None],
     file_metadata: dict[str, str],
     verbose: bool = False,
 ) -> dict[str, str]:
@@ -197,8 +199,8 @@ def parse_data_lines(
         print("Reading data from file")
 
     # Empty lists for x, px
-    x = []
-    px = []
+    x_values = []
+    px_values = []
 
     # Loop through lines
     for line in data_lines:
@@ -206,15 +208,15 @@ def parse_data_lines(
         line = format_data_line(line)
 
         # Parse x, px from line
-        line_x, line_px = line.split(",")
+        x_value, px_value = line.split(",")
 
         # Record to list
-        x.append(float(line_x))
-        px.append(float(line_px))
+        x_values.append(float(x_value))
+        px_values.append(float(px_value))
 
     # Convert lists to numpy arrays
-    x = np.array(x)
-    px = np.array(px)
+    x = np.array(x_values)
+    px = np.array(px_values)
 
     return x, px
 
@@ -222,7 +224,6 @@ def parse_data_lines(
 def read_pdf(
     fname: str,
     *,
-    normalize_area: bool = True,
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
@@ -234,8 +235,6 @@ def read_pdf(
     ----------
     fname : str
         File name.
-    normalize_area : bool, optional
-        Scale px value to so the area = 1.0.
     name : str, optional
         Brief descriptive identifier of the PDF.
     variable_type : str, optional
@@ -253,7 +252,7 @@ def read_pdf(
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
-    lines = [line for line in lines if len(line) > 3]
+    lines = [line for line in lines if line.strip()]
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
@@ -283,13 +282,13 @@ def read_pdf(
         print(f"{len(data_lines)} data lines")
 
     # Instatiate PDF object
-    pdf = PDF(x, px, normalize_area=normalize_area, **metadata)
+    pdf = PDF(x, px, **metadata)
 
     return pdf
 
 
 def read_pdfs(
-    fnames: list[str], normalize_area: bool = True, verbose: bool = False
+    fnames: list[str], verbose: bool = False
 ) -> list[PDF]:
     """Read multiple PDFs from files.
 
@@ -297,8 +296,6 @@ def read_pdfs(
     ----------
     fnames : list[str]
         File names.
-    normalize_area : bool
-        Scale px value to so the area = 1.0.
 
     Returns
     -------
@@ -353,7 +350,7 @@ def read_calendar_file(
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
-    lines = [line for line in lines if len(line) > 3]
+    lines = [line for line in lines if line.strip()]
 
     # Parse header lines
     header_lines = [line for line in lines if line[0] == "#"]
@@ -377,8 +374,8 @@ def read_calendar_file(
     data_lines = [line for line in lines if line[0] != "#" and len(line) > 1]
 
     # Empty lists for x, px
-    calyr = []
-    calpx = []
+    calyr_values = []
+    calpx_values = []
 
     # Loop through lines
     for line in data_lines:
@@ -389,12 +386,12 @@ def read_calendar_file(
         line_calyr, line_px = line.split(",")
 
         # Record to list
-        calyr.append(float(line_calyr))
-        calpx.append(float(line_px))
+        calyr_values.append(float(line_calyr))
+        calpx_values.append(float(line_px))
 
     # Convert lists to numpy arrays
-    calyr = np.array(calyr)
-    calpx = np.array(calpx)
+    calyr = np.array(calyr_values)
+    calpx = np.array(calpx_values)
 
     return calyr, calpx, metadata
 
@@ -417,14 +414,14 @@ def create_header_from_pdf(pdf: PDF) -> str:
     header_lines = []
 
     # Loop through header items
-    for meta_item in PDF.metadata_items:
+    for meta_item in METADATA_ITEMS:
         # Determine if PDF contains a metadata item
         if hasattr(pdf, meta_item) and getattr(pdf, meta_item) is not None:
             # Get metadata item
             meta_value = getattr(pdf, meta_item)
 
             # Format metadata item in header string
-            header_str = f"# {meta_item.capitalize()}: {meta_value}\n"
+            header_str = f"# {meta_item}: {meta_value}\n"
 
             # Append to list
             header_lines.append(header_str)
@@ -435,7 +432,7 @@ def create_header_from_pdf(pdf: PDF) -> str:
     return header
 
 
-def pdf_data_to_str(pdf: PDF) -> str:
+def pdf_data_to_str(pdf: PDF) -> list[str]:
     """Format the data of a PDF into string format.
 
     Parameters
@@ -445,7 +442,7 @@ def pdf_data_to_str(pdf: PDF) -> str:
 
     Returns
     -------
-    str
+    list[str]
         Block of PDF data.
     """
     return [f"{x},{px}\n" for x, px in zip(pdf.x, pdf.px)]
@@ -460,6 +457,10 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
         Output file name.
     pdf : PDF
         PDF to save.
+
+    Returns
+    -------
+    None
     """
     # Check that outname is a text file
     check_extension(outname, "txt")
@@ -473,12 +474,10 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
     # Write to file
     with open(outname, 'w') as outfile:
         # Write header
-        for header_line in header:
-            outfile.write(header_line)
+        outfile.write(header)
 
         # Write data
-        for datum in data:
-            outfile.write(datum)
+        outfile.writelines(data)
 
     # Report if requested
     if verbose:

@@ -27,6 +27,7 @@ __all__ = [
 import numpy as np
 
 from . import value_arrays
+from .metadata import METADATA_ITEMS
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
@@ -54,12 +55,12 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
 
     # Copy metadata from original PDF
     metadata = {}
-    for meta_item in pdf.metadata_items:
+    for meta_item in METADATA_ITEMS:
         # Retrieve metadata value from original PDF
         metadata[meta_item] = getattr(pdf, meta_item)
 
     # Instantiate new, resampled PDF
-    pdf_resamp = PDF(x, px_resamp, **metadata)
+    pdf_resamp = PDF(x=x, px=px_resamp, **metadata)
 
     return pdf_resamp
 
@@ -85,9 +86,7 @@ def interpolate_pdfs(pdfs: list[PDF], verbose: bool = False) -> list[PDF]:
     )
 
     # Create value array
-    x = value_arrays.create_precise_value_array(
-        xmin, xmax, dx, verbose=verbose
-    )
+    x = value_arrays.precise_array(xmin, xmax, dx, verbose=verbose)
 
     # Resample PDFs
     pdfs_resamp = [interpolate_pdf(pdf, x) for pdf in pdfs]

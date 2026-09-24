@@ -13,8 +13,8 @@ __all__ = [
 import numpy as np
 
 from .. import (
-    precision,
     integration,
+    precision,
 )
 from .metadata import PDFmetadata
 
@@ -44,21 +44,14 @@ class ProbabilityDensityFunction:
     than or equal to value x.
     """
 
-    metadata_items = (
-            "name",
-            "variable_type",
-            "unit",
-        )
-
     def __init__(
         self,
         x: np.ndarray,
         px: np.ndarray,
-        normalize_area: bool = True,
         name: str | None = None,
         variable_type: str | None = None,
         unit: str | None = None,
-    ):
+    ) -> None:
         """Initialize a PDF.
         Automatically validate the PDF by ensuring that it meets the criteria
         of a PDF, as defined above.
@@ -69,8 +62,6 @@ class ProbabilityDensityFunction:
             Domain values of the random variable.
         px : np.ndarray
             Probability density values.
-        normalize_area : bool
-            Scale px value to so the area = 1.0.
         name : str, optional
             Brief descriptive identifier of the PDF.
         variable_type : str, optional
@@ -85,8 +76,7 @@ class ProbabilityDensityFunction:
         nx = len(x)
         if nx < 2:
             raise ValueError(
-                f"A PDF must consist of at least 2 values, "
-                f"got {nx}"
+                f"A PDF must consist of at least 2 values, got {nx}"
             )
 
         # Record domain values
@@ -113,8 +103,7 @@ class ProbabilityDensityFunction:
         self._check_nonnegative_()
 
         # Normalize area under the curve
-        if normalize_area:
-            self._normalize_area_()
+        self._normalize_area_()
 
         # Condition 3: Check PDF area
         self._check_unit_area_()
@@ -139,10 +128,20 @@ class ProbabilityDensityFunction:
         return integration.integrate(x=self._x, px=self._px)
 
     def _normalize_area_(self) -> None:
+        # Compute area based on inputs
         area = self._compute_area_()
+
+        # Check if area is approximately zero
+        if area <= 10 ** -precision.RISER_PRECISION:
+            raise ValueError(
+                "Total probability is too close to 0.0. "
+                "Cannot normalize area."
+            )
+
+        # Normalize area to 1.0
         self._px /= area
 
-    def _compute_cdf_(self) -> None:
+    def _compute_cdf_(self) -> np.ndarray:
         """Compute the cumulative distribution function.
         """
         # Cumulative integration
@@ -170,11 +169,8 @@ class ProbabilityDensityFunction:
         """Check that the area under the curve is 1.0.
         """
         area = self._compute_area_()
-        if np.abs(1.0 - area) > precision.RISER_PRECISION:
-            raise ValueError(
-                f"PDF area should be 1.0, got {area}. "
-                f"Suggest setting `normalize_area` to True."
-            )
+        if np.abs(1.0 - area) > 10 ** -precision.RISER_PRECISION:
+            raise ValueError(f"PDF area should be 1.0, got {area}.")
 
 
     # Mathematical properties
@@ -191,34 +187,34 @@ class ProbabilityDensityFunction:
         return self._Px
 
 
-    def pdf_at_value(self, x: float) -> float:
+    def pdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the probability density of the PDF at x.
 
         Parameters
         ----------
-        x : float
-            Value at which to find the probability density.
+        x : float or np.ndarray
+            Value(s) at which to find the probability density.
 
         Returns
         -------
-        px : float
-            Probability density at value x.
+        px : float or np.ndarray
+            Probability density at value(s) x.
         """
         return np.interp(x, self.x, self.px, left=0.0, right=0.0)
 
 
-    def cdf_at_value(self, x: float) -> float:
+    def cdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the value of the CDF at x.
 
         Parameters
         ----------
-        x : float
-            Value at which to find the CDF.
+        x : float or np.ndarray
+            Value(s) at which to find the CDF.
 
         Returns
         -------
-        Px : float
-            CDF at value x.
+        Px : float or np.ndarray
+            CDF at value(s) x.
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
@@ -273,7 +269,7 @@ class ProbabilityDensityFunction:
         return self.cdf_at_value(x2) - self.cdf_at_value(x1)
 
 
-    def pit(self, y: float | np.ndarray) -> float | np.ndarray:
+    def pit[Numeric: (float, np.ndarray)](self, y: Numeric) -> Numeric:
         """Compute probability inverse transform (PIT).
 
         Note: PIT interpolation requires a strictly increasing function.
@@ -291,7 +287,7 @@ class ProbabilityDensityFunction:
         return np.interp(y, self.Px, self.x)
 
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the PDF array.
         """
         return len(self._x)
@@ -299,19 +295,19 @@ class ProbabilityDensityFunction:
 
     # Metadata properties
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         return self.metadata.name
 
     @property
-    def variable_type(self) -> str:
+    def variable_type(self) -> str | None:
         return self.metadata.variable_type
 
     @property
-    def unit(self) -> str:
+    def unit(self) -> str | None:
         return self.metadata.unit
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "PDF"
 
         # Add metadata to print string

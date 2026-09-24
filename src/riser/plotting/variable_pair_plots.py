@@ -20,6 +20,10 @@ __all__ = [
 
 
 # Import modules
+import warnings
+from collections.abc import Callable, Mapping
+from typing import Any
+
 import numpy as np
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
@@ -32,6 +36,12 @@ from .. import (
 from .pdf_plots import axis_label_from_pdf, axis_label_from_pdfs
 
 
+#################### WARNINGS ####################
+nameless_label_warning = (
+    "`label` flag was passed, but no name was given to variable pair"
+)
+
+
 #################### VARIABLE PAIR PLOTTING ####################
 def set_origin_zero(ax: Axes) -> None:
     """Set the plot origin at zero.
@@ -41,14 +51,14 @@ def set_origin_zero(ax: Axes) -> None:
     ax
         Axes to set at zero.
     """
-    ax.set_xlim([0, ax.get_xlim()[1]])
-    ax.set_ylim([0, ax.get_ylim()[1]])
+    ax.set_xlim((0, ax.get_xlim()[1]))
+    ax.set_ylim((0, ax.get_ylim()[1]))
 
 
 def format_marker_plot(
     ax: Axes,
     markers: (
-        variable_pairs.VariablePair | dict[str, variable_pairs.VariablePair]
+        variable_pairs.VariablePair | Mapping[str, variable_pairs.VariablePair]
     ),
 ) -> None:
     """Add axis labels, formulated in the standardized manner.
@@ -57,21 +67,21 @@ def format_marker_plot(
     ----------
     ax
         Axis on which to plot the variable pair.
-    markers : VariablePair or dict[str, VariablePair]
+    markers : VariablePair or Mapping[str, VariablePair]
         Variable pair to plot.
     """
     if isinstance(markers, variable_pairs.VariablePair):
         # Axis labels based on single marker
-        x1_label = axis_label_from_pdf(markers.x1)
-        x2_label = axis_label_from_pdf(markers.x2)
+        pdf1_label = axis_label_from_pdf(markers.pdf1)
+        pdf2_label = axis_label_from_pdf(markers.pdf2)
 
-    elif isinstance(markers, dict):
+    elif isinstance(markers, Mapping):
         # Axis labels based on multiple markers
-        x1_label = axis_label_from_pdfs(
-            [marker.x1 for marker in markers.values()]
+        pdf1_label = axis_label_from_pdfs(
+            [marker.pdf1 for marker in markers.values()]
         )
-        x2_label = axis_label_from_pdfs(
-            [marker.x2 for marker in markers.values()]
+        pdf2_label = axis_label_from_pdfs(
+            [marker.pdf2 for marker in markers.values()]
         )
 
     else:
@@ -81,8 +91,8 @@ def format_marker_plot(
         )
 
     # Label axes
-    ax.set_xlabel(x1_label)
-    ax.set_ylabel(x2_label)
+    ax.set_xlabel(pdf1_label)
+    ax.set_ylabel(pdf2_label)
 
 
 def plot_variable_pair_whisker(
@@ -116,39 +126,44 @@ def plot_variable_pair_whisker(
     pdf_center = PDFs.analytics.pdf_mean
 
     # Compute confidence limits for x-variable
-    x1_center = pdf_center(marker.x1)
-    x1_range = PDFs.analytics.compute_interquantile_range(marker.x1, confidence)
+    pdf1_center = pdf_center(marker.pdf1)
+    pdf1_range = PDFs.analytics.compute_interquantile_range(marker.pdf1, confidence)
 
-    # Plot x1 values (first and only cluster range)
-    x1_vals = x1_range.range_values[0]
-    x1_err = [[x1_center - x1_vals[0]], [x1_vals[1] - x1_center]]
+    # Plot pdf1 values (first and only cluster range)
+    pdf1_vals = pdf1_range.range_values[0]
+    pdf1_err = [[pdf1_center - pdf1_vals[0]], [pdf1_vals[1] - pdf1_center]]
 
-    # Compute x2 confidence limits
-    x2_center = pdf_center(marker.x2)
-    x2_range = PDFs.analytics.compute_interquantile_range(marker.x2, confidence)
+    # Compute pdf2 confidence limits
+    pdf2_center = pdf_center(marker.pdf2)
+    pdf2_range = PDFs.analytics.compute_interquantile_range(marker.pdf2, confidence)
 
     # Plot y values (first and only cluster range)
-    x2_vals = x2_range.range_values[0]
-    x2_err = [[x2_center - x2_vals[0]], [x2_vals[1] - x2_center]]
+    pdf2_vals = pdf2_range.range_values[0]
+    pdf2_err = [[pdf2_center - pdf2_vals[0]], [pdf2_vals[1] - pdf2_center]]
 
     # Plot marker
     ax.errorbar(
-        x1_center,
-        x2_center,
-        xerr=x1_err,
-        yerr=x2_err,
+        pdf1_center,
+        pdf2_center,
+        xerr=pdf1_err,
+        yerr=pdf2_err,
         color=color,
         zorder=zorder,
     )
 
     # Label if requested
     if label:
-        ax.text(1.01 * x1_center, 1.01 * x2_center, marker.name, color=color)
+        if marker.name is not None:
+            ax.text(
+                1.01 * pdf1_center, 1.01 * pdf2_center, marker.name, color=color
+            )
+        else:
+            warnings.warn(nameless_label_warning)
 
 
 def plot_variable_pairs_whisker(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -211,25 +226,25 @@ def plot_variable_pair_rectangle(
         Label the variable pairs.
     """
     # Compute x confidence limits
-    x1_range = PDFs.analytics.compute_interquantile_range(marker.x1, confidence)
+    pdf1_range = PDFs.analytics.compute_interquantile_range(marker.pdf1, confidence)
 
     # Plot x values (first and only cluster range)
-    x1_vals = x1_range.range_values[0]
-    box_x1 = x1_vals[0]
-    box_width = x1_vals[1] - box_x1
+    pdf1_vals = pdf1_range.range_values[0]
+    box_pdf1 = pdf1_vals[0]
+    box_width = pdf1_vals[1] - box_pdf1
 
     # Compute y confidence limits
-    x2_range = PDFs.analytics.compute_interquantile_range(marker.x2, confidence)
+    pdf2_range = PDFs.analytics.compute_interquantile_range(marker.pdf2, confidence)
 
-    # Plot x2 values (first and only cluster range)
-    x2_vals = x2_range.range_values[0]
-    box_x2 = x2_vals[0]
-    box_height = x2_vals[1] - box_x2
+    # Plot pdf2 values (first and only cluster range)
+    pdf2_vals = pdf2_range.range_values[0]
+    box_pdf2 = pdf2_vals[0]
+    box_height = pdf2_vals[1] - box_pdf2
 
     # Plot rectangle
     ax.add_patch(
         Rectangle(
-            (box_x1, box_x2),
+            (box_pdf1, box_pdf2),
             box_width,
             box_height,
             edgecolor=color,
@@ -240,16 +255,19 @@ def plot_variable_pair_rectangle(
 
     # Label if requested
     if label:
-        ax.text(x1_vals[1], x2_vals[1], marker.name, color=color)
+        if marker.name is not None:
+            ax.text(pdf1_vals[1], pdf2_vals[1], marker.name, color=color)
+        else:
+            warnings.warn(nameless_label_warning)
 
     # Adjust axis limits
-    ax.set_xlim([0, 1.1 * x1_vals[1]])
-    ax.set_ylim([0, 1.1 * x2_vals[1]])
+    ax.set_xlim((0, 1.1 * pdf1_vals[1]))
+    ax.set_ylim((0, 1.1 * pdf2_vals[1]))
 
 
 def plot_variable_pairs_rectangle(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     confidence: float = constants.Psigma["2"],
     *,
     # Style args
@@ -287,13 +305,13 @@ def plot_variable_pairs_rectangle(
 
 def plot_variable_pairs_joint_pdf(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     *,
     n: int = 1_000,
-    x1min: float = 0.0,
-    x2min: float = 0.0,
-    x1max: float = 0.0,
-    x2max: float = 0.0,
+    pdf1_min: float = 0.0,
+    pdf2_min: float = 0.0,
+    pdf1_max: float = 0.0,
+    pdf2_max: float = 0.0,
     # Style args
     cmap: str = "Greys",
     label: bool = False,
@@ -308,30 +326,30 @@ def plot_variable_pairs_joint_pdf(
         Variable pairs to plot.
     n : int
         Number of grid points to use in x and y.
-    x1min : float
-        Minimum x1-axis value.
-    x2min : float
-        Minimum x2-axis value.
-    x1max : float
-        Maximum x1-axis value.
-    x2max : float
-        Maximum x2-axis value.
+    pdf1_min : float
+        Minimum pdf1-axis value.
+    pdf2_min : float
+        Minimum pdf2-axis value.
+    pdf1_max : float
+        Maximum pdf1-axis value.
+    pdf2_max : float
+        Maximum pdf2-axis value.
     cmap : str
         Density colormap.
     label : bool
         Label the variable pairs.
     """
     # Determine plot limits based on markers if necessary
-    if x1max is None or x1max == 0:
-        x1max = max(marker.x1.x.max() for marker in markers.values())
+    if pdf1_max is None or pdf1_max == 0:
+        pdf1_max = max(marker.pdf1.x.max() for marker in markers.values())
 
-    if x2max is None or x2max == 0:
-        x2max = max(marker.x2.x.max() for marker in markers.values())
+    if pdf2_max is None or pdf2_max == 0:
+        pdf2_max = max(marker.pdf2.x.max() for marker in markers.values())
 
     # Establish a coarse grid on which to sample
-    x1 = np.linspace(x1min, x1max, n)
-    x2 = np.linspace(x2min, x2max, n)
-    X1, X2 = np.meshgrid(x1, x2)
+    pdf1 = np.linspace(pdf1_min, pdf1_max, n)
+    pdf2 = np.linspace(pdf2_min, pdf2_max, n)
+    X1, X2 = np.meshgrid(pdf1, pdf2)
 
     # Initialize total joing probability
     Pjoint = np.zeros(X1.shape)
@@ -339,23 +357,26 @@ def plot_variable_pairs_joint_pdf(
     # Loop through markers
     for marker_name, marker in markers.items():
         # Interpolate PDFs on coarse grid
-        px1 = marker.x1.pdf_at_value(x1)
-        px2 = marker.x2.pdf_at_value(x2)
+        ppdf1 = marker.pdf1.pdf_at_value(pdf1)
+        ppdf2 = marker.pdf2.pdf_at_value(pdf2)
 
         # Compute joint probability
-        Pjoint += np.outer(px1, px2)
+        Pjoint += np.outer(ppdf1, ppdf2)
 
         # Label if requested
         if label:
-            x1_mode = PDFs.analytics.pdf_mode(marker.x1)
-            x2_mode = PDFs.analytics.pdf_mode(marker.x2)
-            ax.text(x1_mode, x2_mode, marker_name, color="royalblue")
+            if not marker_name is None:
+                pdf1_mode = PDFs.analytics.pdf_mode(marker.pdf1)
+                pdf2_mode = PDFs.analytics.pdf_mode(marker.pdf2)
+                ax.text(pdf1_mode, pdf2_mode, marker_name, color="royalblue")
+            else:
+                warnings.warn(nameless_label_warning)
 
     # Plot joint probability
     ax.pcolormesh(X1, X2, Pjoint.T, cmap=cmap)
 
 
-VARIABLE_PAIR_PLOT_TYPES = {
+VARIABLE_PAIR_PLOT_TYPES: dict[str, Callable[..., Any]] = {
     "whisker": plot_variable_pairs_whisker,
     "rectangle": plot_variable_pairs_rectangle,
     "pdf": plot_variable_pairs_joint_pdf,
@@ -364,7 +385,7 @@ VARIABLE_PAIR_PLOT_TYPES = {
 
 def get_markers_plot(
     marker_plot_type: str, verbose: bool = False
-) -> "Callable":
+) -> Callable[..., Any]:
     """Retrieve a variable pairs plot by type.
 
     Parameters
@@ -384,21 +405,21 @@ def get_markers_plot(
         )
 
     if verbose:
-        print(f"Retrieving '{marker_type}'-type variable pairs plot")
+        print(f"Retrieving '{marker_plot_type}'-type variable pairs plot")
 
-    return VARIABLE_PAIR_PLOT_TYPES.get(marker_plot_type)
+    return VARIABLE_PAIR_PLOT_TYPES[marker_plot_type]
 
 
 def plot_variable_pairs(
     ax: Axes,
-    markers: dict[str, variable_pairs.VariablePair],
+    markers: Mapping[str, variable_pairs.VariablePair],
     marker_plot_type = "whisker",
     *,
     confidence: float = constants.Psigma["2"],
-    x1min: float = 0.0,
-    x2min: float = 0.0,
-    x1max: float = 0.0,
-    x2max: float = 0.0,
+    pdf1_min: float = 0.0,
+    pdf2_min: float = 0.0,
+    pdf1_max: float = 0.0,
+    pdf2_max: float = 0.0,
     label: bool = False,
 ) -> None:
     """Plot multiple variable pairs.
@@ -413,14 +434,14 @@ def plot_variable_pairs(
         Marker plot type.
     confidence : float
         Confidence range to plot.
-    x1min : float
-        Minimum x1-axis value.
-    x2min : float
-        Minimum x2-axis value.
-    x1max : float
-        Maximum x1-axis value.
-    x2max : float
-        Maximum x2-axis value.
+    pdf1_min : float
+        Minimum pdf1-axis value.
+    pdf2_min : float
+        Minimum pdf2-axis value.
+    pdf1_max : float
+        Maximum pdf1-axis value.
+    pdf2_max : float
+        Maximum pdf2-axis value.
     label : bool
         Label the variable pairs.
     """
@@ -432,21 +453,17 @@ def plot_variable_pairs(
     }
 
     # Update plot arguments based on marker plot type
-    if marker_plot_type == "whisker":
-        # Update plot args
-        plt_args["confidence"] = confidence
-
-    elif marker_plot_type == "rectangle":
+    if marker_plot_type in ["whisker", "rectangle"]:
         # Update plot args
         plt_args["confidence"] = confidence
 
     elif marker_plot_type == "pdf":
         # Update plot args
         plt_args |= {
-            "x1min": x1min,
-            "x2min": x2min,
-            "x1max": x1max,
-            "x2max": x2max,
+            "pdf1_min": pdf1_min,
+            "pdf2_min": pdf2_min,
+            "pdf1_max": pdf1_max,
+            "pdf2_max": pdf2_max,
         }
 
     # Loop through markers

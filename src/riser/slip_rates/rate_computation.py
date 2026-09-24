@@ -8,7 +8,7 @@ These functions are used to compute incremental slip rates.
 They implement the same basic concept:
 That slip rate v is the averaged change in displacement over the change in time
 
-    v = DeltaU / DeltaT
+    v = delta_u / delta_t
 
 Incremental slip rates average over shorter subsets of time within the overall
 record.
@@ -23,25 +23,21 @@ __all__ = [
 
 
 # Import modules
-from datetime import datetime
-
 import numpy as np
 
 from .. import (
-    units,
-    variable_types,
     probability_functions as PDFs,
-    variable_operations as var_ops,
+    variable_functions as var_fcns,
     variable_pairs,
 )
-from ..sampling import mc_sampling, pdf_formation, filtering
+from ..sampling import filtering, mc_sampling, pdf_formation
 
 
 #################### ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
-    dq: float = 0.01,
+    dr: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -52,8 +48,8 @@ def compute_slip_rate(
     ----------
     marker : DatedMarker
         Displacement-age pair used to calculate slip rate.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
     max_rate : float, optional
@@ -68,13 +64,13 @@ def compute_slip_rate(
         print("Computing slip rate")
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive else -100.0
+    min_rate = 0.0 if limit_positive else None
 
     # Divide displacement by age
-    slip_rate = var_ops.divide_variables(
-        numerator=marker.displacement,
-        denominator=marker.age,
-        dq=dq,
+    slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
+        pdf1=marker.displacement,
+        pdf2=marker.age,
+        dz=dr,
         min_quotient=min_rate,
         max_quotient=max_rate,
         name=marker.name,
@@ -87,7 +83,7 @@ def compute_slip_rate(
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
-    dq: float = 0.01,
+    dr: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -96,9 +92,9 @@ def compute_slip_rates_analytical(
     markers using analytical functions.
 
     First, compute the difference between each pair of adjacent displacements
-    and corresponding pairs of ages to get DeltaD's and DeltaT's.
-    Then, compute the slip rate over each increment by dividing the DeltaD by
-    the corresponding DeltaT.
+    and corresponding pairs of ages to get `delta_u`s and `delta_t`s.
+    Then, compute the slip rate over each increment by dividing the `delta_u`
+    by the corresponding `delta_t`.
 
     Note: Per the divide_variables operator, denominator (age) values cannot
     be negative.
@@ -109,10 +105,11 @@ def compute_slip_rates_analytical(
         Dated markers bounding each interval.
     max_rate : float
         Maximum quotient value to consider.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     limit_positive : bool, optional
-        Enforce condition that displacement values must be positive.
+        Enforce condition that time and displacement difference values must be
+        positive.
 
     Returns
     -------
@@ -131,16 +128,16 @@ def compute_slip_rates_analytical(
 
     # Warn of metadata mismatches for ages
     PDFs.metadata.get_common_metadata(
-        [marker.age for marker in markers.values()]
+        [marker.age.metadata for marker in markers.values()]
     )
 
     # Warn of metadata mismatches for displacements
     PDFs.metadata.get_common_metadata(
-        [marker.displacement for marker in markers.values()]
+        [marker.displacement.metadata for marker in markers.values()]
     )
 
     # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive else -100.0
+    min_rate = 0.0 if limit_positive else None
 
     # Empty dictionary to store slip rates
     slip_rates = {}
@@ -162,35 +159,69 @@ def compute_slip_rates_analytical(
         )
 
         # Compute age difference - negative ages not supported
-        DeltaT = var_ops.subtract_variables(
-            pdf1=older_age,
-            pdf2=younger_age,
-            limit_positive=limit_positive,
+        delta_t = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1=older_age, pdf2=younger_age, verbose=verbose
         )
 
+        # Limit time difference to positive-only values
+        if limit_positive:
+            # Enforce condition that all values > 0
+            (delta_t,
+             area_t) = var_fcns.condition.self_constraint.constrain_above(
+                pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
+            )
+
+            # Report trimming result
+            if verbose:
+                print(
+                    f"{(1.0 - area_t) * 100:.1f} % of original time "
+                    f"difference trimmed for {delta_t.name}"
+                )
+
+            # Crop to all-positive axis
+            delta_t = PDFs.interpolation.interpolate_pdf(
+                pdf=delta_t, x=delta_t.x[delta_t.x > 0]
+            )
+
         # Interpolate displacements on same axis
-        (
-            younger_displacement,
-            older_displacement,
-        ) = PDFs.interpolation.interpolate_pdfs(
+        (younger_displacement,
+         older_displacement) = PDFs.interpolation.interpolate_pdfs(
                 [younger_marker.displacement, older_marker.displacement]
         )
 
         # Compute displacement difference
-        DeltaU = var_ops.subtract_variables(
-            pdf1=older_displacement,
-            pdf2=younger_displacement,
-            limit_positive=limit_positive,
+        delta_u = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1=older_displacement, pdf2=younger_displacement, verbose=verbose
         )
+
+        # Limit displacement difference to positive-only values
+        if limit_positive:
+            # Enforce condition that all values > 0
+            (delta_u,
+             area_u) = var_fcns.condition.self_constraint.constrain_above(
+                pdf=delta_u, value=0.0, name=delta_u.name, verbose=verbose
+            )
+
+            # Report trimming result
+            if verbose:
+                print(
+                    f"{(1.0 - area_u) * 100:.1f} % of original displacement "
+                    f"difference trimmed for {delta_u.name}"
+                )
+
+            # Crop to all-positive axis
+            delta_u = PDFs.interpolation.interpolate_pdf(
+                pdf=delta_u, x=delta_u.x[delta_u.x > 0]
+            )
 
         # Formulate incremental slip rate name
         rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         # Divide displacement by age
-        slip_rate = var_ops.divide_variables(
-            numerator=DeltaU,
-            denominator=DeltaT,
-            dq=dq,
+        slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
+            pdf1=delta_u,
+            pdf2=delta_t,
+            dz=dr,
             min_quotient=min_rate,
             max_quotient=max_rate,
             name=rate_name,
@@ -216,8 +247,7 @@ def compute_slip_rates_mc(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
-    max_rate: float = 100.0,
-    dq: float = 0.01,
+    dr: float = 0.01,
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
     pdf_method: str = "histogram",
@@ -237,14 +267,12 @@ def compute_slip_rates_mc(
         Dated markers bounding each interval.
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
-    max_rate : float, optional
-        Maximum quotient value to consider.
-    dq : float, optional
-        Quotient step.
+    dr : float, optional
+        Rate step.
     n_samples : int, optional
         Number of valid samples to achieve.
     hard_stop : float, optional
-        Maximum slip rate to consider.
+        Maximum number of trials, regardless of success.
     pdf_method : str, optional
         PDF formation method.
     pdf_xmin : float, optional
@@ -281,12 +309,12 @@ def compute_slip_rates_mc(
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(
-        [marker.age for marker in markers.values()]
+        [marker.age.metadata for marker in markers.values()]
     )
 
     # Warn of metadata mismatches for displacements
     displacement_metadata = PDFs.metadata.get_common_metadata(
-        [marker.displacement for marker in markers.values()]
+        [marker.displacement.metadata for marker in markers.values()]
     )
 
     # Determine slip rate unit
@@ -299,7 +327,7 @@ def compute_slip_rates_mc(
         unit = None
 
     # Conduct Monte Carlo sampling - valid MC samples are called picks
-    age_picks, disp_picks = mc_sampling.sample_monte_carlo(
+    age_picks, disp_picks, _ = mc_sampling.sample_monte_carlo(
         markers=markers,
         criterion=criterion,
         n_samples=n_samples,
@@ -307,11 +335,11 @@ def compute_slip_rates_mc(
         verbose=verbose,
     )
 
-    # Compute incremental differences between picks for rate = DeltaU / DeltaT
+    # Compute incremental differences between picks for rate = delta_u / delta_t
     age_diffs = np.diff(age_picks, axis=0)
     disp_diffs = np.diff(disp_picks, axis=0)
 
-    # Determine incremental slip rates from DeltaU / DeltaT
+    # Determine incremental slip rates from delta_u / delta_t
     rate_picks = disp_diffs / age_diffs
 
     # Retrieve slip rate picks-to-PDF formation function

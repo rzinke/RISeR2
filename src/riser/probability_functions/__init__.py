@@ -1,4 +1,7 @@
 # src/riser/probability_functions/__init__.py
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
 """
 These features are built around probability density functions.
@@ -13,14 +16,20 @@ parametric_functions includes definitions of parametric functions.
 """
 
 # Import modules
+from . import (
+    analytics,
+    interpolation,
+    metadata,
+    parametric_functions,
+    readers,
+    scaling,
+    value_arrays,
+    weight_functions,
+)
 from .metadata import PDFmetadata
 from .probability_density_function import ProbabilityDensityFunction as PDF
-from . import analytics
-from . import interpolation
-from . import parametric_functions
-from . import readers
-from . import scaling
-from . import value_arrays
+from .weight_functions import WeightFunction
+
 
 # Public API
 __all__ = [
@@ -28,8 +37,14 @@ __all__ = [
     "PDF",
     "analytics",
     "interpolation",
+    "metadata",
     "parametric_functions",
     "readers",
     "scaling",
     "value_arrays",
+    "WeightFunction",
+    "weight_functions",
 ]
+
+
+# end of file

@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 from riser import (
     constants,
-    units,
+    plotting,
     probability_functions as PDFs,
     variable_pairs,
-    plotting,
 )
 from riser.slip_rates import rate_computation, reporting
 
@@ -100,7 +99,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -108,7 +107,7 @@ def main():
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
     # Read markers
-    markers = variable_pairs.read_dated_markers_from_config(
+    markers = variable_pairs.readers.read_dated_markers_from_config(
         inps.marker_config, verbose=inps.verbose
     )
 
@@ -151,7 +150,7 @@ def main():
         markers=markers,
         limit_positive=inps.limit_positive,
         max_rate=inps.max_rate,
-        dq=inps.dv,
+        dr=inps.dv,
         verbose=inps.verbose,
     )
 

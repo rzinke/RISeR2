@@ -7,12 +7,12 @@
 # Import modules
 import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from riser import (
-    probability_functions as PDFs,
     plotting,
+    probability_functions as PDFs,
 )
 
 
@@ -70,7 +70,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -88,9 +88,7 @@ def main():
         print(f"xmax {xmax}")
 
     # Formulate value array
-    x = PDFs.value_arrays.create_precise_value_array(
-        xmin, xmax, dx, verbose=inps.verbose
-    )
+    x = PDFs.value_arrays.precise_array(xmin, xmax, dx, verbose=inps.verbose)
 
     # Interpolate PDF
     pdf_resamp = PDFs.interpolation.interpolate_pdf(pdf, x)
@@ -98,7 +96,7 @@ def main():
     # Plot if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
 
         # Plot PDF
         plotting.plot_pdf_labeled(ax, pdf_resamp)

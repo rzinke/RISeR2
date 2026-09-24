@@ -10,11 +10,11 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
-    units,
-    probability_functions as PDFs,
-    variable_operations as var_ops,
     plotting,
+    probability_functions as PDFs,
+    variable_functions as var_fcns,
 )
+
 
 #################### ARGUMENT PARSER ####################
 description = "Divide two random variables expressed as PDFs."
@@ -62,7 +62,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -71,9 +71,13 @@ def main():
     denom_pdf = PDFs.readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Compute quotient of PDFs
-    quot_pdf = var_ops.divide_variables(
+    quot_pdf, area = var_fcns.transform.arithmetic.divide_variables(
         numer_pdf, denom_pdf, name=inps.name, verbose=inps.verbose
     )
+
+    # Report non-normalized area
+    if inps.verbose:
+        print(f"Area of quotient, pre-normalization: {area:.4f} / 1.0")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, quot_pdf, verbose=inps.verbose)

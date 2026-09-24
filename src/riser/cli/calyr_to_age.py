@@ -10,11 +10,11 @@ import argparse
 import matplotlib.pyplot as plt
 
 from riser import (
+    plotting,
     probability_functions as PDFs,
+    sampling,
     units,
-    plotting
 )
-from riser.sampling import filtering
 
 
 #################### ARGUMENT PARSER ####################
@@ -23,8 +23,8 @@ description = (
 )
 
 examples = """Examples:
-calyr_to_age.py C_date.txt -o C_age.txt
-calyr_to_age.py C_date.txt --name C14 --smoothing-type mean --smoothing-width 3 -v -p -o C_age.txt
+riser-calyr-to-age C_date.txt -o C_age.txt
+riser-calyr-to-age C_date.txt --name C14 --smoothing-type mean --smoothing-width 3 -v -p -o C_age.txt
 """
 
 def create_parser():
@@ -75,7 +75,7 @@ def cmd_parser(iargs=None):
     # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
     smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
-        type=str, choices=filtering.FILTER_TYPES,
+        type=str, choices=sampling.filtering.FILTER_TYPES,
         help="Smoothing filter type. [None]")
     smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
         type=int, default=0,
@@ -97,7 +97,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -140,12 +140,11 @@ def main():
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.output_unit,
-        normalize_area=True,
     )
 
     # Smooth data
     if inps.smoothing_width > 0:
-        pdf = filtering.filter_pdf(
+        pdf = sampling.filtering.filter_pdf(
             pdf=pdf,
             filter_type=inps.smoothing_type,
             filter_width=inps.smoothing_width,

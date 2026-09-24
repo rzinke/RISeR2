@@ -18,10 +18,7 @@ __all__ = [
 # Import modules
 from matplotlib.axes import Axes
 
-from .. import (
-    units,
-    probability_functions as PDFs,
-)
+from .. import probability_functions as PDFs
 
 
 #################### CDF PLOTTING ####################

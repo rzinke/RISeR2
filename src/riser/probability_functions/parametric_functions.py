@@ -5,30 +5,24 @@
 # Public API
 __all__ = [
     "PARAMETRIC_FUNCTIONS",
-    "boxcar",
-    "triangular",
-    "gaussian",
-    "exponential",
-    "lognormal",
     "get_function_by_name",
+    "CUMULATIVE_PARAMETRIC_FUNCTIONS",
+    "get_cumulative_function_by_name",
     "check_number_inputs",
     "determine_min_max_limits",
-    "cumulative_gaussian",
-    "cumulative_lognormal",
 ]
 
 
 # Import modules
-import warnings
 import inspect
+import warnings
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import scipy as sp
 
-from .. import (
-    precision,
-    integration,
-)
+from .. import precision
 
 
 #################### SUPPORT FUNCTIONS ####################
@@ -68,16 +62,21 @@ def check_mass_against_value_range(
 
 
 #################### PARAMETRIC FUNCTIONS ####################
-def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
-    """Boxcar function with unit area.
+def uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Uniform (boxcar) function with unit area.
+
+    U(a, b) = f(x) = 1 / (b - a) for (a <= x <= b)
+                     0 for (x < a or x > b)
+
+    This assigns non-zeros values within the closed interval [a, b].
 
     Parameters
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    xmin : float
+    a : float
         Minimum value with non-zero probability density.
-    xmax : float
+    b : float
         Maximum value with non-zero probability density.
 
     Returns
@@ -86,26 +85,21 @@ def boxcar(x: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    check_mass_against_value_range(x, xmin, xmax)
+    check_mass_against_value_range(x, a, b)
 
-    # Number of data points
+    # Initialize probability density values
     n = len(x)
-
-    # Initialize probability values
     px = np.zeros(n)
 
     # Probability density values
-    boxcar_ndx = (x > xmin) & (x < xmax)
-    px[boxcar_ndx] = 1.0
-
-    # Normalize area
-    px /= np.sum(px)
+    boxcar_ndx = (x >= a) & (x <= b)
+    px[boxcar_ndx] = 1 / (b - a)
 
     return px
 
 
 def triangular(
-    x:np.ndarray, xmin: float, xmode: float, xmax: float
+    x:np.ndarray, a: float, c: float, b: float
 ) -> np.ndarray:
     """Triangular function with unit area.
 
@@ -113,12 +107,12 @@ def triangular(
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    xmin : float
-        Minimum value with non-zero probability density.
-    xmode : float
-        Value of peak probability density.
-    xmax : float
-        Maximum value with non-zero probability density.
+    a : float
+        Left base of the triangle.
+    c : float
+        Peak of the triangle.
+    b : float
+        Right base of the triangle.
 
     Returns
     -------
@@ -126,48 +120,35 @@ def triangular(
         Probability density values.
     """
     # Ensure proper ordering
-    if not xmin <= xmode <= xmax:
+    if not a <= c <= b:
         raise ValueError(
-            f"`xmin` ({xmin}) must be <= than `xmode` ({xmode}) "
-            f"must be <= `xmax` ({xmax})"
+            f"`a` ({a}) must be <= than `c` ({c}) must be <= `b` ({b})"
         )
 
     # Checks
-    check_mass_against_value_range(x, xmin, xmax)
+    check_mass_against_value_range(x, a, b)
 
-    # Number of data points
+    # Initialize probability density values
     n = len(x)
-
-    # Initialize probability values
     px = np.zeros(n)
 
     # Left side
-    m = 1 / (xmode - xmin)
-    b = 1 - m * xmode
-    left_ndx = (x >= xmin) & (x < xmode)
-    px[left_ndx] = m * x[left_ndx] + b
+    left_ndx = (a <= x) & (x < c)
+    px[left_ndx] = 2 * (x[left_ndx] - a) / ((b - a) * (c - a))
 
     # Peak
-    peak_ndx = (x >= xmode) & (x <= xmode)
-    px[peak_ndx] = 1.0
+    peak_ndx = (x == c)
+    px[peak_ndx] = 2 / (b - a)
 
     # Right side
-    m = -1 / (xmax - xmode)
-    b = 0 - m * xmax
-    right_ndx = (x > xmode) & (x <= xmax)
-    px[right_ndx] = m * x[right_ndx] + b
-
-    # Ensure all values > 0 (rounding error)
-    px[px < 0] = 0
-
-    # Normalize based on area of triangle
-    px *= 2 / (xmax - xmin)
+    right_ndx = (c < x) & (x <= b)
+    px[right_ndx] = 2 * (b - x[right_ndx]) / ((b - a) * (b - c))
 
     return px
 
 
 def trapezoidal(
-    x: np.ndarray, x1: float, x2: float, x3: float, x4: float
+    x: np.ndarray, a: float, b: float, c: float, d: float
 ) -> np.ndarray:
     """Trapezoidal function with unit area.
 
@@ -175,14 +156,14 @@ def trapezoidal(
     ----------
     x : np.ndarray
         Value array over which to define the function.
-    x1 : float
-        Minimum value with non-zero probability density.
-    x2 : float
-        Minimum value of the boxcar portion of the function.
-    x3 : float
-        Maximum value of the boxcar portion of the function.
-    x4 : float
-        Maximum value with non-zero probability density.
+    a : float
+        Left base of trapezoid.
+    b : float
+        Left edge of boxcar portion.
+    c : float
+        Right edge of boxcar portion.
+    d : float
+        Right base of trapezoid.
 
     Returns
     -------
@@ -190,42 +171,38 @@ def trapezoidal(
         Probability density values.
     """
     # Ensure proper ordering
-    if not x1 <= x2 <= x3 <= x4:
+    if not a <= b <= c <= d:
         raise ValueError(
-            f"`x1` ({x1}) must be <= than `x2` ({x2}) "
-            f"must be <= `x3` ({x3}) must be <= `x4` ({x4})"
+            f"`a` ({a}) must be <= than `b` ({b}) "
+            f"must be <= `c` ({c}) must be <= `d` ({d})"
         )
 
     # Checks
-    check_mass_against_value_range(x, x1, x4)
+    check_mass_against_value_range(x, a, d)
 
     # Initialize probability density values
     n = len(x)
     px = np.zeros(n)
 
+    # Normalization coefficient
+    coef = 2 / (d + c - a - b)
+
     # Left side
-    m = 1 / (x2 - x1)
-    b = 1 - m * x2
-    left_ndx = (x > x1) * (x < x2)
-    px[left_ndx] = m * x[left_ndx] + b
+    left_ndx = (a <= x) & (x < b)
+    px[left_ndx] = coef * (x[left_ndx] - a) / (b - a)
 
     # Boxcar
-    boxcar_ndx = (x >= x2) * (x <= x3)
-    px[boxcar_ndx] = 1.0
+    boxcar_ndx = (b <= x) & (x < c)
+    px[boxcar_ndx] = coef
 
     # Right side
-    m = -1 / (x4 - x3)
-    b = 0 - m * x4
-    right_ndx = (x > x3) & (x < x4)
-    px[right_ndx] = m * x[right_ndx] + b
-
-    # Normalize area
-    px /= integration.integrate(x=x, px=px)
+    right_ndx = (c <= x) & (x <= d)
+    px[right_ndx] = coef * (d - x[right_ndx]) / (d - c)
 
     return px
 
 
-def _gaussian_limits(mu, sigma):
+def _gaussian_limits_(mu, sigma) -> tuple[float, float]:
     # Area of PDF to be covered
     target_coverage = sp.stats.norm.cdf(4)
 
@@ -233,8 +210,8 @@ def _gaussian_limits(mu, sigma):
     sigma_lim = sp.stats.norm.ppf(target_coverage)
 
     # Distances at which coverage is met
-    xmin = mu - sigma_lim
-    xmax = mu + sigma_lim
+    xmin = mu - sigma * sigma_lim
+    xmax = mu + sigma * sigma_lim
 
     # Target domain limits
     return xmin, xmax
@@ -257,8 +234,8 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _gaussian_limits(mu, sigma)
-    check_mass_against_value_range(x, mu - 4 * sigma, mu + 4 * sigma)
+    xmin, xmax = _gaussian_limits_(mu, sigma)
+    check_mass_against_value_range(x, xmin, xmax)
 
     a = 1 / (sigma * np.sqrt(2 * np.pi))
     f = np.exp(-0.5 * (x - mu)**2 / sigma**2)
@@ -269,7 +246,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return px
 
 
-def _exponential_limits(scale):
+def _exponential_limits_(scale) -> tuple[float, float]:
     # Minimum distance
     xmin = 0
 
@@ -277,7 +254,7 @@ def _exponential_limits(scale):
     target_coverage = sp.stats.norm.cdf(4)
 
     # Distance from zero at which the area is covered
-    xmax = sp.stats.expon.ppf(target_coverage)
+    xmax = scale * sp.stats.expon.ppf(target_coverage)
 
     return xmin, xmax
 
@@ -297,7 +274,7 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _exponential_limits(scale)
+    xmin, xmax = _exponential_limits_(scale)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
@@ -305,19 +282,19 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     px = np.zeros(n)
 
     # Indices over which function is non-zero
-    nonzero_ndx = x > 0
+    nonnegative_ndx = (x >= 0)
 
     # Distribution components
     a = 1 / scale
-    f = np.exp(-x[nonzero_ndx] / scale)
+    f = np.exp(-x[nonnegative_ndx] / scale)
 
     # Probability density
-    px[nonzero_ndx] = a * f
+    px[nonnegative_ndx] = a * f
 
     return px
 
 
-def _lognormal_limits(mu, sigma):
+def _lognormal_limits_(mu, sigma) -> tuple[float, float]:
     # Minimum distance
     xmin = 0
 
@@ -347,7 +324,7 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
         Probability density values.
     """
     # Checks
-    xmin, xmax = _lognormal_limits(mu, sigma)
+    xmin, xmax = _lognormal_limits_(mu, sigma)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
@@ -355,19 +332,19 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     px = np.zeros(n)
 
     # Indices over which function is non-zero
-    nonzero_ndx = x > 0
+    positive_ndx = x > 0
 
     # Distribution components
-    a = 1 / (x[nonzero_ndx] * sigma * np.sqrt(2 * np.pi))
-    f = np.exp(-0.5 * (np.log(x[nonzero_ndx]) - mu)**2 / sigma**2)
+    a = 1 / (x[positive_ndx] * sigma * np.sqrt(2 * np.pi))
+    f = np.exp(-0.5 * (np.log(x[positive_ndx]) - mu)**2 / sigma**2)
 
     # Probability density
-    px[nonzero_ndx] = a * f
+    px[positive_ndx] = a * f
 
     return px
 
 
-def _students_t_limits(dof, mu, scale):
+def _students_t_limits_(dof, mu, scale) -> tuple[float, float]:
     # Target coverage - 0.99997
     target_coverage = sp.stats.norm.cdf(4)
 
@@ -403,8 +380,12 @@ def students_t(
     px : np.ndarray
         Probability density values.
     """
+    # Check degrees of freedom is positive
+    if dof <= 0:
+        raise ValueError(f"`dof` must be positive, got {dof}")
+
     # Checks
-    xmin, xmax = _students_t_limits(dof, mu, scale)
+    xmin, xmax = _students_t_limits_(dof, mu, scale)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Probability density
@@ -413,8 +394,8 @@ def students_t(
     return px
 
 
-PARAMETRIC_FUNCTIONS = {
-    "boxcar": boxcar,
+PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
+    "uniform": uniform,
     "triangular": triangular,
     "trapezoidal": trapezoidal,
     "gaussian": gaussian,
@@ -424,7 +405,7 @@ PARAMETRIC_FUNCTIONS = {
 }
 
 
-def get_function_by_name(distribution: str) -> "Callable":
+def get_function_by_name(distribution: str) -> Callable[..., Any]:
     """Retrieve one of the parametric functions defined above by name.
 
     Parameters
@@ -445,7 +426,7 @@ def get_function_by_name(distribution: str) -> "Callable":
         )
 
     # Return function
-    return PARAMETRIC_FUNCTIONS.get(distribution)
+    return PARAMETRIC_FUNCTIONS[distribution]
 
 
 #################### CHECKS ####################
@@ -516,7 +497,7 @@ def determine_min_max_limits(
         Maximum value.
     """
     # Behave based on function type
-    if distribution in ["boxcar", "triangular", "trapezoidal"]:
+    if distribution in ["uniform", "triangular", "trapezoidal"]:
         # Use first and last values
         xmin = values[0]
         xmax = values[-1]
@@ -571,6 +552,153 @@ def determine_min_max_limits(
 
 
 #################### PARAMETRIC CDFS ####################
+def cumulative_uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
+    """Cumulative uniform function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Minimum value with non-zero probability density.
+    b : float
+        Maximum value with non-zero probability density.
+
+    Returns
+    -------
+    Px : np.ndarray
+        Cumulative probability values.
+    """
+    # Number of data points
+    n = len(x)
+
+    # Initialize cumulative probability values
+    Px = np.zeros(n)
+
+    # Cumulative probability values
+    boxcar_ndx = (x >= a) & (x <= b)
+    Px[boxcar_ndx] = (x[boxcar_ndx] - a) / (b - a)
+    Px[x > b] = 1.0
+
+    return Px
+
+
+def cumulative_triangular(
+    x:np.ndarray, a: float, c: float, b: float
+) -> np.ndarray:
+    """Cumulative triangular function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Left base of the triangle.
+    c : float
+        Peak of the triangle.
+    b : float
+        Right base of the triangle.
+
+    Returns
+    -------
+    px : np.ndarray
+        Cumulative probability values.
+    """
+    # Ensure proper ordering
+    if not a <= c <= b:
+        raise ValueError(
+            f"`a` ({a}) must be <= than `c` ({c}) must be <= `b` ({b})"
+        )
+
+    # Number of data points
+    n = len(x)
+
+    # Initialize cumulative probability values
+    Px = np.zeros(n)
+
+    # Left side
+    left_ndx = (a < x) & (x <= c)
+    Px[left_ndx] = (x[left_ndx] - a)**2 / ((b - a) * (c - a))
+
+    # Right side
+    right_ndx = (c < x) & (x < b)
+    Px[right_ndx] = 1 - (b - x[right_ndx])**2 / ((b - a) * (b - c))
+
+    # Far right
+    far_ndx = (b <= x)
+    Px[far_ndx] = 1.0
+
+    return Px
+
+
+def cumulative_trapezoidal(
+    x: np.ndarray, a: float, b: float, c: float, d: float
+) -> np.ndarray:
+    """Cumulative trapezoidal function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    a : float
+        Left base of trapezoid.
+    b : float
+        Left edge of boxcar portion.
+    c : float
+        Right edge of boxcar portion.
+    d : float
+        Right base of trapezoid.
+
+    Returns
+    -------
+    px : np.ndarray
+        Cumulative probability values.
+    """
+    # Ensure proper ordering
+    if not a <= b <= c <= d:
+        raise ValueError(
+            f"`a` ({a}) must be <= than `b` ({b}) "
+            f"must be <= `c` ({c}) must be <= `d` ({d})"
+        )
+
+    # Initialize cumulative probability values
+    n = len(x)
+    Px = np.zeros(n)
+
+    # Common coefficient
+    coef = 1 / (d + c - a - b)
+
+    # Left side
+    left_ndx = (a <= x) & (x < b)
+    Px[left_ndx] = (
+        coef
+        / (b - a)
+        * (x[left_ndx] - a) ** 2
+    )
+
+    # Boxcar
+    boxcar_ndx = (b <= x) & (x < c)
+    Px[boxcar_ndx] = (
+        coef
+        * (2 * x[boxcar_ndx] - a - b)
+    )
+
+    # Right side
+    right_ndx = (c <= x) & (x <= d)
+    Px[right_ndx] = (
+        1
+        - coef
+        / (d - c)
+        * (d - x[right_ndx]) ** 2
+    )
+
+    # Far right
+    far_ndx = (x > d)
+    Px[far_ndx] = 1.0
+
+    return Px
+
+
 def cumulative_gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Cumulative Gaussian function.
 
@@ -608,7 +736,50 @@ def cumulative_lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     Px : np.ndarray
         Cumulative probability values.
     """
-    return cumulative_gaussian(np.log(x), mu, sigma)
+    # Initialize cumulative probability values
+    n = len(x)
+    Px = np.zeros(n)
+
+    # Indices over which function is non-zero
+    positive_ndx = x > 0
+
+    # Cumulative probability values
+    Px[positive_ndx] = cumulative_gaussian(np.log(x[positive_ndx]), mu, sigma)
+
+    return Px
+
+
+CUMULATIVE_PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
+    "uniform": cumulative_uniform,
+    "triangular": cumulative_triangular,
+    "trapezoidal": cumulative_trapezoidal,
+    "gaussian": cumulative_gaussian,
+    "lognormal": cumulative_lognormal,
+}
+
+
+def get_cumulative_function_by_name(distribution: str) -> Callable[..., Any]:
+    """Retrieve one of the cumulative parametric functions by name.
+
+    Parameters
+    ----------
+    distribution : str
+        Parametric function name.
+
+    Returns
+    -------
+    fcn : Callable
+        Cumulative parameteric function.
+    """
+    # Check that the desired function is defined here
+    if distribution not in CUMULATIVE_PARAMETRIC_FUNCTIONS:
+        raise ValueError(
+            f"Cumulative function '{distribution}' is not defined. "
+            f"Use one of {', '.join(CUMULATIVE_PARAMETRIC_FUNCTIONS.keys())}"
+        )
+
+    # Return function
+    return CUMULATIVE_PARAMETRIC_FUNCTIONS[distribution]
 
 
 # end of file

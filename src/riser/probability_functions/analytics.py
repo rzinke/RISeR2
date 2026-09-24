@@ -28,27 +28,22 @@ __all__ = [
 
 
 # Import modules
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-import copy
+from typing import Any
 
 import numpy as np
 
-from .. import (
-    constants,
-    precision,
-)
+from .. import constants, integration
 from . import value_arrays
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### MOMENTS ####################
-def expected_value(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray
-) -> float:
+def expected_value(x: np.ndarray, px: np.ndarray) -> float:
     """Compute the expected value of a random variable X.
 
-    Note the change in x can be explicitly defined as a single number
-    (e.g., 0.01) or determined directly from the value array.
+        E = integral(x . f(x) dx)
 
     Parameters
     ----------
@@ -56,26 +51,21 @@ def expected_value(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
 
     Returns
     -------
     float
         Expected value.
     """
-    return np.sum(x * px * dx)
+    return integration.integrate(x=x, px=x * px)
 
 
-def compute_raw_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_raw_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth raw moment of a distribution.
 
     A raw moment is defined as:
 
-    theta_n = integral(x^n * f(x) dx)
+    theta_n = integral(x^n . f(x) dx)
 
     This is typically only used to compute the mean, mu, for which n = 1,
     i.e., the expected value.
@@ -86,28 +76,25 @@ def compute_raw_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
     theta_n : float
         Raw moment.
     """
-    theta_n = np.sum(x**n * px * dx)
+    theta_n = integration.integrate(x=x, px=(x**n) * px)
 
     return theta_n
 
 
-def compute_central_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_central_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth central moment of a distribution.
 
     A central moment is computed about the function mean, mu:
 
-    mu_n = integral((x - mu)^n * f(x) dx) = E[(X - mu)^n]
+    mu_n = integral((x - mu)^n . f(x) dx) = E[(X - mu)^n]
 
     Parameters
     ----------
@@ -115,9 +102,8 @@ def compute_central_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
@@ -125,17 +111,15 @@ def compute_central_moment(
         Central moment.
     """
     # Compute mean
-    mu = expected_value(x, px, dx)
+    mu = expected_value(x, px)
 
     # Compute central moment
-    mu_n = expected_value((x - mu)**n, px, dx)
+    mu_n = integration.integrate(x=x, px=((x - mu)**n) * px)
 
     return mu_n
 
 
-def compute_standardized_moment(
-    x: np.ndarray, px: np.ndarray, dx: float | np.ndarray, n: int
-) -> float:
+def compute_standardized_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     """Compute the nth standardized moment of a distribution.
 
     A standardized moment is computed about the function mean, mu, and
@@ -149,9 +133,8 @@ def compute_standardized_moment(
         Values of X.
     px : np.ndarray
         Relative probabilities of X.
-    dx : float or np.ndarray
-        Change in x.
-    n - int, moment
+    n : int
+        Moment order.
 
     Returns
     -------
@@ -159,12 +142,12 @@ def compute_standardized_moment(
         Standardized moment.
     """
     # Compute mean
-    mu = expected_value(x, px, dx)
+    mu = expected_value(x, px)
 
     # Compute central moment
     mu_std_n = (
-        expected_value((x - mu)**n, px, dx)
-        / expected_value((x - mu)**2, px, dx)**(n/2)
+        integration.integrate(x=x, px=((x - mu)**n) * px)
+        / integration.integrate(x=x, px=((x - mu)**2) * px)**(n/2)
     )
 
     return mu_std_n
@@ -191,11 +174,8 @@ def pdf_mean(pdf: PDF) -> float:
     mu : float
         Mean of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute expected value
-    mu = expected_value(pdf.x, pdf.px, dx)
+    mu = expected_value(pdf.x, pdf.px)
 
     return mu
 
@@ -203,7 +183,7 @@ def pdf_mean(pdf: PDF) -> float:
 def pdf_variance(pdf: PDF) -> float:
     """Compute the variance of a PDF.
 
-    sigma2 = E[(X - mu)^2] = integral((x - mu)^2 * f(x) * dx)
+    sigma2 = E[(X - mu)^2] = integral((x - mu)^2 . f(x) dx)
 
     Parameters
     ----------
@@ -215,14 +195,7 @@ def pdf_variance(pdf: PDF) -> float:
     variance : float
         Variance of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
-    # Compute expected value
-    mu = pdf_mean(pdf)
-
-    # Compute variance
-    sigma2 = np.sum((pdf.x - mu)**2 * pdf.px * dx)
+    sigma2 = compute_central_moment(pdf.x, pdf.px, n=2)
 
     return sigma2
 
@@ -232,7 +205,7 @@ def pdf_std(pdf: PDF) -> float:
 
     Recall that standard deviation is the square root of the variance.
 
-    sigma = sqrt(variance)
+        sigma = sqrt(variance)
 
     Parameters
     ----------
@@ -270,11 +243,8 @@ def pdf_skewness(pdf: PDF) -> float:
     gamma : float
         Skewness of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute third standardized moment
-    gamma = compute_standardized_moment(pdf.x, pdf.px, dx, n=3)
+    gamma = compute_standardized_moment(pdf.x, pdf.px, n=3)
 
     return gamma
 
@@ -296,11 +266,8 @@ def pdf_kurtosis(pdf: PDF) -> float:
     kappa : float
         Kurtosis of PDF.
     """
-    # Change in x
-    dx = value_arrays.sample_spacing_array_from_pdf(pdf)
-
     # Compute third standardized moment
-    kappa = compute_standardized_moment(pdf.x, pdf.px, dx, n=4)
+    kappa = compute_standardized_moment(pdf.x, pdf.px, n=4)
 
     return kappa
 
@@ -334,7 +301,7 @@ def pdf_median(pdf: PDF) -> float:
     median : float
         Median of PDF.
     """
-    return pdf.pit(0.5).item()
+    return pdf.pit(0.5)
 
 
 #################### STATISTICAL SUMMARIES ####################
@@ -357,10 +324,13 @@ class PDFstatistics:
     unit: str | None = None
 
     # Reporting
-    def __str__(self):
-        print_str = f"PDF:"
+    def __str__(self) -> str:
+        print_str = "PDF:"
         if self.name is not None:
             print_str += f" {self.name}"
+
+        if self.variable_type is not None:
+            print_str += f" - {self.variable_type}"
 
         if self.unit is not None:
             print_str += f" ({self.unit})"
@@ -425,10 +395,10 @@ class ConfidenceRange:
     variable_type: str | None = None
     unit: str | None = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[float, float]]:
         yield from self.range_values
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "PDF confidence range:"
         if self.pdf_name is not None:
             print_str += f" {self.pdf_name}"
@@ -473,7 +443,7 @@ def compute_interquantile_range(
     conf_range = ConfidenceRange(
         metric="IQR",
         confidence=confidence,
-        range_values=tuple([values]),
+        range_values=(values,),
         pdf_name=pdf.name,
         variable_type=pdf.variable_type,
         unit=pdf.unit,
@@ -499,59 +469,52 @@ def compute_highest_posterior_density(
     conf_range : ConfidenceRange
         Confidence range of PDF based on the highest posterior density.
     """
-    # Value index numbers
-    val_nbs = np.array([*range(len(pdf))])
-
-    # Compute probabilities
+    # Compute probability at each step from probability density function
     dx = value_arrays.sample_spacing_array_from_pdf(pdf)
     p_i = pdf.px * dx
 
-    # Sort the probabilities from largest to smallest
-    sort_ndx = np.argsort(p_i)
-    sort_ndx = sort_ndx[::-1]
+    # Order probabilities from highest to lowest (tallest to shortest)
+    sort_ndx = np.argsort(p_i)  # lowest-highest
+    sort_ndx = sort_ndx[::-1]  # highest-lowest
 
-    vals_sort = val_nbs[sort_ndx]
-    x_sort = pdf.x[sort_ndx]
+    # Sort relevant PDF values according to probabilities
     px_sort = pdf.px[sort_ndx]
     p_i_sort = p_i[sort_ndx]
 
-    # Sum probabilities until they reach the specified confidence limit
+    # Compute running sum of probabilities, from zero to unit
     P_sort = np.cumsum(p_i_sort)
 
-    # Determine which values meet confidence bounds
+    # Find last index at which summed probability is <= the desired confidence
     conf_ndxs = (P_sort <= confidence)
+    k_star = np.sum(conf_ndxs) - 1
 
-    # Keep x, px value probability pairs that are within confidence limits
-    x_sort_conf = x_sort[conf_ndxs]
-    px_sort_conf = px_sort[conf_ndxs]
-    vals_sort_conf = vals_sort[conf_ndxs]
+    # Find exact probability density value corresponding to desired confidence
+    # by interpolating between discrete points
+    t = (confidence - P_sort[k_star]) / (P_sort[k_star + 1] - P_sort[k_star])
+    h = px_sort[k_star] + t * (px_sort[k_star + 1] - px_sort[k_star])
 
-    # Un-sort values in confidence limit by x-value
-    unsort_ndx = np.argsort(x_sort_conf)
+    # Find every place px changes across threshold h, sign changes are
+    # cluster edges
+    thresh = np.where(pdf.px >= h, 1., -1.)
+    thresh_diff = np.diff(thresh, append=-1.)
 
-    x_conf = x_sort_conf[unsort_ndx]
-    px_conf = px_sort_conf[unsort_ndx]
-    vals_conf = vals_sort_conf[unsort_ndx]
+    cluster_starts = []
+    cluster_ends = []
+    for i in range(len(pdf)-1):
+        if thresh_diff[i] != 0.:
+            # Interpolate the exact crossing location at each edge
+            t = (h - pdf.px[i]) / (pdf.px[i+1] - pdf.px[i])
+            x_star = pdf.x[i] + t * (pdf.x[i+1] - pdf.x[i])
+            if thresh_diff[i] == 2.:
+                cluster_starts.append(x_star)
+            else:
+                cluster_ends.append(x_star)
 
-    # Number of values in confidence limit
-    n_conf = len(x_conf)
-
-    # Group values by continuity
-    clusters = []
-    cluster_start = x_conf[0]
-    for i in range(1, n_conf):
-        if (
-            (vals_conf[i] - vals_conf[i-1]) > 1
-            or (i == n_conf-1)
-        ):
-            # Cluster end
-            cluster_end = x_conf[i-1]
-
-            # Record cluster
-            clusters.append((cluster_start, cluster_end))
-
-            # Start next cluster
-            cluster_start = x_conf[i]
+    clusters = [
+        # Pair consecutive edges
+        (cluster_start, cluster_end) for cluster_start, cluster_end in
+        zip(cluster_starts, cluster_ends)
+    ]
 
     # Format values into ConfidenceRange object
     conf_range = ConfidenceRange(
@@ -577,7 +540,7 @@ DEFAULT_CONFIDENCE_METRIC = "HPD"
 
 def get_pdf_confidence_function(
     metric: str, verbose: bool = False
-) -> "Callable":
+) -> Callable[..., Any]:
     """Retrieve a confidence function by name.
 
     Parameters
@@ -596,7 +559,7 @@ def get_pdf_confidence_function(
     # Check metric is supported
     if metric not in PDF_CONFIDENCE_METRICS:
         raise ValueError(
-            f"PDF confidene metric '{metric}' not supported. "
+            f"PDF confidence metric '{metric}' not supported. "
             f"Use one of {', '.join(PDF_CONFIDENCE_METRICS)}"
         )
 
@@ -604,7 +567,7 @@ def get_pdf_confidence_function(
     if verbose:
         print(f"Confidence metric: {metric}")
 
-    return PDF_CONFIDENCE_METRICS.get(metric)
+    return PDF_CONFIDENCE_METRICS[metric]
 
 
 def compute_pdf_confidence_range(

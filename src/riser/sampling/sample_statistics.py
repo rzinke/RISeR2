@@ -27,11 +27,11 @@ class SampleStatistics:
     range_values: tuple[float, ...]
 
     # PDF metadata
-    name: str
-    variable_type: str
-    unit: str
+    name: str | None
+    variable_type: str | None
+    unit: str | None
 
-    def __str__(self):
+    def __str__(self) -> str:
         print_str = "Sample statistics:"
         if self.name is not None:
             print_str += f" {self.name}"

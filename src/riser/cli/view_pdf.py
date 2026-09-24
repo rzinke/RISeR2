@@ -3,17 +3,17 @@
 #
 # Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
 
-# Constants
-from riser import constants
-
 
 # Import modules
 import argparse
 
 import matplotlib.pyplot as plt
 
-from riser import probability_functions as PDFs
-from riser import plotting
+from riser import (
+    constants,
+    plotting,
+    probability_functions as PDFs,
+)
 
 
 #################### ARGUMENT PARSER ####################
@@ -21,7 +21,7 @@ description = "View the PDF of a random variable and its properties."
 
 examples = """Examples:
 view_pdf.py pdf_file.txt
-view_pdf.py pdf_file.txt --show-confidence --confidence-limits 0.9545 --confidence-methods IQR
+view_pdf.py pdf_file.txt --show-confidence --confidence-limits 0.9545 --confidence-method IQR
 view_pdf.py pdf_file.txt -o pdf_fig.png --no-show
 """
 
@@ -72,7 +72,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main():
+def main() -> None:
     # Parse arguments
     inps = cmd_parser()
 
@@ -105,7 +105,7 @@ def main():
     # Show CDF
     if inps.show_cdf:
         # Initialize figure and axis
-        cdf_fig, cdf_ax = plt.subplots()
+        _, cdf_ax = plt.subplots()
 
         # Plot CDF
         plotting.plot_cdf_labeled(cdf_ax, pdf)
