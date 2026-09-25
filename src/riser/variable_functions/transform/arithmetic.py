@@ -106,6 +106,11 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
 #################### RANDOM VARIABLE ARITHMETIC ####################
 def negate_variable(
     pdf: PDFs.PDF,
+    # PDF metadata
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Negate a random variable expressed as a PDF.
@@ -116,7 +121,13 @@ def negate_variable(
     ----------
     pdf : PDF
         PDF to negate.
-    
+    name : str, optional
+        Name of negated PDF.
+    variable_type : str, optional
+        Variable type of negated PDF.
+    unit : str, optional
+        Unit of negated PDF.
+
     Returns
     -------
     neg_pdf : PDF
@@ -135,15 +146,15 @@ def negate_variable(
     neg_name = f"(negative) {pdf.name}" if pdf.name is not None else None
 
     # Compose metadata
-    metadict = pdf.metadata.as_dict()
-    metadict["name"] = neg_name
+    metadata_dict = pdf.metadata.as_dict()
+    metadata_dict["name"] = name if name is not None else neg_name
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+    if unit is not None:
+        metadata_dict["unit"] = unit
 
     # Form results into PDF
-    neg_pdf = PDFs.PDF(
-        x=neg_x,
-        px=neg_px,
-        **metadict,
-    )
+    neg_pdf = PDFs.PDF(x=neg_x, px=neg_px, **metadata_dict)
 
     return neg_pdf
 
@@ -152,7 +163,11 @@ def add_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Add random variables PDF1 (X) and PDF2 (Y) to get a PDF of the sum of
@@ -187,7 +202,11 @@ def add_variables(
         PDF to add to pdf1.
     name : str, optional
         Name of summed PDF.
-    
+    variable_type : str, optional
+        Variable type of summed PDF.
+    unit : str, optional
+        Unit of summed PDF.
+
     Returns
     -------
     pdf_sum : PDF
@@ -201,11 +220,6 @@ def add_variables(
 
     # Warn of metadata mismatches
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
-
-    # Get common metadata
-    metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name,
-    )
 
     # Parameters
     x_min = pdf1.x[0]
@@ -223,12 +237,20 @@ def add_variables(
     # Loop through output array
     pz = np.convolve(pdf1.px, pdf2.px, mode="full")
 
-    # Form results into PDF
-    pdf_sum = PDFs.PDF(
-        x=z,
-        px=pz,
-        **metadata.as_dict(),
+    # Get common metadata
+    common_metadata = PDFs.metadata.get_common_metadata(
+        [pdf1.metadata, pdf2.metadata], name=name,
     )
+
+    # Format metadata
+    metadata_dict = common_metadata.as_dict()
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+    if unit is not None:
+        metadata_dict["unit"] = unit
+
+    # Form results into PDF
+    pdf_sum = PDFs.PDF(x=z, px=pz, **metadata_dict)
 
     return pdf_sum
 
@@ -237,7 +259,11 @@ def subtract_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Subtract PDF2 (Y) from PDF1 (X) to get a PDF of the difference of
@@ -272,7 +298,11 @@ def subtract_variables(
         PDF to subtract from pdf1.
     name : str, optional
         Name of differenced PDF.
-    
+    variable_type : str, optional
+        Variable type of differenced PDF.
+    unit : str, optional
+        Unit of differenced PDF.
+
     Returns
     -------
     difference_pdf : PDF
@@ -286,11 +316,6 @@ def subtract_variables(
 
     # Warn of metadata mismatches
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
-
-    # Get common metadata
-    metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name,
-    )
 
     # Parameters
     x_start = pdf1.x[0]
@@ -311,12 +336,20 @@ def subtract_variables(
     # Add negated PDF2 to PDF1
     pz = np.convolve(pdf1.px, neg_pdf2.px, mode="full")
 
-    # Form results into PDF
-    pdf_diff = PDFs.PDF(
-        x=z,
-        px=pz,
-        **metadata.as_dict(),
+    # Get common metadata
+    common_metadata = PDFs.metadata.get_common_metadata(
+        [pdf1.metadata, pdf2.metadata], name=name
     )
+
+    # Format metadata
+    metadata_dict = common_metadata.as_dict()
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+    if unit is not None:
+        metadata_dict["unit"] = unit
+
+    # Form results into PDF
+    pdf_diff = PDFs.PDF(x=z, px=pz, **metadata_dict)
 
     return pdf_diff
 
@@ -325,11 +358,15 @@ def multiply_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # Product distribution
     dz: float = 0.01,
     min_product: float | None = None,
     max_product: float | None = None,
+    # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Multiply PDF1 (X) with PDF2 (Y) to get a PDF of the product of their
@@ -359,8 +396,10 @@ def multiply_variables(
     name : str, optional
         Name of product PDF.
     variable_type : str, optional
-        Variable quantity.
-    
+        Variable type of product PDF.
+    unit : str, optional
+        Unit of product PDF.
+
     Returns
     -------
     pdf_prod : PDF
@@ -417,20 +456,22 @@ def multiply_variables(
     prod = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Determine product unit
-    if pdf1.unit is not None and pdf2.unit is not None:
+    if (
+        unit is None
+        and pdf1.unit is not None
+        and pdf2.unit is not None
+    ):
         unit = f"{pdf1.unit}.{pdf2.unit}"
-    else:
-        unit = None
 
     # Format metadata
-    metadata = PDFs.PDFmetadata(
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
-    )
+    metadata_dict = {
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
+    }
 
     # Form results into PDF with unit area
-    pdf_prod = prod.normalize(**metadata.as_dict())
+    pdf_prod = prod.normalize(**metadata_dict)
 
     return pdf_prod, prod.area
 
@@ -439,11 +480,15 @@ def divide_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # Quotient distribution
     dz: float = 0.01,
     min_quotient: float | None = None,
     max_quotient: float | None = None,
+    # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Divide pdf1 by pdf2.
@@ -500,11 +545,13 @@ def divide_variables(
     name : str, optional
         Name of quotient PDF.
     variable_type : str, optional
-        Variable quantity.
+        Variable type of quotient PDF.
+    unit : str, optional
+        Unit of quotient PDF.
 
     Returns
     -------
-    pdf_quot : PDF
+    quot_pdf : PDF
         Quotient PDF.
     area : float
         Area of the non-normalized PDF.
@@ -564,22 +611,24 @@ def divide_variables(
     quot = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Determine quotient unit
-    if pdf1.unit is not None and pdf2.unit is not None:
+    if (
+        unit is None
+        and pdf1.unit is not None
+        and pdf2.unit is not None
+    ):
         unit = f"{pdf1.unit}/{pdf2.unit}"
-    else:
-        unit = None
 
     # Format metadata
-    metadata = PDFs.PDFmetadata(
-        name=name,
-        variable_type=variable_type,
-        unit=unit,
-    )
+    metadata_dict = {
+        "name": name,
+        "variable_type": variable_type,
+        "unit": unit,
+    }
 
     # Form results into PDF with unit area
-    pdf_quot = quot.normalize(**metadata.as_dict())
+    quot_pdf = quot.normalize(**metadata_dict)
 
-    return pdf_quot, quot.area
+    return quot_pdf, quot.area
 
 
 # end of file

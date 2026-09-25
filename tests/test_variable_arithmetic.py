@@ -75,7 +75,8 @@ class TestNegateVariable:
         ],
     )
     def test_name_handling(self, original_name, expected_name):
-        """Check that if no name is passed, no name is return.
+        """
+        Check that if no name is passed, no name is returned.
         Or is a name is passed, the name is signified to be the negated version
         of the input.
         """
