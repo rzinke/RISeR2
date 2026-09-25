@@ -32,7 +32,17 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### RESAMPLING/INTERPOLATION ####################
-def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
+def interpolate_pdf(
+    pdf: PDF,
+    x: np.ndarray,
+    *,
+    # PDF metadata
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
+    verbose: bool = False,
+) -> PDF:
     """Resample a PDF along a new value array.
 
     Parameters
@@ -41,6 +51,12 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
         PDF to be resampled.
     x : np.ndarray
         Value array along which to resample the PDF.
+    name : str, optional
+        Name of interpolated PDF.
+    variable_type : str, optional
+        Variable type of interpolated PDF.
+    unit : str, optional
+        Unit of interpolated PDF.
 
     Returns
     -------
@@ -53,14 +69,20 @@ def interpolate_pdf(pdf: PDF, x: np.ndarray, verbose: bool = False) -> PDF:
     # Interpolate probability density values along the new value array
     px_resamp = np.interp(x, pdf.x, pdf.px, left=0, right=0)
 
-    # Copy metadata from original PDF
-    metadata = {}
-    for meta_item in METADATA_ITEMS:
-        # Retrieve metadata value from original PDF
-        metadata[meta_item] = getattr(pdf, meta_item)
+    # Format metadata
+    metadata_dict = pdf.metadata.as_dict()
+
+    if name is not None:
+        metadata_dict["name"] = name
+
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+
+    if unit is not None:
+        metadata_dict["unit"] = unit
 
     # Instantiate new, resampled PDF
-    pdf_resamp = PDF(x=x, px=px_resamp, **metadata)
+    pdf_resamp = PDF(x=x, px=px_resamp, **metadata_dict)
 
     return pdf_resamp
 

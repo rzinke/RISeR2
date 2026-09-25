@@ -24,8 +24,15 @@ from . import core
 def trim_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
+    *,
+    # PDF metadata
     name1: str | None = None,
     name2: str | None = None,
+    variable_type1: str | None = None,
+    variable_type2: str | None = None,
+    unit1: str | None = None,
+    unit2: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, PDFs.PDF, float]:
     """Trim two PDFs against each other, enforcing that pdf1 precedes pdf2.
@@ -34,8 +41,8 @@ def trim_variables(
     Given a known ordering constraint (pdf1 < pdf2), each variable's own
     distribution can be reshaped by conditioning on the other's CDF:
 
-        pdf1_trimmed(x) ~ pdf1(x) . (1 - CDF2(x))
-        pdf2_trimmed(x) ~ pdf2(x) . CDF1(x)
+        trimmed_pdf1(x) ~ pdf1(x) . (1 - CDF2(x))
+        trimmed_pdf2(x) ~ pdf2(x) . CDF1(x)
 
     The areas of the two trimming results will be the same, because
     
@@ -50,12 +57,24 @@ def trim_variables(
         Variable constrained to precede pdf2.
     pdf2 : PDF
         Variable constrained to follow pdf1.
+    name1 : str, optional
+        Name of trimmed pdf1.
+    name2 : str, optional
+        Name of trimmed pdf2.
+    variable_type1 : str, optional
+        Variable type of trimmed pdf1.
+    variable_type2 : str, optional
+        Variable type of trimmed pdf2.
+    unit1 : str, optional
+        Unit of trimmed pdf1.
+    unit2 : str, optional
+        Unit of trimmed pdf2.
 
     Returns
     -------
-    pdf1_trimmed : PDF
+    trimmed_pdf1 : PDF
         pdf1, reshaped to reflect that it must precede pdf2.
-    pdf2_trimmed : PDF
+    trimmed_pdf2 : PDF
         pdf2, reshaped to reflect that it must follow pdf1.
     area : float
         P(pdf1 < pdf2), or equivalently P(pdf2 > pdf1).
@@ -80,12 +99,22 @@ def trim_variables(
 
     metadata_dict1["name"] = name1 if name1 is not None else default_name1
     metadata_dict2["name"] = name2 if name2 is not None else default_name2
-    
+
+    metadata_dict1["variable_type"] = (
+        variable_type1 if variable_type1 is not None else pdf1.variable_type
+    )
+    metadata_dict2["variable_type"] = (
+        variable_type2 if variable_type2 is not None else pdf2.variable_type
+    )
+
+    metadata_dict1["unit"] = unit1 if unit1 is not None else pdf1.unit
+    metadata_dict2["unit"] = unit2 if unit2 is not None else pdf2.unit
+
     # Trim first variable relative to second
     weight_larger = PDFs.weight_functions.WeightFunction(
         x=pdf2.x, wx=(1 - pdf2.Px)
     )
-    pdf1_trimmed, area = core.condition(
+    trimmed_pdf1, area = core.condition(
         pdf1,
         weight_larger,
         **metadata_dict1,
@@ -95,13 +124,13 @@ def trim_variables(
     weight_smaller = PDFs.weight_functions.WeightFunction(
         x=pdf1.x, wx=pdf1.Px
     )
-    pdf2_trimmed, _ = core.condition(
+    trimmed_pdf2, _ = core.condition(
         pdf2,
         weight_smaller,
         **metadata_dict2,
     )
 
-    return pdf1_trimmed, pdf2_trimmed, area
+    return trimmed_pdf1, trimmed_pdf2, area
 
 
 # end of file
