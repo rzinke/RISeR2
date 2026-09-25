@@ -27,7 +27,6 @@ __all__ = [
 import numpy as np
 
 from . import value_arrays
-from .metadata import METADATA_ITEMS
 from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
