@@ -312,7 +312,7 @@ class TestMultiplyVariables:
         pdf1 = PDFs.PDF(x=x, px=px)
         pdf2 = PDFs.PDF(x=x, px=px)
 
-        pdf_prod, area = var_fcns.transform.arithmetic.multiply_variables(
+        pdf_prod, _ = var_fcns.transform.arithmetic.multiply_variables(
             pdf1, pdf2, dz=dx
         )
 
@@ -337,7 +337,7 @@ class TestDivideVariables:
         denominator = PDFs.PDF(x=x, px=px)
 
         min_q, max_q = -20.0, 20.0
-        pdf_quot, area = var_fcns.transform.arithmetic.divide_variables(
+        pdf_quot, _ = var_fcns.transform.arithmetic.divide_variables(
             numerator, denominator, dz=0.01,
             min_quotient=min_q, max_quotient=max_q,
         )

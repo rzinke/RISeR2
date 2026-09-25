@@ -23,7 +23,7 @@ class TestVariablePair:
         px2 = PDFs.parametric_functions.triangular(x2, a=35.0, c=41.0, b=45.0)
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
-        var_pair = variable_pairs.VariablePair(pdf1=pdf1, pdf2=pdf2)
+        variable_pairs.VariablePair(pdf1=pdf1, pdf2=pdf2)
 
     def test_invalid_inputs_raise(self):
         x1 = PDFs.value_arrays.precise_array(0.0, 16.0, 0.01)
@@ -72,7 +72,7 @@ class TestDatedMarker:
             name="x_disp", variable_type="displacement", unit="m"
         )
 
-        var_pair = variable_pairs.DatedMarker(
+        variable_pairs.DatedMarker(
             age=age_pdf, displacement=disp_pdf
         )
 
@@ -88,7 +88,7 @@ class TestDatedMarker:
         )
 
         with pytest.raises(ValueError, match="Age base unit must be"):
-            var_pair = variable_pairs.DatedMarker(
+            variable_pairs.DatedMarker(
                 age=age_pdf, displacement=disp_pdf
             )
 
@@ -104,7 +104,7 @@ class TestDatedMarker:
         )
 
         with pytest.raises(ValueError, match="Displacement base unit must be"):
-            var_pair = variable_pairs.DatedMarker(
+            variable_pairs.DatedMarker(
                 age=age_pdf, displacement=disp_pdf
             )
 
@@ -117,7 +117,7 @@ class TestDatedMarker:
             x=np.array([9.0, 11.0, 12.0]), px=np.array([0.0, 1.0, 0.0])
         )
 
-        marker = variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
+        variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
 
         assert len(recwarn) > 0
 

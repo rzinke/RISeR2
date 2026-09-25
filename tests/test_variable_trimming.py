@@ -5,7 +5,6 @@
 # Import modules
 import numpy as np
 import pytest
-import scipy as sp
 
 from riser import (
     probability_functions as PDFs,
@@ -59,7 +58,7 @@ class TestTrimVariables:
         (
             pdf1_trimmed,
             pdf2_trimmed,
-            area,
+            _,
         ) = var_fcns.condition.trimming.trim_variables(pdf1, pdf2)
         
         assert pdf1_trimmed.name == name1_expected
@@ -83,7 +82,7 @@ class TestTrimVariables:
         (
             pdf1_trimmed,
             pdf2_trimmed,
-            area,
+            _,
         ) = var_fcns.condition.trimming.trim_variables(
             pdf1, pdf2, name1="X1 trimmed", name2="X2 trimmed"
         )

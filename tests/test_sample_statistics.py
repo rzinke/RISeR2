@@ -9,7 +9,6 @@ import scipy as sp
 
 from riser import (
     constants,
-    probability_functions as PDFs,
     sampling,
 )
 
