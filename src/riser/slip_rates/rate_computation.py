@@ -37,7 +37,7 @@ from ..sampling import filtering, mc_sampling, pdf_formation
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
-    dr: float = 0.01,
+    dv: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -48,7 +48,7 @@ def compute_slip_rate(
     ----------
     marker : DatedMarker
         Displacement-age pair used to calculate slip rate.
-    dr : float, optional
+    dv : float, optional
         Rate step.
     limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
@@ -70,7 +70,7 @@ def compute_slip_rate(
     slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
         pdf1=marker.displacement,
         pdf2=marker.age,
-        dz=dr,
+        dz=dv,
         min_quotient=min_rate,
         max_quotient=max_rate,
         name=marker.name,
@@ -83,7 +83,7 @@ def compute_slip_rate(
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
-    dr: float = 0.01,
+    dv: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
     verbose: bool = False,
@@ -97,7 +97,8 @@ def compute_slip_rates_analytical(
     by the corresponding `delta_t`.
 
     Note: Per the divide_variables operator, denominator (age) values cannot
-    be negative.
+    be negative, or zero. The "limit positive" condition is always applied to
+    time values.
 
     Parameters
     ----------
@@ -105,11 +106,11 @@ def compute_slip_rates_analytical(
         Dated markers bounding each interval.
     max_rate : float
         Maximum quotient value to consider.
-    dr : float, optional
+    dv : float, optional
         Rate step.
     limit_positive : bool, optional
-        Enforce condition that time and displacement difference values must be
-        positive.
+        Enforce condition that displacement difference values must be positive.
+        Time differences are always positive.
 
     Returns
     -------
@@ -163,25 +164,23 @@ def compute_slip_rates_analytical(
             pdf1=older_age, pdf2=younger_age, verbose=verbose
         )
 
-        # Limit time difference to positive-only values
-        if limit_positive:
-            # Enforce condition that all values > 0
-            (delta_t,
-             area_t) = var_fcns.condition.self_constraint.constrain_above(
-                pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
+        # Always enforce condition that all values > 0
+        (delta_t,
+         area_t) = var_fcns.condition.self_constraint.constrain_above(
+            pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
+        )
+
+        # Report trimming result
+        if verbose:
+            print(
+                f"{(1.0 - area_t) * 100:.1f} % of original time "
+                f"difference trimmed for {delta_t.name}"
             )
 
-            # Report trimming result
-            if verbose:
-                print(
-                    f"{(1.0 - area_t) * 100:.1f} % of original time "
-                    f"difference trimmed for {delta_t.name}"
-                )
-
-            # Crop to all-positive axis
-            delta_t = PDFs.interpolation.interpolate_pdf(
-                pdf=delta_t, x=delta_t.x[delta_t.x > 0]
-            )
+        # Crop to all-positive axis
+        delta_t = PDFs.interpolation.interpolate_pdf(
+            pdf=delta_t, x=delta_t.x[delta_t.x > 0]
+        )
 
         # Interpolate displacements on same axis
         (younger_displacement,
@@ -221,7 +220,7 @@ def compute_slip_rates_analytical(
         slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
             pdf1=delta_u,
             pdf2=delta_t,
-            dz=dr,
+            dz=dv,
             min_quotient=min_rate,
             max_quotient=max_rate,
             name=rate_name,
@@ -247,7 +246,7 @@ def compute_slip_rates_mc(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
-    dr: float = 0.01,
+    dv: float = 0.01,
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
     pdf_method: str = "histogram",
@@ -267,7 +266,7 @@ def compute_slip_rates_mc(
         Dated markers bounding each interval.
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
-    dr : float, optional
+    dv : float, optional
         Rate step.
     n_samples : int, optional
         Number of valid samples to achieve.

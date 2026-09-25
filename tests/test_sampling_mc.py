@@ -8,8 +8,8 @@ import pytest
 
 from riser import (
     probability_functions as PDFs,
-    variable_pairs,
     sampling,
+    variable_pairs,
 )
 
 
@@ -128,8 +128,8 @@ class TestSampleMonteCarlo:
         n_samples = 1_000
 
         (
-            age_picks,
-            disp_picks,
+            _,
+            _,
             success_rate
         ) = sampling.mc_sampling.sample_monte_carlo(
             markers=distant_markers,
@@ -150,7 +150,7 @@ class TestSampleMonteCarlo:
         (
             age_picks,
             disp_picks,
-            success_rate
+            _,
         ) = sampling.mc_sampling.sample_monte_carlo(
             markers=close_markers,
             criterion=criterion,
@@ -170,11 +170,7 @@ class TestSampleMonteCarlo:
         n_samples = 1_000
 
         with pytest.raises(RuntimeError, match="No samples meet"):
-            (
-                age_picks,
-                disp_picks,
-                success_rate
-            ) = sampling.mc_sampling.sample_monte_carlo(
+            sampling.mc_sampling.sample_monte_carlo(
                 markers=close_markers,
                 criterion=criterion,
                 n_samples=n_samples,

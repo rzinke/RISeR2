@@ -98,7 +98,7 @@ class TestInferBracketed:
         px2 = PDFs.parametric_functions.uniform(x=x, a=10.0, b=10.0 + dx)
         pdf2 = PDFs.PDF(x, px2, variable_type=vartype, unit=unit)
 
-        bracketed, area = var_fcns.condition.bracketing.infer_bracketed(
+        bracketed, _ = var_fcns.condition.bracketing.infer_bracketed(
             pdf1=pdf1, pdf2=pdf2, name=name
         )
 
