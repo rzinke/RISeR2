@@ -24,7 +24,12 @@ from . import core
 def constrain_above(
     pdf: PDFs.PDF,
     value: float,
+    *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Allow non-zero probability density only above the specified value.
@@ -39,10 +44,14 @@ def constrain_above(
         Value above which all probability densities will be zero.
     name : str, optional
         Name of constrained PDF.
+    variable_type : str, optional
+        Variable type of constrained PDF.
+    unit : str, optional
+        Unit of constrained PDF.
 
     Returns
     -------
-    pdf_constrained : PDF
+    constrained_pdf : PDF
         Constrained PDF.
     area : float
         The fraction of the prior retained by the constraint.
@@ -56,22 +65,31 @@ def constrain_above(
     # Formulate default output name
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
     metadata_dict["name"] = name if name is not None else default_name
+
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+
+    if unit is not None:
+        metadata_dict["unit"] = unit
     
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
 
     # Constrain PDF
-    pdf_constrained, area = core.condition(
-        pdf, weight, **metadata_dict
-    )
+    constrained_pdf, area = core.condition(pdf, weight, **metadata_dict)
 
-    return pdf_constrained, area
+    return constrained_pdf, area
 
 
 def constrain_below(
     pdf: PDFs.PDF,
     value: float,
+    *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Allow non-zero probability density only below the specified value.
@@ -86,10 +104,14 @@ def constrain_below(
         Value below which all probability densities will be zero.
     name : str, optional
         Name of constrained PDF.
+    variable_type : str, optional
+        Variable type of constrained PDF.
+    unit : str, optional
+        Unit of constrained PDF.
 
     Returns
     -------
-    pdf_constrained : PDF
+    constrained_pdf : PDF
         Constrained PDF.
     area : float
         The fraction of the prior retained by the constraint.
@@ -104,15 +126,21 @@ def constrain_below(
     default_name = f"{pdf.name} constr" if pdf.name is not None else None
     metadata_dict["name"] = name if name is not None else default_name
 
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+
+    if unit is not None:
+        metadata_dict["unit"] = unit
+
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x >= value)
     
     # Constrain PDF
-    pdf_constrained, area = core.condition(
+    constrained_pdf, area = core.condition(
         pdf, weight, **metadata_dict
     )
 
-    return pdf_constrained, area
+    return constrained_pdf, area
 
 
 # end of file
