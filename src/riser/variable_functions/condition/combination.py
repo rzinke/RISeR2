@@ -21,7 +21,12 @@ from . import core
 #################### COMBINATION FUNCTIONS ####################
 def combine_variables(
     pdfs: list[PDFs.PDF],
+    *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Compute the joint probability mass function of two or more discrete
@@ -37,11 +42,15 @@ def combine_variables(
     pdfs : list[PDF]
         List of PDFs to combine.
     name : str, optional
-        Descriptive name of combined PDF.
+        Name of summed PDF.
+    variable_type : str, optional
+        Variable type of summed PDF.
+    unit : str, optional
+        Unit of summed PDF.
 
     Returns
     -------
-    pdf_combined : PDF
+    combined_pdf : PDF
         Combined pdf.
     area : float
         Likelihood of the combined estimate, reflecting how compatible the 
@@ -57,9 +66,16 @@ def combine_variables(
     PDFs.metadata.check_physical_properties([pdf.metadata for pdf in pdfs])
 
     # Get common metadata
-    metadata = PDFs.metadata.get_common_metadata(
-        [pdf.metadata for pdf in pdfs], name=name
+    common_metadata = PDFs.metadata.get_common_metadata(
+        [pdf.metadata for pdf in pdfs], name=name,
     )
+
+    # Format metadata
+    metadata_dict = common_metadata.as_dict()
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+    if unit is not None:
+        metadata_dict["unit"] = unit
 
     # Initialize posterior kernel
     kernel = PDFs.weight_functions.WeightFunction.from_pdf(pdfs[0])
@@ -70,10 +86,10 @@ def combine_variables(
         kernel = core.weigh(kernel, PDFs.weight_functions.WeightFunction.from_pdf(pdf))
 
     # Convert the combined weight function to a PDF
-    pdf_combined = kernel.normalize(**metadata.as_dict())
+    combined_pdf = kernel.normalize(**metadata_dict)
     area = kernel.area
 
-    return pdf_combined, area
+    return combined_pdf, area
 
 
 # end of file

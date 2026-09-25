@@ -209,7 +209,7 @@ def add_variables(
 
     Returns
     -------
-    pdf_sum : PDF
+    sum_pdf : PDF
         Summed PDF.
     """
     if verbose:
@@ -250,9 +250,9 @@ def add_variables(
         metadata_dict["unit"] = unit
 
     # Form results into PDF
-    pdf_sum = PDFs.PDF(x=z, px=pz, **metadata_dict)
+    sum_pdf = PDFs.PDF(x=z, px=pz, **metadata_dict)
 
-    return pdf_sum
+    return sum_pdf
 
 
 def subtract_variables(
@@ -349,9 +349,9 @@ def subtract_variables(
         metadata_dict["unit"] = unit
 
     # Form results into PDF
-    pdf_diff = PDFs.PDF(x=z, px=pz, **metadata_dict)
+    diff_pdf = PDFs.PDF(x=z, px=pz, **metadata_dict)
 
-    return pdf_diff
+    return diff_pdf
 
 
 def multiply_variables(
@@ -402,7 +402,7 @@ def multiply_variables(
 
     Returns
     -------
-    pdf_prod : PDF
+    prod_pdf : PDF
         Product PDF.
     area : float
         Area of the non-normalized PDF.
@@ -471,9 +471,9 @@ def multiply_variables(
     }
 
     # Form results into PDF with unit area
-    pdf_prod = prod.normalize(**metadata_dict)
+    prod_pdf = prod.normalize(**metadata_dict)
 
-    return pdf_prod, prod.area
+    return prod_pdf, prod.area
 
 
 def divide_variables(

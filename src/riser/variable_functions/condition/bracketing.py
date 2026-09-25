@@ -23,7 +23,12 @@ from . import core
 def infer_bracketed(
     pdf1: PDFs.PDF, 
     pdf2: PDFs.PDF,
+    *,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[PDFs.PDF, float]:
     """Compute a PDF representing the domain and probability densities of
@@ -47,11 +52,15 @@ def infer_bracketed(
     pdf2 : PDF
         Larger PDF.
     name : str, optional
-        Name of "between" PDF.
+        Name of bracketed PDF.
+    variable_type : str, optional
+        Variable type of bracketed PDF.
+    unit : str, optional
+        Unit of bracketed PDF.
 
     Returns
     -------
-    pdf_bracketed : PDF
+    bracketed_pdf : PDF
         PDF describing values between the two input variables.
     area : float
         Expected size of the bracket, E[(X2 - X1)+], in the same units as
@@ -67,9 +76,16 @@ def infer_bracketed(
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
     # Get common metadata
-    metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name
+    common_metadata = PDFs.metadata.get_common_metadata(
+        [pdf1.metadata, pdf2.metadata], name=name,
     )
+
+    # Format metadata
+    metadata_dict = common_metadata.as_dict()
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
+    if unit is not None:
+        metadata_dict["unit"] = unit
 
     # Create a ones-distribution representing a shapeless prior
     prior = PDFs.weight_functions.flat_weight(pdf1.x)
@@ -80,9 +96,9 @@ def infer_bracketed(
     )
 
     # Apply Bayesian condition
-    pdf_bracketed, area = core.condition(prior, weight, **metadata.as_dict())
+    bracketed_pdf, area = core.condition(prior, weight, **metadata_dict)
 
-    return pdf_bracketed, area
+    return bracketed_pdf, area
 
 
 # end of file
