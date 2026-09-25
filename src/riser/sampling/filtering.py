@@ -178,9 +178,14 @@ def filter_pdf(
     filter_type: str,
     filter_width: int,
     *,
+    # Filter tuning
     edge_padding: str = "zeros",
     preserve_edges: bool = False,
+    # PDF metadata
     name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Apply a finite impulse response filter to the probability density
@@ -205,11 +210,15 @@ def filter_pdf(
     preserve_edges : bool
         Preserve PDF edges.
     name : str, optional
-        Filtered PDF name override.
+        Name of filtered PDF.
+    variable_type : str, optional
+        Variable type of filtered PDF.
+    unit : str, optional
+        Unit of filtered PDF.
 
     Returns
     -------
-    pdf_filt : PDF
+    filt_pdf : PDF
         Filtered PDF.
     """
     # Construct filter
@@ -262,14 +271,19 @@ def filter_pdf(
     # Format metadata
     metadata_dict = pdf.metadata.as_dict()
 
-    # Override output PDF name
     if name is not None:
         metadata_dict["name"] = name
 
-    # Form results into PDF
-    pdf_filt = PDFs.PDF(x=pdf.x, px=px, **metadata_dict)
+    if variable_type is not None:
+        metadata_dict["variable_type"] = variable_type
 
-    return pdf_filt
+    if unit is not None:
+        metadata_dict["unit"] = unit
+
+    # Form results into PDF
+    filt_pdf = PDFs.PDF(x=pdf.x, px=px, **metadata_dict)
+
+    return filt_pdf
 
 
 # end of file

@@ -134,7 +134,14 @@ class WeightFunction:
         return integration.integrate(x=self.x, px=self.wx)
 
 
-    def normalize(self, **metadata) -> PDF:
+    def normalize(
+        self,
+        *,
+        # PDF metadata
+        name: str | None = None,
+        variable_type: str | None = None,
+        unit: str | None = None,
+    ) -> PDF:
         """Normalize the area of the weight function to 1.0 and format as a PDF.
 
         An area that is negative or infinite raises.
@@ -144,6 +151,12 @@ class WeightFunction:
         pdf : PDF
             PDF with same shape as the original weighting function,
             with unit area guaranteed.
+        name : str, optional
+            Name of PDF.
+        variable_type : str, optional
+            Variable type of PDF.
+        unit : str, optional
+            Unit of PDF.
         """
         # Compute area
         area = self.area
@@ -156,7 +169,13 @@ class WeightFunction:
             )
 
         # Create PDF - guarantees unit area
-        pdf = PDF(x=self.x, px=self.wx, **metadata)
+        pdf = PDF(
+            x=self.x,
+            px=self.wx,
+            name=name,
+            variable_type=variable_type,
+            unit=unit,
+        )
 
         return pdf
 

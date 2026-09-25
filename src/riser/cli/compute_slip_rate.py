@@ -84,6 +84,9 @@ def cmd_parser(iargs=None):
 
     # Outputs
     output_args = parser.add_argument_group("Outputs")
+    output_args.add_argument("--name", dest="name",
+        type=str, default=None,
+        help="Name of the output slip rate PDF.")
     output_args.add_argument("-o", "--output-prefix", dest="output_prefix",
         type=str, required=True,
         help="Output prefix as <prefix> or <folder>/<prefix>.")
@@ -144,11 +147,20 @@ def main() -> None:
         inps.output_prefix, marker_fig, verbose=inps.verbose
     )
 
+    # Format metadata
+    name = inps.name
+    variable_type = "slip rate"
+    unit = f"{inps.displacement_unit_out}/{inps.age_unit_out}"
+
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
         dv=inps.dv,
         max_rate=inps.max_rate,
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+        verbose=inps.verbose,
     )
 
     # Save PDF to file

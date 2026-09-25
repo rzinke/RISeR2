@@ -21,6 +21,82 @@ from riser import (
 )
 
 
+# Markers
+def _two_markers_():
+    return {
+        "young": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=np.array([4.0, 5.0, 6.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="age", unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=np.array([9.0, 10.0, 11.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement", unit="m",
+            ),
+            name="young",
+        ),
+        "old": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=np.array([14.0, 15.0, 16.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="age", unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=np.array([29.0, 30.0, 31.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement", unit="m",
+            ),
+            name="old",
+        ),
+    }
+
+
+def _three_markers_():
+    return {
+        "young": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=np.array([4.0, 5.0, 6.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="age", unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=np.array([9.0, 10.0, 11.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement", unit="m",
+            ),
+            name="young",
+        ),
+        "middle": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=np.array([9.0, 10.0, 11.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="age", unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=np.array([19.0, 20.0, 21.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement", unit="m",
+            ),
+            name="middle",
+        ),
+        "old": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=np.array([14.0, 15.0, 16.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="age", unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=np.array([29.0, 30.0, 31.0]),
+                px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement", unit="m",
+            ),
+            name="old",
+        ),
+    }
+
+
 # Tests
 class TestComputeSlipRate:
     def test_known_answer(self):
@@ -68,53 +144,45 @@ class TestComputeSlipRatesAnalytical:
         Known-answer sanity check with tight, near-deterministic age and
         displacement PDFs.
         """
-        markers = {
-            "young": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([4.0, 5.0, 6.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([9.0, 10.0, 11.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="young",
-            ),
-            "middle": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([9.0, 10.0, 11.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([19.0, 20.0, 21.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="middle",
-            ),
-            "old": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([14.0, 15.0, 16.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([29.0, 30.0, 31.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="old",
-            ),
-        }
+        markers = _three_markers_()
 
         incr_rates = slip_rates.rate_computation.compute_slip_rates_analytical(
             markers=markers,
         )
 
         assert len(incr_rates) == 2
+
+    def test_default_metadata_is_derived(self):
+        """
+        With no metadata overrides, variable_type defaults to "slip rate"
+        and unit is derived as displacement/age from the marker metadata.
+        """
+        markers = _two_markers_()
+
+        rates = slip_rates.rate_computation.compute_slip_rates_analytical(
+            markers=markers
+        )
+        rate = next(iter(rates.values()))
+
+        assert rate.variable_type == "slip rate"
+        assert rate.unit == "m/y"
+
+    def test_explicit_metadata_overrides_defaults(self):
+        """
+        Explicit variable_type/unit must reach the output PDF unchanged,
+        rather than being silently replaced by the derived defaults.
+        """
+        markers = _two_markers_()
+
+        rates = slip_rates.rate_computation.compute_slip_rates_analytical(
+            markers=markers,
+            variable_type="custom_vt",
+            unit="custom_unit",
+        )
+        rate = next(iter(rates.values()))
+
+        assert rate.variable_type == "custom_vt"
+        assert rate.unit == "custom_unit"
 
 
 class TestComputeSlipRatesMc:
@@ -123,47 +191,7 @@ class TestComputeSlipRatesMc:
         Known-answer sanity check with tight, near-deterministic age and
         displacement PDFs.
         """
-        markers = {
-            "young": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([4.0, 5.0, 6.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([9.0, 10.0, 11.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="young",
-            ),
-            "middle": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([9.0, 10.0, 11.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([19.0, 20.0, 21.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="middle",
-            ),
-            "old": variable_pairs.DatedMarker(
-                age=PDFs.PDF(
-                    x=np.array([14.0, 15.0, 16.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="age", unit="y",
-                ),
-                displacement=PDFs.PDF(
-                    x=np.array([29.0, 30.0, 31.0]),
-                    px=np.array([0.0, 1.0, 0.0]),
-                    variable_type="displacement", unit="m",
-                ),
-                name="old",
-            ),
-        }
+        markers = _three_markers_()
 
         criterion = sampling.mc_sampling.get_sample_criterion(
             "PassNonnegative"
@@ -185,6 +213,46 @@ class TestComputeSlipRatesMc:
             rate_picks,
             np.diff(disp_picks, axis=0) / np.diff(age_picks, axis=0),
         )
+
+    def test_default_metadata_is_derived(self):
+        """
+        With no metadata overrides, variable_type defaults to "slip rate"
+        and unit is derived as displacement/age from the marker metadata.
+        """
+        markers = _two_markers_()
+        criterion = sampling.mc_sampling.get_sample_criterion(
+            "PassNonnegative"
+        )()
+
+        rates, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
+            markers=markers, criterion=criterion, n_samples=500,
+        )
+        rate = next(iter(rates.values()))
+
+        assert rate.variable_type == "slip rate"
+        assert rate.unit == "m/y"
+
+    def test_explicit_metadata_overrides_defaults(self):
+        """
+        Explicit variable_type/unit must reach the output PDF unchanged,
+        rather than being silently replaced by the derived defaults.
+        """
+        markers = _two_markers_()
+        criterion = sampling.mc_sampling.get_sample_criterion(
+            "PassNonnegative"
+        )()
+
+        rates, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
+            markers=markers,
+            criterion=criterion,
+            n_samples=500,
+            variable_type="custom_vt",
+            unit="custom_unit",
+        )
+        rate = next(iter(rates.values()))
+
+        assert rate.variable_type == "custom_vt"
+        assert rate.unit == "custom_unit"
 
 
 # end of file

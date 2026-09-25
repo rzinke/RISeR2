@@ -38,7 +38,11 @@ def weigh(
 def condition(
     prior: PDFs.PDF | PDFs.weight_functions.WeightFunction,
     weight: PDFs.PDF | PDFs.weight_functions.WeightFunction | np.ndarray,
-    **metadata,
+    *,
+    # PDF metadata
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
 ) -> tuple[PDFs.PDF, float]:
     """Weight a prior distribution, according to
 
@@ -61,6 +65,12 @@ def condition(
         Prior to weight.
     weight : PDF or weight_function or np.ndarray
         Weighting array.
+    name : str, optional
+        Name of conditioned PDF.
+    variable_type : str, optional
+        Variable type of conditioned PDF.
+    unit : str, optional
+        Unit of conditioned PDF.
 
     Returns
     -------
@@ -95,7 +105,11 @@ def condition(
     post_weight = weigh(prior_weight, weight_function)
 
     # Format weighted prior as PDF (scaling carried out by PDF.__init__)
-    posterior = post_weight.normalize(**metadata)
+    posterior = post_weight.normalize(
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
+    )
 
     return posterior, post_weight.area
 

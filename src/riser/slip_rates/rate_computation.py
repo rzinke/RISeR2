@@ -37,9 +37,15 @@ from ..sampling import filtering, mc_sampling, pdf_formation
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
+    # Slip rate
     dv: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
+    # PDF metadata
+    name: str | None = None,
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Compute a single slip rate based on a dated displacement marker.
@@ -54,6 +60,12 @@ def compute_slip_rate(
         Enforce condition that slip rate is >= 0.0.
     max_rate : float, optional
         Maximum quotient value to consider.
+    name : str, optional
+        Name of slip rate PDF.
+    variable_type : str, optional
+        Variable type of slip rate PDF.
+    unit : str, optional
+        Unit of slip rate PDF.
 
     Returns
     -------
@@ -66,6 +78,10 @@ def compute_slip_rate(
     # Set mimimum slip rate
     min_rate = 0.0 if limit_positive else None
 
+    # Format metadata
+    name = name if name is not None else marker.name
+    variable_type = variable_type if variable_type is not None else "slip rate"
+
     # Divide displacement by age
     slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
         pdf1=marker.displacement,
@@ -73,8 +89,9 @@ def compute_slip_rate(
         dz=dv,
         min_quotient=min_rate,
         max_quotient=max_rate,
-        name=marker.name,
-        variable_type="slip rate",
+        name=name,
+        variable_type=variable_type,
+        unit=unit,
     )
 
     return slip_rate
@@ -83,9 +100,14 @@ def compute_slip_rate(
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
+    # Slip rate
     dv: float = 0.01,
     limit_positive: bool = False,
     max_rate: float = 100.0,
+    # PDF metadata
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> dict[str, PDFs.PDF]:
     """Compute the incremental slip rates between multiple dated displacement
@@ -111,6 +133,10 @@ def compute_slip_rates_analytical(
     limit_positive : bool, optional
         Enforce condition that displacement difference values must be positive.
         Time differences are always positive.
+    variable_type : str, optional
+        Variable type of slip rate PDF.
+    unit : str, optional
+        Unit of slip rate PDF.
 
     Returns
     -------
@@ -128,14 +154,25 @@ def compute_slip_rates_analytical(
         print(f"Computing {n_rates} incremental slip rates")
 
     # Warn of metadata mismatches for ages
-    PDFs.metadata.get_common_metadata(
+    age_metadata = PDFs.metadata.get_common_metadata(
         [marker.age.metadata for marker in markers.values()]
     )
 
     # Warn of metadata mismatches for displacements
-    PDFs.metadata.get_common_metadata(
+    displacement_metadata = PDFs.metadata.get_common_metadata(
         [marker.displacement.metadata for marker in markers.values()]
     )
+
+    # Slip rate unit
+    if (
+        unit is None
+        and age_metadata.unit is not None
+        and displacement_metadata.unit is not None
+    ):
+        unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
+
+    # Variable type
+    variable_type = variable_type if variable_type is not None else "slip rate"
 
     # Set mimimum slip rate
     min_rate = 0.0 if limit_positive else None
@@ -224,7 +261,8 @@ def compute_slip_rates_analytical(
             min_quotient=min_rate,
             max_quotient=max_rate,
             name=rate_name,
-            variable_type="slip rate",
+            variable_type=variable_type,
+            unit=unit,
         )
 
         # Report if requested
@@ -246,15 +284,21 @@ def compute_slip_rates_mc(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
     *,
-    dv: float = 0.01,
+    # Sampling
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
+    # Slip rate
+    dv: float = 0.01,
     pdf_method: str = "histogram",
     pdf_xmin: float | None = None,
     pdf_xmax: float | None = None,
     pdf_dx: float | None = None,
     smoothing_type: str | None = None,
     smoothing_width: int | None = None,
+    # PDF metadata
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> tuple[dict[str, PDFs.PDF], np.ndarray, np.ndarray, np.ndarray]:
     """Compute the incremental slip rates between multiple dated displacement
@@ -266,12 +310,12 @@ def compute_slip_rates_mc(
         Dated markers bounding each interval.
     criterion : SampleCriterion
         Criterion by which to evaluate validity of samples.
-    dv : float, optional
-        Rate step.
     n_samples : int, optional
         Number of valid samples to achieve.
     hard_stop : float, optional
         Maximum number of trials, regardless of success.
+    dv : float, optional
+        Rate step.
     pdf_method : str, optional
         PDF formation method.
     pdf_xmin : float, optional
@@ -284,6 +328,10 @@ def compute_slip_rates_mc(
         Smoothing filter type.
     smoothing_width : int, optional
         Smoothing filter width in number of samples.
+    variable_type : str, optional
+        Variable type of slip rate PDF.
+    unit : str, optional
+        Unit of slip rate PDF.
 
     Returns
     -------
@@ -318,12 +366,14 @@ def compute_slip_rates_mc(
 
     # Determine slip rate unit
     if (
-        displacement_metadata.unit is not None
+        unit is None
         and age_metadata.unit is not None
+        and displacement_metadata.unit is not None
     ):
         unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
-    else:
-        unit = None
+
+    # Variable type
+    variable_type = variable_type if variable_type is not None else "slip rate"
 
     # Conduct Monte Carlo sampling - valid MC samples are called picks
     age_picks, disp_picks, _ = mc_sampling.sample_monte_carlo(
@@ -359,7 +409,7 @@ def compute_slip_rates_mc(
             xmax=pdf_xmax,
             dx=pdf_dx,
             name=rate_name,
-            variable_type="slip rate",
+            variable_type=variable_type,
             unit=unit,
             verbose=verbose,
         )
