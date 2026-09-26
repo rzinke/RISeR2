@@ -42,11 +42,11 @@ def combine_variables(
     pdfs : list[PDF]
         List of PDFs to combine.
     name : str, optional
-        Name of summed PDF.
+        Name of combined PDF.
     variable_type : str, optional
-        Variable type of summed PDF.
+        Variable type of combined PDF.
     unit : str, optional
-        Unit of summed PDF.
+        Unit of combined PDF.
 
     Returns
     -------
@@ -72,8 +72,10 @@ def combine_variables(
 
     # Format metadata
     metadata_dict = common_metadata.as_dict()
+
     if variable_type is not None:
         metadata_dict["variable_type"] = variable_type
+
     if unit is not None:
         metadata_dict["unit"] = unit
 
@@ -83,11 +85,19 @@ def combine_variables(
     # Loop through subsequent PDFs
     for pdf in pdfs[1:]:
         # Condition the combined weight function
-        kernel = core.weigh(kernel, PDFs.weight_functions.WeightFunction.from_pdf(pdf))
+        kernel = core.weigh(
+            kernel, PDFs.weight_functions.WeightFunction.from_pdf(pdf)
+        )
 
     # Convert the combined weight function to a PDF
     combined_pdf = kernel.normalize(**metadata_dict)
+
+    # Compute area
     area = kernel.area
+
+    # Report area
+    if verbose:
+        print(f"Likelihood of the combined estimate: {area:.4f}")
 
     return combined_pdf, area
 
