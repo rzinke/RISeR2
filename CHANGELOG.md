@@ -6,9 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
-- Metadata override values can be passed to `add_variables`,
-  `subtract_variables`, `multiply_variables`, and `divide_variables`.
-- Reinstate `combine_variables` cli script.
+- Metadata override values can be passed to `add_variables.py`,
+  `subtract_variables.py`, `multiply_variables.py`, `divide_variables.py`, and
+  `inpterpolate_pdf.py`.
+- Output now recognized in `interpolate_pdf.py`
+- Reinstate `combine_variables.py` cli script and made executable.
+- Arguments parse correctly in `subtract_variables.py`.
 
 ## [1.2.0] - 2026-09-25
 
@@ -26,9 +29,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   regardless of `limit_positive`. `limit_positive` now governs only the
   displacement difference (`delta_u`).
 
-
 ### Fixed
-- Arguments parse correctly in `subtract_variable.py`.
 
 ## [1.1.0] - 2026-09-24
 

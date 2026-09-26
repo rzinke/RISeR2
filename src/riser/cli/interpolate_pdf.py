@@ -55,16 +55,26 @@ def cmd_parser(iargs=None):
         help="x-step. [None]")
 
     output_args = parser.add_argument_group("Outputs")
+
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
+    output_args.add_argument("--name", dest="name",
+        type=str,
+        help="Name of interpolated PDF.")
+    output_args.add_argument("--variable-type", dest="variable_type",
+        type=str,
+        help="Variable type of interpolated PDF.")
+    output_args.add_argument("--unit", dest="unit",
+        type=str,
+        help="Unit of interpolated PDF.")
+
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
     output_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
-
 
     return parser.parse_args(args=iargs)
 
@@ -91,7 +101,17 @@ def main() -> None:
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx, verbose=inps.verbose)
 
     # Interpolate PDF
-    pdf_resamp = PDFs.interpolation.interpolate_pdf(pdf, x)
+    pdf_resamp = PDFs.interpolation.interpolate_pdf(
+        pdf,
+        x,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.unit,
+        verbose=inps.verbose,
+    )
+
+    # Save to file
+    PDFs.readers.save_pdf(inps.outname, pdf_resamp, verbose=inps.verbose)
 
     # Plot if requested
     if inps.plot:
