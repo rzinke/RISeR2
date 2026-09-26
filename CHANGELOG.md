@@ -7,7 +7,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 - Metadata override values can be passed to `add_variables`,
-  `subtract_variables`.
+  `subtract_variables`, `multiply_variables`, and `divide_variables`.
 - Reinstate `combine_variables` cli script.
 
 ## [1.2.0] - 2026-09-25
