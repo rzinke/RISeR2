@@ -69,6 +69,8 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Plot distribution.")
 
+    return parser.parse_args(args=iargs)
+
 
 #################### MAIN ####################
 def main() -> None:
