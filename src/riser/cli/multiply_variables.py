@@ -44,7 +44,7 @@ def cmd_parser(iargs=None):
         help="File name of the second PDF.")
 
     input_args.add_argument("--dz", dest="dz",
-        type=float,
+        type=float, default=0.01,
         help="Product sample spacing.")
     input_args.add_argument("--min-product", dest="min_product",
         type=float,
@@ -60,13 +60,13 @@ def cmd_parser(iargs=None):
         help="Output file.")
     output_args.add_argument("--name", dest="name",
         type=str,
-        help="Name of summed PDF.")
+        help="Name of product PDF.")
     output_args.add_argument("--variable-type", dest="variable_type",
         type=str,
-        help="Variable type of summed PDF.")
+        help="Variable type of product PDF.")
     output_args.add_argument("--unit", dest="unit",
         type=str,
-        help="Unit of summed PDF.")
+        help="Unit of product PDF.")
 
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",

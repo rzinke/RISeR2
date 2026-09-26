@@ -26,6 +26,10 @@ and this project uses [Semantic Versioning](https://semver.org/).
   regardless of `limit_positive`. `limit_positive` now governs only the
   displacement difference (`delta_u`).
 
+
+### Fixed
+- Arguments parse correctly in `subtract_variable.py`.
+
 ## [1.1.0] - 2026-09-24
 
 - Prior release.

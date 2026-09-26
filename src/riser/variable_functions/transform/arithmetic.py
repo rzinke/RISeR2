@@ -456,7 +456,7 @@ def multiply_variables(
     prod = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Report area before normalization
-    if inps.verbose:
+    if verbose:
         print(f"Area of product, pre-normalization: {prod.area:.4f}")
 
     # Determine product unit
@@ -615,7 +615,7 @@ def divide_variables(
     quot = PDFs.weight_functions.WeightFunction(z, pz)
 
     # Report area before normalization
-    if inps.verbose:
+    if verbose:
         print(f"Area of quotient, pre-normalization: {quot.area:.4f}")
 
     # Determine quotient unit

@@ -44,12 +44,12 @@ def cmd_parser(iargs=None):
         help="File name of the denominator PDF.")
 
     input_args.add_argument("--dz", dest="dz",
-        type=float,
+        type=float, default=0.01,
         help="Quotient sample spacing.")
-    input_args.add_argument("--min-product", dest="min_product",
+    input_args.add_argument("--min-quotient", dest="min_quotient",
         type=float,
         help="Minimum-allowable quotient to consider.")
-    input_args.add_argument("--max-product", dest="max_product",
+    input_args.add_argument("--max-quotient", dest="max_quotient",
         type=float,
         help="Maximum-allowable quotient to consider.")
 
@@ -88,7 +88,7 @@ def main() -> None:
     denom_pdf = PDFs.readers.read_pdf(inps.denom_fname, verbose=inps.verbose)
 
     # Compute quotient of PDFs
-    quot_pdf, area = var_fcns.transform.arithmetic.divide_variables(
+    quot_pdf, _ = var_fcns.transform.arithmetic.divide_variables(
         numer_pdf,
         denom_pdf,
         dz=inps.dz,
