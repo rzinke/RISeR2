@@ -38,31 +38,36 @@ def cmd_parser(iargs=None):
     input_args = parser.add_argument_group("Inputs")
     input_args.add_argument(dest="fname1",
         type=str,
-        help="File name of first PDF.")
+        help="File name of PDF to be subtracted from.")
     input_args.add_argument(dest="fname2",
         type=str,
-        help="File name of second PDF.")
+        help="File name of PDF to subtract from first PDF.")
 
     input_args.add_argument("--limit-positive", dest="limit_positive",
         action="store_true",
         help="Enforce the condition that values are >= to 0.")
 
-    input_args.add_argument("--name", dest="name",
-        type=str,
-        help="Name of differenced PDF. [None]")
-
     output_args = parser.add_argument_group("Outputs")
+
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
+    output_args.add_argument("--name", dest="name",
+        type=str,
+        help="Name of differenced PDF.")
+    output_args.add_argument("--variable-type", dest="variable_type",
+        type=str,
+        help="Variable type of differenced PDF.")
+    output_args.add_argument("--unit", dest="unit",
+        type=str,
+        help="Unit of differenced PDF.")
+
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
     output_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
-
-    return parser.parse_args(args=iargs)
 
 
 #################### MAIN ####################
@@ -81,9 +86,11 @@ def main() -> None:
 
     # Compute summed PDF
     diff_pdf = var_fcns.transform.arithmetic.subtract_variables(
-        pdf1,
-        pdf2,
+        pdf1=pdf1,
+        pdf2=pdf2,
         name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.unit,
         verbose=inps.verbose,
     )
 
@@ -92,6 +99,9 @@ def main() -> None:
         diff_pdf, area = var_fcns.condition.self_constraint.constrain_above(
             pdf=diff_pdf,
             value=0.0,
+            name=inps.name,
+            variable_type=inps.variable_type,
+            unit=inps.unit,
             verbose=inps.verbose,
         )
 

@@ -43,14 +43,21 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of second PDF.")
 
-    input_args.add_argument("--name", dest="name",
-        type=str,
-        help="Name of summed PDF. [None]")
-
     output_args = parser.add_argument_group("Outputs")
+
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
+    output_args.add_argument("--name", dest="name",
+        type=str,
+        help="Name of summed PDF.")
+    output_args.add_argument("--variable-type", dest="variable_type",
+        type=str,
+        help="Variable type of summed PDF.")
+    output_args.add_argument("--unit", dest="unit",
+        type=str,
+        help="Unit of summed PDF.")
+
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
@@ -77,7 +84,12 @@ def main() -> None:
 
     # Compute summed PDF
     sum_pdf = var_fcns.transform.arithmetic.add_variables(
-        pdf1, pdf2, name=inps.name, verbose=inps.verbose
+        pdf1=pdf1,
+        pdf2=pdf2,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.unit,
+        verbose=inps.verbose,
     )
 
     # Save to file

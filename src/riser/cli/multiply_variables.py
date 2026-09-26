@@ -43,19 +43,36 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of the second PDF.")
 
-    input_args.add_argument('--name', dest='name',
-        type=str,
-        help="Name of summed PDF. [None]")
+    input_args.add_argument("--dz", dest="dz",
+        type=float,
+        help="Product sample spacing.")
+    input_args.add_argument("--min-product", dest="min_product",
+        type=float,
+        help="Minimum-allowable product to consider.")
+    input_args.add_argument("--max-product", dest="max_product",
+        type=float,
+        help="Maximum-allowable product to consider.")
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument('-o', '--outname', dest='outname',
+
+    output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument('-v', '--verbose', dest='verbose',
-        action='store_true',
+    output_args.add_argument("--name", dest="name",
+        type=str,
+        help="Name of summed PDF.")
+    output_args.add_argument("--variable-type", dest="variable_type",
+        type=str,
+        help="Variable type of summed PDF.")
+    output_args.add_argument("--unit", dest="unit",
+        type=str,
+        help="Unit of summed PDF.")
+
+    output_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
         help="Verbose mode.")
-    output_args.add_argument('-p', '--plot', dest='plot',
-        action='store_true',
+    output_args.add_argument("-p", "--plot", dest="plot",
+        action="store_true",
         help="Plot distribution.")
 
     return parser.parse_args(args=iargs)
@@ -71,13 +88,17 @@ def main() -> None:
     pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
 
     # Compute product of PDFs
-    prod_pdf, area = var_fcns.transform.arithmetic.multiply_variables(
-        pdf1, pdf2, name=inps.name, verbose=inps.verbose
+    prod_pdf, _ = var_fcns.transform.arithmetic.multiply_variables(
+        pdf1=pdf1,
+        pdf2=pdf2,
+        dz=inps.dz,
+        min_product=inps.min_product,
+        max_product=inps.max_product,
+        name=inps.name,
+        variable_type=inps.variable_type,
+        unit=inps.unit,
+        verbose=inps.verbose,
     )
-
-    # Report non-normalized area
-    if inps.verbose:
-        print(f"Area of product, pre-normalization: {area:.4f} / 1.0")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, prod_pdf, verbose=inps.verbose)
