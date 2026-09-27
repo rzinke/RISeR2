@@ -8,7 +8,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 - Metadata override values can be passed to `add_variables.py`,
   `subtract_variables.py`, `multiply_variables.py`, `divide_variables.py`, and
-  `inpterpolate_pdf.py`.
+  `interpolate_pdf.py`.
 - Output now recognized in `interpolate_pdf.py`
 - Reinstate `combine_variables.py` cli script and made executable.
 - Arguments parse correctly in `subtract_variables.py`.
