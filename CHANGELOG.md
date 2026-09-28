@@ -17,6 +17,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - Reinstate `compute_gap_probabilities.py` as `create_bracketed_pdf.py`.
 - Arguments parse correctly in `subtract_variables.py`.
 - Updated CLI parger examples to riser-... syntax.
+- `compute_slip_rate.py` now accepts direct specification of age and
+  displacement PDFs rather than marker TOML file only.
+- Included `riser-compute-slip-rate` in Quick Start example.
 
 ## [1.2.0] - 2026-09-25
 
