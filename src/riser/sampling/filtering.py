@@ -260,7 +260,7 @@ def filter_pdf(
             w_edge = 2*i + 1
 
             # Re-formulate filter
-            edge_filt = get_filter_by_name(filter_type)(w_edge)
+            edge_filt = get_filter_by_name("mean")(w_edge)
 
             # Apply filter to front edge
             px[i] = np.sum(pdf.px[:w_edge] * edge_filt.h)

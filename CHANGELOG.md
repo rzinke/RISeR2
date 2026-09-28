@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+- Restructured `examples` folder with top-level folders `cli_reference` and
+  `case_studies`. Added `README.md` for structure clarification.
+- Update `gitignore` file to reflect new `examples` structure.
+- Cleaned up CLI examples and synched with current script names.
+- Clearer docstring example for `combine_variables.py`.
+- Fixed output units in slip rates scripts and `view_displacement_history`
+  to default to input or assume those specified by user.
 
 ## [1.4.0] - 2026-09-28
 

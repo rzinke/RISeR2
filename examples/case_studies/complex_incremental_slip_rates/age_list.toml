@@ -1,0 +1,35 @@
+["C1"]
+"pdf file" = "tmp/C1_age.txt"
+"prior" = "tmp/C1prior_age.txt"
+
+["C2"]
+"pdf file" = "tmp/C2_age.txt"
+"prior" = "tmp/C2prior_age.txt"
+
+["C3"]
+"pdf file" = "tmp/C3_age.txt"
+"prior" = "tmp/C3prior_age.txt"
+
+["C5"]
+"pdf file" = "tmp/C5_age.txt"
+"prior" = "tmp/C5prior_age.txt"
+
+["C6"]
+"pdf file" = "tmp/C6_age.txt"
+"prior" = "tmp/C6prior_age.txt"
+
+["C7"]
+"pdf file" = "tmp/C7_age.txt"
+"prior" = "tmp/C7prior_age.txt"
+
+["C8"]
+"pdf file" = "tmp/C8_age.txt"
+"prior" = "tmp/C8prior_age.txt"
+
+["C10"]
+"pdf file" = "tmp/C10_age.txt"
+"prior" = "tmp/C10prior_age.txt"
+
+["C11"]
+"pdf file" = "tmp/C11_age.txt"
+"prior" = "tmp/C11prior_age.txt"

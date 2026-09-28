@@ -217,6 +217,5 @@ tests/tmp/*
 tests/sandbox.py
 
 # Example outputs
-examples/*/*.npz
-examples/*/*.pdf
-examples/*/*.txt
+examples/cli_reference/tmp/*
+examples/case_studies/*/tmp/*

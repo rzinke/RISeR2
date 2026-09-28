@@ -1,0 +1,15 @@
+["Marker 01"]
+"displacement file" = "disp1.txt"
+"age file" = "age1.txt"
+
+["Marker 02"]
+"displacement file" = "disp2.txt"
+"age file" = "age2.txt"
+
+["Marker 03"]
+"displacement file" = "disp3.txt"
+"age file" = "age3.txt"
+
+["Marker 04"]
+"displacement file" = "disp4.txt"
+"age file" = "age4.txt"

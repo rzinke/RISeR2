@@ -20,8 +20,8 @@ from riser import (
 description = "Compute the intersection of two or more PDFs."
 
 examples = """Examples:
-riser-combine-variables pdf1.txt pdf2.txt -o joint_pdf.txt
-riser-combine-variables pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
+riser-combine-variables pdf1.txt pdf2.txt -o combined_pdf.txt
+riser-combine-variables pdf1.txt pdf2.txt pdf3.txt -o combined_pdf.txt
 """
 
 def create_parser():
