@@ -89,7 +89,7 @@ def main():
     # Save to file
     PDFs.readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
 
-    # Plot function if requested
+    # Plot combined PDF
     if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, comb_ax) = plt.subplots(nrows=2)
