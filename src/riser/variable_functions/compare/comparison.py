@@ -189,7 +189,7 @@ def overlap_index(
 
     # Report overlap metric
     if verbose:
-        print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
+        print(f"Overlap metric for {len(pdfs)} PDFs: {eta:.4f}")
 
     return px_min, eta
 
