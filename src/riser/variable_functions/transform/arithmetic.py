@@ -484,7 +484,7 @@ def divide_variables(
     pdf2: PDFs.PDF,
     *,
     # Quotient distribution
-    dz: float = 0.01,
+    dz: float | None = 0.01,
     min_quotient: float | None = None,
     max_quotient: float | None = None,
     # PDF metadata
@@ -496,7 +496,7 @@ def divide_variables(
 ) -> tuple[PDFs.PDF, float]:
     """Divide pdf1 by pdf2.
 
-    Thoery:
+    Theory:
     The equation for division of PDFs comes from Bird (2007) and later from
     Zechar and Frankel (2009):
 
@@ -519,17 +519,19 @@ def divide_variables(
     value is interpolated along the distance (pdf1) PDF. The interpolated
     pdf1 values can then be scaled by the corresponding time probability
     and time value, and summed directly.
-    This results in slightly incrased accuracy over Zechar and Frankel's
+    This results in slightly increased accuracy over Zechar and Frankel's
     implementation, and greatly increased speed.
 
     Determining output limits:
     Unlike multiplication, numer/denom is not bilinear, so its extrema are
     only guaranteed to occur at the four corners of the input rectangle when
     the pdf2's range does not straddle zero (i.e., is entirely
-    positive or entirely negative). If it does straddle zero, numer/denom
-    approaches +/-infinity as denom approaches zero, so no finite natural
-    bound exists; min_quotient and max_quotient must be supplied explicitly
-    in that case.
+    positive or entirely negative). In that case, the corners define the true
+    limits of the quotient, so user-specified limits beyond the corner values
+    will be clipped. If the values of the denominator array do straddle zero,
+    the numer/denom approaches +/-infinity as denom approaches zero, so no
+    finite natural bound exists; min_quotient and max_quotient must be supplied
+    explicitly in that case.
 
     Parameters
     ----------
@@ -537,8 +539,9 @@ def divide_variables(
         Numerator distribution.
     pdf2 : PDF
         Denominator distribution.
-    dz : float, optional
+    dz : float or None
         Quotient sample spacing.
+        If None, 1000 points will be automatically generated.
     min_quotient : float, optional
         Minimum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
@@ -586,11 +589,35 @@ def divide_variables(
             pdf1.x[-1] / pdf2.x[0],
             pdf1.x[-1] / pdf2.x[-1],
         ]
-        quot_min = np.min(corners) if min_quotient is None else min_quotient
-        quot_max = np.max(corners) if max_quotient is None else max_quotient
+        quot_min = np.min(corners)
+        quot_max = np.max(corners)
 
-    # Get pdf2 spacing
-    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf2)
+        # User-specified min/max can only limit the natural range of the
+        # quotient
+        if min_quotient is not None:
+            quot_min = np.max([quot_min, min_quotient])
+
+        if max_quotient is not None:
+            quot_max = np.min([quot_max, max_quotient])
+
+    # Quotient range
+    quotient_range = quot_max - quot_min
+
+    # Quotient array spacing
+    if dz is None:
+        # Auto-generate quotient array spacing
+        dz = quotient_range / 1000
+    else:
+        # Ensure quotient array is finely spaced enough
+        if quotient_range / dz < 3:
+            raise ValueError(
+                f"Output array spacing `dz` ({dz}) is too coarse for a "
+                f"quotient range of {quotient_range:.3g}: "
+                f"it will only produce {quotient_range / dz} points. "
+                f"Try setting `dz` to something smaller (e.g., "
+                f"{quotient_range / 100:.3g}) or None to auto-generate `dz` "
+                f"for 1,000 points."
+            )
 
     # Create quotient value array
     z = PDFs.value_arrays.precise_array(quot_min, quot_max, dz)
@@ -599,12 +626,15 @@ def divide_variables(
     nz = len(z)
     pz = np.zeros(nz)
 
+    # Get pdf2 spacing
+    dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf2)
+
     # Loop through values in quotient
     for i in range(nz):
         # Compute target pdf1 values (rate * pdf2 values)
         numer_x = z[i] * pdf2.x
 
-        # Equivalent pdf1 density at each target numator value
+        # Equivalent pdf1 density at each target numerator value
         numer_px = pdf1.pdf_at_value(numer_x)
 
         # Sum densities at quotient value
