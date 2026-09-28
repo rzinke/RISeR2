@@ -546,7 +546,10 @@ def determine_min_max_limits(
 
     # Report if requested
     if verbose:
-        print(f"Minimum value {xmin}\nMaximum value {xmax}")
+        print(
+            f"Suggested minimum value {xmin:.4f}\n"
+            f"Suggested maximum value {xmax:.4f}"
+        )
 
     return xmin, xmax
 

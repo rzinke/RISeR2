@@ -25,7 +25,7 @@ description = (
 )
 
 examples = """Examples:
-riser-make-pdf -d triangular -s 9.0 11.0 12.5 -dx 0.1 -o T1.txt
+riser-make-pdf -d triangular -s 9.0 11.0 12.5 -o T1.txt
 riser-make-pdf -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
 riser-make-pdf -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
@@ -50,31 +50,43 @@ def cmd_parser(iargs=None):
     input_args.add_argument("-s", "--values", dest="values",
         type=float, nargs="+", required=True,
         help="Parameter values.")
-    input_args.add_argument("-dx", "--dx", dest="dx",
+
+    domain_args = parser.add_argument_group("Domain")
+    domain_args.add_argument("-dx", "--dx", dest="dx",
         type=float,
-        help="x-step.")
-    input_args.add_argument("--limit-positive", dest="limit_positive",
+        help="Function value array x-step.")
+    domain_args.add_argument("--xmin", dest="xmin",
+        type=float,
+        help="Minimum function value.")
+    domain_args.add_argument("--xmax", dest="xmax",
+        type=float,
+        help="Maximum function value.")
+    domain_args.add_argument("--limit-positive", dest="limit_positive",
         action="store_true",
         help="Enforce the condition that values are >= to 0.")
-
-    input_args.add_argument("--name", dest="name",
-        type=str,
-        help="PDF descriptive name. [None]")
-    input_args.add_argument("--variable-type", dest="variable_type",
-        type=str, choices=variable_types.SUPPORTED_VARIABLE_TYPES,
-        help="PDF variable type, e.g., age, displacement, slip rate. [None]")
-    input_args.add_argument("--unit", dest="unit",
-        type=str,
-        help="Value unit (e.g., 'y'; 'm'. [None]")
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
-        help="Output file.")
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+        help="Output file name.")
+
+    metadata_args = parser.add_argument_group("Metadata")
+    metadata_args.add_argument("--name", dest="name",
+        type=str,
+        help="PDF descriptive name. [None]")
+    metadata_args.add_argument("--variable-type", dest="variable_type",
+        type=str, choices=variable_types.SUPPORTED_VARIABLE_TYPES,
+        help="PDF variable type, e.g., 'age', 'displacement', 'slip rate'. "
+             "[None]")
+    metadata_args.add_argument("--unit", dest="unit",
+        type=str,
+        help="Value unit (e.g., 'y'; 'm'. [None]")
+
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
 
@@ -95,7 +107,7 @@ def main() -> None:
     if inps.variable_type is None:
         warnings.warn(
             "It is strongly suggested to specify variable-type "
-            "(e.g., age; displacement)",
+            "(e.g., 'age'; 'displacement')",
             stacklevel=2,
         )
     else:
@@ -105,20 +117,25 @@ def main() -> None:
     # Check optional unit input
     if inps.unit is None:
         warnings.warn(
-            "It is strongly suggested to specify unit (e.g., y; m)",
+            "It is strongly suggested to specify unit (e.g., 'y'; 'm')",
             stacklevel=2,
         )
     else:
         # Check unit specification
         units.parse_unit(inps.unit)
 
-    # Determine min/max values
-    xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+    # Determine suggested min/max values based on function shape
+    (suggested_xmin,
+     suggested_xmax) = PDFs.parametric_functions.determine_min_max_limits(
         distribution=inps.distribution,
         values=inps.values,
         limit_positive=inps.limit_positive,
         verbose=inps.verbose,
     )
+
+    # Determine min/max values to use
+    xmin = suggested_xmin if inps.xmin is None else inps.xmin
+    xmax = suggested_xmax if inps.xmax is None else inps.xmax
 
     # Determine increment
     dx = (xmax - xmin) / 1000 if inps.dx is None else inps.dx

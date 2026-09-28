@@ -43,35 +43,38 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of the denominator PDF.")
 
-    input_args.add_argument("--dz", dest="dz",
+    domain_args = parser.add_argument_group("Domain")
+    domain_args.add_argument("--dz", dest="dz",
         type=float, default=0.01,
         help="Quotient sample spacing.")
-    input_args.add_argument("--min-quotient", dest="min_quotient",
+    domain_args.add_argument("--min-quotient", dest="min_quotient",
         type=float,
         help="Minimum-allowable quotient to consider.")
-    input_args.add_argument("--max-quotient", dest="max_quotient",
+    domain_args.add_argument("--max-quotient", dest="max_quotient",
         type=float,
         help="Maximum-allowable quotient to consider.")
 
     output_args = parser.add_argument_group("Outputs")
-
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument("--name", dest="name",
+
+    metadata_args = parser.add_argument_group("Metadata")
+    metadata_args.add_argument("--name", dest="name",
         type=str,
         help="Name of quotient PDF.")
-    output_args.add_argument("--variable-type", dest="variable_type",
+    metadata_args.add_argument("--variable-type", dest="variable_type",
         type=str,
         help="Variable type of quotient PDF.")
-    output_args.add_argument("--unit", dest="unit",
+    metadata_args.add_argument("--unit", dest="unit",
         type=str,
         help="Unit of quotient PDF.")
 
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
 
