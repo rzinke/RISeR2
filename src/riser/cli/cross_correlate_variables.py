@@ -21,7 +21,7 @@ from riser import (
 description = "Cross-correlate two random variables expressed as PDFs."
 
 examples = """Examples:
-cross_correlate_variables.py ref_pdf.txt sec_pdf.txt
+riser-cross-correlate-variables ref_pdf.txt sec_pdf.txt
 """
 
 def create_parser():

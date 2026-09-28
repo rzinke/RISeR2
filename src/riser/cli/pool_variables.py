@@ -20,8 +20,8 @@ from riser import (
 description = "Merge two or more PDFs."
 
 examples = """Examples:
-pool_variables.py pdf1.txt pdf2.txt -o pooled_pdf.txt
-pool_variables.py pdf1.txt pdf2.txt pdf3.txt -o pooled_pdf.txt
+riser-pool-variables pdf1.txt pdf2.txt -o pooled_pdf.txt
+riser-pool-variables pdf1.txt pdf2.txt pdf3.txt -o pooled_pdf.txt
 """
 
 def create_parser():

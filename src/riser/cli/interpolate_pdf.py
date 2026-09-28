@@ -23,8 +23,8 @@ description = (
 )
 
 examples = """Examples:
-interpolate_pdf.py pdf_file.txt --dx 0.01 -o interp_pdf_file.txt
-interpolate_pdf.py pdf_file.txt --xmin 0 --xmax 100 -o interp_pdf_file.txt
+riser-interpolate-pdf pdf_file.txt --dx 0.01 -o interp_pdf_file.txt
+riser-interpolate-pdf pdf_file.txt --xmin 0 --xmax 100 -o interp_pdf_file.txt
 """
 
 def create_parser():

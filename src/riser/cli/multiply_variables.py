@@ -20,7 +20,7 @@ from riser import (
 description = "Multiply two random variables expressed as PDFs."
 
 examples = """Examples:
-multiply_variables.py sliprate.txt age.txt -o displacement.txt
+riser-multiply-variables sliprate.txt age.txt -o displacement.txt
 """
 
 def create_parser():

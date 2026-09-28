@@ -14,7 +14,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   `compute_ks_statistic`, and `compute_overlap_index` cli scripts
   and made executable.
 - Reinstate `merge_variables.py` cli script as `pool_variables.py`.
-- Reinstate `compute_gap_probabilities.py` as `create_bracketed_pdf.py`
+- Reinstate `compute_gap_probabilities.py` as `create_bracketed_pdf.py`.
 - Arguments parse correctly in `subtract_variables.py`.
 
 ## [1.2.0] - 2026-09-25

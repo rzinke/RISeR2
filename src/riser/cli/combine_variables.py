@@ -17,11 +17,11 @@ from riser import (
 
 
 #################### ARGUMENT PARSER ####################
-description = "Compute the joint PDF of two or more functions."
+description = "Compute the intersection of two or more PDFs."
 
 examples = """Examples:
-combine_variables.py pdf1.txt pdf2.txt -o joint_pdf.txt
-combine_variables.py pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
+riser-combine-variables pdf1.txt pdf2.txt -o joint_pdf.txt
+riser-combine-variables pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
 """
 
 def create_parser():

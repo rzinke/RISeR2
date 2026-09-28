@@ -26,7 +26,7 @@ description = (
 )
 
 examples = """Examples:
-compute_slip_rates.py marker_config.toml -o incr_slip_rates
+riser-compute-slip-rates marker_config.toml -o incr_slip_rates
 """
 
 def create_parser():

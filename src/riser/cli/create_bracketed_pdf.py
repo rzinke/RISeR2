@@ -20,7 +20,7 @@ from riser import (
 description = "Compute the probabilties of values between two bracketing PDFs."
 
 examples = """Examples:
-create_bracketed_pdf.py smaller_pdf.txt larger_pdf.txt -o bracketed.txt
+riser-create-bracketed-pdf smaller_pdf.txt larger_pdf.txt -o bracketed.txt
 """
 
 def create_parser():

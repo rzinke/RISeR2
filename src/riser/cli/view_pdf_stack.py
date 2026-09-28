@@ -19,7 +19,7 @@ from riser import (
 description = "Plot multiple PDFs in a stack."
 
 examples = """Examples:
-view_pdf_stack.py pdfs_config.toml
+riser-view-pdf-stack pdfs_config.toml
 """
 
 def create_parser():

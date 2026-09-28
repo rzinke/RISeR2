@@ -20,7 +20,7 @@ from riser import (
 description = "Compute the overlap statistic of two or more PDFs."
 
 examples = """Examples:
-compute_overlap_index.py pdf1.txt pdf2.txt
+riser-compute-overlap-index pdf1.txt pdf2.txt
 """
 
 def create_parser():

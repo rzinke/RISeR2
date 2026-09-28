@@ -25,8 +25,8 @@ description = (
 )
 
 examples = """Examples:
-compute_slip_rate.py marker_config.toml -o v1
-compute_slip_rate.py marker_config.toml --age-unit-out y --displacement-unit-out mm -o v2/v2
+riser-compute-slip-rate marker_config.toml -o v1
+riser-compute-slip-rate marker_config.toml --age-unit-out y --displacement-unit-out mm -o v2/v2
 """
 
 def create_parser():

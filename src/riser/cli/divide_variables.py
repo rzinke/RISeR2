@@ -20,7 +20,7 @@ from riser import (
 description = "Divide two random variables expressed as PDFs."
 
 examples = """Examples:
-divide_variables.py displacement.txt age.txt -o sliprate.txt
+riser-divide-variables displacement.txt age.txt -o sliprate.txt
 """
 
 def create_parser():

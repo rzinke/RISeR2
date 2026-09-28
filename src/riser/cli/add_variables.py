@@ -20,7 +20,7 @@ from riser import (
 description = "Add two random variables expressed as PDFs."
 
 examples = """Examples:
-add_variables.py pdf1.txt pdf2.txt -o pdf12.txt
+riser-add-variables pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():

@@ -20,7 +20,7 @@ from riser import (
 description = "Subtract two random variables expressed as PDFs."
 
 examples = """Examples:
-subtract_variables.py pdf1.txt pdf2.txt -o pdf12.txt
+riser-subtract-variables pdf1.txt pdf2.txt -o pdf12.txt
 """
 
 def create_parser():

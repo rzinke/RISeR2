@@ -20,7 +20,7 @@ from riser import (
 description = "Compute the K-S statistic for two PDFs."
 
 examples = """Examples:
-compute_ks_statistic.py pdf1.txt pdf2.txt
+riser-compute-ks-statistic pdf1.txt pdf2.txt
 """
 
 def create_parser():
