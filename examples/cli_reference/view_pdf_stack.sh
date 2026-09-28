@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
-config_file="tmp/ages_config.toml"
-
+mkdir -p tmp
 
 # Create marginal distributions
 echo "Creating PDFs"
@@ -40,6 +38,9 @@ riser-make-pdf -d gaussian -s 9.0 0.7 -dx 0.01 \
 
 echo ""
 echo "Writing config file"
+
+config_file="tmp/ages_config.toml"
+
 
 echo "[\"Age 1\"]" > $config_file
 echo "\"pdf file\" = \"${A1name}\"" >> $config_file

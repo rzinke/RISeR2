@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
-# compute_slip_rates.py -h
-
+mkdir -p tmp
 
 # Create marginal distributions
 echo "Creating PDFs"
@@ -60,7 +58,8 @@ echo "\"displacement file\" = \"${U3name}\"" >> $config_file
 # Compute slip rate
 echo ""
 echo "Computing slip rate"
+outdir="tmp/incr_slip_rates_analyt"
 riser-compute-slip-rates $config_file \
     --age-unit-out "y" --displacement-unit-out "mm" \
     --limit-positive --max-rate 10 \
-    -o "tmp/incr_analyt/v1ia" -v -p
+    -o $outdir -v -p

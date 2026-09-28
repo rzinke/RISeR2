@@ -1,8 +1,6 @@
 #!/bin/bash
 
-
-config_file="tmp/slip_rates_mc_config.toml"
-
+mkdir -p tmp
 
 # Create marginal distributions
 echo "Creating PDFs"
@@ -53,6 +51,8 @@ riser-make-pdf -d triangular -s 7.0 9.0 11.0 -dx 0.01 \
 
 echo ""
 echo "Writing config file"
+
+config_file="tmp/slip_rates_mc_config.toml"
 
 echo "[\"Feat 1\"]" > $config_file
 echo "\"age file\" = \"${A1name}\"" >> $config_file

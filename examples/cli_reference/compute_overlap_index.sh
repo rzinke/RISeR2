@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p tmp
+
 # Create marginal distributions
 echo "Creating PDFs"
 

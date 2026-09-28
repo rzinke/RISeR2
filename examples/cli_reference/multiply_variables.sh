@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p tmp
+
 # Create marginal distributions
 echo "Creating PDFs"
 
@@ -15,6 +17,5 @@ riser-make-pdf -d gaussian -s 8.0 0.5 -dx 0.001 \
 # Compute joint probability
 echo ""
 echo "Computing PDF product"
-
-X12name="tmp/pdf12.txt"
+X12name="tmp/product.txt"
 riser-multiply-variables $X1name $X2name -o $X12name -v -p

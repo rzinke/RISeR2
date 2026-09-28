@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p tmp
+
 # Create marginal distributions
 echo "Creating PDFs"
 
@@ -16,5 +18,5 @@ riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 \
 echo ""
 echo "Computing PDF ratio"
 
-X12name="tmp/pdf12.txt"
+X12name="tmp/quotient.txt"
 riser-divide-variables $X1name $X2name -o $X12name -v -p

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p tmp
+
 # Create marginal distributions
 echo "Creating PDFs"
 X1name="tmp/pdf1.txt"
@@ -14,5 +16,5 @@ riser-make-pdf -d gaussian -s 4.0 1.0 -dx 0.01 \
 # Add variables
 echo ""
 echo "Adding PDFs"
-X12name="tmp/pdf12.txt"
+X12name="tmp/summed.txt"
 riser-add-variables $X1name $X2name -o $X12name -v -p

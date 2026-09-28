@@ -118,6 +118,7 @@ class GaussFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
+        print(width)
         # Width must be greater than 1
         if width < 2:
             raise ValueError(
@@ -222,7 +223,7 @@ def filter_pdf(
         Filtered PDF.
     """
     # Construct filter
-    filt = get_filter_by_name(filter_type)(filter_width)
+    filt = get_filter_by_name(filter_type)(width=filter_width)
 
     # Report if requested
     if verbose:
@@ -260,7 +261,7 @@ def filter_pdf(
             w_edge = 2*i + 1
 
             # Re-formulate filter
-            edge_filt = get_filter_by_name(filter_type)(w_edge)
+            edge_filt = get_filter_by_name("mean")(w_edge)
 
             # Apply filter to front edge
             px[i] = np.sum(pdf.px[:w_edge] * edge_filt.h)
