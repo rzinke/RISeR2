@@ -6,7 +6,6 @@
 Condition variables based on a prior ordering relationships.
 """
 
-
 # Public API
 __all__ = [
     "trim_variables",
@@ -45,7 +44,7 @@ def trim_variables(
         trimmed_pdf2(x) ~ pdf2(x) . CDF1(x)
 
     The areas of the two trimming results will be the same, because
-    
+
         area1 = integral(pdf1(x) . (1 - CDF2(x)) dx) = P(X1 < X2)
         area2 = integral(pdf2(x) . CDF1(x) dx) = P(X2 > X1)
 
@@ -89,7 +88,9 @@ def trim_variables(
     PDFs.metadata.check_physical_properties([pdf1.metadata, pdf2.metadata])
 
     # Get common metadata
-    metadata_dict = PDFs.metadata.get_common_metadata([pdf1.metadata, pdf2.metadata]).as_dict()
+    metadata_dict = PDFs.metadata.get_common_metadata(
+        [pdf1.metadata, pdf2.metadata]
+    ).as_dict()
     metadata_dict1 = copy.copy(metadata_dict)
     metadata_dict2 = copy.copy(metadata_dict)
 
@@ -121,9 +122,7 @@ def trim_variables(
     )
 
     # Trim second variable relative to first
-    weight_smaller = PDFs.weight_functions.WeightFunction(
-        x=pdf1.x, wx=pdf1.Px
-    )
+    weight_smaller = PDFs.weight_functions.WeightFunction(x=pdf1.x, wx=pdf1.Px)
     trimmed_pdf2, _ = core.condition(
         pdf2,
         weight_smaller,

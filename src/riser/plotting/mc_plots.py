@@ -6,7 +6,6 @@
 Monte Carlo sampling plots.
 """
 
-
 # Public API
 __all__ = [
     "plot_mc_picks",

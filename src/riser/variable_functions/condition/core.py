@@ -7,7 +7,6 @@ These functions condition a random variable by multiplying by a weight and
 then renormalizing.
 """
 
-
 # Public API
 __all__ = [
     "weigh",
@@ -26,14 +25,14 @@ def weigh(
     prior: PDFs.weight_functions.WeightFunction,
     weight: PDFs.weight_functions.WeightFunction,
 ) -> PDFs.weight_functions.WeightFunction:
-    """Primitive to reshape a prior by a weight function.
-    """
+    """Primitive to reshape a prior by a weight function."""
     # Check PDFs sample same domain
     PDFs.value_arrays.check_value_arrays_sampling([prior.x, weight.x])
 
     return PDFs.weight_functions.WeightFunction(
         x=prior.x, wx=prior.wx * weight.wx
     )
+
 
 def condition(
     prior: PDFs.PDF | PDFs.weight_functions.WeightFunction,
@@ -52,8 +51,8 @@ def condition(
     when it is formed into a PDF.
 
     The unnormalized area of the resulting distribution represents the fraction
-    of the prior distribution that remains after weighting is applied. 
-    The specific interpretation depends on the weight chosen by the calling 
+    of the prior distribution that remains after weighting is applied.
+    The specific interpretation depends on the weight chosen by the calling
     function.
 
     Metadata are preserved unless explicitly overridden with the `name`

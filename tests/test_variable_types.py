@@ -27,5 +27,4 @@ class TestCheckVariableTypeSupported:
             variable_types.check_variable_type_supported(variable_type)
 
 
-
 # end of file

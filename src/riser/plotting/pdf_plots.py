@@ -6,7 +6,6 @@
 Functions for plotting probability density functions (PDFs).
 """
 
-
 # Public API
 __all__ = [
     "axis_label_from_pdf",
@@ -109,7 +108,7 @@ def plot_pdf_line(
     zorder: int = 1,
     # Scaling args
     offset: float = 0.0,
-    scale: float = 1.0
+    scale: float = 1.0,
 ) -> None:
     """Basic line plot of a probability density function (PDF).
 
@@ -239,7 +238,7 @@ def plot_pdf_labeled(
         linewidth=linewidth,
         zorder=zorder,
         alpha=alpha,
-        offset=offset, 
+        offset=offset,
         scale=scale,
     )
 
@@ -301,10 +300,7 @@ def plot_pdf_confidence_range(
         y-axis scale.
     """
     # Formulate label
-    label = (
-        f"{100 * conf_range.confidence:.2f} %" if incl_label
-        else None
-    )
+    label = f"{100 * conf_range.confidence:.2f} %" if incl_label else None
 
     # Plot confidence ranges
     for rng in conf_range:

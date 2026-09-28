@@ -24,7 +24,7 @@ class TestInferBracketed:
         the expected bracket size E[(X2 - X1)+] is known: approximately
         10 - (-10) = 20, independent of the width of the sampling domain.
         """
-        dx = 1E-5
+        dx = 1e-5
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, dx)
         px1 = PDFs.parametric_functions.uniform(x=x, a=-10.0 - dx, b=-10.0)
         pdf1 = PDFs.PDF(x, px1)
@@ -36,13 +36,11 @@ class TestInferBracketed:
         )
 
         assert PDFs.analytics.pdf_mean(bracketed) == pytest.approx(0.0)
-        assert (
-            np.min(bracketed.x[bracketed.px > 0.0])
-            == pytest.approx(-10.0 - dx)
+        assert np.min(bracketed.x[bracketed.px > 0.0]) == pytest.approx(
+            -10.0 - dx
         )
-        assert (
-            np.max(bracketed.x[bracketed.px > 0.0])
-            == pytest.approx(10.0 + dx)
+        assert np.max(bracketed.x[bracketed.px > 0.0]) == pytest.approx(
+            10.0 + dx
         )
         assert area == pytest.approx(20.0, abs=1e-3)
 
@@ -51,7 +49,7 @@ class TestInferBracketed:
         distributions themselves. It must not depend on the width of the
         (arbitrary) sampling domain used to represent them.
         """
-        dx = 1E-3
+        dx = 1e-3
         x_narrow = PDFs.value_arrays.precise_array(-10.0, 10.0, dx)
         x_wide = PDFs.value_arrays.precise_array(-50.0, 50.0, dx)
 
@@ -67,9 +65,7 @@ class TestInferBracketed:
         px1_wide = PDFs.parametric_functions.gaussian(
             x_wide, mu=-2.0, sigma=1.0
         )
-        px2_wide = PDFs.parametric_functions.gaussian(
-            x_wide, mu=2.0, sigma=1.0
-        )
+        px2_wide = PDFs.parametric_functions.gaussian(x_wide, mu=2.0, sigma=1.0)
         pdf1_wide = PDFs.PDF(x_wide, px1_wide)
         pdf2_wide = PDFs.PDF(x_wide, px2_wide)
 
@@ -82,7 +78,6 @@ class TestInferBracketed:
 
         assert area_narrow == pytest.approx(area_wide, rel=1e-3)
 
-
     @pytest.mark.parametrize(
         "name, vartype, unit, name_expected",
         [
@@ -91,7 +86,7 @@ class TestInferBracketed:
         ],
     )
     def test_metadata_consistent(self, name, vartype, unit, name_expected):
-        dx = 1E-5
+        dx = 1e-5
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, dx)
         px1 = PDFs.parametric_functions.uniform(x=x, a=-10.0 - dx, b=-10.0)
         pdf1 = PDFs.PDF(x, px1, variable_type=vartype, unit=unit)

@@ -6,7 +6,6 @@
 Functions for plotting cumulative distribution functions (CDFs).
 """
 
-
 # Public API
 __all__ = [
     "plot_cdf_line",
@@ -133,7 +132,8 @@ def plot_cdf_labeled(
 
     # Set value label
     xlabel = (
-        f"{pdf.variable_type.capitalize()} " if pdf.variable_type is not None
+        f"{pdf.variable_type.capitalize()} "
+        if pdf.variable_type is not None
         else ""
     )
     xlabel += f"({pdf.unit})" if pdf.unit is not None else ""

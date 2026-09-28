@@ -136,9 +136,7 @@ class TestAddVariables:
         px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
-        with pytest.raises(
-            ValueError, match="Not all value arrays"
-        ):
+        with pytest.raises(ValueError, match="Not all value arrays"):
             var_fcns.transform.arithmetic.add_variables(pdf1, pdf2)
 
     @pytest.mark.parametrize(
@@ -239,9 +237,7 @@ class TestSubtractVariables:
         px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
-        with pytest.raises(
-            ValueError, match="Not all value arrays"
-        ):
+        with pytest.raises(ValueError, match="Not all value arrays"):
             var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
 
     @pytest.mark.parametrize(
@@ -252,8 +248,7 @@ class TestSubtractVariables:
         ],
     )
     def test_different_metadata_warn(self, vartype1, unit1, vartype2, unit2):
-        """Warn is variables of fundamentally different types are passed.
-        """
+        """Warn if variables of fundamentally different types are passed."""
         x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
 
         px1 = PDFs.parametric_functions.gaussian(x, mu=2.0, sigma=1.5)
@@ -307,7 +302,7 @@ class TestMultiplyVariables:
         The accuracy of the result is highly dependent on the spacing of the
         input grids.
         """
-        dx = 1E-4
+        dx = 1e-4
         x = PDFs.value_arrays.precise_array(0.0, 1.0, dx)
         px = PDFs.parametric_functions.uniform(x, 0.0, 1.0)
         pdf1 = PDFs.PDF(x=x, px=px)
@@ -317,12 +312,12 @@ class TestMultiplyVariables:
             pdf1, pdf2, dz=dx
         )
 
-        check_ndx = (pdf_prod.x > 1E-2)
+        check_ndx = pdf_prod.x > 1e-2
 
         px_expected = -np.log(pdf_prod.x[check_ndx])
 
         np.testing.assert_allclose(
-            pdf_prod.px[check_ndx], px_expected, atol=5E-3
+            pdf_prod.px[check_ndx], px_expected, atol=5e-3
         )
 
 
@@ -339,8 +334,11 @@ class TestDivideVariables:
 
         min_q, max_q = -20.0, 20.0
         pdf_quot, _ = var_fcns.transform.arithmetic.divide_variables(
-            numerator, denominator, dz=0.01,
-            min_quotient=min_q, max_quotient=max_q,
+            numerator,
+            denominator,
+            dz=0.01,
+            min_quotient=min_q,
+            max_quotient=max_q,
         )
 
         # divide_variables correctly returns the CONDITIONAL density given

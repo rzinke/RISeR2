@@ -23,6 +23,7 @@ examples = """Examples:
 riser-compute-overlap-index pdf1.txt pdf2.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -32,21 +33,30 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="fnames",
-        type=str, nargs="+",
-        help="PDF file names.")
+    input_args.add_argument(
+        dest="fnames", type=str, nargs="+", help="PDF file names."
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
-        help="Plot distribution.")
+        help="Plot distribution.",
+    )
 
     return parser.parse_args(args=iargs)
 

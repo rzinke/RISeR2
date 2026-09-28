@@ -114,7 +114,7 @@ def compute_central_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     mu = expected_value(x, px)
 
     # Compute central moment
-    mu_n = integration.integrate(x=x, px=((x - mu)**n) * px)
+    mu_n = integration.integrate(x=x, px=((x - mu) ** n) * px)
 
     return mu_n
 
@@ -147,7 +147,7 @@ def compute_standardized_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     # Compute central moment
     mu_std_n = (
         integration.integrate(x=x, px=((x - mu)**n) * px)
-        / integration.integrate(x=x, px=((x - mu)**2) * px)**(n/2)
+        / integration.integrate(x=x, px=((x - mu) ** 2) * px) ** (n/2)
     )
 
     return mu_std_n
@@ -350,6 +350,16 @@ class PDFstatistics:
 
 def compute_pdf_statistics(pdf: PDF, verbose: bool = False) -> PDFstatistics:
     """Compute the basic statistical properties of a PDF.
+
+    Parameters
+    ----------
+    pdf : PDF
+        PDF on which to compute statistics.
+
+    Returns
+    -------
+    PDFstatistics
+        PDF statistics.
     """
     # Compute statistics and package as PDFstatistics object
     pdf_stats = PDFstatistics(
@@ -453,7 +463,7 @@ def compute_interquantile_range(
 
 
 def compute_highest_posterior_density(
-    pdf: PDF, confidence: float = constants.Psigma["1"],
+    pdf: PDF, confidence: float = constants.Psigma["1"]
 ) -> ConfidenceRange:
     """Compute the highest posterior density (HPD) values of a PDF.
 
@@ -495,25 +505,26 @@ def compute_highest_posterior_density(
 
     # Find every place px changes across threshold h, sign changes are
     # cluster edges
-    thresh = np.where(pdf.px >= h, 1., -1.)
-    thresh_diff = np.diff(thresh, append=-1.)
+    thresh = np.where(pdf.px >= h, 1.0, -1.0)
+    thresh_diff = np.diff(thresh, append=-1.0)
 
     cluster_starts = []
     cluster_ends = []
-    for i in range(len(pdf)-1):
-        if thresh_diff[i] != 0.:
+    for i in range(len(pdf) - 1):
+        if thresh_diff[i] != 0.0:
             # Interpolate the exact crossing location at each edge
-            t = (h - pdf.px[i]) / (pdf.px[i+1] - pdf.px[i])
-            x_star = pdf.x[i] + t * (pdf.x[i+1] - pdf.x[i])
-            if thresh_diff[i] == 2.:
+            t = (h - pdf.px[i]) / (pdf.px[i + 1] - pdf.px[i])
+            x_star = pdf.x[i] + t * (pdf.x[i + 1] - pdf.x[i])
+
+            if thresh_diff[i] == 2.0:
                 cluster_starts.append(x_star)
             else:
                 cluster_ends.append(x_star)
 
     clusters = [
         # Pair consecutive edges
-        (cluster_start, cluster_end) for cluster_start, cluster_end in
-        zip(cluster_starts, cluster_ends)
+        (cluster_start, cluster_end)
+        for cluster_start, cluster_end in zip(cluster_starts, cluster_ends)
     ]
 
     # Format values into ConfidenceRange object
@@ -527,7 +538,6 @@ def compute_highest_posterior_density(
     )
 
     return conf_range
-
 
 
 PDF_CONFIDENCE_METRICS = {

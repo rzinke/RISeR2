@@ -82,7 +82,7 @@ class TestPDFmetadata:
             {"name": 123},
             {"variable_type": 123},
             {"unit": 123},
-        ]
+        ],
     )
     def test_invalid_type_raises(self, field):
         with pytest.raises(TypeError):
@@ -111,7 +111,6 @@ class TestPDFmetadata:
 
 
 class TestGetCommonMetadata:
-
     meta0 = metadata.PDFmetadata(
         name="0",
     )
@@ -222,9 +221,7 @@ class TestGetCommonMetadata:
         assert meta_cmmn.unit is None
 
     def test_silent_by_default_if_different(self, recwarn):
-        metadata.get_common_metadata(
-            metadata_list=[self.meta0, self.meta1]
-        )
+        metadata.get_common_metadata(metadata_list=[self.meta0, self.meta1])
         assert len(recwarn) == 0
 
     def test_warn_if_different(self):
@@ -255,7 +252,6 @@ class TestCheckPhysicalProperties:
         metadata.check_physical_properties([metadata1, metadata2])
 
         assert len(recwarn) == 0
-
 
     @pytest.mark.parametrize(
         "name1, vartype1, unit1, name2, vartype2, unit2",

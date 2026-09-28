@@ -30,6 +30,7 @@ riser-make-pdf -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
 riser-make-pdf -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -39,56 +40,95 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument("-d", "--distribution", dest="distribution",
-        type=str, choices=PDFs.parametric_functions.PARAMETRIC_FUNCTIONS,
+    input_args.add_argument(
+        "-d",
+        "--distribution",
+        dest="distribution",
+        type=str,
+        choices=PDFs.parametric_functions.PARAMETRIC_FUNCTIONS,
         required=True,
-        help="Parametric function.")
-    input_args.add_argument("-s", "--values", dest="values",
-        type=float, nargs="+", required=True,
-        help="Parameter values.")
+        help="Parametric function.",
+    )
+    input_args.add_argument(
+        "-s",
+        "--values",
+        dest="values",
+        type=float,
+        nargs="+",
+        required=True,
+        help="Parameter values.",
+    )
 
     domain_args = parser.add_argument_group("Domain")
-    domain_args.add_argument("-dx", "--dx", dest="dx",
+    domain_args.add_argument(
+        "-dx",
+        "--dx",
+        dest="dx",
         type=float,
-        help="Function value array x-step.")
-    domain_args.add_argument("--xmin", dest="xmin",
-        type=float,
-        help="Minimum function value.")
-    domain_args.add_argument("--xmax", dest="xmax",
-        type=float,
-        help="Maximum function value.")
-    domain_args.add_argument("--limit-positive", dest="limit_positive",
+        help="Function value array x-step.",
+    )
+    domain_args.add_argument(
+        "--xmin", dest="xmin", type=float, help="Minimum function value."
+    )
+    domain_args.add_argument(
+        "--xmax", dest="xmax", type=float, help="Maximum function value."
+    )
+    domain_args.add_argument(
+        "--limit-positive",
+        dest="limit_positive",
         action="store_true",
-        help="Enforce the condition that values are >= to 0.")
+        help="Enforce the condition that values are >= to 0.",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str, required=True,
-        help="Output file name.")
+    output_args.add_argument(
+        "-o",
+        "--outname",
+        dest="outname",
+        type=str,
+        required=True,
+        help="Output file name.",
+    )
 
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument("--name", dest="name",
+    metadata_args.add_argument(
+        "--name", dest="name", type=str, help="PDF descriptive name. [None]"
+    )
+    metadata_args.add_argument(
+        "--variable-type",
+        dest="variable_type",
         type=str,
-        help="PDF descriptive name. [None]")
-    metadata_args.add_argument("--variable-type", dest="variable_type",
-        type=str, choices=variable_types.SUPPORTED_VARIABLE_TYPES,
+        choices=variable_types.SUPPORTED_VARIABLE_TYPES,
         help="PDF variable type, e.g., 'age', 'displacement', 'slip rate'. "
-             "[None]")
-    metadata_args.add_argument("--unit", dest="unit",
+        "[None]",
+    )
+    metadata_args.add_argument(
+        "--unit",
+        dest="unit",
         type=str,
-        help="Value unit (e.g., 'y'; 'm'. [None]")
+        help="Value unit (e.g., 'y'; 'm'. [None]",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
-        help="Plot distribution.")
+        help="Plot distribution.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -125,12 +165,13 @@ def main() -> None:
         units.parse_unit(inps.unit)
 
     # Determine suggested min/max values based on function shape
-    (suggested_xmin,
-     suggested_xmax) = PDFs.parametric_functions.determine_min_max_limits(
-        distribution=inps.distribution,
-        values=inps.values,
-        limit_positive=inps.limit_positive,
-        verbose=inps.verbose,
+    (suggested_xmin, suggested_xmax) = (
+        PDFs.parametric_functions.determine_min_max_limits(
+            distribution=inps.distribution,
+            values=inps.values,
+            limit_positive=inps.limit_positive,
+            verbose=inps.verbose,
+        )
     )
 
     # Determine min/max values to use

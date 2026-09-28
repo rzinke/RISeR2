@@ -268,9 +268,7 @@ def read_pdf(
         "variable_type": variable_type,
         "unit": unit,
     }
-    metadata = reconcile_metadata(
-        user_metadata, file_metadata, verbose=verbose
-    )
+    metadata = reconcile_metadata(user_metadata, file_metadata, verbose=verbose)
 
     # Parse data lines
     data_lines = [line for line in lines if line[0] != "#"]
@@ -287,9 +285,7 @@ def read_pdf(
     return pdf
 
 
-def read_pdfs(
-    fnames: list[str], verbose: bool = False
-) -> list[PDF]:
+def read_pdfs(fnames: list[str], verbose: bool = False) -> list[PDF]:
     """Read multiple PDFs from files.
 
     Parameters
@@ -346,7 +342,7 @@ def read_calendar_file(
         Metadata retrieved from file.
     """
     # Open file and read contents
-    with open(fname, 'r') as raw_file:
+    with open(fname, "r") as raw_file:
         lines = raw_file.readlines()
 
     # Remove blank or malformed lines
@@ -366,9 +362,7 @@ def read_calendar_file(
         "variable_type": variable_type,
         "unit": unit,
     }
-    metadata = reconcile_metadata(
-        user_metadata, file_metadata, verbose=verbose
-    )
+    metadata = reconcile_metadata(user_metadata, file_metadata, verbose=verbose)
 
     # Parse data lines
     data_lines = [line for line in lines if line[0] != "#" and len(line) > 1]
@@ -472,7 +466,7 @@ def save_pdf(outname: str, pdf: PDF, verbose: bool = False) -> None:
     data = pdf_data_to_str(pdf)
 
     # Write to file
-    with open(outname, 'w') as outfile:
+    with open(outname, "w") as outfile:
         # Write header
         outfile.write(header)
 

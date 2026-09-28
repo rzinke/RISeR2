@@ -22,6 +22,7 @@ examples = """Examples:
 riser-view-pdf-stack pdfs_config.toml
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -31,36 +32,47 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="pdf_config",
-        type=str,
-        help="PDFs configuration file.")
+    input_args.add_argument(
+        dest="pdf_config", type=str, help="PDFs configuration file."
+    )
 
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--unit-out", dest="unit_out",
-        type=str,
-        help="Output units.")
+    unit_args.add_argument(
+        "--unit-out", dest="unit_out", type=str, help="Output units."
+    )
 
     plot_args = parser.add_argument_group("Plotting")
-    plot_args.add_argument("--same-height", dest="same_height",
+    plot_args.add_argument(
+        "--same-height",
+        dest="same_height",
         action="store_true",
-        help="Plot all PDFs with the same height.")
+        help="Plot all PDFs with the same height.",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str,
-        help="Output file.")
-    output_args.add_argument("--no-show", dest="no_show",
+    output_args.add_argument(
+        "-o", "--outname", dest="outname", type=str, help="Output file."
+    )
+    output_args.add_argument(
+        "--no-show",
+        dest="no_show",
         action="store_true",
-        help="Forego showing plot.")
+        help="Forego showing plot.",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
+        help="Verbose mode.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -77,7 +89,7 @@ def main() -> None:
     # Empty dictionaries to store PDFs and metadata
     pdfs = {}
     colors = {}
-    priors  = {}
+    priors = {}
 
     # Loop through PDFs in config file
     for pdf_name, pdf_spec in pdf_specs.items():

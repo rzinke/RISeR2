@@ -19,8 +19,7 @@ from .. import constants
 #################### SAMPLE STATISTICS ####################
 @dataclass
 class SampleStatistics:
-    """Class to store discrete sample statistics.
-    """
+    """Class to store discrete sample statistics."""
 
     # Confidence values
     confidence: float
@@ -41,8 +40,7 @@ class SampleStatistics:
 
         print_str += f"\n{100 * self.confidence:.2f} % : "
         print_str += (
-            f"({self.range_values[0]:.3f} "
-            f"- {self.range_values[1]:.3f})"
+            f"({self.range_values[0]:.3f} - {self.range_values[1]:.3f})"
         )
 
         return print_str
@@ -84,7 +82,7 @@ def compute_sample_confidence(
     upper = 0.5 + half_confidence
 
     # Determine percentiles
-    range_values = np.percentile(samples, (100*lower, 100*upper))
+    range_values = np.percentile(samples, (100 * lower, 100 * upper))
 
     # Format values into SampleStatistics object
     conf_range = SampleStatistics(

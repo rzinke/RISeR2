@@ -6,7 +6,6 @@
 Filter kernel plots.
 """
 
-
 # Public API
 __all__ = [
     "plot_filter_kernel",
@@ -20,9 +19,7 @@ from ..sampling import filtering
 
 
 #################### FILTER KERNEL PLOTTING ####################
-def plot_filter_kernel(
-    ax: Axes, filt: filtering.FIRFilter
-) -> None:
+def plot_filter_kernel(ax: Axes, filt: filtering.FIRFilter) -> None:
     """Plot a filter kernel.
 
     Parameters

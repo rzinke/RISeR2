@@ -6,7 +6,6 @@
 Functions to quantitatively compare different variables
 """
 
-
 # Public API
 __all__ = [
     "cosine_similarity",
@@ -107,10 +106,10 @@ def cross_correlate_variables(
 
     # Define integer lags
     n = len(pdf1)
-    lags = np.arange(-n+1, n, dtype=int)
+    lags = np.arange(-n + 1, n, dtype=int)
 
     # Pre-allocate correlation values
-    corr_vals = np.empty(2*n-1)
+    corr_vals = np.empty(2 * n - 1)
 
     # Pre-compute normalization factor for reference PDF
     ref_rss = np.sqrt(np.sum(pdf1.px**2))

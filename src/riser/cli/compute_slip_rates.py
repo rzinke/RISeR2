@@ -29,6 +29,7 @@ examples = """Examples:
 riser-compute-slip-rates marker_config.toml -o incr_slip_rates
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -38,60 +39,98 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     # Inputs
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="marker_config",
+    input_args.add_argument(
+        dest="marker_config",
         type=str,
-        help="Dated displacement marker configuration file.")
+        help="Dated displacement marker configuration file.",
+    )
 
     rate_args = parser.add_argument_group("Slip rates")
-    rate_args.add_argument("--limit-positive", dest="limit_positive",
+    rate_args.add_argument(
+        "--limit-positive",
+        dest="limit_positive",
         action="store_true",
-        help="Enforce the condition that values are >= to 0.")
-    rate_args.add_argument("--max-rate", dest="max_rate",
-        type=float, default=100,
-        help="Maximum slip rate to consider. [100]")
-    rate_args.add_argument("--dv", dest="dv",
-        type=float, default=0.01,
-        help="Slip rate step. [0.01]")
+        help="Enforce the condition that values are >= to 0.",
+    )
+    rate_args.add_argument(
+        "--max-rate",
+        dest="max_rate",
+        type=float,
+        default=100,
+        help="Maximum slip rate to consider. [100]",
+    )
+    rate_args.add_argument(
+        "--dv",
+        dest="dv",
+        type=float,
+        default=0.01,
+        help="Slip rate step. [0.01]",
+    )
 
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
-        "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
+        "--confidence-metric",
+        dest="confidence_metric",
+        type=str,
+        choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
         default=PDFs.analytics.DEFAULT_CONFIDENCE_METRIC,
         help=f"Function for computing function confidence. "
-             f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]")
+        f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]",
+    )
     reporting_args.add_argument(
-        "--confidence-limits", dest="confidence_limits",
-        type=float, default=constants.Psigma["1"],
-        help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
+        "--confidence-limits",
+        dest="confidence_limits",
+        type=float,
+        default=constants.Psigma["1"],
+        help=f"Confidence level. [{constants.Psigma['1']:.2f}]",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--output-prefix", dest="output_prefix",
-        type=str, required=True,
-        help="Output prefix as <prefix> or <folder>/<prefix>.")
+    output_args.add_argument(
+        "-o",
+        "--output-prefix",
+        dest="output_prefix",
+        type=str,
+        required=True,
+        help="Output prefix as <prefix> or <folder>/<prefix>.",
+    )
 
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
-        type=str,
-        help="Output age units.")
     unit_args.add_argument(
-        "--displacement-unit-out", dest="displacement_unit_out",
+        "--age-unit-out",
+        dest="age_unit_out",
         type=str,
-        help="Output displacement units.")
+        help="Output age units.",
+    )
+    unit_args.add_argument(
+        "--displacement-unit-out",
+        dest="displacement_unit_out",
+        type=str,
+        help="Output displacement units.",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
         help="Show results plots. Figures will be generated and saved "
-             "whether plot flag is raised.")
+        "whether plot flag is raised.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -124,7 +163,8 @@ def main() -> None:
             verbose=inps.verbose,
         )
         displacement_unit_out = (
-            marker.displacement.unit if inps.displacement_unit_out is None
+            marker.displacement.unit
+            if inps.displacement_unit_out is None
             else inps.displacement_unit_out
         )
         marker.displacement = PDFs.scaling.scale_pdf_by_units(
@@ -185,9 +225,7 @@ def main() -> None:
     rate_fig, rate_ax = plt.subplots(figsize=(6, 3.5))
 
     # Plot slip rate PDFs
-    plotting.plot_pdf_stack(
-        rate_ax, slip_rates, conf_ranges=conf_ranges
-    )
+    plotting.plot_pdf_stack(rate_ax, slip_rates, conf_ranges=conf_ranges)
 
     # Save slip rate figure
     reporting.save_slip_rate_fig(

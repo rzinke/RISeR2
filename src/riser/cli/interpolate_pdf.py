@@ -27,6 +27,7 @@ riser-interpolate-pdf pdf_file.txt --dx 0.01 -o interp_pdf_file.txt
 riser-interpolate-pdf pdf_file.txt --xmin 0 --xmax 100 -o interp_pdf_file.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -36,47 +37,62 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="pdf_name",
-        type=str,
-        help="PDF file name.")
+    input_args.add_argument(dest="pdf_name", type=str, help="PDF file name.")
 
-    input_args.add_argument("--xmin", dest="xmin",
-        type=float,
-        help="Minimum x-value. [None]")
-    input_args.add_argument("--xmax", dest="xmax",
-        type=float,
-        help="Maximum x-value. [None]")
-    input_args.add_argument("--dx", dest="dx",
-        type=float,
-        help="x-step. [None]")
+    input_args.add_argument(
+        "--xmin", dest="xmin", type=float, help="Minimum x-value. [None]"
+    )
+    input_args.add_argument(
+        "--xmax", dest="xmax", type=float, help="Maximum x-value. [None]"
+    )
+    input_args.add_argument(
+        "--dx", dest="dx", type=float, help="x-step. [None]"
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str, required=True,
-        help="Output file.")
+    output_args.add_argument(
+        "-o",
+        "--outname",
+        dest="outname",
+        type=str,
+        required=True,
+        help="Output file.",
+    )
 
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument("--name", dest="name",
+    metadata_args.add_argument(
+        "--name", dest="name", type=str, help="Name of interpolated PDF."
+    )
+    metadata_args.add_argument(
+        "--variable-type",
+        dest="variable_type",
         type=str,
-        help="Name of interpolated PDF.")
-    metadata_args.add_argument("--variable-type", dest="variable_type",
-        type=str,
-        help="Variable type of interpolated PDF.")
-    metadata_args.add_argument("--unit", dest="unit",
-        type=str,
-        help="Unit of interpolated PDF.")
+        help="Variable type of interpolated PDF.",
+    )
+    metadata_args.add_argument(
+        "--unit", dest="unit", type=str, help="Unit of interpolated PDF."
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
-        help="Plot distribution.")
+        help="Plot distribution.",
+    )
 
     return parser.parse_args(args=iargs)
 

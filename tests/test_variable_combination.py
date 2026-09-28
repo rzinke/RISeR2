@@ -20,11 +20,13 @@ class TestVariableCombination:
         """The product of two or more Gaussian PDFs will reduce the standard
         deviation by sqrt(n) / n.
         """
-        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 1E-3)
+        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 1e-3)
         px = PDFs.parametric_functions.gaussian(x, mu=0, sigma=1.0)
         pdf = PDFs.PDF(x, px)
 
-        pdf_combo, _ = var_fcns.condition.combination.combine_variables(n*[pdf])
+        pdf_combo, _ = var_fcns.condition.combination.combine_variables(
+            n * [pdf]
+        )
 
         # Test combined standard deviation
         stdev = PDFs.analytics.pdf_std(pdf_combo)
@@ -39,7 +41,7 @@ class TestVariableCombination:
         This is the classical result for the integral of a product of two
         Gaussian densities.
         """
-        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 1E-3)
+        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 1e-3)
         mu1, sigma1 = 2.0, 1.5
         mu2, sigma2 = -1.0, 2.0
         px1 = PDFs.parametric_functions.gaussian(x, mu=mu1, sigma=sigma1)
@@ -56,6 +58,7 @@ class TestVariableCombination:
         )
 
         assert area == pytest.approx(expected_area, rel=1e-4)
+
 
 class TestCombineVariables:
     @pytest.mark.parametrize(
@@ -85,8 +88,12 @@ class TestCombineVariables:
         """
         x = PDFs.value_arrays.precise_array(-10.0, 10.0, 0.01)
         px = PDFs.parametric_functions.gaussian(x, mu=0.0, sigma=1.0)
-        pdf_a = PDFs.PDF(x, px, name="Sample_A14C", variable_type="age", unit="y")
-        pdf_b = PDFs.PDF(x, px, name="Sample_B14C", variable_type="age", unit="y")
+        pdf_a = PDFs.PDF(
+            x, px, name="Sample_A14C", variable_type="age", unit="y"
+        )
+        pdf_b = PDFs.PDF(
+            x, px, name="Sample_B14C", variable_type="age", unit="y"
+        )
 
         result, _ = var_fcns.condition.combination.combine_variables(
             [pdf_a, pdf_b]

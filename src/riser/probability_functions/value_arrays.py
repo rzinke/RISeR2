@@ -45,7 +45,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
 
     # Raise warning if a single value is not representative
-    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
+    if diff_x_cv > 10**-precision.RISER_PRECISION:
         warnings.warn(
             f"Sample spacing varies by {diff_x_std}. "
             f"A single value might not be representative."
@@ -103,7 +103,7 @@ def sample_spacing_array_from_pdf(
     diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
 
     # Check regularity against machine error
-    if diff_x_cv > 10 ** -precision.RISER_PRECISION:
+    if diff_x_cv > 10**-precision.RISER_PRECISION:
         # Irregular sampling of PDF
         return precision.fix_precision(np.diff(pdf.x, append=pdf.x[-1]))
     else:

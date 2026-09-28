@@ -24,33 +24,43 @@ examples = """Examples:
 riser-cross-correlate-variables ref_pdf.txt sec_pdf.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
         formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples
+        epilog=examples,
     )
 
     return parser
+
 
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="ref_fname",
-        type=str,
-        help="File name of the reference PDF.")
-    input_args.add_argument(dest="sec_fname",
-        type=str,
-        help="File name of the secondary PDF.")
+    input_args.add_argument(
+        dest="ref_fname", type=str, help="File name of the reference PDF."
+    )
+    input_args.add_argument(
+        dest="sec_fname", type=str, help="File name of the secondary PDF."
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
-        help="Plot distribution.")
+        help="Plot distribution.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -65,8 +75,7 @@ def main():
     sec_pdf = PDFs.readers.read_pdf(inps.sec_fname, verbose=inps.verbose)
 
     # Sample PDFs on same axis
-    (ref_pdf,
-     sec_pdf) = PDFs.interpolation.interpolate_pdfs(
+    (ref_pdf, sec_pdf) = PDFs.interpolation.interpolate_pdfs(
         [ref_pdf, sec_pdf], verbose=inps.verbose
     )
 

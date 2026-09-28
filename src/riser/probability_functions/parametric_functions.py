@@ -98,9 +98,7 @@ def uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
     return px
 
 
-def triangular(
-    x:np.ndarray, a: float, c: float, b: float
-) -> np.ndarray:
+def triangular(x: np.ndarray, a: float, c: float, b: float) -> np.ndarray:
     """Triangular function with unit area.
 
     Parameters
@@ -238,7 +236,7 @@ def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     check_mass_against_value_range(x, xmin, xmax)
 
     a = 1 / (sigma * np.sqrt(2 * np.pi))
-    f = np.exp(-0.5 * (x - mu)**2 / sigma**2)
+    f = np.exp(-0.5 * (x - mu) ** 2 / sigma**2)
 
     # Probability density
     px = a * f
@@ -336,7 +334,7 @@ def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
 
     # Distribution components
     a = 1 / (x[positive_ndx] * sigma * np.sqrt(2 * np.pi))
-    f = np.exp(-0.5 * (np.log(x[positive_ndx]) - mu)**2 / sigma**2)
+    f = np.exp(-0.5 * (np.log(x[positive_ndx]) - mu) ** 2 / sigma**2)
 
     # Probability density
     px[positive_ndx] = a * f
@@ -449,7 +447,8 @@ def check_number_inputs(distribution: str, variables: list[float]) -> None:
     # Retrieve required arguments from function signature
     fcn_sig = inspect.signature(PARAMETRIC_FUNCTIONS[distribution])
     reqd_args = [
-        param.name for param in fcn_sig.parameters.values()
+        param.name
+        for param in fcn_sig.parameters.values()
         if param.default is inspect.Parameter.empty
     ]
 
@@ -587,7 +586,7 @@ def cumulative_uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
 
 
 def cumulative_triangular(
-    x:np.ndarray, a: float, c: float, b: float
+    x: np.ndarray, a: float, c: float, b: float
 ) -> np.ndarray:
     """Cumulative triangular function.
 
@@ -621,11 +620,11 @@ def cumulative_triangular(
 
     # Left side
     left_ndx = (a < x) & (x <= c)
-    Px[left_ndx] = (x[left_ndx] - a)**2 / ((b - a) * (c - a))
+    Px[left_ndx] = (x[left_ndx] - a) ** 2 / ((b - a) * (c - a))
 
     # Right side
     right_ndx = (c < x) & (x < b)
-    Px[right_ndx] = 1 - (b - x[right_ndx])**2 / ((b - a) * (b - c))
+    Px[right_ndx] = 1 - (b - x[right_ndx]) ** 2 / ((b - a) * (b - c))
 
     # Far right
     far_ndx = (b <= x)
@@ -673,27 +672,15 @@ def cumulative_trapezoidal(
 
     # Left side
     left_ndx = (a <= x) & (x < b)
-    Px[left_ndx] = (
-        coef
-        / (b - a)
-        * (x[left_ndx] - a) ** 2
-    )
+    Px[left_ndx] = coef / (b - a) * (x[left_ndx] - a) ** 2
 
     # Boxcar
     boxcar_ndx = (b <= x) & (x < c)
-    Px[boxcar_ndx] = (
-        coef
-        * (2 * x[boxcar_ndx] - a - b)
-    )
+    Px[boxcar_ndx] = coef * (2 * x[boxcar_ndx] - a - b)
 
     # Right side
     right_ndx = (c <= x) & (x <= d)
-    Px[right_ndx] = (
-        1
-        - coef
-        / (d - c)
-        * (d - x[right_ndx]) ** 2
-    )
+    Px[right_ndx] = 1 - coef / (d - c) * (d - x[right_ndx]) ** 2
 
     # Far right
     far_ndx = (x > d)

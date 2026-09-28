@@ -179,9 +179,7 @@ PDF_FORMATION_METHODS = {
 }
 
 
-def get_pdf_formation_function(
-    method: str, verbose: bool = False
-) -> Callable:
+def get_pdf_formation_function(method: str, verbose: bool = False) -> Callable:
     """Retrieve a PDF formation function by name.
 
     Parameters

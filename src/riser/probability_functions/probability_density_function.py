@@ -123,7 +123,6 @@ class ProbabilityDensityFunction:
             unit=unit,
         )
 
-
     def _compute_area_(self) -> float:
         return integration.integrate(x=self._x, px=self._px)
 
@@ -132,18 +131,16 @@ class ProbabilityDensityFunction:
         area = self._compute_area_()
 
         # Check if area is approximately zero
-        if area <= 10 ** -precision.RISER_PRECISION:
+        if area <= 10**-precision.RISER_PRECISION:
             raise ValueError(
-                "Total probability is too close to 0.0. "
-                "Cannot normalize area."
+                "Total probability is too close to 0.0. Cannot normalize area."
             )
 
         # Normalize area to 1.0
         self._px /= area
 
     def _compute_cdf_(self) -> np.ndarray:
-        """Compute the cumulative distribution function.
-        """
+        """Compute the cumulative distribution function."""
         # Cumulative integration
         Px = integration.integrate_cumulative(x=self._x, px=self._px)
 
@@ -152,28 +149,25 @@ class ProbabilityDensityFunction:
 
         return Px
 
+    # Checks
     def _check_monotonic_(self) -> None:
-        """Check condition 1: Domain values increase monotonically.
-        """
+        """Check condition 1: Domain values increase monotonically."""
         diff_x = np.diff(self._x)
         if np.any(diff_x <= 0):
             raise ValueError("Domain values must strictly increase")
 
     def _check_nonnegative_(self) -> None:
-        """Check condition 2: No negative probability density values.
-        """
+        """Check condition 2: No negative probability density values."""
         if -1 in np.sign(self._px):
             raise ValueError("All probability values must be non-negative")
 
     def _check_unit_area_(self) -> None:
-        """Check that the area under the curve is 1.0.
-        """
+        """Check that the area under the curve is 1.0."""
         area = self._compute_area_()
-        if np.abs(1.0 - area) > 10 ** -precision.RISER_PRECISION:
+        if np.abs(1.0 - area) > 10**-precision.RISER_PRECISION:
             raise ValueError(f"PDF area should be 1.0, got {area}.")
 
-
-    # Mathematical properties
+    # Arrays
     @property
     def x(self) -> np.ndarray:
         return self._x
@@ -186,7 +180,11 @@ class ProbabilityDensityFunction:
     def Px(self) -> np.ndarray:
         return self._Px
 
+    def __len__(self) -> int:
+        """Return the length of the PDF array."""
+        return len(self._x)
 
+    # Mathematical properties
     def pdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the probability density of the PDF at x.
 
@@ -201,7 +199,6 @@ class ProbabilityDensityFunction:
             Probability density at value(s) x.
         """
         return np.interp(x, self.x, self.px, left=0.0, right=0.0)
-
 
     def cdf_at_value[Numeric: (float, np.ndarray)](self, x: Numeric) -> Numeric:
         """Compute the value of the CDF at x.
@@ -218,7 +215,6 @@ class ProbabilityDensityFunction:
         """
         return np.interp(x, self.x, self.Px, left=0.0, right=1.0)
 
-
     def compute_probability_less_than(self, x: float) -> float:
         """Compute the probability that the vlaue is less than x.
 
@@ -234,7 +230,6 @@ class ProbabilityDensityFunction:
         """
         return self.cdf_at_value(x)
 
-
     def compute_probability_greater_than(self, x: float) -> float:
         """Compute the probability that the value is greater than x.
 
@@ -249,7 +244,6 @@ class ProbabilityDensityFunction:
             Probability that the true value is greater than x.
         """
         return 1.0 - self.cdf_at_value(x)
-
 
     def compute_probability_between(self, x1: float, x2: float) -> float:
         """Compute the probability that the value is between x1 and x2.
@@ -268,7 +262,7 @@ class ProbabilityDensityFunction:
         """
         return self.cdf_at_value(x2) - self.cdf_at_value(x1)
 
-
+    # Samping
     def pit[Numeric: (float, np.ndarray)](self, y: Numeric) -> Numeric:
         """Compute probability inverse transform (PIT).
 
@@ -286,14 +280,7 @@ class ProbabilityDensityFunction:
         """
         return np.interp(y, self.Px, self.x)
 
-
-    def __len__(self) -> int:
-        """Return the length of the PDF array.
-        """
-        return len(self._x)
-
-
-    # Metadata properties
+    # Metadata
     @property
     def name(self) -> str | None:
         return self.metadata.name
@@ -306,7 +293,7 @@ class ProbabilityDensityFunction:
     def unit(self) -> str | None:
         return self.metadata.unit
 
-
+    # Reporting
     def __str__(self) -> str:
         print_str = "PDF"
 

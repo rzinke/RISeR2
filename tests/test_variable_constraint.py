@@ -15,7 +15,7 @@ from riser import (
 # Tests
 class TestConstrainAbove:
     def test_known_result(self):
-        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1E-7)
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1e-7)
         px = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         pdf = PDFs.PDF(x=x, px=px)
 
@@ -62,7 +62,7 @@ class TestConstrainAbove:
 
 class TestConstrainBelow:
     def test_known_result(self):
-        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1E-7)
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1e-7)
         px = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         pdf = PDFs.PDF(x=x, px=px)
 

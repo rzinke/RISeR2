@@ -24,6 +24,7 @@ examples = """Examples:
 riser-view-displacement-age-history marker_config.toml
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -33,46 +34,72 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="marker_config",
+    input_args.add_argument(
+        dest="marker_config",
         type=str,
-        help="Dated displacement marker configuration file.")
-    input_args.add_argument("--marker-type", dest="marker_plot_type",
-        type=str, choices={"whisker", "rectangle", "pdf"}, default="whisker",
-        help="Marker type. [whisker]")
-    input_args.add_argument("--show-marginals", dest="show_marginals",
+        help="Dated displacement marker configuration file.",
+    )
+    input_args.add_argument(
+        "--marker-type",
+        dest="marker_plot_type",
+        type=str,
+        choices={"whisker", "rectangle", "pdf"},
+        default="whisker",
+        help="Marker type. [whisker]",
+    )
+    input_args.add_argument(
+        "--show-marginals",
+        dest="show_marginals",
         action="store_true",
-        help="Plot displacement and age marginal distributions.")
+        help="Plot displacement and age marginal distributions.",
+    )
 
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
-        type=str,
-        help="Output age units.")
     unit_args.add_argument(
-        "--displacement-unit-out", dest="displacement_unit_out",
+        "--age-unit-out",
+        dest="age_unit_out",
         type=str,
-        help="Output displacement units.")
+        help="Output age units.",
+    )
+    unit_args.add_argument(
+        "--displacement-unit-out",
+        dest="displacement_unit_out",
+        type=str,
+        help="Output displacement units.",
+    )
 
     plot_args = parser.add_argument_group("Plotting")
-    plot_args.add_argument("--show-labels", dest="show_labels",
+    plot_args.add_argument(
+        "--show-labels",
+        dest="show_labels",
         action="store_true",
-        help="Label data points.")
+        help="Label data points.",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str,
-        help="Output file.")
-    output_args.add_argument("--no-show", dest="no_show",
+    output_args.add_argument(
+        "-o", "--outname", dest="outname", type=str, help="Output file."
+    )
+    output_args.add_argument(
+        "--no-show",
+        dest="no_show",
         action="store_true",
-        help="Forego showing plot.")
+        help="Forego showing plot.",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
+        help="Verbose mode.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -98,7 +125,8 @@ def main() -> None:
             verbose=inps.verbose,
         )
         displacement_unit_out = (
-            marker.displacement.unit if inps.displacement_unit_out is None
+            marker.displacement.unit
+            if inps.displacement_unit_out is None
             else inps.displacement_unit_out
         )
         marker.displacement = PDFs.scaling.scale_pdf_by_units(
@@ -117,7 +145,6 @@ def main() -> None:
     else:
         # Standard single-axis figure
         fig, marker_ax = plt.subplots()
-
 
     # Plot markers
     plotting.plot_variable_pairs(

@@ -82,8 +82,7 @@ def determine_if_scaling_appropriate(
     # Report scaling
     if verbose:
         print(
-            f"Scaling PDF input unit ({pdf.unit}) "
-            f"to output unit ({unit_out})"
+            f"Scaling PDF input unit ({pdf.unit}) to output unit ({unit_out})"
         )
 
     return True

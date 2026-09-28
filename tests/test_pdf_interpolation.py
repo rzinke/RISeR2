@@ -66,9 +66,7 @@ class TestInterpolatePdf:
         x_narr = np.linspace(0.0, 1.0, 3)
         pdf_intp = PDFs.interpolation.interpolate_pdf(self.pdf, x_narr)
         np.testing.assert_allclose(pdf_intp.x, x_narr)
-        np.testing.assert_allclose(
-            pdf_intp.px, np.array([0.0, 1.0, 2.0])
-        )
+        np.testing.assert_allclose(pdf_intp.px, np.array([0.0, 1.0, 2.0]))
 
     def test_zero_overlap(self):
         x_zero = np.linspace(-2.5, -0.5, 3)
@@ -92,13 +90,11 @@ class TestInterpolatePDFs:
             px=np.array([0.0, 1.0, 0.0]),
         )
         pdf2 = PDFs.PDF(
-            x=np.linspace(-2.0, .0, 5),
+            x=np.linspace(-2.0, 0.0, 5),
             px=np.array([0.0, 0.5, 1.0, 0.5, 0.0]),
         )
 
-        pdf1_intp, pdf2_intp = PDFs.interpolation.interpolate_pdfs(
-            [pdf1, pdf2]
-        )
+        pdf1_intp, pdf2_intp = PDFs.interpolation.interpolate_pdfs([pdf1, pdf2])
 
         np.testing.assert_allclose(
             pdf1_intp.x,

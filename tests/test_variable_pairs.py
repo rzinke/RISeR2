@@ -63,50 +63,62 @@ class TestVariablePair:
 class TestDatedMarker:
     def test_valid_age_displacement_inputs_silent(self):
         age_pdf = PDFs.PDF(
-            x=np.array([0.0, 1.0, 2.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_age", variable_type="age", unit="y",
+            x=np.array([0.0, 1.0, 2.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_age",
+            variable_type="age",
+            unit="y",
         )
 
         disp_pdf = PDFs.PDF(
-            x=np.array([9.0, 11.0, 12.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_disp", variable_type="displacement", unit="m"
+            x=np.array([9.0, 11.0, 12.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_disp",
+            variable_type="displacement",
+            unit="m",
         )
 
-        variable_pairs.DatedMarker(
-            age=age_pdf, displacement=disp_pdf
-        )
+        variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
 
     def test_age_unit_present_but_wrong_base_raises(self):
         age_pdf = PDFs.PDF(
-            x=np.array([0.0, 1.0, 2.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_age", variable_type="age", unit="m",
+            x=np.array([0.0, 1.0, 2.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_age",
+            variable_type="age",
+            unit="m",
         )
 
         disp_pdf = PDFs.PDF(
-            x=np.array([9.0, 11.0, 12.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_disp", variable_type="displacement", unit="m"
+            x=np.array([9.0, 11.0, 12.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_disp",
+            variable_type="displacement",
+            unit="m",
         )
 
         with pytest.raises(ValueError, match="Age base unit must be"):
-            variable_pairs.DatedMarker(
-                age=age_pdf, displacement=disp_pdf
-            )
+            variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
 
     def test_displacement_unit_present_but_wrong_base_raises(self):
         age_pdf = PDFs.PDF(
-            x=np.array([0.0, 1.0, 2.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_age", variable_type="age", unit="y",
+            x=np.array([0.0, 1.0, 2.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_age",
+            variable_type="age",
+            unit="y",
         )
 
         disp_pdf = PDFs.PDF(
-            x=np.array([9.0, 11.0, 12.0]), px=np.array([0.0, 1.0, 0.0]),
-            name="x_disp", variable_type="displacement", unit="y"
+            x=np.array([9.0, 11.0, 12.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            name="x_disp",
+            variable_type="displacement",
+            unit="y",
         )
 
         with pytest.raises(ValueError, match="Displacement base unit must be"):
-            variable_pairs.DatedMarker(
-                age=age_pdf, displacement=disp_pdf
-            )
+            variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
 
     def test_None_unit_warns_but_does_not_raise(self, recwarn):
         age_pdf = PDFs.PDF(
@@ -123,20 +135,26 @@ class TestDatedMarker:
 
     def test_properties_alias_properly(self):
         age_pdf = PDFs.PDF(
-            x=np.array([0.0, 1.0, 2.0]), px=np.array([0.0, 1.0, 0.0]),
-            variable_type="age", unit="y",
+            x=np.array([0.0, 1.0, 2.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            variable_type="age",
+            unit="y",
         )
 
         disp_pdf = PDFs.PDF(
-            x=np.array([9.0, 11.0, 12.0]), px=np.array([0.0, 1.0, 0.0]),
-            variable_type="displacement", unit="m",
+            x=np.array([9.0, 11.0, 12.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            variable_type="displacement",
+            unit="m",
         )
 
         marker = variable_pairs.DatedMarker(age=age_pdf, displacement=disp_pdf)
 
         age_pdf2 = PDFs.PDF(
-            x=np.array([3.0, 4.0, 5.0]), px=np.array([0.0, 1.0, 0.0]),
-            variable_type="age", unit="y",
+            x=np.array([3.0, 4.0, 5.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            variable_type="age",
+            unit="y",
         )
 
         marker.age = age_pdf2
@@ -145,8 +163,10 @@ class TestDatedMarker:
         np.testing.assert_allclose(marker.pdf1.px, age_pdf2.px)
 
         disp_pdf2 = PDFs.PDF(
-            x=np.array([3.0, 4.0, 5.0]), px=np.array([0.0, 1.0, 0.0]),
-            variable_type="displacement", unit="m",
+            x=np.array([3.0, 4.0, 5.0]),
+            px=np.array([0.0, 1.0, 0.0]),
+            variable_type="displacement",
+            unit="m",
         )
 
         marker.displacement = disp_pdf2

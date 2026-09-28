@@ -43,7 +43,7 @@ def check_variable_type_supported(variable_type: str | None) -> None:
     ----------
     variable_type : str or None
         Specified variable type.
-    
+
     Returns
     -------
     None
