@@ -50,6 +50,9 @@ riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 --name SRage --variable-type age
 
 # Make displacement PDF
 riser-make-pdf -d trapezoidal -s 28.0 29.0 31.0 32.0 -dx 0.01 --name SRdisp --variable-type displacement --unit m -o SRdisp.txt -v -p
+
+# Compute slip rate PDF
+riser-compute-slip-rate --age SRage.txt --displacement SRdisp.txt -o SR/SR -v -p
 ```
 
 
