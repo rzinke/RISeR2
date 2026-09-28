@@ -1,7 +1,7 @@
 # src/riser/sampling/__init__.py
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 These features deal with samples or realizations of a PDF.
