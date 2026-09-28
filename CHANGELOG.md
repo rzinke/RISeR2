@@ -16,6 +16,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - Reinstate `merge_variables.py` cli script as `pool_variables.py`.
 - Reinstate `compute_gap_probabilities.py` as `create_bracketed_pdf.py`.
 - Arguments parse correctly in `subtract_variables.py`.
+- Updated CLI parger examples to riser-... syntax.
 
 ## [1.2.0] - 2026-09-25
 
