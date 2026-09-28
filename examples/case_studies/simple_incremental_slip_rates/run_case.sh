@@ -7,7 +7,7 @@ view_displacement_age_history.py marker_config.toml \
     --age-unit-out ky --show-labels \
     -v
 
-compute_slip_rates.py marker_config.toml \
+riser-compute-slip-rates marker_config.toml \
     --age-unit-out y --displacement-unit-out mm \
     --limit-positive --max-rate 10 \
-    -v -p -o SimpleExample
+    -v -p -o tmp/simple_incremental_rates
