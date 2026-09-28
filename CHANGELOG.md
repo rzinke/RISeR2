@@ -11,6 +11,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   `interpolate_pdf.py`.
 - Output now recognized in `interpolate_pdf.py`
 - Reinstate `combine_variables.py` cli script and made executable.
+- Reinstate `merge_variables.py` cli script as `pool_variables.py`.
 - Arguments parse correctly in `subtract_variables.py`.
 
 ## [1.2.0] - 2026-09-25
