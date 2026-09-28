@@ -118,7 +118,6 @@ class GaussFilter(FIRFilter):
         width : int
             Filter width in samples (dx units).
         """
-        print(width)
         # Width must be greater than 1
         if width < 2:
             raise ValueError(
@@ -223,7 +222,7 @@ def filter_pdf(
         Filtered PDF.
     """
     # Construct filter
-    filt = get_filter_by_name(filter_type)(width=filter_width)
+    filt = get_filter_by_name(filter_type)(filter_width)
 
     # Report if requested
     if verbose:
