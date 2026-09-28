@@ -8,7 +8,24 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 
+## [1.6.0] - 2026-09-28
+
+### Added
+- `divide_variables` `dz` can now automatically choose the spacing the spacing
+  of the output array.
+
+### Fixed
+- A too-coarse `dz` value in `divide_variables` will fail loudly with a
+  specific error message.
+
+### Changed
+- The limits beyond the natural range of a quotient in `divide_variables` are
+  clipped, so output arrays can be shorter than the natural range, but not
+  longer.
+
+
 ## [1.5.0] - 2026-09-28
+
 ### Changed
 - Restructured `examples` folder with top-level folders `cli_reference` and
   `case_studies`. Added `README.md` for structure clarification.
