@@ -120,7 +120,7 @@ def main() -> None:
         )
         marker.age = PDFs.scaling.scale_pdf_by_units(
             pdf=marker.age,
-            unit_out=inps.age_unit_out,
+            unit_out=age_unit_out,
             verbose=inps.verbose,
         )
         displacement_unit_out = (
@@ -129,7 +129,7 @@ def main() -> None:
         )
         marker.displacement = PDFs.scaling.scale_pdf_by_units(
             pdf=marker.displacement,
-            unit_out=inps.displacement_unit_out,
+            unit_out=displacement_unit_out,
             verbose=inps.verbose,
         )
 
