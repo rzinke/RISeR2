@@ -40,11 +40,11 @@ def cmd_parser(iargs=None):
         type=str, nargs="+",
         help="PDF file names.")
 
-    output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
 

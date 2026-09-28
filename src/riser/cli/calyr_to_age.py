@@ -44,7 +44,6 @@ def cmd_parser(iargs=None):
         type=str,
         help="Calendar years file name.")
 
-    # Metadata
     metadata_args = parser.add_argument_group("Metadata")
     metadata_args.add_argument("--name", dest="name",
         type=str,
@@ -53,7 +52,6 @@ def cmd_parser(iargs=None):
         type=str, default="age",
         help="Variable type. [age]")
 
-    # Referencing
     referencing_args = parser.add_argument_group("Referencing")
     referencing_args.add_argument("--reference-date", dest="reference_date",
         type=float, default=1950,
@@ -63,7 +61,6 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Limit youngest value to zero.")
 
-    # Units
     unit_args = parser.add_argument_group("Units")
     unit_args.add_argument("--input-unit", dest="input_unit",
         type=str, default="y",
@@ -72,7 +69,6 @@ def cmd_parser(iargs=None):
         type=str, default="ky",
         help="Unit of output data. [ky]")
 
-    # Smoothing
     smoothing_args = parser.add_argument_group("Smoothing")
     smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
         type=str, choices=sampling.filtering.FILTER_TYPES,
@@ -81,15 +77,16 @@ def cmd_parser(iargs=None):
         type=int, default=0,
         help="Smoothing kernel width. [0]")
 
-    # Outputs
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot.")
 

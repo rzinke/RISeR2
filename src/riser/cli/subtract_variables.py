@@ -43,29 +43,32 @@ def cmd_parser(iargs=None):
         type=str,
         help="File name of PDF to subtract from first PDF.")
 
-    input_args.add_argument("--limit-positive", dest="limit_positive",
+    domain_args = parser.add_argument_group("Domain")
+    domain_args.add_argument("--limit-positive", dest="limit_positive",
         action="store_true",
         help="Enforce the condition that values are >= to 0.")
 
     output_args = parser.add_argument_group("Outputs")
-
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str, required=True,
         help="Output file.")
-    output_args.add_argument("--name", dest="name",
+
+    metadata_args = parser.add_argument_group("Metadata")
+    metadata_args.add_argument("--name", dest="name",
         type=str,
         help="Name of differenced PDF.")
-    output_args.add_argument("--variable-type", dest="variable_type",
+    metadata_args.add_argument("--variable-type", dest="variable_type",
         type=str,
         help="Variable type of differenced PDF.")
-    output_args.add_argument("--unit", dest="unit",
+    metadata_args.add_argument("--unit", dest="unit",
         type=str,
         help="Unit of differenced PDF.")
 
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Plot distribution.")
 

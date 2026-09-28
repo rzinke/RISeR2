@@ -36,7 +36,6 @@ def create_parser():
 def cmd_parser(iargs=None):
     parser = create_parser()
 
-    # Inputs
     input_args = parser.add_argument_group("Inputs")
     input_args.add_argument(dest="marker_config",
         type=str,
@@ -48,7 +47,6 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Plot displacement and age marginal distributions.")
 
-    # Units
     unit_args = parser.add_argument_group("Units")
     unit_args.add_argument("--age-unit-out", dest="age_unit_out",
         type=str,
@@ -58,23 +56,23 @@ def cmd_parser(iargs=None):
         type=str,
         help="Output displacement units.")
 
-    # Plotting
-    plot_args = parser.add_argument_group("Plot")
+    plot_args = parser.add_argument_group("Plotting")
     plot_args.add_argument("--show-labels", dest="show_labels",
         action="store_true",
         help="Label data points.")
 
-    # Outputs
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-v", "--verbose", dest="verbose",
-        action="store_true",
-        help="Verbose mode.")
     output_args.add_argument("-o", "--outname", dest="outname",
         type=str,
         help="Output file.")
     output_args.add_argument("--no-show", dest="no_show",
         action="store_true",
         help="Forego showing plot.")
+
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+        action="store_true",
+        help="Verbose mode.")
 
     return parser.parse_args(args=iargs)
 

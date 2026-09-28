@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+- Add more optional but explicit arguments to `make_pdf.py`.
+- Reorganized argument parser groups for all CLI scripts.
+- Clarified values from `determine_min_max_limits` are suggestions rather than
+  hard requirements.
 
 ## [1.3.0] - 2026-09-28
 

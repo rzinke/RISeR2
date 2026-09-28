@@ -47,17 +47,6 @@ def cmd_parser(iargs=None):
         type=str,
         help="Dated displacement marker configuration file.")
 
-    # Units
-    unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
-        type=str,
-        help="Output age units.")
-    unit_args.add_argument(
-        "--displacement-unit-out", dest="displacement_unit_out",
-        type=str,
-        help="Output displacement units.")
-
-    # Slip rate
     rate_args = parser.add_argument_group("Slip rates")
     rate_args.add_argument("--limit-positive", dest="limit_positive",
         action="store_true",
@@ -69,7 +58,6 @@ def cmd_parser(iargs=None):
         type=float, default=0.01,
         help="Slip rate step. [0.01]")
 
-    # Reporting
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
         "--confidence-metric", dest="confidence_metric",
@@ -82,15 +70,25 @@ def cmd_parser(iargs=None):
         type=float, default=constants.Psigma["1"],
         help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
 
-    # Outputs
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument("-o", "--output-prefix", dest="output_prefix",
         type=str, required=True,
         help="Output prefix as <prefix> or <folder>/<prefix>.")
-    output_args.add_argument("-v", "--verbose", dest="verbose",
+
+    unit_args = parser.add_argument_group("Units")
+    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
+        type=str,
+        help="Output age units.")
+    unit_args.add_argument(
+        "--displacement-unit-out", dest="displacement_unit_out",
+        type=str,
+        help="Output displacement units.")
+
+    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
-    output_args.add_argument("-p", "--plot", dest="plot",
+    diagnostic_args.add_argument("-p", "--plot", dest="plot",
         action="store_true",
         help="Show results plots. Figures will be generated and saved "
              "whether plot flag is raised.")
