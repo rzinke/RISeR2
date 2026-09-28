@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Convert sample values to a pseudo-continuous PDF.
@@ -179,9 +179,7 @@ PDF_FORMATION_METHODS = {
 }
 
 
-def get_pdf_formation_function(
-    method: str, verbose: bool = False
-) -> Callable:
+def get_pdf_formation_function(method: str, verbose: bool = False) -> Callable:
     """Retrieve a PDF formation function by name.
 
     Parameters

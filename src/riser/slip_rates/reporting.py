@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Public API
 __all__ = [
@@ -85,8 +85,10 @@ def save_marker_fig(
 
     # Report if requested
     if verbose:
-        print(f"Saved dated displacement history (markers) to: "
-              f"{os.path.abspath(outname)}")
+        print(
+            f"Saved dated displacement history (markers) to: "
+            f"{os.path.abspath(outname)}"
+        )
 
 
 def save_slip_rate_fig(
@@ -142,7 +144,8 @@ def write_picks_to_file(
     outname = f"{output_prefix}_picks"
 
     # Save to file
-    np.savez(outname,
+    np.savez(
+        outname,
         age_picks=age_picks,
         disp_picks=disp_picks,
         rate_picks=rate_picks,
@@ -159,9 +162,7 @@ def write_slip_rates_report(
     formulation: str,
     slip_rates: dict[str, PDFs.PDF],
     *,
-    pdf_statistics: (
-        dict[str, PDFs.analytics.PDFstatistics] | None
-    ) = None,
+    pdf_statistics: (dict[str, PDFs.analytics.PDFstatistics] | None) = None,
     confidence_ranges: (
         dict[str, PDFs.analytics.ConfidenceRange] | None
     ) = None,
@@ -196,25 +197,22 @@ def write_slip_rates_report(
         Slip rate sample statistics.
     """
     # Check that slip rate statistical products pertain to same pairs
-    if (
-        sample_statistics is not None
-        and (sample_statistics.keys() != slip_rates.keys())
+    if sample_statistics is not None and (
+        sample_statistics.keys() != slip_rates.keys()
     ):
         raise ValueError(
             "One SampleStatistics object must be provided for each slip rate"
         )
 
-    if (
-        pdf_statistics is not None
-        and (pdf_statistics.keys() != slip_rates.keys())
+    if pdf_statistics is not None and (
+        pdf_statistics.keys() != slip_rates.keys()
     ):
         raise ValueError(
             "One PDFstatistics object must be provided for each slip rate"
         )
 
-    if (
-        confidence_ranges is not None
-        and (confidence_ranges.keys() != slip_rates.keys())
+    if confidence_ranges is not None and (
+        confidence_ranges.keys() != slip_rates.keys()
     ):
         raise ValueError(
             "One ConfidenceRange object must be provided for each slip rate"
@@ -224,9 +222,9 @@ def write_slip_rates_report(
     outname = f"{output_prefix}_slip_rate_report.txt"
 
     # Write file contents
-    with open(outname, 'w') as outfile:
+    with open(outname, "w") as outfile:
         # Overall header
-        now = datetime.now(UTC).strftime('%Y %m %d:%H %M %S')
+        now = datetime.now(UTC).strftime("%Y %m %d:%H %M %S")
         outfile.write(
             f"Incremental slip rates from {formulation} formulation ({now})"
         )

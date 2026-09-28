@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Functions for plotting variable pairs.
 """
-
 
 # Public API
 __all__ = [
@@ -127,7 +126,9 @@ def plot_variable_pair_whisker(
 
     # Compute confidence limits for x-variable
     pdf1_center = pdf_center(marker.pdf1)
-    pdf1_range = PDFs.analytics.compute_interquantile_range(marker.pdf1, confidence)
+    pdf1_range = PDFs.analytics.compute_interquantile_range(
+        marker.pdf1, confidence
+    )
 
     # Plot pdf1 values (first and only cluster range)
     pdf1_vals = pdf1_range.range_values[0]
@@ -135,7 +136,9 @@ def plot_variable_pair_whisker(
 
     # Compute pdf2 confidence limits
     pdf2_center = pdf_center(marker.pdf2)
-    pdf2_range = PDFs.analytics.compute_interquantile_range(marker.pdf2, confidence)
+    pdf2_range = PDFs.analytics.compute_interquantile_range(
+        marker.pdf2, confidence
+    )
 
     # Plot y values (first and only cluster range)
     pdf2_vals = pdf2_range.range_values[0]
@@ -226,7 +229,9 @@ def plot_variable_pair_rectangle(
         Label the variable pairs.
     """
     # Compute x confidence limits
-    pdf1_range = PDFs.analytics.compute_interquantile_range(marker.pdf1, confidence)
+    pdf1_range = PDFs.analytics.compute_interquantile_range(
+        marker.pdf1, confidence
+    )
 
     # Plot x values (first and only cluster range)
     pdf1_vals = pdf1_range.range_values[0]
@@ -234,7 +239,9 @@ def plot_variable_pair_rectangle(
     box_width = pdf1_vals[1] - box_pdf1
 
     # Compute y confidence limits
-    pdf2_range = PDFs.analytics.compute_interquantile_range(marker.pdf2, confidence)
+    pdf2_range = PDFs.analytics.compute_interquantile_range(
+        marker.pdf2, confidence
+    )
 
     # Plot pdf2 values (first and only cluster range)
     pdf2_vals = pdf2_range.range_values[0]
@@ -413,7 +420,7 @@ def get_markers_plot(
 def plot_variable_pairs(
     ax: Axes,
     markers: Mapping[str, variable_pairs.VariablePair],
-    marker_plot_type = "whisker",
+    marker_plot_type: str = "whisker",
     *,
     confidence: float = constants.Psigma["2"],
     pdf1_min: float = 0.0,

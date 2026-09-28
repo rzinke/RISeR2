@@ -7,7 +7,6 @@ Impose a logical constraint that a variable is greater or less than some
 value.
 """
 
-
 # Public API
 __all__ = [
     "constrain_above",
@@ -71,7 +70,7 @@ def constrain_above(
 
     if unit is not None:
         metadata_dict["unit"] = unit
-    
+
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x <= value)
 
@@ -134,11 +133,9 @@ def constrain_below(
 
     # Create weighting array
     weight = PDFs.weight_functions.zero_where(pdf.x, pdf.x >= value)
-    
+
     # Constrain PDF
-    constrained_pdf, area = core.condition(
-        pdf, weight, **metadata_dict
-    )
+    constrained_pdf, area = core.condition(pdf, weight, **metadata_dict)
 
     return constrained_pdf, area
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -153,14 +153,14 @@ class TestWeightFunctionToPdf:
 class TestWeightFunctionFromPdf:
     def test_weight_function_from_pdf(self):
         x = np.array([0.0, 1.0, 2.0])
-        px = np.array([1/3, 1/3, 1/3])
+        px = np.array([1 / 3, 1 / 3, 1 / 3])
 
         pdf = PDFs.PDF(x, px)
 
         weight = PDFs.weight_functions.WeightFunction.from_pdf(pdf)
 
         np.testing.assert_allclose(weight.x, pdf.x)
-        np.testing.assert_allclose(weight.wx, pdf.px)        
+        np.testing.assert_allclose(weight.wx, pdf.px)
 
 
 class TestFlatWeight:

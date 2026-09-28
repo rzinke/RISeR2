@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Unit-based operations for PDFs.
@@ -82,8 +82,7 @@ def determine_if_scaling_appropriate(
     # Report scaling
     if verbose:
         print(
-            f"Scaling PDF input unit ({pdf.unit}) "
-            f"to output unit ({unit_out})"
+            f"Scaling PDF input unit ({pdf.unit}) to output unit ({unit_out})"
         )
 
     return True

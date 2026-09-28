@@ -7,7 +7,6 @@ Pooling is the process of creating a mixture distribution that combines
 several different events into a single, aggregate distribution.
 """
 
-
 # Public API
 __all__ = [
     "pool_variables",
@@ -77,7 +76,7 @@ def pool_variables(
 
     # Get common metadata
     common_metadata = PDFs.metadata.get_common_metadata(
-        [pdf.metadata for pdf in pdfs], name=name,
+        [pdf.metadata for pdf in pdfs], name=name
     )
 
     # Format metadata

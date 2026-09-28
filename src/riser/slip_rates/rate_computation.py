@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 
 """
@@ -187,13 +187,12 @@ def compute_slip_rates_analytical(
         younger_marker = markers[younger_name]
 
         # Older marker
-        older_name = marker_names[i+1]
+        older_name = marker_names[i + 1]
         older_marker = markers[older_name]
 
         # Interpolate ages on same axis
-        (younger_age,
-         older_age) = PDFs.interpolation.interpolate_pdfs(
-                [younger_marker.age, older_marker.age]
+        (younger_age, older_age) = PDFs.interpolation.interpolate_pdfs(
+            [younger_marker.age, older_marker.age]
         )
 
         # Compute age difference - negative ages not supported
@@ -202,8 +201,7 @@ def compute_slip_rates_analytical(
         )
 
         # Always enforce condition that all values > 0
-        (delta_t,
-         area_t) = var_fcns.condition.self_constraint.constrain_above(
+        (delta_t, area_t) = var_fcns.condition.self_constraint.constrain_above(
             pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
         )
 
@@ -220,9 +218,10 @@ def compute_slip_rates_analytical(
         )
 
         # Interpolate displacements on same axis
-        (younger_displacement,
-         older_displacement) = PDFs.interpolation.interpolate_pdfs(
+        (younger_displacement, older_displacement) = (
+            PDFs.interpolation.interpolate_pdfs(
                 [younger_marker.displacement, older_marker.displacement]
+            )
         )
 
         # Compute displacement difference
@@ -233,9 +232,10 @@ def compute_slip_rates_analytical(
         # Limit displacement difference to positive-only values
         if limit_positive:
             # Enforce condition that all values > 0
-            (delta_u,
-             area_u) = var_fcns.condition.self_constraint.constrain_above(
-                pdf=delta_u, value=0.0, name=delta_u.name, verbose=verbose
+            (delta_u, area_u) = (
+                var_fcns.condition.self_constraint.constrain_above(
+                    pdf=delta_u, value=0.0, name=delta_u.name, verbose=verbose
+                )
             )
 
             # Report trimming result
@@ -400,11 +400,11 @@ def compute_slip_rates_mc(
     # Loop through incremental slip rates
     for i in range(n_rates):
         # Formulate incremental slip rate name
-        rate_name = f"{marker_names[i+1]}-{marker_names[i]}"
+        rate_name = f"{marker_names[i + 1]}-{marker_names[i]}"
 
         # Form incremental slip rate samples into PDFs
         slip_rate = pdf_fcn(
-            samples=rate_picks[i,:],
+            samples=rate_picks[i, :],
             xmin=pdf_xmin,
             xmax=pdf_xmax,
             dx=pdf_dx,
@@ -428,8 +428,8 @@ def compute_slip_rates_mc(
         if verbose:
             print(slip_rate)
             print(
-                f"Mean: {np.mean(rate_picks[i,:]):.3f} "
-                f"+- {np.std(rate_picks[i,:]):.3f}"
+                f"Mean: {np.mean(rate_picks[i, :]):.3f} "
+                f"+- {np.std(rate_picks[i, :]):.3f}"
             )
 
         # Record to slip rate dictionary

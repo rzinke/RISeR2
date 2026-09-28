@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 
 # Import modules
@@ -27,6 +27,7 @@ riser-calyr-to-age C_date.txt -o C_age.txt
 riser-calyr-to-age C_date.txt --name C14 --smoothing-type mean --smoothing-width 3 -v -p -o C_age.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -36,59 +37,94 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="date_fname",
-        type=str,
-        help="Calendar years file name.")
+    input_args.add_argument(
+        dest="date_fname", type=str, help="Calendar years file name."
+    )
 
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument("--name", dest="name",
+    metadata_args.add_argument("--name", dest="name", type=str, help="Name.")
+    metadata_args.add_argument(
+        "--variable-type",
+        dest="variable_type",
         type=str,
-        help="Name.")
-    metadata_args.add_argument("--variable-type", dest="variable_type",
-        type=str, default="age",
-        help="Variable type. [age]")
+        default="age",
+        help="Variable type. [age]",
+    )
 
     referencing_args = parser.add_argument_group("Referencing")
-    referencing_args.add_argument("--reference-date", dest="reference_date",
-        type=float, default=1950,
+    referencing_args.add_argument(
+        "--reference-date",
+        dest="reference_date",
+        type=float,
+        default=1950,
         help="Reference date, e.g., 1950 for radiocarbon, 2000 for OSL, etc. "
-             "[1950]")
-    referencing_args.add_argument("--limit-zero", dest="limit_zero",
+        "[1950]",
+    )
+    referencing_args.add_argument(
+        "--limit-zero",
+        dest="limit_zero",
         action="store_true",
-        help="Limit youngest value to zero.")
+        help="Limit youngest value to zero.",
+    )
 
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--input-unit", dest="input_unit",
-        type=str, default="y",
-        help="Unit of input data. [y]")
-    unit_args.add_argument("--output-unit", dest="output_unit",
-        type=str, default="ky",
-        help="Unit of output data. [ky]")
+    unit_args.add_argument(
+        "--input-unit",
+        dest="input_unit",
+        type=str,
+        default="y",
+        help="Unit of input data. [y]",
+    )
+    unit_args.add_argument(
+        "--output-unit",
+        dest="output_unit",
+        type=str,
+        default="ky",
+        help="Unit of output data. [ky]",
+    )
 
     smoothing_args = parser.add_argument_group("Smoothing")
-    smoothing_args.add_argument("--smoothing-type", dest="smoothing_type",
-        type=str, choices=sampling.filtering.FILTER_TYPES,
-        help="Smoothing filter type. [None]")
-    smoothing_args.add_argument("--smoothing-width", dest="smoothing_width",
-        type=int, default=0,
-        help="Smoothing kernel width. [0]")
+    smoothing_args.add_argument(
+        "--smoothing-type",
+        dest="smoothing_type",
+        type=str,
+        choices=sampling.filtering.FILTER_TYPES,
+        help="Smoothing filter type. [None]",
+    )
+    smoothing_args.add_argument(
+        "--smoothing-width",
+        dest="smoothing_width",
+        type=int,
+        default=0,
+        help="Smoothing kernel width. [0]",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str, required=True,
-        help="Output file.")
+    output_args.add_argument(
+        "-o",
+        "--outname",
+        dest="outname",
+        type=str,
+        required=True,
+        help="Output file.",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
-        action="store_true",
-        help="Plot.")
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p", "--plot", dest="plot", action="store_true", help="Plot."
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -124,7 +160,7 @@ def main() -> None:
     # Limit minimum age to zero
     if inps.limit_zero:
         # Non-negative indices
-        non_neg_ndx = (x >= 0)
+        non_neg_ndx = x >= 0
 
         # Crop arrays
         x = x[non_neg_ndx]

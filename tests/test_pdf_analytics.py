@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -68,10 +68,9 @@ SHIFT_NORM = {
 # Distribution is symmetric about 0.
 _dx_bimodal = 0.001
 _x_bimodal = PDFs.value_arrays.precise_array(-10.0, 10.0, _dx_bimodal)
-_px_bimodal = (
-    PDFs.parametric_functions.triangular(_x_bimodal, a=-2.0, c=-1.0, b=0.0)
-    + PDFs.parametric_functions.triangular(_x_bimodal, a=0.0, c=1.0, b=2.0)
-)
+_px_bimodal = PDFs.parametric_functions.triangular(
+    _x_bimodal, a=-2.0, c=-1.0, b=0.0
+) + PDFs.parametric_functions.triangular(_x_bimodal, a=0.0, c=1.0, b=2.0)
 BIMODAL = {
     "x": _x_bimodal,
     "px": _px_bimodal,
@@ -84,7 +83,7 @@ class TestExpectedValue:
     @pytest.mark.parametrize(
         "var_dict, expected",
         [
-            (TRI_ASYM, 7/3),
+            (TRI_ASYM, 7 / 3),
             (TRI_IRREG, 0.875),
             (STD_NORM, 0.0),
         ],
@@ -98,7 +97,7 @@ class TestComputeRawMoment:
     @pytest.mark.parametrize(
         "var_dict, n, expected",
         [
-            (TRI_ASYM, 1, 7/3),
+            (TRI_ASYM, 1, 7 / 3),
             (TRI_IRREG, 1, 0.875),
             (STD_NORM, 1, 0.0),
             (STD_NORM, 2, 1.0),
@@ -155,7 +154,7 @@ class TestPdfMean:
     @pytest.mark.parametrize(
         "var_dict, expected",
         [
-            (TRI_ASYM, 7/3),
+            (TRI_ASYM, 7 / 3),
             (TRI_IRREG, 0.875),
             (STD_NORM, 0.0),
             (SHIFT_NORM, 1.0),
@@ -204,8 +203,7 @@ class TestPdfSkewness:
         ],
     )
     def test_known_pdf_skewness(self, var_dict, expected):
-        """Zero skew is expected for symmetric functions.
-        """
+        """Zero skew is expected for symmetric functions."""
         pdf = PDFs.PDF(x=var_dict["x"], px=var_dict["px"])
         skewness = PDFs.analytics.pdf_skewness(pdf)
         assert skewness == pytest.approx(expected)
@@ -263,9 +261,16 @@ class TestPdfMedian:
 class TestPdfStatistics:
     def test_returns_a_string(self):
         stats = PDFs.analytics.PDFstatistics(
-            mode=1.0, median=2.0, mean=3.0, std=4.0,
-            variance=16.0, skewness=0.5, kurtosis=3.0,
-            name="x", variable_type="age", unit="y",
+            mode=1.0,
+            median=2.0,
+            mean=3.0,
+            std=4.0,
+            variance=16.0,
+            skewness=0.5,
+            kurtosis=3.0,
+            name="x",
+            variable_type="age",
+            unit="y",
         )
         assert isinstance(str(stats), str)
 
@@ -314,8 +319,12 @@ class TestConfidenceRange:
 
     def test_returns_a_str(self):
         conf_range = PDFs.analytics.ConfidenceRange(
-            metric="CI", confidence=0.68, range_values=((0.1, 0.9),),
-            pdf_name="x", variable_type="age", unit="y",
+            metric="CI",
+            confidence=0.68,
+            range_values=((0.1, 0.9),),
+            pdf_name="x",
+            variable_type="age",
+            unit="y",
         )
         assert isinstance(str(conf_range), str)
 
@@ -331,7 +340,8 @@ class TestComputeInterquantileRange:
     def test_iterates_single_range(self, confidence, expected):
         pdf = PDFs.PDF(x=SHIFT_NORM["x"], px=SHIFT_NORM["px"])
         conf_range = PDFs.analytics.compute_interquantile_range(
-            pdf=pdf, confidence=confidence,
+            pdf=pdf,
+            confidence=confidence,
         )
         conf_list = list(conf_range)
         assert len(conf_list) == 1
@@ -350,7 +360,8 @@ class TestComputeHighestPosteriorDensity:
     def test_single_peak(self, confidence, expected):
         pdf = PDFs.PDF(x=SHIFT_NORM["x"], px=SHIFT_NORM["px"])
         conf_range = PDFs.analytics.compute_highest_posterior_density(
-            pdf=pdf, confidence=confidence,
+            pdf=pdf,
+            confidence=confidence,
         )
         conf_list = list(conf_range)
         assert len(conf_list) == 1
@@ -361,18 +372,21 @@ class TestComputeHighestPosteriorDensity:
     @pytest.mark.parametrize(
         "confidence, expected",
         [
-            (constants.Psigma["1"],
-             [(-1.436697, -0.563303), (0.563303, 1.436697)]
+            (
+                constants.Psigma["1"],
+                [(-1.436697, -0.563303), (0.563303, 1.436697)],
             ),
-            (constants.Psigma["2"],
-             [(-1.786692, -0.213308), (0.213308, 1.786692)]
+            (
+                constants.Psigma["2"],
+                [(-1.786692, -0.213308), (0.213308, 1.786692)],
             ),
         ],
     )
     def test_multi_peak(self, confidence, expected):
         pdf = PDFs.PDF(x=BIMODAL["x"], px=BIMODAL["px"])
         conf_range = PDFs.analytics.compute_highest_posterior_density(
-            pdf=pdf, confidence=confidence,
+            pdf=pdf,
+            confidence=confidence,
         )
         conf_list = list(conf_range)
         assert len(conf_list) == 2

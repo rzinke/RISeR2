@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 
 # Import modules
@@ -30,6 +30,7 @@ riser-compute-slip-rate marker_config.toml -o v1
 riser-compute-slip-rate marker_config.toml --age-unit-out y --displacement-unit-out mm -o "v2/v2"
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -39,74 +40,120 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest="marker_config",
+    input_args.add_argument(
+        dest="marker_config",
         type=str,
         nargs="?",
         help="Dated displacement marker configuration file. "
-             "Optional if age and displacement PDFs specified directly.")
-    input_args.add_argument("--age", dest="age_fname",
+        "Optional if age and displacement PDFs specified directly.",
+    )
+    input_args.add_argument(
+        "--age",
+        dest="age_fname",
         type=str,
-        help="File name of age PDF. Optional if marker file specified.")
-    input_args.add_argument("--displacement", dest="displacement_fname",
+        help="File name of age PDF. Optional if marker file specified.",
+    )
+    input_args.add_argument(
+        "--displacement",
+        dest="displacement_fname",
         type=str,
         help="File name of displacement PDF. "
-             "Optional if marker file specified."
-        )
+        "Optional if marker file specified.",
+    )
 
     rate_args = parser.add_argument_group("Slip rates")
-    rate_args.add_argument("--limit-positive", dest="limit_positive",
+    rate_args.add_argument(
+        "--limit-positive",
+        dest="limit_positive",
         action="store_true",
-        help="Enforce the condition that values are >= to 0.")
-    rate_args.add_argument("--max-rate", dest="max_rate",
+        help="Enforce the condition that values are >= to 0.",
+    )
+    rate_args.add_argument(
+        "--max-rate",
+        dest="max_rate",
         type=float,
-        help="Maximum slip rate to consider.")
-    rate_args.add_argument("--dv", dest="dv",
-        type=float, default=0.01,
-        help="Slip rate step. [0.01]")
+        help="Maximum slip rate to consider.",
+    )
+    rate_args.add_argument(
+        "--dv",
+        dest="dv",
+        type=float,
+        default=0.01,
+        help="Slip rate step. [0.01]",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--output-prefix", dest="output_prefix",
-        type=str, required=True,
-        help="Output prefix as <prefix> or <folder>/<prefix>.")
+    output_args.add_argument(
+        "-o",
+        "--output-prefix",
+        dest="output_prefix",
+        type=str,
+        required=True,
+        help="Output prefix as <prefix> or <folder>/<prefix>.",
+    )
 
     unit_args = parser.add_argument_group("Units")
-    unit_args.add_argument("--age-unit-out", dest="age_unit_out",
-        type=str,
-        help="Output age units.")
     unit_args.add_argument(
-        "--displacement-unit-out", dest="displacement_unit_out",
+        "--age-unit-out",
+        dest="age_unit_out",
         type=str,
-        help="Output displacement units.")
+        help="Output age units.",
+    )
+    unit_args.add_argument(
+        "--displacement-unit-out",
+        dest="displacement_unit_out",
+        type=str,
+        help="Output displacement units.",
+    )
 
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument("--name", dest="name",
-        type=str, default=None,
-        help="Name of the output slip rate PDF.")
+    metadata_args.add_argument(
+        "--name",
+        dest="name",
+        type=str,
+        default=None,
+        help="Name of the output slip rate PDF.",
+    )
 
     reporting_args = parser.add_argument_group("Reporting")
     reporting_args.add_argument(
-        "--confidence-metric", dest="confidence_metric",
-        type=str, choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
+        "--confidence-metric",
+        dest="confidence_metric",
+        type=str,
+        choices=PDFs.analytics.PDF_CONFIDENCE_METRICS,
         default=PDFs.analytics.DEFAULT_CONFIDENCE_METRIC,
         help=f"Function for computing function confidence. "
-             f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]")
+        f"[{PDFs.analytics.DEFAULT_CONFIDENCE_METRIC}]",
+    )
     reporting_args.add_argument(
-        "--confidence-limits", dest="confidence_limits",
-        type=float, default=constants.Psigma["1"],
-        help=f"Confidence level. [{constants.Psigma['1']:.2f}]")
+        "--confidence-limits",
+        dest="confidence_limits",
+        type=float,
+        default=constants.Psigma["1"],
+        help=f"Confidence level. [{constants.Psigma['1']:.2f}]",
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
         help="Show results plots. Figures will be generated and saved "
-             "whether plot flag is raised.")
+        "whether plot flag is raised.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -124,9 +171,8 @@ def parse_inputs(
     Raise an error if it is ambiguous.
     """
     # Marker file provided, and age and/or displacement files provided
-    if (
-        marker_config is not None
-        and (age_fname is not None or displacement_fname is not None)
+    if marker_config is not None and (
+        age_fname is not None or displacement_fname is not None
     ):
         raise ValueError(
             "PDFs for determining slip rate should be provided either as a "
@@ -199,7 +245,8 @@ def main() -> None:
     )
 
     displacement_unit_out = (
-        marker.displacement.unit if inps.displacement_unit_out is None
+        marker.displacement.unit
+        if inps.displacement_unit_out is None
         else inps.displacement_unit_out
     )
 
@@ -286,7 +333,7 @@ def main() -> None:
         formulation="analytical",
         slip_rates={marker.name: slip_rate},
         pdf_statistics={marker.name: pdf_stats},
-        verbose=inps.verbose
+        verbose=inps.verbose,
     )
 
     # Plot if requested

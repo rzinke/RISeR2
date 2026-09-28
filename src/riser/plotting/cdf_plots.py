@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Functions for plotting cumulative distribution functions (CDFs).
 """
-
 
 # Public API
 __all__ = [
@@ -133,7 +132,8 @@ def plot_cdf_labeled(
 
     # Set value label
     xlabel = (
-        f"{pdf.variable_type.capitalize()} " if pdf.variable_type is not None
+        f"{pdf.variable_type.capitalize()} "
+        if pdf.variable_type is not None
         else ""
     )
     xlabel += f"({pdf.unit})" if pdf.unit is not None else ""

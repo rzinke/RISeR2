@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -14,9 +14,7 @@ from riser import probability_functions as PDFs
 class TestCheckMassAgainstValueRange:
     def test_mass_inside_silent(self, recwarn):
         x = np.linspace(0.0, 1.0, 11)
-        PDFs.parametric_functions.check_mass_against_value_range(
-            x, 0.2, 0.8
-        )
+        PDFs.parametric_functions.check_mass_against_value_range(x, 0.2, 0.8)
         assert len(recwarn) == 0
 
     def test_mass_outside_warns(self):
@@ -45,9 +43,7 @@ class TestUniform:
     def test_uniform_shape(self):
         x = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
         px = PDFs.parametric_functions.uniform(x, a=0.0, b=4.0)
-        np.testing.assert_allclose(
-            px, [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0]
-        )
+        np.testing.assert_allclose(px, [0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.0])
 
     @pytest.mark.parametrize("n_points", [5, 9, 13])
     def test_area_resolution_independent(self, n_points):
@@ -83,9 +79,7 @@ class TestCumulativeUniform:
     def test_cumulative_uniform_shape(self):
         x = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
         Px = PDFs.parametric_functions.cumulative_uniform(x, a=0.0, b=4.0)
-        np.testing.assert_allclose(
-            Px, [0.0, 0.0, 0.25, 0.50, 0.75, 1.00, 1.00]
-        )
+        np.testing.assert_allclose(Px, [0.0, 0.0, 0.25, 0.50, 0.75, 1.00, 1.00])
 
     def test_cumulative_uniform_is_monotonic(self):
         x = np.linspace(-2.0, 6.0, 41)
@@ -133,9 +127,7 @@ class TestTrapezoidal:
     def test_invalid_ordering_raises(self):
         x = np.linspace(0.0, 7.0, 8)
         with pytest.raises(ValueError, match="must be <="):
-            PDFs.parametric_functions.trapezoidal(
-                x, a=2.0, b=1.0, c=5.0, d=7.0
-            )
+            PDFs.parametric_functions.trapezoidal(x, a=2.0, b=1.0, c=5.0, d=7.0)
 
 
 class TestCumulativeTrapezoidal:
@@ -208,10 +200,14 @@ class TestExponential:
     def test_exponential_shape(self):
         scale = 2.0
         xmin, xmax = PDFs.parametric_functions._exponential_limits_(scale)
-        x = np.unique(np.concatenate([
-            [-1.0, 0.0, scale, 2 * scale],
-            np.linspace(xmin, xmax, 20),
-        ]))
+        x = np.unique(
+            np.concatenate(
+                [
+                    [-1.0, 0.0, scale, 2 * scale],
+                    np.linspace(xmin, xmax, 20),
+                ]
+            )
+        )
         ndx_neg1 = np.argmin(np.abs(x - (-1.0)))
         ndx_0 = np.argmin(np.abs(x - 0.0))
         ndx_s = np.argmin(np.abs(x - scale))
@@ -232,10 +228,14 @@ class TestLognormal:
     def test_lognormal_shape(self):
         mu, sigma = 1.0, 0.5
         xmin, xmax = PDFs.parametric_functions._lognormal_limits_(mu, sigma)
-        x = np.unique(np.concatenate([
-            [-1.0, 0.0, np.exp(mu)],
-            np.linspace(xmin, xmax, 9),
-        ]))
+        x = np.unique(
+            np.concatenate(
+                [
+                    [-1.0, 0.0, np.exp(mu)],
+                    np.linspace(xmin, xmax, 9),
+                ]
+            )
+        )
         px = PDFs.parametric_functions.lognormal(x, mu=mu, sigma=sigma)
 
         ndx_neg = np.argmin(np.abs(x - (-1.0)))
@@ -264,7 +264,9 @@ class TestCumulativeLognormal:
     def test_matches_scipy_reference(self):
         mu, sigma = 1.0, 0.5
         x = np.linspace(0.01, np.exp(mu + 4 * sigma), 9)
-        Px = PDFs.parametric_functions.cumulative_lognormal(x, mu=mu, sigma=sigma)
+        Px = PDFs.parametric_functions.cumulative_lognormal(
+            x, mu=mu, sigma=sigma
+        )
         Px_scipy = st.lognorm.cdf(x, s=sigma, scale=np.exp(mu))
         np.testing.assert_allclose(Px, Px_scipy, atol=1e-10)
 
@@ -283,7 +285,7 @@ class TestStudentsT:
     def test_symmetric_and_mode_at_mu(self):
         dof, mu, scale = 10.0, 5.0, 2.0
         xmin, xmax = PDFs.parametric_functions._students_t_limits_(
-           dof, mu, scale
+            dof, mu, scale
         )
         x = np.linspace(xmin, xmax, 9)
         px = PDFs.parametric_functions.students_t(

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Public API
 __all__ = [
@@ -31,7 +31,7 @@ def check_precision(x: float) -> None:
     x : float
         Value for which to check precision.
     """
-    if np.abs(x) <= 10 ** -RISER_PRECISION:
+    if np.abs(x) <= 10**-RISER_PRECISION:
         warnings.warn(
             "Number is less than optimal precision of the RISeR library"
         )

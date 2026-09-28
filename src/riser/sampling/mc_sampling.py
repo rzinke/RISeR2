@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Public API
 __all__ = [
@@ -47,6 +47,7 @@ class SampleCriterion:
             "check_pass_fail not implemented. Override with child class."
         )
 
+
 class PassAll(SampleCriterion):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -61,6 +62,7 @@ class PassAll(SampleCriterion):
         """
         return True
 
+
 class PassNonnegative(SampleCriterion):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -70,14 +72,14 @@ class PassNonnegative(SampleCriterion):
         ages: np.ndarray,
         displacements: np.ndarray,
     ) -> bool:
-        """Pass sample combinations that result in non-negative slip rates.
-        """
+        """Pass sample combinations that result in non-negative slip rates."""
         # Compute age, displacement deltas
         age_diffs = np.diff(ages)
         disp_diffs = np.diff(displacements)
 
         # Check condition
         return age_diffs.min() > 0 and disp_diffs.min() >= 0
+
 
 class PassNonnegativeBounded(SampleCriterion):
     def __init__(self, **kwargs) -> None:
@@ -160,7 +162,7 @@ def sample_monte_carlo(
 
     If no valid picks are found after the hard limit of trials is reached,
     an error is raised.
-    A warning will be raised if the desired number of picks is not fully 
+    A warning will be raised if the desired number of picks is not fully
     reached, but some valid picks are found. In that case, all valid picks
     will be returned.
 
@@ -227,8 +229,8 @@ def sample_monte_carlo(
         # Check samples against condition
         if criterion.check_pass_fail(age_samps, disp_samps):
             # Condition met, record valid samples
-            age_picks[:,successes] = age_samps
-            disp_picks[:,successes] = disp_samps
+            age_picks[:, successes] = age_samps
+            disp_picks[:, successes] = disp_samps
 
             # Update counter
             successes += 1
@@ -247,8 +249,8 @@ def sample_monte_carlo(
     pbar.close()
 
     # Crop to successful picks
-    age_picks = age_picks[:,:successes]
-    disp_picks = disp_picks[:,:successes]
+    age_picks = age_picks[:, :successes]
+    disp_picks = disp_picks[:, :successes]
 
     # Report if requested
     if verbose:

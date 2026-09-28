@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Unit parsing and scaling for RISeR2.
@@ -38,10 +38,10 @@ UNIT_SCALES = {
     "m": 0.001,
     "c": 0.01,
     "d": 0.1,
-    "D": 10.,
-    "C": 100.,
-    "k": 1_000.,
-    "M": 1_000_000.,
+    "D": 10.0,
+    "C": 100.0,
+    "k": 1_000.0,
+    "M": 1_000_000.0,
 }
 
 
@@ -82,15 +82,13 @@ def _check_against_compound_unit_(unit: str) -> None:
     for char in unit:
         if char.isdigit():
             raise ValueError(
-                f"Compound units with exponents {char} "
+                f"Compound units with exponents '{char}' "
                 f"currently not supported"
             )
 
     # Check unit is not longer than <[prefix]><base>
     if len(unit) > 2:
-        raise ValueError(
-            "Unit must be composed of <prefix (optional)><base>"
-        )
+        raise ValueError("Unit must be composed of <prefix (optional)><base>")
 
 
 def check_base_unit_supported(base_unit: str | None) -> None:
@@ -127,9 +125,7 @@ def check_base_unit_supported(base_unit: str | None) -> None:
 
 
 #################### UNIT PARSING ####################
-def parse_unit(
-    unit: str, verbose: bool = False
-) -> tuple[float, str]:
+def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     """Determine the components of a unit.
 
     Check the unit is valid based on its overall form.

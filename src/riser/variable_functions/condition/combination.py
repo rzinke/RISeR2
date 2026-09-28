@@ -6,7 +6,6 @@
 Functions to fuse multiple independent observations of a single event.
 """
 
-
 # Public API
 __all__ = [
     "combine_variables",
@@ -53,7 +52,7 @@ def combine_variables(
     combined_pdf : PDF
         Combined pdf.
     area : float
-        Likelihood of the combined estimate, reflecting how compatible the 
+        Likelihood of the combined estimate, reflecting how compatible the
         independent estimates are with one another.
     """
     if verbose:
@@ -67,7 +66,7 @@ def combine_variables(
 
     # Get common metadata
     common_metadata = PDFs.metadata.get_common_metadata(
-        [pdf.metadata for pdf in pdfs], name=name,
+        [pdf.metadata for pdf in pdfs], name=name
     )
 
     # Format metadata

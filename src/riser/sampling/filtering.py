@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 
 """
@@ -41,8 +41,7 @@ from .. import probability_functions as PDFs
 
 #################### FILTERS ####################
 class FIRFilter:
-    """Base class for a 1D FIR filter.
-    """
+    """Base class for a 1D FIR filter."""
 
     filter_type: str | None = None
 
@@ -77,8 +76,8 @@ class FIRFilter:
 
 
 class MeanFilter(FIRFilter):
-    """Mean filter.
-    """
+    """Mean filter."""
+
     filter_type = "mean"
 
     def __init__(self, width: int) -> None:
@@ -106,6 +105,7 @@ class GaussFilter(FIRFilter):
     """Gauss filter.
     For small values, this will look similar to a triangle.
     """
+
     filter_type = "gaussian"
 
     def __init__(self, width: int) -> None:
@@ -257,7 +257,7 @@ def filter_pdf(
         # Loop through edge values (output-side convolution)
         for i in range(w2):
             # Edge filter width
-            w_edge = 2*i + 1
+            w_edge = 2 * i + 1
 
             # Re-formulate filter
             edge_filt = get_filter_by_name("mean")(w_edge)
@@ -266,7 +266,7 @@ def filter_pdf(
             px[i] = np.sum(pdf.px[:w_edge] * edge_filt.h)
 
             # Apply filter to back edge
-            px[-(i+1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
+            px[-(i + 1)] = np.sum(pdf.px[-w_edge:] * edge_filt.h)
 
     # Format metadata
     metadata_dict = pdf.metadata.as_dict()

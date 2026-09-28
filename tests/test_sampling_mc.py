@@ -28,14 +28,18 @@ distant_markers = {
             px=PDFs.parametric_functions.gaussian(
                 x=age_axis, mu=12.0, sigma=1.0
             ),
-            name="younger_age", variable_type="age", unit="y",
+            name="younger_age",
+            variable_type="age",
+            unit="y",
         ),
         displacement=PDFs.PDF(
             x=disp_axis,
             px=PDFs.parametric_functions.triangular(
                 x=disp_axis, a=13.0, c=15.0, b=17.0
             ),
-            name="younger_disp", variable_type="displacement", unit="mm",
+            name="younger_disp",
+            variable_type="displacement",
+            unit="mm",
         ),
         name="younger",
     ),
@@ -45,17 +49,21 @@ distant_markers = {
             px=PDFs.parametric_functions.gaussian(
                 x=age_axis, mu=15.0, sigma=1.0
             ),
-            name="older_age", variable_type="age", unit="y",
+            name="older_age",
+            variable_type="age",
+            unit="y",
         ),
         displacement=PDFs.PDF(
             x=disp_axis,
             px=PDFs.parametric_functions.triangular(
                 x=disp_axis, a=43.0, c=45.0, b=47.0
             ),
-            name="older_disp", variable_type="displacement", unit="mm",
+            name="older_disp",
+            variable_type="displacement",
+            unit="mm",
         ),
         name="older",
-    )
+    ),
 }
 
 
@@ -66,14 +74,18 @@ close_markers = {
             px=PDFs.parametric_functions.gaussian(
                 x=age_axis, mu=10.0, sigma=1.0
             ),
-            name="younger_age", variable_type="age", unit="y",
+            name="younger_age",
+            variable_type="age",
+            unit="y",
         ),
         displacement=PDFs.PDF(
             x=disp_axis,
             px=PDFs.parametric_functions.triangular(
                 x=disp_axis, a=25.0, c=30.0, b=35.0
             ),
-            name="younger_disp", variable_type="displacement", unit="mm",
+            name="younger_disp",
+            variable_type="displacement",
+            unit="mm",
         ),
         name="younger",
     ),
@@ -83,17 +95,21 @@ close_markers = {
             px=PDFs.parametric_functions.gaussian(
                 x=age_axis, mu=12.0, sigma=1.0
             ),
-            name="older_age", variable_type="age", unit="y",
+            name="older_age",
+            variable_type="age",
+            unit="y",
         ),
         displacement=PDFs.PDF(
             x=disp_axis,
             px=PDFs.parametric_functions.triangular(
                 x=disp_axis, a=30.0, c=35.0, b=40.0
             ),
-            name="older_disp", variable_type="displacement", unit="mm",
+            name="older_disp",
+            variable_type="displacement",
+            unit="mm",
         ),
         name="older",
-    )
+    ),
 }
 
 
@@ -107,14 +123,12 @@ class TestSampleMonteCarlo:
 
         n_samples = 1_000
 
-        (
-            age_picks,
-            disp_picks,
-            success_rate
-        ) = sampling.mc_sampling.sample_monte_carlo(
-            markers=close_markers,
-            criterion=criterion,
-            n_samples=n_samples,
+        (age_picks, disp_picks, success_rate) = (
+            sampling.mc_sampling.sample_monte_carlo(
+                markers=close_markers,
+                criterion=criterion,
+                n_samples=n_samples,
+            )
         )
 
         assert age_picks.shape[1] == disp_picks.shape[1] == n_samples
@@ -127,11 +141,7 @@ class TestSampleMonteCarlo:
 
         n_samples = 1_000
 
-        (
-            _,
-            _,
-            success_rate
-        ) = sampling.mc_sampling.sample_monte_carlo(
+        (_, _, success_rate) = sampling.mc_sampling.sample_monte_carlo(
             markers=distant_markers,
             criterion=criterion,
             n_samples=n_samples,
@@ -147,11 +157,7 @@ class TestSampleMonteCarlo:
 
         n_samples = 1_000
 
-        (
-            age_picks,
-            disp_picks,
-            _,
-        ) = sampling.mc_sampling.sample_monte_carlo(
+        (age_picks, disp_picks, _) = sampling.mc_sampling.sample_monte_carlo(
             markers=close_markers,
             criterion=criterion,
             n_samples=n_samples,

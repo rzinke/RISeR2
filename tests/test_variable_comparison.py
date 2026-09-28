@@ -26,9 +26,7 @@ def reject_mismatched_sampling_test(fcn):
     px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
     pdf2 = PDFs.PDF(x=x2, px=px2)
 
-    with pytest.raises(
-        ValueError, match="Not all value arrays"
-    ):
+    with pytest.raises(ValueError, match="Not all value arrays"):
         fcn(pdf1, pdf2)
 
 
@@ -43,7 +41,7 @@ class TestComputeCosineSimilarity:
         pdf = PDFs.PDF(x=x, px=px)
 
         r = var_fcns.compare.comparison.cosine_similarity(pdf, pdf)
-        
+
         assert r == pytest.approx(1.0)
 
     def test_rejects_mismatched_sampling(self):
@@ -97,7 +95,6 @@ class TestOverlapIndex:
         np.testing.assert_allclose(px_min, px1)
         assert eta == pytest.approx(1.0)
 
-
     def test_no_overlap(self):
         x = PDFs.value_arrays.precise_array(-2.0, 2.0, 0.1)
         px1 = PDFs.parametric_functions.triangular(x=x, a=0.0, c=1.0, b=2.0)
@@ -121,9 +118,7 @@ class TestOverlapIndex:
         px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
-        with pytest.raises(
-            ValueError, match="Not all value arrays"
-        ):
+        with pytest.raises(ValueError, match="Not all value arrays"):
             var_fcns.compare.comparison.overlap_index([pdf1, pdf2])
 
 

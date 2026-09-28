@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Public API
 __all__ = [
@@ -61,8 +61,7 @@ class DatedMarker(VariablePair):
         self._check_displacement_unit_()
 
     def _check_age_unit_(self) -> None:
-        """Check that the age measurement is some multiple of years.
-        """
+        """Check that the age measurement is some multiple of years."""
         # Check age
         if self.age.unit is None:
             warnings.warn(
@@ -72,15 +71,14 @@ class DatedMarker(VariablePair):
             )
         else:
             _, base_unit = units.parse_unit(self.age.unit)
-            if base_unit != 'y':
+            if base_unit != "y":
                 raise ValueError(
                     f"Age base unit must be 'y' for dated marker, "
                     f"got '{base_unit}'"
                 )
 
     def _check_displacement_unit_(self) -> None:
-        """Check that the displacement unit is some multiple of meters.
-        """
+        """Check that the displacement unit is some multiple of meters."""
         # Check displacement
         if self.displacement.unit is None:
             warnings.warn(
@@ -90,7 +88,7 @@ class DatedMarker(VariablePair):
             )
         else:
             _, base_unit = units.parse_unit(self.displacement.unit)
-            if base_unit != 'm':
+            if base_unit != "m":
                 raise ValueError(
                     f"Displacement base unit must be 'm' for dated marker, "
                     f"got '{base_unit}'"
@@ -105,7 +103,7 @@ class DatedMarker(VariablePair):
         self.pdf1 = value
 
         self._check_age_unit_()
-    
+
     @property
     def displacement(self) -> PDFs.PDF:
         return self.pdf2
@@ -115,7 +113,6 @@ class DatedMarker(VariablePair):
         self.pdf2 = value
 
         self._check_displacement_unit_()
-    
 
     def __str__(self) -> str:
         print_str = f"DatedMarker {self.displacement.name}, comprising:"

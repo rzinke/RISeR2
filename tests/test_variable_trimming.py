@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -22,7 +22,7 @@ class TestTrimVariables:
 
         Test the application of the definition of the trimming routine.
         """
-        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1E-5)
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1e-5)
         px1 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         pdf1 = PDFs.PDF(x, px1)
         px2 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
@@ -49,7 +49,7 @@ class TestTrimVariables:
     def test_metadata_consistent(
         self, name1, name2, vartype, unit, name1_expected, name2_expected
     ):
-        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1E-5)
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1e-5)
         px1 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         pdf1 = PDFs.PDF(x, px1, name=name1, variable_type=vartype, unit=unit)
         px2 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
@@ -60,7 +60,7 @@ class TestTrimVariables:
             pdf2_trimmed,
             _,
         ) = var_fcns.condition.trimming.trim_variables(pdf1, pdf2)
-        
+
         assert pdf1_trimmed.name == name1_expected
         assert pdf1_trimmed.variable_type == vartype
         assert pdf1_trimmed.unit == unit
@@ -73,7 +73,7 @@ class TestTrimVariables:
         vartype = "age"
         unit = "y"
 
-        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1E-5)
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, 1e-5)
         px1 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
         pdf1 = PDFs.PDF(x, px1, name=None, variable_type=vartype, unit=unit)
         px2 = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
@@ -86,7 +86,7 @@ class TestTrimVariables:
         ) = var_fcns.condition.trimming.trim_variables(
             pdf1, pdf2, name1="X1 trimmed", name2="X2 trimmed"
         )
-        
+
         assert pdf1_trimmed.name == "X1 trimmed"
         assert pdf1_trimmed.variable_type == vartype
         assert pdf1_trimmed.unit == unit

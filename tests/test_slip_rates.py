@@ -8,7 +8,6 @@ These functions focus on orchestration of more primitive functions that are
 already tested.
 """
 
-
 # Import modules
 import numpy as np
 import pytest
@@ -28,12 +27,14 @@ def _two_markers_():
             age=PDFs.PDF(
                 x=np.array([4.0, 5.0, 6.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="age", unit="y",
+                variable_type="age",
+                unit="y",
             ),
             displacement=PDFs.PDF(
                 x=np.array([9.0, 10.0, 11.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="displacement", unit="m",
+                variable_type="displacement",
+                unit="m",
             ),
             name="young",
         ),
@@ -41,12 +42,14 @@ def _two_markers_():
             age=PDFs.PDF(
                 x=np.array([14.0, 15.0, 16.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="age", unit="y",
+                variable_type="age",
+                unit="y",
             ),
             displacement=PDFs.PDF(
                 x=np.array([29.0, 30.0, 31.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="displacement", unit="m",
+                variable_type="displacement",
+                unit="m",
             ),
             name="old",
         ),
@@ -59,12 +62,14 @@ def _three_markers_():
             age=PDFs.PDF(
                 x=np.array([4.0, 5.0, 6.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="age", unit="y",
+                variable_type="age",
+                unit="y",
             ),
             displacement=PDFs.PDF(
                 x=np.array([9.0, 10.0, 11.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="displacement", unit="m",
+                variable_type="displacement",
+                unit="m",
             ),
             name="young",
         ),
@@ -72,12 +77,14 @@ def _three_markers_():
             age=PDFs.PDF(
                 x=np.array([9.0, 10.0, 11.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="age", unit="y",
+                variable_type="age",
+                unit="y",
             ),
             displacement=PDFs.PDF(
                 x=np.array([19.0, 20.0, 21.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="displacement", unit="m",
+                variable_type="displacement",
+                unit="m",
             ),
             name="middle",
         ),
@@ -85,12 +92,14 @@ def _three_markers_():
             age=PDFs.PDF(
                 x=np.array([14.0, 15.0, 16.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="age", unit="y",
+                variable_type="age",
+                unit="y",
             ),
             displacement=PDFs.PDF(
                 x=np.array([29.0, 30.0, 31.0]),
                 px=np.array([0.0, 1.0, 0.0]),
-                variable_type="displacement", unit="m",
+                variable_type="displacement",
+                unit="m",
             ),
             name="old",
         ),
@@ -111,8 +120,10 @@ class TestComputeSlipRate:
             age_axis, mu=age_mu, sigma=age_sigma
         )
         age_pdf = PDFs.PDF(
-            x=age_axis, px=age_density,
-            variable_type="age", unit="y",
+            x=age_axis,
+            px=age_density,
+            variable_type="age",
+            unit="y",
         )
 
         disp_mu = 50.0
@@ -122,8 +133,10 @@ class TestComputeSlipRate:
             disp_axis, mu=disp_mu, sigma=disp_sigma
         )
         disp_pdf = PDFs.PDF(
-            x=disp_axis, px=disp_density,
-            variable_type="displacement", unit="m",
+            x=disp_axis,
+            px=disp_density,
+            variable_type="displacement",
+            unit="m",
         )
 
         marker = variable_pairs.DatedMarker(
@@ -134,7 +147,9 @@ class TestComputeSlipRate:
             marker=marker,
         )
 
-        se = 5 * np.sqrt((age_sigma/age_mu)**2 + (disp_sigma/disp_mu)**2)
+        se = 5 * np.sqrt(
+            (age_sigma / age_mu) ** 2 + (disp_sigma / disp_mu) ** 2
+        )
         assert PDFs.analytics.pdf_mean(rate_pdf) == pytest.approx(5, abs=2 * se)
 
 
@@ -225,7 +240,9 @@ class TestComputeSlipRatesMc:
         )()
 
         rates, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
-            markers=markers, criterion=criterion, n_samples=500,
+            markers=markers,
+            criterion=criterion,
+            n_samples=500,
         )
         rate = next(iter(rates.values()))
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -27,6 +27,7 @@ class TestDetermineIfScalingAppropriate:
 
     genuine scale change (pdf.unit="m", unit_out="km") -> True
     """
+
     @pytest.mark.parametrize(
         "pdf_unit, unit_out, expected_bool",
         [
@@ -35,15 +36,18 @@ class TestDetermineIfScalingAppropriate:
             ("ky", "m", False),
             ("ky", "ky", False),
             ("ky", "y", True),
-        ]
+        ],
     )
     def test_scaling_appropriateness_decision_table(
         self, pdf_unit, unit_out, expected_bool
     ):
         pdf = PDFs.PDF(x=x, px=px, unit=pdf_unit)
-        assert PDFs.scaling.determine_if_scaling_appropriate(
-            pdf=pdf, unit_out=unit_out
-        ) == expected_bool
+        assert (
+            PDFs.scaling.determine_if_scaling_appropriate(
+                pdf=pdf, unit_out=unit_out
+            )
+            == expected_bool
+        )
 
 
 class TestScalePdfByUnits:
@@ -52,6 +56,7 @@ class TestScalePdfByUnits:
 
     appropriate scaling produces correctly-scaled
     """
+
     def test_inappropriate_scaling(self):
         pdf = PDFs.PDF(x=x, px=px, unit="ky")
         scaled_pdf = PDFs.scaling.scale_pdf_by_units(pdf=pdf, unit_out="ky")

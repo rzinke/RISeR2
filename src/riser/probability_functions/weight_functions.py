@@ -50,8 +50,7 @@ class WeightFunction:
         nx = len(x)
         if nx < 2:
             raise ValueError(
-                f"A weight function must consist of at least 2 values, "
-                f"got {nx}"
+                f"A weight function must consist of at least 2 values, got {nx}"
             )
 
         # Record domain values
@@ -59,7 +58,7 @@ class WeightFunction:
 
         # Check monotonic
         self._check_monotonic_()
-        
+
         # Ensure weight values are numpy array
         wx = np.array(wx, dtype=float)
 
@@ -78,18 +77,15 @@ class WeightFunction:
         self._check_nonnegative_()
 
     def _check_monotonic_(self) -> None:
-        """Check condition 1: Domain values increase monotonically.
-        """
+        """Check condition 1: Domain values increase monotonically."""
         diff_x = np.diff(self._x)
         if np.any(diff_x <= 0):
             raise ValueError("Domain values must strictly increase")
 
     def _check_nonnegative_(self) -> None:
-        """Check no negative weight values.
-        """
+        """Check no negative weight values."""
         if -1 in np.sign(self._wx):
             raise ValueError("All weight values must be non-negative")
-
 
     @classmethod
     def from_pdf(cls, pdf: PDF):
@@ -107,7 +103,6 @@ class WeightFunction:
             matching those of the input PDF.
         """
         return cls(x=pdf.x, wx=pdf.px)
-
 
     @property
     def x(self) -> np.ndarray:
@@ -133,7 +128,6 @@ class WeightFunction:
         """
         return integration.integrate(x=self.x, px=self.wx)
 
-
     def normalize(
         self,
         *,
@@ -145,7 +139,7 @@ class WeightFunction:
         """Normalize the area of the weight function to 1.0 and format as a PDF.
 
         An area that is negative or infinite raises.
-    
+
         Returns
         -------
         pdf : PDF
@@ -164,8 +158,7 @@ class WeightFunction:
         # Check that area is non-negative and finite.
         if not (0 < area < float("inf")):
             raise ValueError(
-                f"Cannot normalize weight function to PDF. "
-                f"Total area is {area}"
+                f"Cannot normalize weight function to PDF. Total area is {area}"
             )
 
         # Create PDF - guarantees unit area
@@ -182,7 +175,7 @@ class WeightFunction:
 
 #################### WEIGHTING FUNCTIONS ####################
 def flat_weight(x: np.ndarray) -> WeightFunction:
-    """Create a weight function with unit-value weights over the specified 
+    """Create a weight function with unit-value weights over the specified
     domain.
 
     Parameters

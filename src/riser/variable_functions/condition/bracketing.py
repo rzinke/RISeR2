@@ -7,7 +7,6 @@ Functions for bracketing an unknown event by computing the probability density
 of a spread of values lying between two observations.
 """
 
-
 # Public API
 __all__ = [
     "infer_bracketed",
@@ -21,7 +20,7 @@ from . import core
 
 #################### BRACKETING FUNCTIONS ####################
 def infer_bracketed(
-    pdf1: PDFs.PDF, 
+    pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
     # PDF metadata
@@ -77,7 +76,7 @@ def infer_bracketed(
 
     # Get common metadata
     common_metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name,
+        [pdf1.metadata, pdf2.metadata], name=name
     )
 
     # Format metadata

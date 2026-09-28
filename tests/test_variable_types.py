@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import pytest
@@ -25,7 +25,6 @@ class TestCheckVariableTypeSupported:
     def test_raise_if_not_supported(self, variable_type):
         with pytest.raises(ValueError):
             variable_types.check_variable_type_supported(variable_type)
-
 
 
 # end of file

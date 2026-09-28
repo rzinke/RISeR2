@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Class to organize PDF metadata items.
@@ -48,11 +48,8 @@ class PDFmetadata:
             )
 
         # Check variable type type
-        if (
-            self.variable_type is not None
-            and not isinstance(
-                self.variable_type, variable_types.VariableType.__value__
-            )
+        if self.variable_type is not None and not isinstance(
+            self.variable_type, variable_types.VariableType.__value__
         ):
             raise TypeError(
                 f"`variable_type` must be type "
@@ -61,9 +58,8 @@ class PDFmetadata:
             )
 
         # Check unit type
-        if (
-            self.unit is not None
-            and not isinstance(self.unit, units.Unit.__value__)
+        if self.unit is not None and not isinstance(
+            self.unit, units.Unit.__value__
         ):
             raise TypeError(
                 f"`unit` must be type {units.Unit.__value__.__name__}, "

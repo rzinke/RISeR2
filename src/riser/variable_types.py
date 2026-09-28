@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Because most RISeR2 functions are general and not specific to slip rates,
@@ -43,7 +43,7 @@ def check_variable_type_supported(variable_type: str | None) -> None:
     ----------
     variable_type : str or None
         Specified variable type.
-    
+
     Returns
     -------
     None

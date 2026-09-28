@@ -17,7 +17,6 @@ These functions are provided only for reference because they are many times
 slower than np.convolve.
 """
 
-
 # Public API
 __all__ = [
     "negate_variable",
@@ -47,7 +46,7 @@ def convolve_input_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
         Array to convolve with h.
     h : np.ndarray
         Array to convolve with x.
-    
+
     Returns
     -------
     y : np.ndarray
@@ -78,7 +77,7 @@ def convolve_output_side(x: np.ndarray, h: np.ndarray) -> np.ndarray:
         Array to convolve with h.
     h : np.ndarray
         Array to convolve with x.
-    
+
     Returns
     -------
     y : np.ndarray
@@ -239,7 +238,7 @@ def add_variables(
 
     # Get common metadata
     common_metadata = PDFs.metadata.get_common_metadata(
-        [pdf1.metadata, pdf2.metadata], name=name,
+        [pdf1.metadata, pdf2.metadata], name=name
     )
 
     # Format metadata

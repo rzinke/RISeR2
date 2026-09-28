@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -71,8 +71,7 @@ class TestProbabilityDensityFunction:
         x = np.array([0.0, 1.0, 2.0])
         px = np.array([0.0, 0.0, 0.0])
         with pytest.raises(
-            ValueError,
-            match="Total probability is too close to 0.0"
+            ValueError, match="Total probability is too close to 0.0"
         ):
             PDF(x, px)
 
@@ -89,14 +88,14 @@ px = np.array([0.0, 1.0, 0.0])
 
 
 class TestMetadataProperties:
-
     x = np.array([0.0, 1.0, 2.0])
     px = np.array([0.0, 1.0, 0.0])
 
     def test_metadata_properties_return_set_values(self):
         pdf = PDF(
             self.x,
-            self.px, name="x",
+            self.px,
+            name="x",
             variable_type="age",
             unit="y",
         )
@@ -123,7 +122,6 @@ class TestStr:
 
 
 class TestCDFfunctions:
-
     x = np.array([0.0, 0.5, 1.0])
     px = np.array([1.0, 1.0, 1.0])
     pdf = PDF(x, px)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 
 # Import modules
@@ -23,6 +23,7 @@ examples = """Examples:
 riser-multiply-variables sliprate.txt age.txt -o displacement.txt
 """
 
+
 def create_parser():
     parser = argparse.ArgumentParser(
         description=description,
@@ -32,51 +33,78 @@ def create_parser():
 
     return parser
 
+
 def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='pdf1_fname',
-        type=str,
-        help="File name of the first PDF.")
-    input_args.add_argument(dest='pdf2_fname',
-        type=str,
-        help="File name of the second PDF.")
+    input_args.add_argument(
+        dest="pdf1_fname", type=str, help="File name of the first PDF."
+    )
+    input_args.add_argument(
+        dest="pdf2_fname", type=str, help="File name of the second PDF."
+    )
 
     domain_args = parser.add_argument_group("Domain")
-    domain_args.add_argument("--dz", dest="dz",
-        type=float, default=0.01,
-        help="Product sample spacing.")
-    domain_args.add_argument("--min-product", dest="min_product",
+    domain_args.add_argument(
+        "--dz",
+        dest="dz",
         type=float,
-        help="Minimum-allowable product to consider.")
-    domain_args.add_argument("--max-product", dest="max_product",
+        default=0.01,
+        help="Product sample spacing.",
+    )
+    domain_args.add_argument(
+        "--min-product",
+        dest="min_product",
         type=float,
-        help="Maximum-allowable product to consider.")
+        help="Minimum-allowable product to consider.",
+    )
+    domain_args.add_argument(
+        "--max-product",
+        dest="max_product",
+        type=float,
+        help="Maximum-allowable product to consider.",
+    )
 
     output_args = parser.add_argument_group("Outputs")
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str, required=True,
-        help="Output file.")
+    output_args.add_argument(
+        "-o",
+        "--outname",
+        dest="outname",
+        type=str,
+        required=True,
+        help="Output file.",
+    )
 
     metadata_args = parser.add_argument_group("Metadata")
-    metadata_args.add_argument("--name", dest="name",
+    metadata_args.add_argument(
+        "--name", dest="name", type=str, help="Name of product PDF."
+    )
+    metadata_args.add_argument(
+        "--variable-type",
+        dest="variable_type",
         type=str,
-        help="Name of product PDF.")
-    metadata_args.add_argument("--variable-type", dest="variable_type",
-        type=str,
-        help="Variable type of product PDF.")
-    metadata_args.add_argument("--unit", dest="unit",
-        type=str,
-        help="Unit of product PDF.")
+        help="Variable type of product PDF.",
+    )
+    metadata_args.add_argument(
+        "--unit", dest="unit", type=str, help="Unit of product PDF."
+    )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
-    diagnostic_args.add_argument("-v", "--verbose", dest="verbose",
+    diagnostic_args.add_argument(
+        "-v",
+        "--verbose",
+        dest="verbose",
         action="store_true",
-        help="Verbose mode.")
-    diagnostic_args.add_argument("-p", "--plot", dest="plot",
+        help="Verbose mode.",
+    )
+    diagnostic_args.add_argument(
+        "-p",
+        "--plot",
+        dest="plot",
         action="store_true",
-        help="Plot distribution.")
+        help="Plot distribution.",
+    )
 
     return parser.parse_args(args=iargs)
 
@@ -127,7 +155,7 @@ def main() -> None:
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

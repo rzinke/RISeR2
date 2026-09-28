@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 """
 Filter kernel plots.
 """
-
 
 # Public API
 __all__ = [
@@ -20,9 +19,7 @@ from ..sampling import filtering
 
 
 #################### FILTER KERNEL PLOTTING ####################
-def plot_filter_kernel(
-    ax: Axes, filt: filtering.FIRFilter
-) -> None:
+def plot_filter_kernel(ax: Axes, filt: filtering.FIRFilter) -> None:
     """Plot a filter kernel.
 
     Parameters

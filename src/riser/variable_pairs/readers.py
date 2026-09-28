@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025 Rob Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Public API
 __all__ = [
@@ -137,8 +137,7 @@ def read_dated_markers_from_config(
         age_fname = marker_spec.get("age file")
         if age_fname is None:
             raise ValueError(
-                f"Age file must be specified "
-                f"for marker '{marker_name}'"
+                f"Age file must be specified for marker '{marker_name}'"
             )
 
         # Retrieve displacement PDF name

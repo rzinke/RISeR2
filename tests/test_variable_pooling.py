@@ -30,7 +30,7 @@ class TestPoolVariables:
 
         np.testing.assert_allclose(
             pdf_pooled.px,
-            np.array([0.0, 1/3, 0.0, 0.0, 1/3, 0.0, 0.0, 1/3, 0.0])
+            np.array([0.0, 1 / 3, 0.0, 0.0, 1 / 3, 0.0, 0.0, 1 / 3, 0.0]),
         )
 
     def test_rejects_mismatched_sampling(self):
@@ -47,9 +47,7 @@ class TestPoolVariables:
         px2 = PDFs.parametric_functions.gaussian(x2, mu=-1.0, sigma=2.0)
         pdf2 = PDFs.PDF(x=x2, px=px2)
 
-        with pytest.raises(
-            ValueError, match="Not all value arrays"
-        ):
+        with pytest.raises(ValueError, match="Not all value arrays"):
             var_fcns.pool.pooling.pool_variables([pdf1, pdf2])
 
     @pytest.mark.parametrize(

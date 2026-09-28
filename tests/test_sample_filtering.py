@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2025-2026 Robert Zinke. Licensed under the MIT License.
+# Copyright (c) 2025, 2026 Robert Zinke. Licensed under the MIT License.
 
 # Import modules
 import numpy as np
@@ -37,7 +37,7 @@ class TestGaussFilter:
         w2 = width // 2
 
         # Symmetric
-        np.testing.assert_allclose(filt.h[:w2], filt.h[w2+1:][::-1])
+        np.testing.assert_allclose(filt.h[:w2], filt.h[w2 + 1 :][::-1])
 
         # Peaked
         assert filt.h[w2] == np.max(filt.h)
