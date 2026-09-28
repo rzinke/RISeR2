@@ -109,6 +109,9 @@ def main():
         if unit is not None:
             lag_str += f" ({unit})"
 
+        # Print lag string
+        print(lag_str)
+
         # Print correlation value
         print(f"Optimal correlation value {opt_corr:.2f}")
 
