@@ -193,18 +193,19 @@ def main() -> None:
     # Use only first marker
     marker = next(iter(markers.values()))
 
-    # Scale input units to output units
+    # Determine output units
     age_unit_out = (
         marker.age.unit if inps.age_unit_out is None else inps.age_unit_out
-    )
-
-    marker.age = PDFs.scaling.scale_pdf_by_units(
-        marker.age, age_unit_out, verbose=inps.verbose
     )
 
     displacement_unit_out = (
         marker.displacement.unit if inps.displacement_unit_out is None
         else inps.displacement_unit_out
+    )
+
+    # Scale input units to output units
+    marker.age = PDFs.scaling.scale_pdf_by_units(
+        marker.age, age_unit_out, verbose=inps.verbose
     )
 
     marker.displacement = PDFs.scaling.scale_pdf_by_units(
