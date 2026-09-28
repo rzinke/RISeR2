@@ -11,8 +11,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - Update `gitignore` file to reflect new `examples` structure.
 - Cleaned up CLI examples and synched with current script names.
 - Clearer docstring example for `combine_variables.py`.
-- Fixed output units in slip rates scripts to default to input or assume
-  those specified by user.
+- Fixed output units in slip rates scripts and `view_displacement_history`
+  to default to input or assume those specified by user.
 
 ## [1.4.0] - 2026-09-28
 
