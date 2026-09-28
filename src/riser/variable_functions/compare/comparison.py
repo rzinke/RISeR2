@@ -51,6 +51,9 @@ def cosine_similarity(
     r : float
         Cosine similarity index.
     """
+    if verbose:
+        print("Computing cosine similarity index for variables")
+
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
@@ -64,7 +67,7 @@ def cosine_similarity(
 
     # Report if requested
     if verbose:
-        print(f"Cosine similarity coefficient: {r}")
+        print(f"Cosine similarity coefficient: {r:.2f}")
 
     return r
 
@@ -93,6 +96,9 @@ def cross_correlate_variables(
     corr_vals : np.ndarray
         Correlation values.
     """
+    if verbose:
+        print("Cross-correlating variables")
+
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 
@@ -162,6 +168,9 @@ def overlap_index(
     eta : float
         Overlap metric.
     """
+    if verbose:
+        print(f"Computing overlap index for {len(pdfs)} PDFs")
+
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling(pdfs)
 
@@ -180,7 +189,7 @@ def overlap_index(
 
     # Report overlap metric
     if verbose:
-        print(f"Overlap metric for {len(pdfs)} PDFs: {eta}")
+        print(f"Overlap metric for {len(pdfs)} PDFs: {eta:.4f}")
 
     return px_min, eta
 
@@ -211,6 +220,9 @@ def ks_statistic(
     ks_ndx : int
         Index of K-S statistic location.
     """
+    if verbose:
+        print("Computing KS statistic for variables")
+
     # Check for consistent sampling
     PDFs.value_arrays.check_pdfs_sampling([pdf1, pdf2])
 

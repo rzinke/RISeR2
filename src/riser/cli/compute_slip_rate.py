@@ -25,8 +25,9 @@ description = (
 )
 
 examples = """Examples:
-compute_slip_rate.py marker_config.toml -o v1
-compute_slip_rate.py marker_config.toml --age-unit-out y --displacement-unit-out mm -o v2/v2
+riser-compute-slip-rate --age age_pdf.txt --displacement disp_pdf.txt -o rate
+riser-compute-slip-rate marker_config.toml -o v1
+riser-compute-slip-rate marker_config.toml --age-unit-out y --displacement-unit-out mm -o "v2/v2"
 """
 
 def create_parser():
@@ -45,7 +46,17 @@ def cmd_parser(iargs=None):
     input_args = parser.add_argument_group("Inputs")
     input_args.add_argument(dest="marker_config",
         type=str,
-        help="Dated displacement marker configuration file.")
+        nargs="?",
+        help="Dated displacement marker configuration file. "
+             "Optional if age and displacement PDFs specified directly.")
+    input_args.add_argument("--age", dest="age_fname",
+        type=str,
+        help="File name of age PDF. Optional if marker file specified.")
+    input_args.add_argument("--displacement", dest="displacement_fname",
+        type=str,
+        help="File name of displacement PDF. "
+             "Optional if marker file specified."
+        )
 
     # Units
     unit_args = parser.add_argument_group("Units")
@@ -101,6 +112,65 @@ def cmd_parser(iargs=None):
     return parser.parse_args(args=iargs)
 
 
+#################### INPUT PARSING ####################
+def parse_inputs(
+    marker_config: str | None,
+    age_fname: str | None,
+    displacement_fname: str | None,
+    verbose: bool = False,
+) -> dict[str, variable_pairs.DatedMarker]:
+    """Determine whether the age and displacement data used to calculate the
+    slip rate are provided as a marker file or individual PDFs.
+
+    Raise an error if it is ambiguous.
+    """
+    # Marker file provided, and age and/or displacement files provided
+    if (
+        marker_config is not None
+        and (age_fname is not None or displacement_fname is not None)
+    ):
+        raise ValueError(
+            "PDFs for determining slip rate should be provided either as a "
+            "TOML-based marker file (see RISeR2/examples) "
+            "or as individual PDF files via the --age and --displacement "
+            "flags."
+        )
+
+    # Read dated displacement marker
+    if marker_config is not None:
+        # ... from marker config file
+        markers = variable_pairs.readers.read_dated_markers_from_config(
+            marker_config, verbose=verbose
+        )
+
+    else:
+        # ... from direct specification of age and displacement PDFs
+        if age_fname is None:
+            raise ValueError(
+                "A PDF representing the marker age must be passed via the "
+                "--age option"
+            )
+
+        if displacement_fname is None:
+            raise ValueError(
+                "A PDF representing the marker displacement must be passed via "
+                "the --displacement option"
+            )
+
+        # Read age and displacement PDFs as dated marker
+        marker = variable_pairs.readers.initialize_dated_marker_from_files(
+            age_fname=age_fname,
+            displacement_fname=displacement_fname,
+            marker_name="marker",
+            verbose=verbose,
+        )
+
+        # Format dated marker as dict
+        markers = {"marker": marker}
+
+    return markers
+
+
 #################### MAIN ####################
 def main() -> None:
     # Parse arguments
@@ -109,9 +179,12 @@ def main() -> None:
     # Establish output directory
     reporting.establish_output_dir(inps.output_prefix, verbose=inps.verbose)
 
-    # Read markers
-    markers = variable_pairs.readers.read_dated_markers_from_config(
-        inps.marker_config, verbose=inps.verbose
+    # Read markers based on inputs
+    markers = parse_inputs(
+        marker_config=inps.marker_config,
+        age_fname=inps.age_fname,
+        displacement_fname=inps.displacement_fname,
+        verbose=inps.verbose,
     )
 
     # Check that only one marker is specified
@@ -122,12 +195,21 @@ def main() -> None:
     marker = next(iter(markers.values()))
 
     # Scale input units to output units
+    age_unit_out = (
+        marker.age.unit if inps.age_unit_out is None else inps.age_unit_out
+    )
+
     marker.age = PDFs.scaling.scale_pdf_by_units(
-        marker.age, inps.age_unit_out, verbose=inps.verbose
+        marker.age, age_unit_out, verbose=inps.verbose
+    )
+
+    displacement_unit_out = (
+        marker.displacement.unit if inps.displacement_unit_out is None
+        else inps.displacement_unit_out
     )
 
     marker.displacement = PDFs.scaling.scale_pdf_by_units(
-        marker.displacement, inps.displacement_unit_out, verbose=inps.verbose
+        marker.displacement, displacement_unit_out, verbose=inps.verbose
     )
 
     # Initialize figure and axis for input marker
@@ -150,12 +232,13 @@ def main() -> None:
     # Format metadata
     name = inps.name
     variable_type = "slip rate"
-    unit = f"{inps.displacement_unit_out}/{inps.age_unit_out}"
+    unit = f"{displacement_unit_out}/{age_unit_out}"
 
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
         dv=inps.dv,
+        limit_positive=inps.limit_positive,
         max_rate=inps.max_rate,
         name=name,
         variable_type=variable_type,
@@ -187,9 +270,7 @@ def main() -> None:
     plotting.plot_pdf_labeled(rate_ax, slip_rate)
 
     # Plot confidence range
-    plotting.plot_pdf_confidence_range(
-        rate_ax, slip_rate, conf_range
-    )
+    plotting.plot_pdf_confidence_range(rate_ax, slip_rate, conf_range)
 
     # Save slip rate figure
     reporting.save_slip_rate_fig(

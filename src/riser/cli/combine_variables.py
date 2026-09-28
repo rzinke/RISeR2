@@ -17,10 +17,11 @@ from riser import (
 
 
 #################### ARGUMENT PARSER ####################
-description = "Multiply two random variables expressed as PDFs."
+description = "Compute the intersection of two or more PDFs."
 
 examples = """Examples:
-riser-multiply-variables sliprate.txt age.txt -o displacement.txt
+riser-combine-variables pdf1.txt pdf2.txt -o joint_pdf.txt
+riser-combine-variables pdf1.txt pdf2.txt pdf3.txt -o joint_pdf.txt
 """
 
 def create_parser():
@@ -36,22 +37,9 @@ def cmd_parser(iargs=None):
     parser = create_parser()
 
     input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(dest='pdf1_fname',
-        type=str,
-        help="File name of the first PDF.")
-    input_args.add_argument(dest='pdf2_fname',
-        type=str,
-        help="File name of the second PDF.")
-
-    input_args.add_argument("--dz", dest="dz",
-        type=float, default=0.01,
-        help="Product sample spacing.")
-    input_args.add_argument("--min-product", dest="min_product",
-        type=float,
-        help="Minimum-allowable product to consider.")
-    input_args.add_argument("--max-product", dest="max_product",
-        type=float,
-        help="Maximum-allowable product to consider.")
+    input_args.add_argument(dest="fnames",
+        type=str, nargs="+",
+        help="PDF file names.")
 
     output_args = parser.add_argument_group("Outputs")
 
@@ -60,13 +48,13 @@ def cmd_parser(iargs=None):
         help="Output file.")
     output_args.add_argument("--name", dest="name",
         type=str,
-        help="Name of product PDF.")
+        help="Name of combined PDF.")
     output_args.add_argument("--variable-type", dest="variable_type",
         type=str,
-        help="Variable type of product PDF.")
+        help="Variable type of combined PDF.")
     output_args.add_argument("--unit", dest="unit",
         type=str,
-        help="Unit of product PDF.")
+        help="Unit of combined PDF.")
 
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
@@ -79,21 +67,19 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main() -> None:
+def main():
     # Parse arguments
     inps = cmd_parser()
 
     # Read PDFs from files
-    pdf1 = PDFs.readers.read_pdf(inps.pdf1_fname, verbose=inps.verbose)
-    pdf2 = PDFs.readers.read_pdf(inps.pdf2_fname, verbose=inps.verbose)
+    pdfs = PDFs.readers.read_pdfs(inps.fnames)
 
-    # Compute product of PDFs
-    prod_pdf, _ = var_fcns.transform.arithmetic.multiply_variables(
-        pdf1=pdf1,
-        pdf2=pdf2,
-        dz=inps.dz,
-        min_product=inps.min_product,
-        max_product=inps.max_product,
+    # Sample PDFs on same axis
+    pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
+
+    # Compute joint PDF
+    joint_pdf, _ = var_fcns.condition.combination.combine_variables(
+        pdfs,
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.unit,
@@ -101,30 +87,30 @@ def main() -> None:
     )
 
     # Save to file
-    PDFs.readers.save_pdf(inps.outname, prod_pdf, verbose=inps.verbose)
+    PDFs.readers.save_pdf(inps.outname, joint_pdf, verbose=inps.verbose)
 
-    # Plot function if requested
+    # Plot combined PDF
     if inps.plot:
         # Initialize figure and axis
-        fig, (inpt_ax, prod_ax) = plt.subplots(nrows=2)
+        fig, (inpt_ax, comb_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(inpt_ax, pdf1)
-        plotting.plot_pdf_filled(inpt_ax, pdf2)
+        for pdf in pdfs:
+            plotting.plot_pdf_filled(inpt_ax, pdf)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(prod_ax, prod_pdf)
+        plotting.plot_pdf_labeled(comb_ax, joint_pdf)
 
         # Format figure
         inpt_ax.legend()
         inpt_ax.set_title("Inputs")
-        prod_ax.set_title("PDF Product")
+        comb_ax.set_title("Joint PDF")
         fig.tight_layout()
 
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 

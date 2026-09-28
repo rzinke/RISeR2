@@ -42,6 +42,20 @@ pip install -e ".[dev]"
 if you are developing.
 
 
+## Quick Start
+
+```
+# Make age PDF
+riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 --name SRage --variable-type age --unit ky -o SRage.txt -v -p
+
+# Make displacement PDF
+riser-make-pdf -d trapezoidal -s 28.0 29.0 31.0 32.0 -dx 0.01 --name SRdisp --variable-type displacement --unit m -o SRdisp.txt -v -p
+
+# Compute slip rate PDF
+riser-compute-slip-rate --age SRage.txt --displacement SRdisp.txt -o SR/SR -v -p
+```
+
+
 ## Top-level Functions and Examples
 RISeR2 provides three command line functions for determining slip rates:
 

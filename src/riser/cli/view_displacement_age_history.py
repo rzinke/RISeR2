@@ -21,7 +21,7 @@ description = (
 )
 
 examples = """Examples:
-view_displacement_age_history.py marker_config.toml
+riser-view-displacement-age-history marker_config.toml
 """
 
 def create_parser():

@@ -17,10 +17,10 @@ from riser import (
 
 
 #################### ARGUMENT PARSER ####################
-description = "Add two random variables expressed as PDFs."
+description = "Compute the K-S statistic for two PDFs."
 
 examples = """Examples:
-riser-add-variables pdf1.txt pdf2.txt -o pdf12.txt
+riser-compute-ks-statistic pdf1.txt pdf2.txt
 """
 
 def create_parser():
@@ -44,20 +44,6 @@ def cmd_parser(iargs=None):
         help="File name of second PDF.")
 
     output_args = parser.add_argument_group("Outputs")
-
-    output_args.add_argument("-o", "--outname", dest="outname",
-        type=str, required=True,
-        help="Output file.")
-    output_args.add_argument("--name", dest="name",
-        type=str,
-        help="Name of summed PDF.")
-    output_args.add_argument("--variable-type", dest="variable_type",
-        type=str,
-        help="Variable type of summed PDF.")
-    output_args.add_argument("--unit", dest="unit",
-        type=str,
-        help="Unit of summed PDF.")
-
     output_args.add_argument("-v", "--verbose", dest="verbose",
         action="store_true",
         help="Verbose mode.")
@@ -69,7 +55,7 @@ def cmd_parser(iargs=None):
 
 
 #################### MAIN ####################
-def main() -> None:
+def main():
     # Parse arguments
     inps = cmd_parser()
 
@@ -82,35 +68,39 @@ def main() -> None:
         [pdf1, pdf2], verbose=inps.verbose
     )
 
-    # Compute summed PDF
-    sum_pdf = var_fcns.transform.arithmetic.add_variables(
-        pdf1=pdf1,
-        pdf2=pdf2,
-        name=inps.name,
-        variable_type=inps.variable_type,
-        unit=inps.unit,
-        verbose=inps.verbose,
+    # Compute K-S statistic
+    _, ks_ndx = var_fcns.compare.comparison.ks_statistic(
+        pdf1, pdf2, verbose=inps.verbose
     )
 
-    # Save to file
-    PDFs.readers.save_pdf(inps.outname, sum_pdf, verbose=inps.verbose)
-
-    # Plot function if requested
+    # Plot functions if requested
     if inps.plot:
         # Initialize figure and axis
-        fig, (inpt_ax, sum_ax) = plt.subplots(nrows=2)
+        fig, (inpt_ax, cdf_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
-        plotting.plot_pdf_filled(inpt_ax, pdf1)
-        plotting.plot_pdf_filled(inpt_ax, pdf2)
+        plotting.plot_pdf_filled(inpt_ax, pdf1, color="r")
+        plotting.plot_pdf_filled(inpt_ax, pdf2, color="b")
 
-        # Plot PDF
-        plotting.plot_pdf_labeled(sum_ax, sum_pdf)
+        # Plot CDFs
+        plotting.plot_cdf_line(cdf_ax, pdf1, color="r")
+        plotting.plot_cdf_line(cdf_ax, pdf2, color="b")
+
+        # Plot maximum distance
+        cdf_ax.plot(
+            [pdf1.x[ks_ndx], pdf2.x[ks_ndx]],
+            [pdf1.Px[ks_ndx], pdf2.Px[ks_ndx]],
+            color="k",
+            linewidth=2,
+            label="KS stat",
+        )
 
         # Format figure
         inpt_ax.legend()
         inpt_ax.set_title("Inputs")
-        sum_ax.set_title("Summed PDF")
+
+        cdf_ax.legend()
+        cdf_ax.set_title("K-S Analysis")
         fig.tight_layout()
 
     plt.show()

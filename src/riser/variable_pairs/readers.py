@@ -4,6 +4,7 @@
 
 # Public API
 __all__ = [
+    "initialize_dated_marker_from_files",
     "read_dated_markers_from_config",
 ]
 
