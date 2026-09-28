@@ -75,7 +75,7 @@ def main():
     pdfs = PDFs.readers.read_pdfs(inps.fnames)
 
     # Sample PDFs on same axis
-    pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=True)
+    pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
     # Compute merged PDF
     pooled_pdf = var_fcns.pool.pooling.pool_variables(
