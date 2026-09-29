@@ -6,7 +6,7 @@ It requires Python 3.12 or above.
 
 
 ## Quick setup (most users)
-RISeR2 is available on PyPI[https://pypi.org/project/riser/]. The simplest way to install it is to open a command prompt and simply run:
+RISeR2 is available on [PyPI](https://pypi.org/project/riser/). The simplest way to install it is to open a command prompt and simply run:
 
 ```
 pip install riser
@@ -16,6 +16,8 @@ To avoid package conflicts, it is recommended to install in a separate environme
 
 
 ## Developer setup
+If you plan to help develop the library (you totally should!).
+
 ```
 git clone https://github.com/rzinke/RISeR2.git
 ```
