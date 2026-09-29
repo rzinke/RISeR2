@@ -13,6 +13,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ### Added
 - `divide_variables` `dz` can now automatically choose the spacing the spacing
   of the output array.
+- Added to `test_variable_arithmetic` to guarantee new `divide_variables`
+  behavior.
 
 ### Fixed
 - A too-coarse `dz` value in `divide_variables` will fail loudly with a
