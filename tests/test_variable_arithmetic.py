@@ -354,5 +354,55 @@ class TestDivideVariables:
             pdf_quot.px[interior], px_expected[interior], atol=1e-3
         )
 
+    def test_too_coarse_dz_raises(self):
+        """For small quotient ranges (large denominator relative to numerator),
+        the default `dz` value may be too coarse and the resulting `pz` values 
+        - though correct - will be too scarce to produce a valid PDF.
+
+        Test that a too-coarse `dz` value, whether user-specified or default,
+        raises.
+        """
+        # Age in yBP
+        age_axis = PDFs.value_arrays.precise_array(15_000, 25_000, 10)
+        age_density = PDFs.parametric_functions.gaussian(
+            age_axis, mu=20_000, sigma=1_000
+        )
+        age_pdf = PDFs.PDF(age_axis, age_density)
+
+        # Displacement in meters
+        disp_axis = PDFs.value_arrays.precise_array(15.0, 25.0, 0.01)
+        disp_density = PDFs.parametric_functions.triangular(
+            disp_axis, a=15.0, c=20.0, b=25.0
+        )
+        disp_pdf = PDFs.PDF(disp_axis, disp_density)
+
+        with pytest.raises(ValueError, match="Output array spacing"):
+            var_fcns.transform.arithmetic.divide_variables(
+                disp_pdf, age_pdf, dz=0.1
+            )
+
+    def test_dz_None_default_succeeds(self):
+        """Related to the previous pitfall, setting `dz` to None should
+        automatically determine the sample spacing in a way that will not
+        fail.
+        """
+        # Age in yBP
+        age_axis = PDFs.value_arrays.precise_array(15_000, 25_000, 10)
+        age_density = PDFs.parametric_functions.gaussian(
+            age_axis, mu=20_000, sigma=1_000
+        )
+        age_pdf = PDFs.PDF(age_axis, age_density)
+
+        # Displacement in meters
+        disp_axis = PDFs.value_arrays.precise_array(15.0, 25.0, 0.01)
+        disp_density = PDFs.parametric_functions.triangular(
+            disp_axis, a=15.0, c=20.0, b=25.0
+        )
+        disp_pdf = PDFs.PDF(disp_axis, disp_density)
+
+        var_fcns.transform.arithmetic.divide_variables(
+            disp_pdf, age_pdf, dz=None
+        )
+
 
 # end of file

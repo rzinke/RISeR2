@@ -541,7 +541,8 @@ def divide_variables(
         Denominator distribution.
     dz : float or None
         Quotient sample spacing.
-        If None, 1000 points will be automatically generated.
+        If None, 1000 points will be automatically generated based on the
+        natural range of quotient values.
     min_quotient : float, optional
         Minimum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
