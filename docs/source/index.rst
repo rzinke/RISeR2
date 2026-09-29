@@ -5,3 +5,4 @@ RISeR2 Documentation
    :maxdepth: 4
 
    api/modules
+   getting_started.md
