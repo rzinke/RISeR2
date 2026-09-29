@@ -12,7 +12,7 @@ RISeR2 is available on PyPI[https://pypi.org/project/riser/]. The simplest way t
 pip install riser
 ```
 
-To avoid package conflicts, it is recommended to install in a separate environment. One could, for example, use conda[https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html] or (micro[https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html])mamba[https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html].
+To avoid package conflicts, it is recommended to install in a separate environment. One could, for example, use [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) or ([micro](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))[mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
 
 
 ## Developer setup
