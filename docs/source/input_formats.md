@@ -33,7 +33,7 @@ PDFs or PDF-like measurements are sometimes provided by other software packages.
 Because PDFs are stored as plain text files, a user could define their own PDF by manually writing the desired domain values and probability densities into the file. If the manually defined values are sparse, `riser-interpolate-pdf` can be used to sample the domain more densely and regularly. Metadata items and values are denoted at the top of the file using `#`. For example, a minimal PDF file could look like:
 
 ```text
-# name: hand
+# name: hand_written_example
 # variable_type: displacement
 # unit: m
 1.0,0.0
@@ -46,4 +46,22 @@ Because PDFs are stored as plain text files, a user could define their own PDF b
 
 ## Marker config TOML files
 
+Determination of incremental slip rates requires precise matching of pairs of ages and displacements. Providing the PDF files directly to the functions as ordered lists via command line is cumbersome and error-prone. Instead, RISeR2 expects age-displacement pairs to be specified in a markup file, grouped by marker name.
 
+RISeR2 supports the [Tom's Obvious Minimal Language (TOML(https://toml.io/en/))] format. Each dated displacement marker defines a group carrying the names of the corresponding age and displacement PDFs.
+
+An example marker file with three markers could look like:
+
+```text
+["Marker 01"]
+"displacement file" = "disp1.txt"
+"age file" = "age1.txt"
+
+["Marker 02"]
+"displacement file" = "disp2.txt"
+"age file" = "age2.txt"
+
+["Marker 03"]
+"displacement file" = "disp3.txt"
+"age file" = "age3.txt"
+```
