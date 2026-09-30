@@ -46,13 +46,13 @@ Because PDFs are stored as plain text files, a user could define their own PDF b
 
 ## Marker config TOML files
 
-Determination of incremental slip rates requires precise matching of pairs of ages and displacements. Providing the PDF files directly to the functions as ordered lists via command line is cumbersome and error-prone. Instead, RISeR2 expects age-displacement pairs to be specified in a markup file, grouped by marker name.
+Determination of incremental slip rates requires precise matching of pairs of ages and displacements. Providing multiple PDF files directly to the functions as ordered lists via command line is cumbersome and error-prone. Instead, RISeR2 expects age-displacement pairs to be specified in a markup file, grouped by marker name.
 
-RISeR2 supports the [Tom's Obvious Minimal Language (TOML(https://toml.io/en/))] format. Each dated displacement marker defines a group carrying the names of the corresponding age and displacement PDFs.
+RISeR2 supports the [Tom's Obvious Minimal Language (TOML)](https://toml.io/en/) format. Each dated displacement marker defines a group carrying the names of the corresponding age and displacement PDFs.
 
 An example marker file with three markers could look like:
 
-```text
+```toml
 ["Marker 01"]
 "displacement file" = "disp1.txt"
 "age file" = "age1.txt"
@@ -65,3 +65,11 @@ An example marker file with three markers could look like:
 "displacement file" = "disp3.txt"
 "age file" = "age3.txt"
 ```
+
+```{warning}
+List the markers from **youngest to oldest**. Incremental slip rates are computed between each marker and the next one in the file, and reversing the marker order will produce an error.
+```
+
+The file paths specified in the TOML file are relative to the directory where the command is run. Beware of the directory structure, or specify absolute file paths.
+
+Because the marker names constitute part of the output file names themselves, one may find providing the markers with short names (preferably without spaces) preferable.
