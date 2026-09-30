@@ -69,6 +69,7 @@ An example marker file with three markers could look like:
 > [!WARNING]
 > List the markers from **youngest to oldest**. Incremental slip rates are computed between each marker and the next one in the file, and reversing the marker order will produce an error.
 
-The file paths specified in the TOML file are relative to the directory where the command is run. Beware of the directory structure, or specify absolute file paths.
+> [!NOTE]
+> The file paths specified in the TOML file are relative to the directory where the command is run. Beware of the directory structure, or specify absolute file paths.
 
 Because the marker names constitute part of the output file names themselves, one may find providing the markers with short names (preferably without spaces) preferable.
