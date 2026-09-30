@@ -28,7 +28,7 @@ extensions = [
 ]
 
 autodoc_member_order = 'bysource'
-myst_enable_extensions = ['colon_fence']
+myst_enable_extensions = ['alert']
 suppress_warnings = ['ref.python']
 templates_path = ['_templates']
 exclude_patterns = []
