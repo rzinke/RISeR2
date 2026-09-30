@@ -18,11 +18,17 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy",
+    "myst-parser",
     "types-toml",
     "scipy-stubs",
     "types-tqdm",
     "pytest",
     "ruff",
+    "sphinx",
+]
+
+docs = [
+    "myst-parser",
     "sphinx",
 ]
 
