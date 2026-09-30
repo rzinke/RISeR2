@@ -27,6 +27,11 @@ dev = [
     "sphinx",
 ]
 
+docs = [
+    "myst-parser",
+    "sphinx",
+]
+
 [project.scripts]
 riser-add-variables = "riser.cli.add_variables:main"
 riser-calyr-to-age = "riser.cli.calyr_to_age:main"
