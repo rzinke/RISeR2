@@ -29,13 +29,13 @@ To use these scripts, clone the GitHub repository to a location of your choice a
 
 Note: It is recommended to use a Python package manager such as conda or mamba. Create a new environment with the necessary packages installed and activate it. Then install RISeR2 into that environment.
 
-```
+```bash
 pip install -e .
 ```
 
 OR
 
-```
+```bash
 pip install -e ".[dev]"
 ```
 
@@ -44,7 +44,7 @@ if you are developing.
 
 ## Quick Start
 
-```
+```bash
 # Make age PDF
 riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 --name SRage --variable-type age --unit ky -o SRage.txt -v -p
 
