@@ -27,7 +27,6 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-myst_enable_extensions = ['attrs_inline']
 autodoc_member_order = 'bysource'
 suppress_warnings = ['ref.python']
 templates_path = ['_templates']

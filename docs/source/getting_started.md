@@ -79,8 +79,8 @@ where `quickstart/` is the folder in which the results will be stored, and `ex` 
  - ex_markers.pdf -- A plot of the displacement-time history of the site (this will become more important when multiple dated markers are involved for incremental slip rate computation)
  - ex_slip_rate_report.txt -- A text file with a written record of the slip rate summary statistics
 
-![Quick start example displacement-time history](getting_started-ex_markers.png){width="49%"}
-![Quick start example slip rate PDF](getting_started-ex_slip_rates.png){width="49%"}
+![Quick start example displacement-time history](getting_started-ex_markers.png)
+![Quick start example slip rate PDF](getting_started-ex_slip_rates.png)
 
 The slip rate units are formulated from the units of the input PDFs. Here, `m/ky` is equivalent to the more common convention of `mm/y`. The output units can be modified by adding `--age-unit-out y` and `--displacement-unit-out mm`.
 
