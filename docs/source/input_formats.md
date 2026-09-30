@@ -12,11 +12,11 @@ To accommodate arbitrary shapes, RISeR2 stores the PDFs in memory and on disk as
 PDFs can -- but don't necessarily -- carry metadata, including:
  - `name` -- A descriptive name of the measurement (e.g., sample ID; lab code)
  - `variable_type` -- The physical quantity that the PDF represents (e.g., age; displacement; slip rate)
- - `unit` -- The value unit. Currently, scalar multiples of years `y` are supported for ages, and meters `m` are supported for displacements. Other units are not currently supported.
+ - `unit` -- The value unit. Currently, supported base units include years `y` and meters `m`. The base units can have common prefixes `m` (milli), `c` (centi), `d` (deci), `D` (deca), `C` (hecto), `k` (kilo), and `M` (mega).
 
 ### Data sources
 
-There are several ways one may create for format a PDF for RISeR2 ingestion.
+There are several ways one may create or format a PDF for RISeR2 ingestion.
 
 #### Parametric functions
 
@@ -30,7 +30,18 @@ PDFs or PDF-like measurements are sometimes provided by other software packages.
 
 #### Self-definition
 
-Because PDFs are stored as plain text files, a user could define their own PDF by manually writing the desired domain values and probability densities into the file. If the manually defined values are sparse, `riser-interpolate-pdf` can be used to sample the domain more densly and regularly. Metadata items and values are denoted at the top of the file using `#`. See the various examples throughout this repo for template files.
+Because PDFs are stored as plain text files, a user could define their own PDF by manually writing the desired domain values and probability densities into the file. If the manually defined values are sparse, `riser-interpolate-pdf` can be used to sample the domain more densely and regularly. Metadata items and values are denoted at the top of the file using `#`. For example, a minimal PDF file could look like:
+
+```text
+# name: hand
+# variable_type: displacement
+# unit: m
+1.0,0.0
+2.0,0.5
+3.0,1.0
+4.0,0.5
+5.0,0.0
+```
 
 
 ## Marker config TOML files

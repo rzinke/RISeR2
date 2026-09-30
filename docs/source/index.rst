@@ -5,4 +5,5 @@ RISeR2 Documentation
    :maxdepth: 4
 
    getting_started.md
+   input_formats.md
    api/modules
