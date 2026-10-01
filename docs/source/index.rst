@@ -6,4 +6,5 @@ RISeR2 Documentation
 
    getting_started.md
    input_formats.md
+   cli/index
    api/modules

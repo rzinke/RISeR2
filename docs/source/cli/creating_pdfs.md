@@ -73,4 +73,4 @@ One can visualize a data sets consisting of multiple PDFs describing, for exampl
 riser-view-pdf-stack <pdfs config file>.toml
 ```
 
-This requires organizing the PDFs in a TOML-based configuration file. This file also allows a PDF to be associated with a *prior* distribution that shows the distribution prior to some analysis (e.g., trimming within an OxCal sequence). See `examples/complex_incremental_slip_rates/age_list.toml` for an example.
+This requires organizing the PDFs in a TOML-based configuration file. This file also allows a PDF to be associated with a *prior* distribution that shows the distribution prior to some analysis (e.g., trimming within an OxCal sequence). See `examples/case_studies/complex_incremental_slip_rates/age_list.toml` for an example.
