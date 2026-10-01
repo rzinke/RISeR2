@@ -3,7 +3,7 @@
 Essentially all CLI functions in the RISeR2 library require PDFs as fundamental inputs, and many functions produce them as outputs. These functions show how to create, manipulate, and understand PDFs.
 
 
-## Creating a PDF from a known distribution
+## Creating a PDF from a known, parametric distribution
 
 RISeR2 provides support for creating PDFs from parametric functions -- functions with known shape that can be fully described by a finite number of parameters. This library provides support for several such functions that are commonly encountered in the geoscientific literature.
 
@@ -16,7 +16,7 @@ riser-make-pdf -d <function name> -s <function parameters> -o <output name>.txt
 
 ## Convert PDF from a calendar date to an age
 
-This tool can be used to convert a PDF expressed as a calendar date (AD/BC or CE/BCE) to an age before some reference date. This is essential because RISeR2 requires the time axis of random variables to run linearly. With this function, the PDF shape is preserved, but remapped onto a new series of domain values.
+This tool can be used to convert a PDF expressed as a calendar date (AD/BC or CE/BCE) to an age before some reference date. This is essential because RISeR2 expects the time axis of random variables to monotonically increase into the past. With this function, the PDF shape is preserved, but remapped onto a new series of domain values.
 
 ```bash
 riser-calyr-to-age <date name>.txt -o <output name>.txt
@@ -94,4 +94,4 @@ This requires organizing the PDFs in a TOML-based configuration file.
 "prior" = "tmp/C3prior_age.txt"
 ```
 
-As shown in the last example, the config file also allows a PDF to be associated with a *prior* distribution that shows the distribution prior to some analysis (e.g., trimming within an OxCal sequence). See [`examples/case_studies/complex_incremental_slip_rates/age_list.toml`](/examples/case_studies/complex_incremental_slip_rates/age_list.toml) for a complete example.
+As shown in the last example, the config file also allows a PDF to be associated with a *prior* distribution that shows the distribution prior to some analysis (e.g., trimming within an OxCal sequence). See `examples/case_studies/complex_incremental_slip_rates/age_list.toml` for a complete example.

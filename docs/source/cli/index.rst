@@ -1,5 +1,5 @@
 RISeR2 CLI Documentation
-=====================
+========================
 
 .. toctree::
    :maxdepth: 4

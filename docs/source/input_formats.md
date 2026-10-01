@@ -20,7 +20,7 @@ There are several ways one may create or format a PDF for RISeR2 ingestion.
 
 #### Parametric functions
 
-A parametric function is one that can be fully defined from a fixed and finite number (usually just a hand full) of parameters. A foundational principle of RISeR2 is that a probability density function does not need to have a parametric shape, yet parametric distributions can still provide useful estimates of variable values and their uncertainties.
+A parametric function is one that can be fully defined from a fixed and finite number (usually just a handful) of parameters. A foundational principle of RISeR2 is that a probability density function does not need to have a parametric shape, yet parametric distributions can still provide useful estimates of variable values and their uncertainties.
 
 The RISeR2 library provides support for a number of parametric functions that can be used to create array-based PDFs. PDFs with the shape of a parametric function can be generated and saved to file using the `riser-make-pdf` function. A list of supported parametric functions can be accessed using `riser-make-pdf --help`.
 
