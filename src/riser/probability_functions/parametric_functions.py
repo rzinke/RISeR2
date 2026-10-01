@@ -759,7 +759,7 @@ def get_cumulative_function_by_name(distribution: str) -> Callable[..., Any]:
     Returns
     -------
     fcn : Callable
-        Cumulative parameteric function.
+        Cumulative parametric function.
     """
     # Check that the desired function is defined here
     if distribution not in CUMULATIVE_PARAMETRIC_FUNCTIONS:
