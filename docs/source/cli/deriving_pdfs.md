@@ -17,3 +17,10 @@ The combine_variables function is used to when multiple independent observations
 
 ### pool_variables
 The pool_variables function is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *union* of the input PDFs is take. to produce the output PDF.
+
+
+## Inferring unknown values
+
+
+## Arithmetic of random variables
+
