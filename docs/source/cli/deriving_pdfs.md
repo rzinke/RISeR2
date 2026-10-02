@@ -1,16 +1,16 @@
 # Deriving PDFs
 
-The following functions take PDFs as inputs, and returns (derives) a new PDFs as output.
+The following functions take PDFs as inputs, and return (derive) a new PDF as output.
 
 They fall into one of several general categories:
  - Combining multiple observations into one
- - Inferring the value of an unknown event based known events
+ - Inferring the value of an unknown event based on known events
  - Calculating a different quantity from others using variable arithmetic
 
 
 ## Mixing multiple observations
 
-RISeR2 provides two functions for combing or mixing multiple observations of the same quality into a single PDF. Each is used depending on different understanding of the problem.
+RISeR2 provides two functions for combining or mixing multiple observations of the same quantity into a single PDF. Each is used depending on different understanding of the problem.
 
 ### Combining variables
 
@@ -24,7 +24,7 @@ This is equivalent to computing the joint probability of two or more random vari
 
 ### Pooling variables
 
-*Pooling* is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *union* of the input PDFs is take. to produce the output PDF.
+*Pooling* is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *union* of the input PDFs is taken to produce the output PDF.
 
 ```bash
 riser-pool-variables <observation1>.txt <observation2>.txt <...> -o <output name>.txt
