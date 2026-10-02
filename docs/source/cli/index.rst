@@ -5,3 +5,5 @@ RISeR2 CLI Documentation
    :maxdepth: 4
 
    creating_pdfs.md
+   deriving_pdfs.md
+   computing_slip_rates.md
