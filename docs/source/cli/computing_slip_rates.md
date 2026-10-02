@@ -2,7 +2,7 @@
 
 RISeR2 is optimized for computing earthquake fault slip rates. Functions are provided for computing long-term average and incremental slip rates, using both closed-form analytical and Monte Carlo sampling methods.
 
-See [input_formats](/docs/source/input_formats.md) for the structure of the marker configuration file.
+See [input_formats](../input_formats.md) for the structure of the marker configuration file.
 
 Note that, unlike functions designed to output a single PDF, the family of slip rate functions is designed to store outputs in a folder, and the output file name should not be specified with a `.txt` extension.
 
