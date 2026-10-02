@@ -22,6 +22,8 @@ riser-combine-variables <observation1>.txt <observation2>.txt <...> -o <output n
 
 This is equivalent to computing the joint probability of two or more random variables in Bayesian statistics. The area of the joint solution indicates the similarity between the input PDFs.
 
+Think "combining" when you describe the likelihood of one observation *AND* another.
+
 ### Pooling variables
 
 *Pooling* is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *mixture* of the input PDFs is taken to produce the output PDF.
@@ -29,6 +31,8 @@ This is equivalent to computing the joint probability of two or more random vari
 ```bash
 riser-pool-variables <observation1>.txt <observation2>.txt <...> -o <output name>.txt
 ```
+
+Think "pooling" when you describe the likelihood of one observation *OR* another. 
 
 
 ## Inferring unknown values
