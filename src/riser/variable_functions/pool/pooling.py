@@ -41,8 +41,8 @@ def pool_variables(
     Note that "merging" has no formal definition in the context of probability
     theory.
     This is similar to the OxCal sum function, and should not be confused with
-    either compute_joint_pdf (which combines PDFs by multiplying them element-
-    wise) or add_variables (which computes the sum of two independent random
+    either `combine_pdfs` (which combines PDFs by multiplying them element-
+    wise) or `add_variables` (which computes the sum of two independent random
     variables).
     OxCal provides a note:
     '... the 95% range for a Sum distribution give an estimate for the period
@@ -92,7 +92,7 @@ def pool_variables(
 
     # Loop through subsequent variables
     for pdf in pdfs[1:]:
-        # Compute joint probability
+        # Pool probability densities
         px += pdf.px
 
     # Form results into PDF

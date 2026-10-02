@@ -44,18 +44,6 @@ riser-interpolate-pdf <pdf name>.txt --xmin <new min domain value> --xmax <new m
 ```
 
 
-## Bracketing an event
-
-Sometimes, the value (e.g., age) of an event cannot be directly measured, but can instead be inferred from bracketing measurements on either side of it. RISeR2 provides a function to estimate the value of such a bracketed event:
-
-```bash
-riser-create-bracketed-pdf <smaller-valued pdf>.txt <larger-valued pdf>.txt -o <output name>.txt
-```
-
-> [!WARNING]
-> The ***smaller***- and ***larger***-valued PDFs must be provided in that respective order. PDF construction may fail silently if the larger value is provided first.
-
-
 ## Viewing a PDF
 
 As a diagnostic to confirm the correct parameters have been entered, and as a means by which to build intuition for the data set, one may wish to visualize one or more PDFs.
