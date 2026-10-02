@@ -24,7 +24,7 @@ This is equivalent to computing the joint probability of two or more random vari
 
 ### Pooling variables
 
-*Pooling* is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *union* of the input PDFs is taken to produce the output PDF.
+*Pooling* is used when the measurements of a quantity might represent different events, or it is uncertain which observation applies to the event of interest. The *mixture* of the input PDFs is taken to produce the output PDF.
 
 ```bash
 riser-pool-variables <observation1>.txt <observation2>.txt <...> -o <output name>.txt
