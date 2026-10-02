@@ -17,7 +17,7 @@ from riser import (
 
 
 #################### ARGUMENT PARSER ####################
-description = "Merge two or more PDFs."
+description = "Pool two or more PDFs."
 
 examples = """Examples:
 riser-pool-variables pdf1.txt pdf2.txt -o pooled_pdf.txt
@@ -97,7 +97,7 @@ def main():
     # Sample PDFs on same axis
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
-    # Compute merged PDF
+    # Compute pooled PDF
     pooled_pdf = var_fcns.pool.pooling.pool_variables(
         pdfs,
         name=inps.name,
@@ -112,19 +112,19 @@ def main():
     # Plot pooled PDF
     if inps.plot:
         # Initialize figure and axis
-        fig, (inpt_ax, merge_ax) = plt.subplots(nrows=2)
+        fig, (inpt_ax, pooled_ax) = plt.subplots(nrows=2)
 
         # Plot input PDFs
         for pdf in pdfs:
             plotting.plot_pdf_filled(inpt_ax, pdf)
 
         # Plot PDF
-        plotting.plot_pdf_labeled(merge_ax, pooled_pdf)
+        plotting.plot_pdf_labeled(pooled_ax, pooled_pdf)
 
         # Format figure
         inpt_ax.legend()
         inpt_ax.set_title("Inputs")
-        merge_ax.set_title("Merged PDF")
+        pooled_ax.set_title("Pooled PDF")
         fig.tight_layout()
 
     plt.show()

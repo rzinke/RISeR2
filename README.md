@@ -3,6 +3,7 @@
 ![RISeR logo](https://github.com/rzinke/RISeR2/blob/main/assets/RISeR_logo-name.png "RISeR")
 
 [![Tests](https://github.com/rzinke/RISeR2/actions/workflows/tests.yml/badge.svg)](https://github.com/rzinke/RISeR2/actions/workflows/tests.yml)
+[![Documentation Status](https://app.readthedocs.org/projects/riser2/badge/?version=latest)](https://riser2.readthedocs.io/en/latest/)
 
 
 ## Purpose
@@ -13,6 +14,9 @@ Earthquake fault slip rates describe the displacement accumulation rate across a
 ![Example incremental slip rates](https://github.com/rzinke/RISeR2/blob/main/assets/incremental_slip_rates.png "incremental slip rates example")
 
 *Example incremental slip rates. Three incremental rates are computed between pairs of among four dated displacement markers (Marker 01&ndash;Marker 04). The exact value of each incremental slip rate is uncertain, therefore possible slip rate values are expressed as probability densities. Blue fields show the most probability 68.2% of values.*
+
+## Documentation
+See the full documentation: https://riser2.readthedocs.io/en/latest/
 
 ## Setup
 RISeR2 can be used as a set of command line tools or as an API. The command line tools form an adaptable pipeline for handling and computing probability density functions, and the API modules form a generalized PDF laboratory.
