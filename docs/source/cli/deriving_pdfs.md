@@ -1,6 +1,6 @@
 # Deriving PDFs
 
-The following functions take PDFs as inputs, and returns a new PDFs as output.
+The following functions take PDFs as inputs, and returns (derives) a new PDFs as output.
 
 They fall into one of several general categories:
  - Combining multiple observations into one
