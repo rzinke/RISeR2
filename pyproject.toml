@@ -32,6 +32,10 @@ docs = [
     "sphinx",
 ]
 
+[project.urls]
+Documentation = "https://riser2.readthedocs.io/en/latest/"
+Repository = "https://github.com/rzinke/RISeR2"
+
 [project.scripts]
 riser-add-variables = "riser.cli.add_variables:main"
 riser-calyr-to-age = "riser.cli.calyr_to_age:main"

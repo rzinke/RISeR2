@@ -150,6 +150,13 @@ def compute_slip_rates_analytical(
     # Number of slip rates
     n_rates = n_markers - 1
 
+    # Check that multiple markers are specified
+    if n_markers < 2:
+        raise ValueError(
+            "Multiple markers must be specified for incremental slip rate "
+            "computation"
+        )
+
     if verbose:
         print(f"Computing {n_rates} incremental slip rates")
 
@@ -163,6 +170,9 @@ def compute_slip_rates_analytical(
         [marker.displacement.metadata for marker in markers.values()]
     )
 
+    # Variable type
+    variable_type = variable_type if variable_type is not None else "slip rate"
+
     # Slip rate unit
     if (
         unit is None
@@ -171,8 +181,67 @@ def compute_slip_rates_analytical(
     ):
         unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
 
-    # Variable type
-    variable_type = variable_type if variable_type is not None else "slip rate"
+    # Interpolate ages on same domain
+    interp_ages = PDFs.interpolation.interpolate_pdfs(
+        [markers[marker_name].age for marker_name in marker_names]
+    )
+
+    for i in range(n_markers):
+        markers[marker_names[i]].age = interp_ages[i]
+
+    # Interpolate displacements on same domain
+    interp_displacements = PDFs.interpolation.interpolate_pdfs(
+        [markers[marker_name].displacement for marker_name in marker_names]
+    )
+
+    for i in range(n_markers):
+        markers[marker_names[i]].displacement = interp_displacements[i]
+
+    # Trim first two ages
+    (markers[marker_names[0]].age, markers[marker_names[1]].age, _) = (
+        var_fcns.condition.trimming.trim_variables(
+            pdf1=markers[marker_names[0]].age,
+            pdf2=markers[marker_names[1]].age,
+            name1=markers[marker_names[0]].age.name,
+            name2=markers[marker_names[1]].age.name,
+            verbose=verbose,
+        )
+    )
+
+    # Sequentially trim ages from yougest to oldest
+    for i in range(1, n_rates):
+        (markers[marker_names[i]].age, markers[marker_names[i + 1]].age, _ ) = (
+            var_fcns.condition.trimming.trim_variables(
+                pdf1=markers[marker_names[i]].age,
+                pdf2=markers[marker_names[i + 1]].age,
+                name1=markers[marker_names[i]].age.name,
+                name2=markers[marker_names[i + 1]].age.name,
+                verbose=verbose,
+            )
+        )
+
+    # Trim first two displacements
+    (markers[marker_names[0]].displacement, markers[marker_names[1]].displacement, _) = (
+        var_fcns.condition.trimming.trim_variables(
+            pdf1=markers[marker_names[0]].displacement,
+            pdf2=markers[marker_names[1]].displacement,
+            name1=markers[marker_names[0]].displacement.name,
+            name2=markers[marker_names[1]].displacement.name,
+            verbose=verbose,
+        )
+    )
+
+    # Sequentially trim displacements from yougest to oldest
+    for i in range(1, n_rates):
+        (markers[marker_names[i]].displacement, markers[marker_names[i + 1]].displacement, _ ) = (
+            var_fcns.condition.trimming.trim_variables(
+                pdf1=markers[marker_names[i]].displacement,
+                pdf2=markers[marker_names[i + 1]].displacement,
+                name1=markers[marker_names[i]].displacement.name,
+                name2=markers[marker_names[i + 1]].displacement.name,
+                verbose=verbose,
+            )
+        )
 
     # Set mimimum slip rate
     min_rate = 0.0 if limit_positive else None
