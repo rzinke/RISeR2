@@ -40,8 +40,8 @@ def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
     # Slip rate
-    dv: float = 0.01,
     limit_positive: bool = False,
+    dv: float = 0.01,
     max_rate: float = 100.0,
     # PDF metadata
     name: str | None = None,
@@ -56,10 +56,10 @@ def compute_slip_rate(
     ----------
     marker : DatedMarker
         Displacement-age pair used to calculate slip rate.
-    dv : float, optional
-        Rate step.
     limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
+    dv : float, optional
+        Rate step.
     max_rate : float, optional
         Maximum quotient value to consider.
     name : str, optional
@@ -77,7 +77,7 @@ def compute_slip_rate(
     if verbose:
         print("Computing slip rate")
 
-    # Set mimimum slip rate
+    # Set minimum slip rate
     min_rate = 0.0 if limit_positive else None
 
     # Format metadata
@@ -122,6 +122,7 @@ def _forward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
 
     return trimmed_pdfs
 
+
 def _backward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
     if verbose:
         print("Backward-trimming PDFs")
@@ -149,8 +150,10 @@ def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
     # Slip rate
-    dv: float = 0.01,
+    enforce_ordering: bool = False,
     limit_positive: bool = False,
+    dv: float = 0.01,
+    min_rate: float = 0.0,
     max_rate: float = 100.0,
     # PDF metadata
     variable_type: str | None = None,
@@ -174,13 +177,20 @@ def compute_slip_rates_analytical(
     ----------
     markers - dict[str, DatedMarker]
         Dated markers bounding each interval.
-    max_rate : float
-        Maximum quotient value to consider.
-    dv : float, optional
-        Rate step.
+    enforce_ordering : bool, optional
+        Trim the marker ages and displacements on the condition that the
+        markers are provided in strict ordering
+        (first marker is younger/less displaced than second, etc.).
+        Otherwise, each pair of adjacent markers will be treated independently.
+        If ordering is enforced, displacements are limited to positive
+        differences even if `limit_positive` is set to zero.
     limit_positive : bool, optional
         Enforce condition that displacement difference values must be positive.
         Time differences are always positive.
+    dv : float, optional
+        Rate step.
+    max_rate : float
+        Maximum quotient value to consider.
     variable_type : str, optional
         Variable type of slip rate PDF.
     unit : str, optional
@@ -213,25 +223,35 @@ def compute_slip_rates_analytical(
         markers, verbose=verbose
     )
 
-    # Trim the age and displacements based on order
-    if limit_positive:
-        # Forward-trim ages and displacements
-        forw_trimmed_ages = _forward_trim_pdfs_(
-            [marker.age for marker in markers.values()], verbose=verbose
-        )
+    # Pre-separate ages/displacements to be used as younger/older values in
+    # each incremental slip rate:
+    # rate = (older disp - younger disp) / (older age - younger age)
+    ages = [marker.age for marker in markers.values()]
+    displacements = [marker.displacement for marker in markers.values()]
 
-        forw_trimmed_displacements = _forward_trim_pdfs_(
-            [marker.displacement for marker in markers.values()]
-        )
+    if enforce_ordering:
+        # Trim the age and displacements based on order
+        if verbose:
+            print("Trimming age/displacement values based on marker order")
+
+        # Forward-trim ages and displacements
+        younger_ages = _forward_trim_pdfs_(ages)[:-1]
+        younger_displacements = _forward_trim_pdfs_(displacements)[:-1]
 
         # Backward-trim ages and displacements
-        back_trimmed_ages = _backward_trim_pdfs_(
-            [marker.age for marker in markers.values()], verbose=verbose
-        )
+        older_ages = _backward_trim_pdfs_(ages)[1:]
+        older_displacements = _backward_trim_pdfs_(displacements)[1:]
 
-        back_trimmed_displacements = _backward_trim_pdfs_(
-            [marker.displacement for marker in markers.values()]
-        )
+    else:
+        # No order enforcement
+        if verbose:
+            print("Treating marker pairs independently")
+
+        younger_ages = ages[:-1]
+        younger_displacements = displacements[:-1]
+
+        older_ages = ages[1:]
+        older_displacements = displacements[1:]
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(
@@ -254,22 +274,11 @@ def compute_slip_rates_analytical(
     ):
         unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
 
-    # Set mimimum slip rate
-    min_rate = 0.0 if limit_positive else None
-
     # Empty dictionary to store slip rates
     slip_rates = {}
 
     # Loop through marker pairs
     for i in range(n_rates):
-        # Formulate incremental slip rate name
-        younger_marker = markers[marker_names[i]]
-        older_marker = markers[marker_names[i + 1]]
-        rate_name = f"{older_marker.name}-{younger_marker.name}"
-
-        if verbose:
-            print(f"Computing slip rate for {rate_name}")
-
         # Younger marker
         younger_name = marker_names[i]
         younger_marker = markers[younger_name]
@@ -278,22 +287,23 @@ def compute_slip_rates_analytical(
         older_name = marker_names[i + 1]
         older_marker = markers[older_name]
 
+        # Slip rate marker pair
+        rate_name = f"{older_marker.name}-{younger_marker.name}"
+        if verbose:
+            print(f"Computing slip rate for {rate_name}")
+
         # Compute age difference - negative ages not supported
-        younger_age = forw_trimmed_ages[i]
-        older_age = back_trimmed_ages[i + 1]
         delta_t = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_age,
-            pdf2=younger_age,
+            pdf1=older_ages[i],
+            pdf2=younger_ages[i],
             limit_positive=True,
             verbose=verbose,
         )
 
         # Compute displacement difference
-        younger_displacement = forw_trimmed_displacements[i]
-        older_displacement = back_trimmed_displacements[i + 1]
         delta_u = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_displacement,
-            pdf2=younger_displacement,
+            pdf1=older_displacements[i],
+            pdf2=younger_displacements[i],
             limit_positive=limit_positive,
             verbose=verbose,
         )

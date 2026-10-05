@@ -53,17 +53,31 @@ def cmd_parser(iargs=None):
 
     rate_args = parser.add_argument_group("Slip rates")
     rate_args.add_argument(
+        "--enforce-ordering",
+        dest="enforce_ordering",
+        action="store_true",
+        help="Trim the marker ages and displacements on the condition that the "
+        "markers are provided in strict ordering",
+    )
+    rate_args.add_argument(
         "--limit-positive",
         dest="limit_positive",
         action="store_true",
         help="Enforce the condition that values are >= to 0.",
     )
     rate_args.add_argument(
+        "--min-rate",
+        dest="min_rate",
+        type=float,
+        default=0.0,
+        help="Minimum slip rate to consider. [0.0]",
+    )
+    rate_args.add_argument(
         "--max-rate",
         dest="max_rate",
         type=float,
-        default=100,
-        help="Maximum slip rate to consider. [100]",
+        default=100.0,
+        help="Maximum slip rate to consider. [100.0]",
     )
     rate_args.add_argument(
         "--dv",
@@ -195,6 +209,7 @@ def main() -> None:
     # Compute slip rates
     slip_rates = rate_computation.compute_slip_rates_analytical(
         markers=markers,
+        enforce_ordering=inps.enforce_ordering,
         limit_positive=inps.limit_positive,
         max_rate=inps.max_rate,
         dv=inps.dv,
