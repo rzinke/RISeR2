@@ -240,6 +240,7 @@ class TestComputeSlipRatesAnalytical:
             slip_rates.rate_computation.compute_slip_rates_analytical(
                 markers=markers,
                 enforce_ordering=True,
+                limit_positive=True,
             )
         )
 
@@ -247,35 +248,35 @@ class TestComputeSlipRatesAnalytical:
         for incr_rate in incr_rates_ordering.values():
             assert np.min(incr_rate.x) > 0
 
-    # def test_enforce_ordering_trims_markers(self):
-    #     """
-    #     Enforcing ordering should result in no negative slip rates, and
-    #     tighter distributions for overlapping inputs.
-    #     """
-    #     markers = _overlapping_markers_()
+    def test_enforce_ordering_trims_markers(self):
+        """
+        Enforcing ordering should result in no negative slip rates, and
+        tighter distributions for overlapping inputs.
+        """
+        markers = _overlapping_markers_()
 
-    #     # Ordering not enforced
-    #     incr_rates_wout = (
-    #         slip_rates.rate_computation.compute_slip_rates_analytical(
-    #             markers=markers
-    #         )
-    #     )
+        # Ordering not enforced
+        incr_rates_wout = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers
+            )
+        )
 
-    #     # Ordering enforced
-    #     incr_rates_ordering = (
-    #         slip_rates.rate_computation.compute_slip_rates_analytical(
-    #             markers=markers,
-    #             enforce_ordering=True,
-    #         )
-    #     )
+        # Ordering enforced
+        incr_rates_ordering = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+                enforce_ordering=True,
+            )
+        )
 
-    #     # Check order-enforced slip rates tighter
-    #     for rate_name in incr_rates_ordering.keys():
-    #         std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
-    #         std_ordering = PDFs.analytics.pdf_std(
-    #             incr_rates_ordering[rate_name]
-    #         )
-    #         assert std_wout > std_ordering
+        # Check order-enforced slip rates tighter
+        for rate_name in incr_rates_ordering.keys():
+            std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
+            std_ordering = PDFs.analytics.pdf_std(
+                incr_rates_ordering[rate_name]
+            )
+            assert std_wout > std_ordering
 
     def test_default_metadata_is_derived(self):
         """
