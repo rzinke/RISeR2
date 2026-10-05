@@ -9,6 +9,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ### Added
 - Introduced `variable_pairs.interpolation` module for interpolating variable
   pair PDFs (e.g., age, displacement) onto common axes.
+- Created test module for `variable_pairs.interpolation`.
 - `pyproject.toml` `[project.urls]`
 ### Changed
 - `compute_slip_rates_analytical` can now take the full stack of ages and
