@@ -111,10 +111,10 @@ def _forward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
     for i in range(1, len(pdfs)):
         # Trim adjacent PDFs
         _, trimmed_pdf, _ = var_fcns.condition.trimming.trim_variables(
-            pdf1=pdfs[i - 1],
-            pdf2=pdfs[i],
-            name1=pdfs[i - 1].name,
-            name2=pdfs[i].name,
+            pdf1=trimmed_pdfs[i - 1],
+            pdf2=trimmed_pdfs[i],
+            name1=trimmed_pdfs[i - 1].name,
+            name2=trimmed_pdfs[i].name,
         )
 
         # Overwrite list value
@@ -133,16 +133,17 @@ def _backward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
     for i in range(1, len(pdfs)):
         # Trim adjacent PDFs
         trimmed_pdf, _, _ = var_fcns.condition.trimming.trim_variables(
-            pdf1=pdfs[-i - 1],
-            pdf2=pdfs[-i],
-            name1=pdfs[-i - 1].name,
-            name2=pdfs[-i].name,
+            pdf1=trimmed_pdfs[-i - 1],
+            pdf2=trimmed_pdfs[-i],
+            name1=trimmed_pdfs[-i - 1].name,
+            name2=trimmed_pdfs[-i].name,
         )
 
         # Overwrite list value
         trimmed_pdfs[-i - 1] = trimmed_pdf
 
     return trimmed_pdfs
+
 
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
@@ -263,7 +264,9 @@ def compute_slip_rates_analytical(
     # Loop through marker pairs
     for i in range(n_rates):
         # Formulate incremental slip rate name
-        rate_name = f"{marker_names[i + 1]}-{marker_names[i]}"
+        younger_marker = markers[marker_names[i]]
+        older_marker = markers[marker_names[i + 1]]
+        rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         if verbose:
             print(f"Computing slip rate for {rate_name}")
