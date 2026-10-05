@@ -168,6 +168,18 @@ def _overlapping_markers_():
     }
 
 
+# Helpers
+def _max_cdf_gap_(pdf1, pdf2, n=5000):
+    """
+    Largest absolute difference between the CDFs of two PDFs, evaluated on a
+    common axis. Unlike comparing `px` arrays, this does not require the PDFs
+    to share a grid, and it is insensitive to histogram bin noise.
+    """
+    x = np.linspace(min(pdf1.x[0], pdf2.x[0]), max(pdf1.x[-1], pdf2.x[-1]), n)
+
+    return np.max(np.abs(pdf1.cdf_at_value(x) - pdf2.cdf_at_value(x)))
+
+
 # Tests
 class TestComputeSlipRate:
     def test_known_answer(self):
@@ -250,33 +262,31 @@ class TestComputeSlipRatesAnalytical:
 
     def test_enforce_ordering_trims_markers(self):
         """
-        Enforcing ordering should result in no negative slip rates, and
-        tighter distributions for overlapping inputs.
+        Enforcing ordering pushes each marker in the direction the ordering
+        dictates: forward trimming can only make a marker later/more displaced
+        and backward trimming only earlier/less displaced. The first marker
+        is unconstrained going forward, and the last going backward.
         """
-        markers = _overlapping_markers_()
+        markers = list(_overlapping_markers_().values())
 
-        # Ordering not enforced
-        incr_rates_wout = (
-            slip_rates.rate_computation.compute_slip_rates_analytical(
-                markers=markers
-            )
-        )
+        for variable in ("age", "displacement"):
+            pdfs = [getattr(marker, variable) for marker in markers]
+            means = [PDFs.analytics.pdf_mean(pdf) for pdf in pdfs]
 
-        # Ordering enforced
-        incr_rates_ordering = (
-            slip_rates.rate_computation.compute_slip_rates_analytical(
-                markers=markers,
-                enforce_ordering=True,
-            )
-        )
+            forward = slip_rates.rate_computation._forward_trim_pdfs_(pdfs)
+            backward = slip_rates.rate_computation._backward_trim_pdfs_(pdfs)
+            forward_means = [PDFs.analytics.pdf_mean(pdf) for pdf in forward]
+            backward_means = [PDFs.analytics.pdf_mean(pdf) for pdf in backward]
 
-        # Check order-enforced slip rates tighter
-        for rate_name in incr_rates_ordering.keys():
-            std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
-            std_ordering = PDFs.analytics.pdf_std(
-                incr_rates_ordering[rate_name]
-            )
-            assert std_wout > std_ordering
+            # Ends of the stack are unchanged by their own pass
+            assert forward_means[0] == pytest.approx(means[0])
+            assert backward_means[-1] == pytest.approx(means[-1])
+
+            # All other markers move in the direction of the ordering
+            for mean, forward_mean in zip(means[1:], forward_means[1:]):
+                assert forward_mean > mean
+            for mean, backward_mean in zip(means[:-1], backward_means[:-1]):
+                assert backward_mean < mean
 
     def test_default_metadata_is_derived(self):
         """
@@ -385,28 +395,51 @@ class TestComputeSlipRatesMc:
 
 class TestAnalyticalMonteCarlo:
     def test_analytical_trimmed_matches_monte_carlo(self):
-        markers = _two_markers_()
+        """
+        With ordering enforced, the analytical slip rates should match Monte
+        Carlo sampling that rejects samples violating the order of the whole
+        stack, and match it more closely than pairwise treatment does.
+        """
+        markers = _overlapping_markers_()
+        max_rate = 150.0
 
         mc_criterion = sampling.mc_sampling.get_sample_criterion(
             "PassNonnegativeBounded"
-        )(max_sample_rate=150.0)
+        )(max_sample_rate=max_rate)
         incr_rates_mc, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
             markers=markers,
             criterion=mc_criterion,
             n_samples=10_000,
         )
 
+        # The analytical maximum rate must match the Monte Carlo criterion
         incr_rates_ordering = (
             slip_rates.rate_computation.compute_slip_rates_analytical(
                 markers=markers,
                 enforce_ordering=True,
+                max_rate=max_rate,
+            )
+        )
+        incr_rates_pairwise = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+                max_rate=max_rate,
             )
         )
 
-        for rate_name in incr_rates_mc.keys():
-            np.testing.assert_allclose(
-                incr_rates_mc[rate_name].px, incr_rates_ordering[rate_name].px
+        for rate_name, rate_mc in incr_rates_mc.items():
+            gap_ordering = _max_cdf_gap_(
+                rate_mc, incr_rates_ordering[rate_name]
             )
+            gap_pairwise = _max_cdf_gap_(
+                rate_mc, incr_rates_pairwise[rate_name]
+            )
+
+            # Order-enforced analytical result agrees with sampling...
+            assert gap_ordering < 0.02
+
+            # ...and better than the pairwise result does
+            assert gap_ordering < gap_pairwise
 
 
 # end of file
