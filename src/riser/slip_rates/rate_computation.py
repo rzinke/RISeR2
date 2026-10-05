@@ -213,26 +213,25 @@ def compute_slip_rates_analytical(
         markers, verbose=verbose
     )
 
-    import matplotlib.pyplot as plt
-    from riser import plotting
+    # Trim the age and displacements based on order
+    if limit_positive:
+        # Forward-trim ages and displacements
+        forw_trimmed_ages = _forward_trim_pdfs_(
+            [marker.age for marker in markers.values()], verbose=verbose
+        )
 
-    # Forward-trim ages and displacements
-    forw_trimmed_ages = _forward_trim_pdfs_(
-        [marker.age for marker in markers.values()], verbose=verbose
-    )
+        forw_trimmed_displacements = _forward_trim_pdfs_(
+            [marker.displacement for marker in markers.values()]
+        )
 
-    forw_trimmed_displacements = _forward_trim_pdfs_(
-        [marker.displacement for marker in markers.values()]
-    )
+        # Backward-trim ages and displacements
+        back_trimmed_ages = _backward_trim_pdfs_(
+            [marker.age for marker in markers.values()], verbose=verbose
+        )
 
-    # Backward-trim ages and displacements
-    back_trimmed_ages = _backward_trim_pdfs_(
-        [marker.age for marker in markers.values()], verbose=verbose
-    )
-
-    back_trimmed_displacements = _backward_trim_pdfs_(
-        [marker.displacement for marker in markers.values()]
-    )
+        back_trimmed_displacements = _backward_trim_pdfs_(
+            [marker.displacement for marker in markers.values()]
+        )
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(
