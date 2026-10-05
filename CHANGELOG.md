@@ -9,9 +9,11 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ### Added
 - Introduced `variable_pairs.interpolation` module for interpolating variable
   pair PDFs (e.g., age, displacement) onto common axes.
+- `pyproject.toml` `[project.urls]`
 ### Changed
-- `compute_slip_rates_analytical` now takes the full stack of ages and
-  displacements into consideration when calculating incremental slip rates.
+- `compute_slip_rates_analytical` can now take the full stack of ages and
+  displacements into consideration when calculating incremental slip rates
+  when the `enforce_ordering` flag is passed.
 - `subtract_variables` can now enforce `limit_positive`.
 
 ## [1.6.1] - 2026-10-02

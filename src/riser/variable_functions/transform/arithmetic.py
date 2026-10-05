@@ -298,6 +298,8 @@ def subtract_variables(
         PDF from which to subtract pdf2.
     pdf2 : PDF
         PDF to subtract from pdf1.
+    limit_positive : bool, optional
+        Enforce condition that values must be positive.
     name : str, optional
         Name of differenced PDF.
     variable_type : str, optional
@@ -356,9 +358,13 @@ def subtract_variables(
     # Limit to positive values only
     if limit_positive:
         # Nullify values smaller than zero
-        diff_pdf, _ = condition.self_constraint.constrain_above(
+        diff_pdf, area = condition.self_constraint.constrain_above(
             pdf=diff_pdf, value=0.0, **metadata_dict, verbose=verbose
         )
+
+        # Report area retained
+        if inps.verbose:
+            print(f"Fraction of difference retained: {area:.3f}")
 
         # Crop to all-positive axis
         diff_pdf = PDFs.interpolation.interpolate_pdf(

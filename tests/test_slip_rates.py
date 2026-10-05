@@ -22,6 +22,9 @@ from riser import (
 
 # Markers
 def _two_markers_():
+    """
+    Create two widely spaced displacement-age markers.
+    """
     return {
         "young": variable_pairs.DatedMarker(
             age=PDFs.PDF(
@@ -57,6 +60,9 @@ def _two_markers_():
 
 
 def _three_markers_():
+    """
+    Create three widely spaced displacement-age markers.
+    """
     return {
         "young": variable_pairs.DatedMarker(
             age=PDFs.PDF(
@@ -98,6 +104,62 @@ def _three_markers_():
             displacement=PDFs.PDF(
                 x=np.array([29.0, 30.0, 31.0]),
                 px=np.array([0.0, 1.0, 0.0]),
+                variable_type="displacement",
+                unit="m",
+            ),
+            name="old",
+        ),
+    }
+
+
+def _overlapping_markers_():
+    """
+    Create three displacement-age markers that overlap in age and displacement.
+    """
+    ages = PDFs.value_arrays.precise_array(0.0, 20.0, 0.01)
+    displacements = PDFs.value_arrays.precise_array(0.0, 35.0, 0.01)
+
+    return {
+        "young": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=ages,
+                px=PDFs.parametric_functions.gaussian(ages, 10.0, 2.0),
+                variable_type="age",
+                unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=displacements,
+                px=PDFs.parametric_functions.gaussian(displacements, 15.0, 3.0),
+                variable_type="displacement",
+                unit="m",
+            ),
+            name="young",
+        ),
+        "middle": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=ages,
+                px=PDFs.parametric_functions.gaussian(ages, 12.0, 2.0),
+                variable_type="age",
+                unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=displacements,
+                px=PDFs.parametric_functions.gaussian(displacements, 20.0, 3.0),
+                variable_type="displacement",
+                unit="m",
+            ),
+            name="middle",
+        ),
+        "old": variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=ages,
+                px=PDFs.parametric_functions.gaussian(ages, 14.0, 2.0),
+                variable_type="age",
+                unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=displacements,
+                px=PDFs.parametric_functions.gaussian(displacements, 25.0, 3.0),
                 variable_type="displacement",
                 unit="m",
             ),
@@ -166,6 +228,54 @@ class TestComputeSlipRatesAnalytical:
         )
 
         assert len(incr_rates) == 2
+
+    def test_ordering_slip_rates_positive(self):
+        """
+        Enforcing ordering should result in no negative slip rates.
+        """
+        markers = _overlapping_markers_()
+
+        # Ordering enforced
+        incr_rates_ordering = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+                enforce_ordering=True,
+            )
+        )
+
+        # Check that all incremental slip rates have only positive values
+        for slip_rate in slip_rates.values():
+            assert np.min(slip_rate.x) > 0
+
+    def test_enforce_ordering_trims_markers(self):
+        """
+        Enforcing ordering should result in no negative slip rates, and
+        tighter distribtutions for overlapping inputs.
+        """
+        markers = _overlapping_markers_()
+
+        # Ordering not enforced
+        incr_rates_wout = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers
+            )
+        )
+
+        # Ordering enforced
+        incr_rates_ordering = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+                enforce_ordering=True,
+            )
+        )
+
+        # Check order-enforced slip rates tighter
+        for rate_name in incr_rates_ordering.keys():
+            std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
+            std_ordering = PDFs.analytics.pdf_std(
+                incr_rates_ordering[rate_name]
+            )
+            assert std_wout > std_ordering
 
     def test_default_metadata_is_derived(self):
         """

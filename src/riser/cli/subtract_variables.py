@@ -112,30 +112,16 @@ def main() -> None:
         [pdf1, pdf2], verbose=inps.verbose
     )
 
-    # Compute summed PDF
+    # Compute differenced PDF
     diff_pdf = var_fcns.transform.arithmetic.subtract_variables(
         pdf1=pdf1,
         pdf2=pdf2,
+        limit_positive=inps.limit_positive,
         name=inps.name,
         variable_type=inps.variable_type,
         unit=inps.unit,
         verbose=inps.verbose,
     )
-
-    # Limit to positive values only
-    if inps.limit_positive:
-        diff_pdf, area = var_fcns.condition.self_constraint.constrain_above(
-            pdf=diff_pdf,
-            value=0.0,
-            name=inps.name,
-            variable_type=inps.variable_type,
-            unit=inps.unit,
-            verbose=inps.verbose,
-        )
-
-        # Report area retained
-        if inps.verbose:
-            print(f"Fraction of difference retained: {area:.3f}")
 
     # Save to file
     PDFs.readers.save_pdf(inps.outname, diff_pdf, verbose=inps.verbose)

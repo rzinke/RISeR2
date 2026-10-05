@@ -169,6 +169,15 @@ def compute_slip_rates_analytical(
     Then, compute the slip rate over each increment by dividing the `delta_u`
     by the corresponding `delta_t`.
 
+    Sample ordering will be enforced through Bayesian conditioning when the
+    `enforce_ordering` flag is passed. This trims the marker ages and
+    displacements on the condition that the markers are provided in strict
+    ordering (the first marker is younger/less displaceed than the second,
+    etc.). Otherwise, each pair of adjacent markers will be treated
+    independently.
+    If ordering is enforced, displacements are limited to positive
+    differences even if `limit_positive` is set to False.
+
     Note: Per the divide_variables operator, denominator (age) values cannot
     be negative, or zero. The "limit positive" condition is always applied to
     time values.
@@ -179,18 +188,16 @@ def compute_slip_rates_analytical(
         Dated markers bounding each interval.
     enforce_ordering : bool, optional
         Trim the marker ages and displacements on the condition that the
-        markers are provided in strict ordering
-        (first marker is younger/less displaced than second, etc.).
-        Otherwise, each pair of adjacent markers will be treated independently.
-        If ordering is enforced, displacements are limited to positive
-        differences even if `limit_positive` is set to zero.
+        markers are provided in strict ordering.
     limit_positive : bool, optional
         Enforce condition that displacement difference values must be positive.
         Time differences are always positive.
     dv : float, optional
         Rate step.
-    max_rate : float
-        Maximum quotient value to consider.
+    min_rate : float, optional
+        Minimum slip rate value to consider.
+    max_rate : float, optional
+        Maximum slip rate value to consider.
     variable_type : str, optional
         Variable type of slip rate PDF.
     unit : str, optional
@@ -235,11 +242,11 @@ def compute_slip_rates_analytical(
             print("Trimming age/displacement values based on marker order")
 
         # Forward-trim ages and displacements
-        younger_ages = _forward_trim_pdfs_(ages)[:-1]
+        younger_ages = _forward_trim_pdfs_(ages, verbose=verbose)[:-1]
         younger_displacements = _forward_trim_pdfs_(displacements)[:-1]
 
         # Backward-trim ages and displacements
-        older_ages = _backward_trim_pdfs_(ages)[1:]
+        older_ages = _backward_trim_pdfs_(ages, verbose=verbose)[1:]
         older_displacements = _backward_trim_pdfs_(displacements)[1:]
 
     else:
