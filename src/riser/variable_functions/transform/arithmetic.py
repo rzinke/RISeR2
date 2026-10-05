@@ -34,6 +34,7 @@ from ... import (
     precision,
     probability_functions as PDFs,
 )
+from .. import condition
 
 
 #################### GENERIC FUNCTIONS ####################
@@ -258,6 +259,8 @@ def subtract_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # Conditioning
+    limit_positive: bool = False,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -349,6 +352,18 @@ def subtract_variables(
 
     # Form results into PDF
     diff_pdf = PDFs.PDF(x=z, px=pz, **metadata_dict)
+
+    # Limit to positive values only
+    if limit_positive:
+        # Nullify values smaller than zero
+        diff_pdf, area = condition.self_constraint.constrain_above(
+            pdf=diff_pdf, value=0.0, **metadata_dict, verbose=verbose
+        )
+
+        # Crop to all-positive axis
+        diff_pdf = PDFs.interpolation.interpolate_pdf(
+            pdf=diff_pdf, x=diff_pdf.x[diff_pdf.x > 0]
+        )
 
     return diff_pdf
 

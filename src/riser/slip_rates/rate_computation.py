@@ -23,6 +23,8 @@ __all__ = [
 
 
 # Import modules
+import copy
+
 import numpy as np
 
 from .. import (
@@ -33,7 +35,7 @@ from .. import (
 from ..sampling import filtering, mc_sampling, pdf_formation
 
 
-#################### ANALYTIC COMPUTATION ####################
+#################### SINGLE SLIP RATE ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
     *,
@@ -97,6 +99,51 @@ def compute_slip_rate(
     return slip_rate
 
 
+#################### MULTI SLIP RATE ANALYTIC COMPUTATION ####################
+def _forward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
+    if verbose:
+        print("Forward-trimming PDFs")
+
+    # Copy list of PDFs to avoid overwriting
+    trimmed_pdfs = copy.deepcopy(pdfs)
+
+    # Loop through PDFs
+    for i in range(1, len(pdfs)):
+        # Trim adjacent PDFs
+        _, trimmed_pdf, _ = var_fcns.condition.trimming.trim_variables(
+            pdf1=pdfs[i - 1],
+            pdf2=pdfs[i],
+            name1=pdfs[i - 1].name,
+            name2=pdfs[i].name,
+        )
+
+        # Overwrite list value
+        trimmed_pdfs[i] = trimmed_pdf
+
+    return trimmed_pdfs
+
+def _backward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
+    if verbose:
+        print("Backward-trimming PDFs")
+
+    # Copy list of PDFs to avoid overwriting
+    trimmed_pdfs = copy.deepcopy(pdfs)
+
+    # Loop through PDFs
+    for i in range(1, len(pdfs)):
+        # Trim adjacent PDFs
+        trimmed_pdf, _, _ = var_fcns.condition.trimming.trim_variables(
+            pdf1=pdfs[-i - 1],
+            pdf2=pdfs[-i],
+            name1=pdfs[-i - 1].name,
+            name2=pdfs[-i].name,
+        )
+
+        # Overwrite list value
+        trimmed_pdfs[-i - 1] = trimmed_pdf
+
+    return trimmed_pdfs
+
 def compute_slip_rates_analytical(
     markers: dict[str, variable_pairs.DatedMarker],
     *,
@@ -147,18 +194,65 @@ def compute_slip_rates_analytical(
     n_markers = len(markers)
     marker_names = [*markers.keys()]
 
-    # Number of slip rates
-    n_rates = n_markers - 1
-
     # Check that multiple markers are specified
     if n_markers < 2:
         raise ValueError(
-            "Multiple markers must be specified for incremental slip rate "
-            "computation"
+            f"Multiple markers must be specified for incremental slip rate "
+            f"computation, got {n_markers}"
         )
+
+    # Number of slip rates
+    n_rates = n_markers - 1
 
     if verbose:
         print(f"Computing {n_rates} incremental slip rates")
+
+    # Interpolate ages and displacements on same domains
+    markers = variable_pairs.interpolation.interpolate_variable_pairs(
+        markers, verbose=verbose
+    )
+
+    import matplotlib.pyplot as plt
+    from riser import plotting
+
+    # Forward-trim ages and displacements
+    forw_trimmed_ages = _forward_trim_pdfs_(
+        [marker.age for marker in markers.values()], verbose=verbose
+    )
+    # for i, marker in enumerate(markers.values()):
+    #     fig, ax = plt.subplots()
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.age, color="grey", alpha=0.1)
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=forw_trimmed_ages[i])
+    # plt.show()
+
+    forw_trimmed_displacements = _forward_trim_pdfs_(
+        [marker.displacement for marker in markers.values()]
+    )
+    # for i, marker in enumerate(markers.values()):
+    #     fig, ax = plt.subplots()
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.displacement, color="grey", alpha=0.1)
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=forw_trimmed_displacements[i])
+    # plt.show()
+
+    # Backward-trim ages and displacements
+    back_trimmed_ages = _backward_trim_pdfs_(
+        [marker.age for marker in markers.values()], verbose=verbose
+    )
+    # for i, marker in enumerate(markers.values()):
+    #     fig, ax = plt.subplots()
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.age, color="grey", alpha=0.1)
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=back_trimmed_ages[i])
+    # plt.show()
+
+    back_trimmed_displacements = _backward_trim_pdfs_(
+        [marker.displacement for marker in markers.values()]
+    )
+    # for i, marker in enumerate(markers.values()):
+    #     fig, ax = plt.subplots()
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.displacement, color="grey", alpha=0.1)
+    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=back_trimmed_displacements[i])
+    # plt.show()
+    # exit()
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(
@@ -181,68 +275,6 @@ def compute_slip_rates_analytical(
     ):
         unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
 
-    # Interpolate ages on same domain
-    interp_ages = PDFs.interpolation.interpolate_pdfs(
-        [markers[marker_name].age for marker_name in marker_names]
-    )
-
-    for i in range(n_markers):
-        markers[marker_names[i]].age = interp_ages[i]
-
-    # Interpolate displacements on same domain
-    interp_displacements = PDFs.interpolation.interpolate_pdfs(
-        [markers[marker_name].displacement for marker_name in marker_names]
-    )
-
-    for i in range(n_markers):
-        markers[marker_names[i]].displacement = interp_displacements[i]
-
-    # Trim first two ages
-    (markers[marker_names[0]].age, markers[marker_names[1]].age, _) = (
-        var_fcns.condition.trimming.trim_variables(
-            pdf1=markers[marker_names[0]].age,
-            pdf2=markers[marker_names[1]].age,
-            name1=markers[marker_names[0]].age.name,
-            name2=markers[marker_names[1]].age.name,
-            verbose=verbose,
-        )
-    )
-
-    # Sequentially trim ages from yougest to oldest
-    for i in range(1, n_rates):
-        (markers[marker_names[i]].age, markers[marker_names[i + 1]].age, _ ) = (
-            var_fcns.condition.trimming.trim_variables(
-                pdf1=markers[marker_names[i]].age,
-                pdf2=markers[marker_names[i + 1]].age,
-                name1=markers[marker_names[i]].age.name,
-                name2=markers[marker_names[i + 1]].age.name,
-                verbose=verbose,
-            )
-        )
-
-    # Trim first two displacements
-    (markers[marker_names[0]].displacement, markers[marker_names[1]].displacement, _) = (
-        var_fcns.condition.trimming.trim_variables(
-            pdf1=markers[marker_names[0]].displacement,
-            pdf2=markers[marker_names[1]].displacement,
-            name1=markers[marker_names[0]].displacement.name,
-            name2=markers[marker_names[1]].displacement.name,
-            verbose=verbose,
-        )
-    )
-
-    # Sequentially trim displacements from yougest to oldest
-    for i in range(1, n_rates):
-        (markers[marker_names[i]].displacement, markers[marker_names[i + 1]].displacement, _ ) = (
-            var_fcns.condition.trimming.trim_variables(
-                pdf1=markers[marker_names[i]].displacement,
-                pdf2=markers[marker_names[i + 1]].displacement,
-                name1=markers[marker_names[i]].displacement.name,
-                name2=markers[marker_names[i + 1]].displacement.name,
-                verbose=verbose,
-            )
-        )
-
     # Set mimimum slip rate
     min_rate = 0.0 if limit_positive else None
 
@@ -251,6 +283,12 @@ def compute_slip_rates_analytical(
 
     # Loop through marker pairs
     for i in range(n_rates):
+        # Formulate incremental slip rate name
+        rate_name = f"{marker_names[i + 1]}-{marker_names[i]}"
+
+        if verbose:
+            print(f"Computing slip rate for {rate_name}")
+
         # Younger marker
         younger_name = marker_names[i]
         younger_marker = markers[younger_name]
@@ -259,68 +297,25 @@ def compute_slip_rates_analytical(
         older_name = marker_names[i + 1]
         older_marker = markers[older_name]
 
-        # Interpolate ages on same axis
-        (younger_age, older_age) = PDFs.interpolation.interpolate_pdfs(
-            [younger_marker.age, older_marker.age]
-        )
-
         # Compute age difference - negative ages not supported
+        younger_age = forw_trimmed_ages[i]
+        older_age = back_trimmed_ages[i + 1]
         delta_t = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_age, pdf2=younger_age, verbose=verbose
-        )
-
-        # Always enforce condition that all values > 0
-        (delta_t, area_t) = var_fcns.condition.self_constraint.constrain_above(
-            pdf=delta_t, value=0.0, name=delta_t.name, verbose=verbose
-        )
-
-        # Report trimming result
-        if verbose:
-            print(
-                f"{(1.0 - area_t) * 100:.1f} % of original time "
-                f"difference trimmed for {delta_t.name}"
-            )
-
-        # Crop to all-positive axis
-        delta_t = PDFs.interpolation.interpolate_pdf(
-            pdf=delta_t, x=delta_t.x[delta_t.x > 0]
-        )
-
-        # Interpolate displacements on same axis
-        (younger_displacement, older_displacement) = (
-            PDFs.interpolation.interpolate_pdfs(
-                [younger_marker.displacement, older_marker.displacement]
-            )
+            pdf1=older_age,
+            pdf2=younger_age,
+            limit_positive=True,
+            verbose=verbose,
         )
 
         # Compute displacement difference
+        younger_displacement = forw_trimmed_displacements[i]
+        older_displacement = back_trimmed_displacements[i + 1]
         delta_u = var_fcns.transform.arithmetic.subtract_variables(
-            pdf1=older_displacement, pdf2=younger_displacement, verbose=verbose
+            pdf1=older_displacement,
+            pdf2=younger_displacement,
+            limit_positive=limit_positive,
+            verbose=verbose,
         )
-
-        # Limit displacement difference to positive-only values
-        if limit_positive:
-            # Enforce condition that all values > 0
-            (delta_u, area_u) = (
-                var_fcns.condition.self_constraint.constrain_above(
-                    pdf=delta_u, value=0.0, name=delta_u.name, verbose=verbose
-                )
-            )
-
-            # Report trimming result
-            if verbose:
-                print(
-                    f"{(1.0 - area_u) * 100:.1f} % of original displacement "
-                    f"difference trimmed for {delta_u.name}"
-                )
-
-            # Crop to all-positive axis
-            delta_u = PDFs.interpolation.interpolate_pdf(
-                pdf=delta_u, x=delta_u.x[delta_u.x > 0]
-            )
-
-        # Formulate incremental slip rate name
-        rate_name = f"{older_marker.name}-{younger_marker.name}"
 
         # Divide displacement by age
         slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
@@ -348,7 +343,7 @@ def compute_slip_rates_analytical(
     return slip_rates
 
 
-#################### MONTE CARLO COMPUTATION ####################
+#################### MULTI RATE MONTE CARLO COMPUTATION ####################
 def compute_slip_rates_mc(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: mc_sampling.SampleCriterion,
