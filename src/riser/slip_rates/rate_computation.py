@@ -219,40 +219,19 @@ def compute_slip_rates_analytical(
     forw_trimmed_ages = _forward_trim_pdfs_(
         [marker.age for marker in markers.values()], verbose=verbose
     )
-    # for i, marker in enumerate(markers.values()):
-    #     fig, ax = plt.subplots()
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.age, color="grey", alpha=0.1)
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=forw_trimmed_ages[i])
-    # plt.show()
 
     forw_trimmed_displacements = _forward_trim_pdfs_(
         [marker.displacement for marker in markers.values()]
     )
-    # for i, marker in enumerate(markers.values()):
-    #     fig, ax = plt.subplots()
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.displacement, color="grey", alpha=0.1)
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=forw_trimmed_displacements[i])
-    # plt.show()
 
     # Backward-trim ages and displacements
     back_trimmed_ages = _backward_trim_pdfs_(
         [marker.age for marker in markers.values()], verbose=verbose
     )
-    # for i, marker in enumerate(markers.values()):
-    #     fig, ax = plt.subplots()
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.age, color="grey", alpha=0.1)
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=back_trimmed_ages[i])
-    # plt.show()
 
     back_trimmed_displacements = _backward_trim_pdfs_(
         [marker.displacement for marker in markers.values()]
     )
-    # for i, marker in enumerate(markers.values()):
-    #     fig, ax = plt.subplots()
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=marker.displacement, color="grey", alpha=0.1)
-    #     plotting.pdf_plots.plot_pdf_labeled(ax=ax, pdf=back_trimmed_displacements[i])
-    # plt.show()
-    # exit()
 
     # Warn of metadata mismatches for ages
     age_metadata = PDFs.metadata.get_common_metadata(

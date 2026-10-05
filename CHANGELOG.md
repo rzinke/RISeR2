@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- Introduced `variable_pairs.interpolation` module for interpolating variable
+  pair PDFs (e.g., age, displacement) onto common axes.
+### Changed
+- `compute_slip_rates_analytical` now takes the full stack of ages and
+  displacements into consideration when calculating incremental slip rates.
+- `subtract_variables` can now enforce `limit_positive`.
 
 ## [1.6.1] - 2026-10-02
 ### Added
