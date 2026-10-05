@@ -356,7 +356,7 @@ def subtract_variables(
     # Limit to positive values only
     if limit_positive:
         # Nullify values smaller than zero
-        diff_pdf, area = condition.self_constraint.constrain_above(
+        diff_pdf, _ = condition.self_constraint.constrain_above(
             pdf=diff_pdf, value=0.0, **metadata_dict, verbose=verbose
         )
 
