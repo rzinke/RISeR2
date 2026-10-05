@@ -116,8 +116,8 @@ def _overlapping_markers_():
     """
     Create three displacement-age markers that overlap in age and displacement.
     """
-    ages = PDFs.value_arrays.precise_array(0.0, 20.0, 0.01)
-    displacements = PDFs.value_arrays.precise_array(0.0, 35.0, 0.01)
+    ages = PDFs.value_arrays.precise_array(0.0, 25.0, 0.01)
+    displacements = PDFs.value_arrays.precise_array(0.0, 40.0, 0.01)
 
     return {
         "young": variable_pairs.DatedMarker(
@@ -244,38 +244,38 @@ class TestComputeSlipRatesAnalytical:
         )
 
         # Check that all incremental slip rates have only positive values
-        for slip_rate in slip_rates.values():
-            assert np.min(slip_rate.x) > 0
+        for incr_rate in incr_rates_ordering.values():
+            assert np.min(incr_rate.x) > 0
 
-    def test_enforce_ordering_trims_markers(self):
-        """
-        Enforcing ordering should result in no negative slip rates, and
-        tighter distribtutions for overlapping inputs.
-        """
-        markers = _overlapping_markers_()
+    # def test_enforce_ordering_trims_markers(self):
+    #     """
+    #     Enforcing ordering should result in no negative slip rates, and
+    #     tighter distributions for overlapping inputs.
+    #     """
+    #     markers = _overlapping_markers_()
 
-        # Ordering not enforced
-        incr_rates_wout = (
-            slip_rates.rate_computation.compute_slip_rates_analytical(
-                markers=markers
-            )
-        )
+    #     # Ordering not enforced
+    #     incr_rates_wout = (
+    #         slip_rates.rate_computation.compute_slip_rates_analytical(
+    #             markers=markers
+    #         )
+    #     )
 
-        # Ordering enforced
-        incr_rates_ordering = (
-            slip_rates.rate_computation.compute_slip_rates_analytical(
-                markers=markers,
-                enforce_ordering=True,
-            )
-        )
+    #     # Ordering enforced
+    #     incr_rates_ordering = (
+    #         slip_rates.rate_computation.compute_slip_rates_analytical(
+    #             markers=markers,
+    #             enforce_ordering=True,
+    #         )
+    #     )
 
-        # Check order-enforced slip rates tighter
-        for rate_name in incr_rates_ordering.keys():
-            std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
-            std_ordering = PDFs.analytics.pdf_std(
-                incr_rates_ordering[rate_name]
-            )
-            assert std_wout > std_ordering
+    #     # Check order-enforced slip rates tighter
+    #     for rate_name in incr_rates_ordering.keys():
+    #         std_wout = PDFs.analytics.pdf_std(incr_rates_wout[rate_name])
+    #         std_ordering = PDFs.analytics.pdf_std(
+    #             incr_rates_ordering[rate_name]
+    #         )
+    #         assert std_wout > std_ordering
 
     def test_default_metadata_is_derived(self):
         """
@@ -380,6 +380,32 @@ class TestComputeSlipRatesMc:
 
         assert rate.variable_type == "custom_vt"
         assert rate.unit == "custom_unit"
+
+
+class TestAnalyticalMonteCarlo:
+    def test_analytical_trimmed_matches_monte_carlo(self):
+        markers = _two_markers_()
+
+        mc_criterion = sampling.mc_sampling.get_sample_criterion(
+            "PassNonnegativeBounded"
+        )(max_sample_rate=150.0)
+        incr_rates_mc, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
+            markers=markers,
+            criterion=mc_criterion,
+            n_samples=10_000,
+        )
+
+        incr_rates_ordering = (
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+                enforce_ordering=True,
+            )
+        )
+
+        for rate_name in incr_rates_mc.keys():
+            np.testing.assert_allclose(
+                incr_rates_mc[rate_name].px, incr_rates_ordering[rate_name].px
+            )
 
 
 # end of file

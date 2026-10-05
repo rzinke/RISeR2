@@ -363,7 +363,7 @@ def subtract_variables(
         )
 
         # Report area retained
-        if inps.verbose:
+        if verbose:
             print(f"Fraction of difference retained: {area:.3f}")
 
         # Crop to all-positive axis
