@@ -18,7 +18,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   displacements into consideration when calculating incremental slip rates
   when the `enforce_ordering` flag is passed.
 - **Breaking:** `subtract_variables` can now enforce `limit_positive`.
-  Output axis is now cropped to positive values.
+  Output axis is now cropped to positive values. Enforced by tests.
 - Slip rate functions now take `None` sentinel for `max_rate`,
   and determines maximum slip rate to consider based on the
   `find_slip_rate_tail_cap` function. Tests integrated.
