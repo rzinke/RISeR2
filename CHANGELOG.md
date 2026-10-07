@@ -20,7 +20,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `subtract_variables` can now enforce `limit_positive`.
 - Slip rate functions now take `None` sentinel for `max_rate`,
   and determines maximum slip rate to consider based on the
-  `find_slip_rate_tail_cap` function.
+  `find_slip_rate_tail_cap` function. Tests integrated.
 - `constrain_above/below` can now crop the output PDF to the constrained range.
 - Added tests for `constrain_above/below`.
 - **Breaking**: changed `compute_slip_rates_mc` input parameters:
