@@ -506,7 +506,7 @@ def divide_variables(
     # Quotient distribution
     min_quotient: float | None = None,
     max_quotient: float | None = None,
-    dz: float | None = 0.01,
+    dz: float | None = None,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -624,6 +624,16 @@ def divide_variables(
     # Quotient range
     quotient_range = quot_max - quot_min
 
+    # Ensure that a non-empty range of quotient values remains
+    if quotient_range <= 0.0:
+        raise ValueError(
+            f"No quotient values remain: "
+            f"the allowed range is empty ({quot_min:.3f} to {quot_max:.3f}). "
+            f"Check `min_quotient` ({min_quotient}) and "
+            f"`max_quotient` ({max_quotient}) against the natural range "
+            f"of the quotient."
+        )
+
     # Quotient array spacing
     if dz is None:
         # Auto-generate quotient array spacing
@@ -633,11 +643,11 @@ def divide_variables(
         if quotient_range / dz < 3:
             raise ValueError(
                 f"Output array spacing `dz` ({dz}) is too coarse for a "
-                f"quotient range of {quotient_range:.3g}: "
+                f"quotient range of {quotient_range:.3f}. "
                 f"it will only produce {quotient_range / dz} points. "
-                f"Try setting `dz` to something smaller (e.g., "
-                f"{quotient_range / 100:.3g}) or None to auto-generate `dz` "
-                f"for 1,000 points."
+                f"Try setting `dz` to something smaller "
+                f"(e.g., {quotient_range / 100:.3f}) or None "
+                f"to auto-generate `dz` for 1,000 points."
             )
 
     # Create quotient value array

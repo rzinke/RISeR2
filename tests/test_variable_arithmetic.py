@@ -404,5 +404,69 @@ class TestDivideVariables:
             disp_pdf, age_pdf, dz=None
         )
 
+    @pytest.mark.parametrize(
+        "limits",
+        [
+            pytest.param({"min_quotient": 1.0}, id="min above natural max"),
+            pytest.param({"max_quotient": 1e-5}, id="max below natural min"),
+            pytest.param(
+                {"min_quotient": 1e-3, "max_quotient": 1e-3},
+                id="min equals max",
+            ),
+            pytest.param(
+                {"min_quotient": 2e-3, "max_quotient": 1e-3}, id="min above max"
+            ),
+        ],
+    )
+    def test_empty_quotient_range_raises(self, limits):
+        """User-specified limits can only narrow the natural quotient range.
+        If they leave no values (zero or negative range), raise a clear error
+        rather than failing deep inside the array construction.
+        """
+        # Age in yBP
+        age_axis = PDFs.value_arrays.precise_array(15_000, 25_000, 10)
+        age_density = PDFs.parametric_functions.gaussian(
+            age_axis, mu=20_000, sigma=1_000
+        )
+        age_pdf = PDFs.PDF(age_axis, age_density)
+
+        # Displacement in meters
+        disp_axis = PDFs.value_arrays.precise_array(15.0, 25.0, 0.01)
+        disp_density = PDFs.parametric_functions.triangular(
+            disp_axis, a=15.0, c=20.0, b=25.0
+        )
+        disp_pdf = PDFs.PDF(disp_axis, disp_density)
+
+        with pytest.raises(ValueError, match="No quotient values remain"):
+            var_fcns.transform.arithmetic.divide_variables(
+                disp_pdf, age_pdf, dz=None, **limits
+            )
+
+    def test_empty_range_with_denominator_straddling_zero_raises(self):
+        """When the denominator range includes zero the user must provide the
+        limits. Equal limits leave an empty range and should raise too.
+        """
+        # Denominator spans zero
+        denom_axis = PDFs.value_arrays.precise_array(-1.0, 1.0, 0.01)
+        denom_density = PDFs.parametric_functions.gaussian(
+            denom_axis, mu=0.0, sigma=0.2
+        )
+        denom_pdf = PDFs.PDF(denom_axis, denom_density)
+
+        numer_axis = PDFs.value_arrays.precise_array(1.0, 3.0, 0.01)
+        numer_density = PDFs.parametric_functions.gaussian(
+            numer_axis, mu=2.0, sigma=0.2
+        )
+        numer_pdf = PDFs.PDF(numer_axis, numer_density)
+
+        with pytest.raises(ValueError, match="No quotient values remain"):
+            var_fcns.transform.arithmetic.divide_variables(
+                numer_pdf,
+                denom_pdf,
+                min_quotient=5.0,
+                max_quotient=5.0,
+                dz=None,
+            )
+
 
 # end of file
