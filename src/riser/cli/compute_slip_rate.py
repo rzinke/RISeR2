@@ -84,7 +84,7 @@ def cmd_parser(iargs=None):
         dest="max_rate",
         type=float,
         default=None,
-        help="Maximum slip rate to consider. [100.0]",
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
@@ -291,9 +291,10 @@ def main() -> None:
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
-        dv=inps.dv,
         limit_positive=inps.limit_positive,
+        min_rate=inps.min_rate,
         max_rate=inps.max_rate,
+        dv=inps.dv,
         name=name,
         variable_type=variable_type,
         unit=unit,

@@ -76,8 +76,8 @@ def cmd_parser(iargs=None):
         "--max-rate",
         dest="max_rate",
         type=float,
-        default=100.0,
-        help="Maximum slip rate to consider. [100.0]",
+        default=None,
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
@@ -211,6 +211,7 @@ def main() -> None:
         markers=markers,
         enforce_ordering=inps.enforce_ordering,
         limit_positive=inps.limit_positive,
+        min_rate=inps.min_rate,
         max_rate=inps.max_rate,
         dv=inps.dv,
         verbose=inps.verbose,

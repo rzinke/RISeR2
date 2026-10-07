@@ -85,7 +85,9 @@ def constrain_above(
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x > value],
-            **metadata_dict,
+            name=pdf.name,
+            variable_type=pdf.variable_type,
+            unit=pdf.unit,
         )
 
     return constrained_pdf, area
@@ -156,7 +158,9 @@ def constrain_below(
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x < value],
-            **metadata_dict,
+            name=pdf.name,
+            variable_type=pdf.variable_type,
+            unit=pdf.unit,
         )
 
     return constrained_pdf, area

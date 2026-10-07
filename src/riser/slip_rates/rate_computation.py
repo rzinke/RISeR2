@@ -183,6 +183,8 @@ def compute_slip_rate(
         Minimum slip rate value to consider.
     max_rate : float, optional
         Maximum slip rate value to consider.
+        If None, the maximum slip rate will be determined automatically
+        based on the thickness of the slip rate tail.
     name : str, optional
         Name of slip rate PDF.
     variable_type : str, optional
@@ -202,21 +204,44 @@ def compute_slip_rate(
     name = name if name is not None else marker.name
     variable_type = variable_type if variable_type is not None else "slip rate"
 
-    # Limit to positive age values
-    age, age_area = condition.self_constraint.constrain_above(
-        pdf=diff_pdf,
+    # Limit to positive age values regardless of `limit_positive` flag
+    marker.age, age_area = var_fcns.condition.self_constraint.constrain_above(
+        pdf=marker.age,
         value=0.0,
         crop=True,
-        **metadata_dict,
+        name=marker.age.name,
+        variable_type=marker.age.variable_type,
+        unit=marker.age.unit,
         verbose=verbose,
     )
 
-    # Report area retained
+    # Report area of age PDF retained
     if verbose and age_area < 1.0:
         print(
             f"Limiting to positive ages only. "
-            f"Fraction of age retained: {area:.3f}"
+            f"Fraction of age retained: {age_area:.3f}"
         )
+
+    # Limit to positive displacement values
+    if limit_positive:
+        marker.displacement, displacement_area = (
+            var_fcns.condition.self_constraint.constrain_above(
+                pdf=marker.displacement,
+                value=0.0,
+                crop=True,
+                name=marker.displacement.name,
+                variable_type=marker.displacement.variable_type,
+                unit=marker.displacement.unit,
+                verbose=verbose,
+            )
+        )
+
+        # Report area of age PDF retained
+        if verbose and displacement_area < 1.0:
+            print(
+                f"Limiting to positive displacements only. "
+                f"Fraction of displacement retained: {displacement_area:.3f}"
+            )
 
     # Determine maximum slip rate to consider
     if max_rate is None:
@@ -237,10 +262,6 @@ def compute_slip_rate(
         variable_type=variable_type,
         unit=unit,
     )
-
-    # Set maximum slip rate
-    if max_rate is None:
-        slip_rate = find_tail_mass_cap(slip_rate, verbose=verbose)
 
     return slip_rate
 
@@ -344,6 +365,8 @@ def compute_slip_rates_analytical(
         Minimum slip rate value to consider.
     max_rate : float, optional
         Maximum slip rate value to consider.
+        If None, the maximum slip rate will be determined automatically
+        based on the thickness of the slip rate tail.
     variable_type : str, optional
         Variable type of slip rate PDF.
     unit : str, optional
@@ -461,13 +484,23 @@ def compute_slip_rates_analytical(
             verbose=verbose,
         )
 
+        # Determine maximum slip rate to consider
+        if max_rate is None:
+            max_incr_rate = find_slip_rate_tail_cap(
+                displacement=delta_u,
+                age=delta_t,
+                verbose=verbose,
+            )
+        else:
+            max_incr_rate = max_rate
+
         # Divide displacement by age
         slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
             pdf1=delta_u,
             pdf2=delta_t,
             dz=dv,
             min_quotient=min_rate,
-            max_quotient=max_rate,
+            max_quotient=max_incr_rate,
             name=rate_name,
             variable_type=variable_type,
             unit=unit,
