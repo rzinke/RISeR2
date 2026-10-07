@@ -94,7 +94,7 @@ def trim_variables(
     metadata_dict1 = copy.copy(metadata_dict)
     metadata_dict2 = copy.copy(metadata_dict)
 
-    # Formulate trimmed PDF names
+    # Apply user-specified metadata values
     metadata_dict1["name"] = name1 if name1 is not None else pdf1.name
     metadata_dict2["name"] = name2 if name2 is not None else pdf2.name
 

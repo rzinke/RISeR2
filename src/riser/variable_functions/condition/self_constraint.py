@@ -64,7 +64,7 @@ def constrain_above(
     # Retrieve metadata from PDF
     metadata_dict = pdf.metadata.as_dict()
 
-    # Formulate default output name
+    # Apply user-specified metadata values
     if name is not None:
         metadata_dict["name"] = name
 
@@ -135,7 +135,7 @@ def constrain_below(
     # Retrieve metadata from PDF
     metadata_dict = pdf.metadata.as_dict()
 
-    # Formulate default output name
+    # Apply user-specified metadata values
     if name is not None:
         metadata_dict["name"] = name
 
