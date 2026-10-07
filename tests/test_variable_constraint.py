@@ -35,7 +35,9 @@ class TestConstrainAbove:
         value = 0.5
 
         pdf_constr, _ = var_fcns.condition.self_constraint.constrain_above(
-            pdf, value, crop=True,
+            pdf,
+            value,
+            crop=True,
         )
 
         assert pdf_constr.x.min() == pytest.approx(value + dx)
@@ -49,7 +51,9 @@ class TestConstrainAbove:
         value = 0.5
 
         pdf_constr, _ = var_fcns.condition.self_constraint.constrain_below(
-            pdf, value, crop=True,
+            pdf,
+            value,
+            crop=True,
         )
 
         assert pdf_constr.x.max() == pytest.approx(value - dx)

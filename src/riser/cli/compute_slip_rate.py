@@ -77,7 +77,7 @@ def cmd_parser(iargs=None):
         "--min-rate",
         type=float,
         default=0.0,
-        help="Minimum slip rate to consider. [0.0]"
+        help="Minimum slip rate to consider. [0.0]",
     )
     rate_args.add_argument(
         "--max-rate",

@@ -261,11 +261,7 @@ def compute_slip_rate(
     # Determine slip rate PDF metadata
     name = name if name is not None else marker.name
     variable_type = variable_type if variable_type is not None else "slip rate"
-    if (
-        unit is None
-        and age.unit is not None
-        and displacement.unit is not None
-    ):
+    if unit is None and age.unit is not None and displacement.unit is not None:
         unit = f"{displacement.unit}/{age.unit}"
 
     # Divide displacement by age
@@ -353,7 +349,7 @@ def compute_slip_rates_analytical(
     Sample ordering will be enforced through Bayesian conditioning when the
     `enforce_ordering` flag is passed. This trims the marker ages and
     displacements on the condition that the markers are provided in strict
-    ordering (the first marker is younger/less displaceed than the second,
+    ordering (the first marker is younger/less displaced than the second,
     etc.). Otherwise, each pair of adjacent markers will be treated
     independently.
     If ordering is enforced, displacements are limited to positive

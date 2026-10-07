@@ -356,7 +356,7 @@ class TestDivideVariables:
 
     def test_too_coarse_dz_raises(self):
         """For small quotient ranges (large denominator relative to numerator),
-        the default `dz` value may be too coarse and the resulting `pz` values 
+        the default `dz` value may be too coarse and the resulting `pz` values
         - though correct - will be too scarce to produce a valid PDF.
 
         Test that a too-coarse `dz` value, whether user-specified or default,

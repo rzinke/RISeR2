@@ -300,6 +300,7 @@ def subtract_variables(
         PDF to subtract from pdf1.
     limit_positive : bool, optional
         Enforce condition that values must be positive.
+        Doing so will limit the output domain to positive values only.
     name : str, optional
         Name of differenced PDF.
     variable_type : str, optional
@@ -453,7 +454,7 @@ def multiply_variables(
     x1_abs = np.abs(pdf1.x)
 
     # Non-zero index
-    nonzero_ndx = (x1_abs > 10**-precision.RISER_PRECISION)
+    nonzero_ndx = x1_abs > 10**-precision.RISER_PRECISION
 
     # Non-zero values and probability densities of pdf1
     x1_nonzero = pdf1.x[nonzero_ndx]
@@ -479,11 +480,7 @@ def multiply_variables(
         print(f"Area of product, pre-normalization: {prod.area:.4f}")
 
     # Determine product unit
-    if (
-        unit is None
-        and pdf1.unit is not None
-        and pdf2.unit is not None
-    ):
+    if unit is None and pdf1.unit is not None and pdf2.unit is not None:
         unit = f"{pdf1.unit}.{pdf2.unit}"
 
     # Format metadata
@@ -587,7 +584,7 @@ def divide_variables(
         print("Dividing variables")
 
     # Check whether pdf2's range straddles (or touches) zero
-    denom_straddles_zero = (pdf2.x[0] <= 0.0 <= pdf2.x[-1])
+    denom_straddles_zero = pdf2.x[0] <= 0.0 <= pdf2.x[-1]
 
     if denom_straddles_zero:
         # No finite natural bound exists: numer/denom -> +/-inf as
@@ -679,11 +676,7 @@ def divide_variables(
         print(f"Area of quotient, pre-normalization: {quot.area:.4f}")
 
     # Determine quotient unit
-    if (
-        unit is None
-        and pdf1.unit is not None
-        and pdf2.unit is not None
-    ):
+    if unit is None and pdf1.unit is not None and pdf2.unit is not None:
         unit = f"{pdf1.unit}/{pdf2.unit}"
 
     # Format metadata

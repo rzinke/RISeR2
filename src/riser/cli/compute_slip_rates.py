@@ -169,9 +169,7 @@ def main() -> None:
     # Scale input units to output units
     for marker in markers.values():
         age_unit_out = (
-            marker.age.unit
-            if inps.age_unit_out is None
-            else inps.age_unit_out
+            marker.age.unit if inps.age_unit_out is None else inps.age_unit_out
         )
         marker.age = PDFs.scaling.scale_pdf_by_units(
             pdf=marker.age,

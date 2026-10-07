@@ -17,7 +17,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
   when the `enforce_ordering` flag is passed.
-- `subtract_variables` can now enforce `limit_positive`.
+- **Breaking** `subtract_variables` can now enforce `limit_positive`.
+  Output axis is now cropped to positive values.
 - Slip rate functions now take `None` sentinel for `max_rate`,
   and determines maximum slip rate to consider based on the
   `find_slip_rate_tail_cap` function. Tests integrated.
