@@ -200,18 +200,25 @@ def compute_slip_rate(
     if verbose:
         print("Computing slip rate")
 
-    # Format metadata
-    name = name if name is not None else marker.name
-    variable_type = variable_type if variable_type is not None else "slip rate"
+    # Check that only one marker is provided
+    if len(marker) > 1:
+        raise ValueError(
+            f"Only one dated displacement marker should be provided for "
+            f"a single slip rate computation, got {len(marker)}"
+        )
+
+    # Copy age and displacement to local variables to avoid overwriting
+    age = marker.age
+    displacement = marker.displacement
 
     # Limit to positive age values regardless of `limit_positive` flag
-    marker.age, age_area = var_fcns.condition.self_constraint.constrain_above(
-        pdf=marker.age,
+    age, age_area = var_fcns.condition.self_constraint.constrain_above(
+        pdf=age,
         value=0.0,
         crop=True,
-        name=marker.age.name,
-        variable_type=marker.age.variable_type,
-        unit=marker.age.unit,
+        name=age.name,
+        variable_type=age.variable_type,
+        unit=age.unit,
         verbose=verbose,
     )
 
@@ -224,14 +231,14 @@ def compute_slip_rate(
 
     # Limit to positive displacement values
     if limit_positive:
-        marker.displacement, displacement_area = (
+        displacement, displacement_area = (
             var_fcns.condition.self_constraint.constrain_above(
-                pdf=marker.displacement,
+                pdf=displacement,
                 value=0.0,
                 crop=True,
-                name=marker.displacement.name,
-                variable_type=marker.displacement.variable_type,
-                unit=marker.displacement.unit,
+                name=displacement.name,
+                variable_type=displacement.variable_type,
+                unit=displacement.unit,
                 verbose=verbose,
             )
         )
@@ -246,15 +253,25 @@ def compute_slip_rate(
     # Determine maximum slip rate to consider
     if max_rate is None:
         max_rate = find_slip_rate_tail_cap(
-            displacement=marker.displacement,
-            age=marker.age,
+            displacement=displacement,
+            age=age,
             verbose=verbose,
         )
 
+    # Determine slip rate PDF metadata
+    name = name if name is not None else marker.name
+    variable_type = variable_type if variable_type is not None else "slip rate"
+    if (
+        unit is None
+        and age.unit is not None
+        and displacement.unit is not None
+    ):
+        unit = f"{displacement.unit}/{age.unit}"
+
     # Divide displacement by age
     slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
-        pdf1=marker.displacement,
-        pdf2=marker.age,
+        pdf1=displacement,
+        pdf2=age,
         dz=dv,
         min_quotient=min_rate,
         max_quotient=max_rate,
