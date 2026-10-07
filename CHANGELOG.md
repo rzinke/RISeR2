@@ -17,18 +17,20 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
   when the `enforce_ordering` flag is passed.
-- **Breaking** `subtract_variables` can now enforce `limit_positive`.
+- **Breaking:** `subtract_variables` can now enforce `limit_positive`.
   Output axis is now cropped to positive values.
 - Slip rate functions now take `None` sentinel for `max_rate`,
   and determines maximum slip rate to consider based on the
   `find_slip_rate_tail_cap` function. Tests integrated.
 - `constrain_above/below` can now crop the output PDF to the constrained range.
 - Added tests for `constrain_above/below`.
-- **Breaking**: changed `compute_slip_rates_mc` input parameters:
+- **Breaking:** changed `compute_slip_rates_mc` input parameters:
   `pdf_xmin` to `min_rate`; `pdf_xmax` to `max_rate`; `pdf_dx` to `dv` to
   match other slip rate computation functions.
-- **Breaking**: Keep original PDF names where variable stays the same:
+- **Breaking:** Keep original PDF names where variable stays the same:
   `trim_variables`, `constrain_above`, `constrain_below`.
+- **Breaking:** Changed default output unit of `calyr_to_age.py`
+  from `ky` to `y`.
 
 ## [1.6.1] - 2026-10-02
 ### Added
