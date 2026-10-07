@@ -558,11 +558,10 @@ def compute_slip_rates_mc(
     n_samples: int = 1_000_000,
     hard_stop: int = 1_000_000_000,
     # Slip rate
-    dv: float = 0.01,
     pdf_method: str = "histogram",
-    pdf_xmin: float | None = None,
-    pdf_xmax: float | None = None,
-    pdf_dx: float | None = None,
+    min_rate: float | None = None,
+    max_rate: float | None = None,
+    dv: float | None = None,
     smoothing_type: str | None = None,
     smoothing_width: int | None = None,
     # PDF metadata
@@ -584,15 +583,13 @@ def compute_slip_rates_mc(
         Number of valid samples to achieve.
     hard_stop : float, optional
         Maximum number of trials, regardless of success.
-    dv : float, optional
-        Rate step.
     pdf_method : str, optional
         PDF formation method.
-    pdf_xmin : float, optional
+    min_rate : float, optional
         Minimum value to consider.
-    pdf_xmax : float, optional
+    max_rate : float, optional
         Maximum value to consider.
-    pdf_dx : float, optional
+    dv : float, optional
         Value array step.
     smoothing_type : str, optional
         Smoothing filter type.
@@ -675,9 +672,9 @@ def compute_slip_rates_mc(
         # Form incremental slip rate samples into PDFs
         slip_rate = pdf_fcn(
             samples=rate_picks[i, :],
-            xmin=pdf_xmin,
-            xmax=pdf_xmax,
-            dx=pdf_dx,
+            xmin=min_rate,
+            xmax=max_rate,
+            dx=dv,
             name=rate_name,
             variable_type=variable_type,
             unit=unit,

@@ -23,6 +23,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
   `find_slip_rate_tail_cap` function.
 - `constrain_above/below` can now crop the output PDF to the constrained range.
 - Added tests for `constrain_above/below`.
+- **Breaking**: changed `compute_slip_rates_mc` input parameters:
+  `pdf_xmin` to `min_rate`; `pdf_xmax` to `max_rate`; `pdf_dx` to `dv` to
+  match other slip rate computation functions.
 
 ## [1.6.1] - 2026-10-02
 ### Added
