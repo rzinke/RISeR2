@@ -17,11 +17,19 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
   when the `enforce_ordering` flag is passed.
+- `--enforce-ordering` flag introduced for `compute_slip_rates_analytical`
+  command line entry point.
+- `--min-rate` / `min_rate` set to default floor of 0.0.
+- **Breaking:** `dv` now defaults to `None`, triggering `divide_variables`
+  to use 1000 samples across the natural rate.
 - **Breaking:** `subtract_variables` can now enforce `limit_positive`.
   Output axis is now cropped to positive values. Enforced by tests.
 - Slip rate functions now take `None` sentinel for `max_rate`,
   and determines maximum slip rate to consider based on the
   `find_slip_rate_tail_cap` function. Tests integrated.
+- `epsilon` parameter introduced to determine fraction of the positive
+  slip rate probability allowed to lie above v_max, control for
+  `find_slip_rate_tail_cap`.
 - `constrain_above/below` can now crop the output PDF to the constrained range.
 - Added tests for `constrain_above/below`.
 - **Breaking:** changed `compute_slip_rates_mc` input parameters:
