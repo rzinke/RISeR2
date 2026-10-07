@@ -204,11 +204,11 @@ def compute_slip_rate(
     if verbose:
         print("Computing slip rate")
 
-    # Check that only one marker is provided
-    if len(marker) > 1:
-        raise ValueError(
-            f"Only one dated displacement marker should be provided for "
-            f"a single slip rate computation, got {len(marker)}"
+    # Check that a single dated marker is provided
+    if not isinstance(marker, variable_pairs.DatedMarker):
+        raise TypeError(
+            "Provide a single DatedMarker as input for computation of a "
+            "single slip rate"
         )
 
     # Copy age and displacement to local variables to avoid overwriting
