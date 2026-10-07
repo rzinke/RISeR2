@@ -26,6 +26,34 @@ class TestConstrainAbove:
         np.testing.assert_allclose(pdf_constr.px[pdf_constr.x < 0.5], 0.0)
         assert area == pytest.approx(0.5)
 
+    def test_cropping_above(self):
+        dx = 1e-7
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, dx)
+        px = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
+        pdf = PDFs.PDF(x=x, px=px)
+
+        value = 0.5
+
+        pdf_constr, area = var_fcns.condition.self_constraint.constrain_above(
+            pdf, value, crop=True,
+        )
+
+        assert pdf_constr.x.min() == pytest.approx(value + dx)
+
+    def test_cropping_below(self):
+        dx = 1e-7
+        x = PDFs.value_arrays.precise_array(0.0, 1.0, dx)
+        px = PDFs.parametric_functions.uniform(x=x, a=0.0, b=1.0)
+        pdf = PDFs.PDF(x=x, px=px)
+
+        value = 0.5
+
+        pdf_constr, area = var_fcns.condition.self_constraint.constrain_below(
+            pdf, value, crop=True,
+        )
+
+        assert pdf_constr.x.max() == pytest.approx(value - dx)
+
     @pytest.mark.parametrize(
         "name, vartype, unit, name_expected",
         [

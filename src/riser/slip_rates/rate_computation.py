@@ -16,6 +16,7 @@ record.
 
 # Public API
 __all__ = [
+    "find_slip_rate_tail_cap",
     "compute_slip_rate",
     "compute_slip_rates_analytical",
     "compute_slip_rates_mc",
@@ -35,6 +36,123 @@ from .. import (
 from ..sampling import filtering, mc_sampling, pdf_formation
 
 
+#################### TAIL MASS CAP ####################
+def find_slip_rate_tail_cap(
+    displacement: PDFs.PDF,
+    age: PDFs.PDF,
+    epsilon: float = 1e-2,
+    verbose: bool = False,
+) -> float:
+    """Find the maximum slip rate value to consider based on the thickness
+    of the slip rate PDF tail.
+
+    Because slip rates can approach infinity as the age approaches zero,
+    we can determine a "cap" or maximum slip rate that provides a finite
+    maximum slip rate while capturing nearly all of the slip rate PDF mass.
+
+    Note:
+    This function is only valid for slip rates computed over non-negative age
+    differences (Delta t >= 0.0).
+    At least part of the displacement domain must be positive (> 0.0).
+
+    Parameters
+    ----------
+    displacement : PDF
+        Displacement PDF used in slip rate computation.
+    age : PDF
+        Age PDF used in slip rate computation.
+    epsilon : float
+        Fraction of the positive slip rate probability allowed to lie
+        above v_max.
+
+    Returns
+    -------
+    v_max : float
+        Maximum slip rate value to consider.
+    """
+    if verbose:
+        print("Determining maximum slip rate at which to cap slip rate PDF.")
+
+    # Check epsilon within (0, 1)
+    if not 0.0 < epsilon < 1.0:
+        raise ValueError(
+            f"`epsilon` must be between 0.0 and 1.0, got {epsilon}"
+        )
+
+    # Check smallest age is non-negative (>= 0.0)
+    if np.min(age.x) < 0.0:
+        raise ValueError(
+            f"The denominator should only include non-negative values, "
+            f"therefore the smallest age value should be >= 0.0, "
+            f"got {np.min(age.x)}"
+        )
+
+    # Age step
+    dt = PDFs.value_arrays.sample_spacing_from_pdf(age)
+
+    # Array of positive ages
+    t = age.x[age.x > 0]
+
+    # Probabilities of positive ages
+    ft = age.px[age.x > 0] * dt
+
+    # Function to compute tail probability
+    def tail_probability(v: float) -> float:
+        """Compute the probability that the slip rate is greater than v,
+        i.e.,
+
+            P(V > v) = integral(f_T(t) · (1 - F_U(v · t)) · dt)
+        """
+        return np.sum(ft * (1 - displacement.cdf_at_value(v * t)))
+
+    # Compute the probability that some slip rate values are positive:
+    # P(V > 0.0) > 0.0
+    positive_probability = tail_probability(0)
+
+    # Ensure that at least some slip rate values are positive
+    if positive_probability <= 0:
+        raise ValueError("There are no possible positive slip rate values")
+
+    # Area of tail to exclude based on threshold and area of positive
+    # slip rate PDF
+    area_to_exclude = epsilon * positive_probability
+
+    # Establish lower bound:
+    # minimum positive displacement / largest age
+    lower_bound = np.min(displacement.x[displacement.x > 0]) / np.max(age.x)
+
+    # Establish preliminary upper bound
+    upper_bound = lower_bound
+
+    # Double upper bound until it satisfies
+    # P(V > upper_bound) <= epsilon · P(V > 0)
+    while tail_probability(upper_bound) > area_to_exclude:
+        upper_bound *= 2
+
+    # Iteratively refine the lower and upper bounds
+    # by bisecting them on a log scale
+    for _ in range(30):
+        # Use geometric mean as (log of) midpoint between lower and upper bounds
+        midpoint = np.sqrt(lower_bound * upper_bound)
+
+        # Check if midpoint satisfies probability that
+        # slip rate meets target area
+        if tail_probability(midpoint) > area_to_exclude:
+            # Not enough area excluded - increase lower bound
+            lower_bound = midpoint
+        else:
+            # Too much area excluded - decrease upper bound
+            upper_bound = midpoint
+
+    # Use refined upper bound as maximum slip rate to consider
+    v_max = upper_bound
+
+    if verbose:
+        print(f"Maximum slip rate to consider: {v_max:.4f}")
+
+    return v_max
+
+
 #################### SINGLE SLIP RATE ANALYTIC COMPUTATION ####################
 def compute_slip_rate(
     marker: variable_pairs.DatedMarker,
@@ -42,7 +160,8 @@ def compute_slip_rate(
     # Slip rate
     limit_positive: bool = False,
     dv: float = 0.01,
-    max_rate: float = 100.0,
+    min_rate: float = 0.0,
+    max_rate: float | None = None,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -60,8 +179,10 @@ def compute_slip_rate(
         Enforce condition that slip rate is >= 0.0.
     dv : float, optional
         Rate step.
+    min_rate : float, optional
+        Minimum slip rate value to consider.
     max_rate : float, optional
-        Maximum quotient value to consider.
+        Maximum slip rate value to consider.
     name : str, optional
         Name of slip rate PDF.
     variable_type : str, optional
@@ -77,12 +198,33 @@ def compute_slip_rate(
     if verbose:
         print("Computing slip rate")
 
-    # Set minimum slip rate
-    min_rate = 0.0 if limit_positive else None
-
     # Format metadata
     name = name if name is not None else marker.name
     variable_type = variable_type if variable_type is not None else "slip rate"
+
+    # Limit to positive age values
+    age, age_area = condition.self_constraint.constrain_above(
+        pdf=diff_pdf,
+        value=0.0,
+        crop=True,
+        **metadata_dict,
+        verbose=verbose,
+    )
+
+    # Report area retained
+    if verbose and age_area < 1.0:
+        print(
+            f"Limiting to positive ages only. "
+            f"Fraction of age retained: {area:.3f}"
+        )
+
+    # Determine maximum slip rate to consider
+    if max_rate is None:
+        max_rate = find_slip_rate_tail_cap(
+            displacement=marker.displacement,
+            age=marker.age,
+            verbose=verbose,
+        )
 
     # Divide displacement by age
     slip_rate, _ = var_fcns.transform.arithmetic.divide_variables(
@@ -95,6 +237,10 @@ def compute_slip_rate(
         variable_type=variable_type,
         unit=unit,
     )
+
+    # Set maximum slip rate
+    if max_rate is None:
+        slip_rate = find_tail_mass_cap(slip_rate, verbose=verbose)
 
     return slip_rate
 
@@ -154,7 +300,7 @@ def compute_slip_rates_analytical(
     limit_positive: bool = False,
     dv: float = 0.01,
     min_rate: float = 0.0,
-    max_rate: float = 100.0,
+    max_rate: float | None = None,
     # PDF metadata
     variable_type: str | None = None,
     unit: str | None = None,
@@ -426,6 +572,9 @@ def compute_slip_rates_mc(
         [marker.displacement.metadata for marker in markers.values()]
     )
 
+    # Variable type
+    variable_type = variable_type if variable_type is not None else "slip rate"
+
     # Determine slip rate unit
     if (
         unit is None
@@ -433,9 +582,6 @@ def compute_slip_rates_mc(
         and displacement_metadata.unit is not None
     ):
         unit = f"{displacement_metadata.unit}/{age_metadata.unit}"
-
-    # Variable type
-    variable_type = variable_type if variable_type is not None else "slip rate"
 
     # Conduct Monte Carlo sampling - valid MC samples are called picks
     age_picks, disp_picks, _ = mc_sampling.sample_monte_carlo(

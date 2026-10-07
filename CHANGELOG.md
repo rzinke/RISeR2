@@ -11,11 +11,18 @@ and this project uses [Semantic Versioning](https://semver.org/).
   pair PDFs (e.g., age, displacement) onto common axes.
 - Created test module for `variable_pairs.interpolation`.
 - `pyproject.toml` `[project.urls]`
+- New function `slip_rates/rate_computation/find_slip_rate_tail_cap` to
+  determine maximum slip rate value to consider.
 ### Changed
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
   when the `enforce_ordering` flag is passed.
 - `subtract_variables` can now enforce `limit_positive`.
+- Slip rate functions now take `None` sentinel for `max_rate`,
+  and determines maximum slip rate to consider based on the
+  `find_slip_rate_tail_cap` function.
+- `constrain_above/below` can now crop the output PDF to the constrained range.
+- Added tests for `constrain_above/below`.
 
 ## [1.6.1] - 2026-10-02
 ### Added

@@ -24,6 +24,7 @@ def constrain_above(
     pdf: PDFs.PDF,
     value: float,
     *,
+    crop: bool = False,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -33,7 +34,7 @@ def constrain_above(
 ) -> tuple[PDFs.PDF, float]:
     """Allow non-zero probability density only above the specified value.
 
-    I.e., enforce all-zero probability density below the value.
+    I.e., enforce all-zero probability density below and at the value.
 
     Parameters
     ----------
@@ -41,6 +42,8 @@ def constrain_above(
         PDF to constrain.
     value : float
         Value above which all probability densities will be zero.
+    crop : bool, optional
+        Crop the output PDF to the range above the specified value.
     name : str, optional
         Name of constrained PDF.
     variable_type : str, optional
@@ -77,6 +80,14 @@ def constrain_above(
     # Constrain PDF
     constrained_pdf, area = core.condition(pdf, weight, **metadata_dict)
 
+    # Crop constrained PDF
+    if crop:
+        constrained_pdf = PDFs.interpolation.interpolate_pdf(
+            pdf=constrained_pdf,
+            x=constrained_pdf.x[constrained_pdf.x > value],
+            **metadata_dict,
+        )
+
     return constrained_pdf, area
 
 
@@ -84,6 +95,7 @@ def constrain_below(
     pdf: PDFs.PDF,
     value: float,
     *,
+    crop: bool = False,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -93,7 +105,7 @@ def constrain_below(
 ) -> tuple[PDFs.PDF, float]:
     """Allow non-zero probability density only below the specified value.
 
-    I.e., enforce all-zero probability density above the value.
+    I.e., enforce all-zero probability density below and at the value.
 
     Parameters
     ----------
@@ -101,6 +113,8 @@ def constrain_below(
         PDF to constrain.
     value : float
         Value below which all probability densities will be zero.
+    crop : bool, optional
+        Crop the output PDF to the range below the specified value.
     name : str, optional
         Name of constrained PDF.
     variable_type : str, optional
@@ -136,6 +150,14 @@ def constrain_below(
 
     # Constrain PDF
     constrained_pdf, area = core.condition(pdf, weight, **metadata_dict)
+
+    # Crop constrained PDF
+    if crop:
+        constrained_pdf = PDFs.interpolation.interpolate_pdf(
+            pdf=constrained_pdf,
+            x=constrained_pdf.x[constrained_pdf.x < value],
+            **metadata_dict,
+        )
 
     return constrained_pdf, area
 

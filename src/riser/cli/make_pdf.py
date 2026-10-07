@@ -82,7 +82,7 @@ def cmd_parser(iargs=None):
         "--limit-positive",
         dest="limit_positive",
         action="store_true",
-        help="Enforce the condition that values are >= to 0.",
+        help="Enforce the condition that values are > 0.",
     )
 
     output_args = parser.add_argument_group("Outputs")
@@ -186,6 +186,10 @@ def main() -> None:
 
     # Create x-array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx, verbose=inps.verbose)
+
+    # Ensure x-values are greater than zero
+    if inps.limit_positive:
+        x = x[x > 0.0]
 
     # Retrieve parameteric function
     para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)

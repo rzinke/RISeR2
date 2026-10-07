@@ -9,7 +9,7 @@ These functions carry out arithmetic between variables:
   - multiplication (product distribution), i.e., X1 * X2
   - division (ratio distribution), i.e., X1 / X2
 
-and a function to negate (i.e., -1 * X1) a variable.
+and a function to negate (i.e., -1 · X1) a variable.
 
 This module also includes bespoke convolution functions that explicitly show
 the mechanics of how convolution is implemented.
@@ -178,9 +178,9 @@ def add_variables(
     function of values. This is exactly convolution, and is mathematically best
     expressed from the "output side".
 
-        P(Z = z) = sum(P(X = k).P(Y = z - k))
+        P(Z = z) = sum(P(X = k) · P(Y = z - k))
         or
-        fZ(z) = integral(fX(x).fY(z - x) dx)
+        fZ(z) = integral(fX(x) · fY(z - x) · dx)
 
     Machinery:
     This function takes two PDFs that will be sampled on the same value axis.
@@ -280,7 +280,7 @@ def subtract_variables(
     A random variable can be negated by flipping the PDF of the variable.
     Addition is carried out by convolution, as above, i.e.,
 
-        P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
+        P(Z = z) = sum(P(X = k) · P(flipped_Y = z - k))
 
     Machinery:
     This function takes two PDFs that will be sampled on the same
@@ -359,17 +359,16 @@ def subtract_variables(
     if limit_positive:
         # Nullify values smaller than zero
         diff_pdf, area = condition.self_constraint.constrain_above(
-            pdf=diff_pdf, value=0.0, **metadata_dict, verbose=verbose
+            pdf=diff_pdf,
+            value=0.0,
+            crop=True,
+            **metadata_dict,
+            verbose=verbose,
         )
 
         # Report area retained
         if verbose:
             print(f"Fraction of difference retained: {area:.3f}")
-
-        # Crop to all-positive axis
-        diff_pdf = PDFs.interpolation.interpolate_pdf(
-            pdf=diff_pdf, x=diff_pdf.x[diff_pdf.x > 0]
-        )
 
     return diff_pdf
 
@@ -396,7 +395,7 @@ def multiply_variables(
     The equation for multiplication of PDFs is similar to that for division:
     It is a weighted convolution of X and Y, with the scaling factor 1/x:
 
-        fZ(z) = integral(fX(x).fY(z/x) 1/abs(x) dx)
+        fZ(z) = integral(fX(x) · fY(z/x) 1/abs(x) · dx)
 
     In the ideal case, the area of the product function will be 1.0,
     indicating that the entire probability space is captured.
@@ -521,7 +520,7 @@ def divide_variables(
     The equation for division of PDFs comes from Bird (2007) and later from
     Zechar and Frankel (2009):
 
-        fV(v) = integral(fT(t).fX(x=vt).t dt)
+        fV(v) = integral(fT(t) · fX(x=vt) · t · dt)
 
     where v is velocity, T is time, and X is distance.
     This equation follows the same intuition for using output-side convolution
