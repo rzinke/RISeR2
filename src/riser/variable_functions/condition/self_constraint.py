@@ -82,12 +82,13 @@ def constrain_above(
 
     # Crop constrained PDF
     if crop:
+        # Overwrite constrained PDF with cropped version
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x > value],
-            name=pdf.name,
-            variable_type=pdf.variable_type,
-            unit=pdf.unit,
+            name=constrained_pdf.name,
+            variable_type=constrained_pdf.variable_type,
+            unit=constrained_pdf.unit,
         )
 
     return constrained_pdf, area
@@ -155,12 +156,13 @@ def constrain_below(
 
     # Crop constrained PDF
     if crop:
+        # Overwrite constrained PDF with cropped version
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x < value],
-            name=pdf.name,
-            variable_type=pdf.variable_type,
-            unit=pdf.unit,
+            name=constrained_pdf.name,
+            variable_type=constrained_pdf.variable_type,
+            unit=constrained_pdf.unit,
         )
 
     return constrained_pdf, area

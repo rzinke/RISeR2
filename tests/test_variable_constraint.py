@@ -34,7 +34,7 @@ class TestConstrainAbove:
 
         value = 0.5
 
-        pdf_constr, area = var_fcns.condition.self_constraint.constrain_above(
+        pdf_constr, _ = var_fcns.condition.self_constraint.constrain_above(
             pdf, value, crop=True,
         )
 
@@ -48,7 +48,7 @@ class TestConstrainAbove:
 
         value = 0.5
 
-        pdf_constr, area = var_fcns.condition.self_constraint.constrain_below(
+        pdf_constr, _ = var_fcns.condition.self_constraint.constrain_below(
             pdf, value, crop=True,
         )
 
