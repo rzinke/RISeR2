@@ -17,10 +17,10 @@ from .variable_pair import VariablePair
 
 
 #################### RESAMPLING/INTERPOLATION ####################
-def interpolate_variable_pairs(
-    pairs: Mapping[str, VariablePair],
+def interpolate_variable_pairs[PairT: VariablePair](
+    pairs: Mapping[str, PairT],
     verbose: bool = False,
-) -> Mapping[str, VariablePair]:
+) -> dict[str, PairT]:
     """Resample the PDFs of multiple VariablePairs along common value arrays.
 
     Common value arrays are found for `pdf1` in all pairs, and `pdf2` in all
@@ -46,7 +46,7 @@ def interpolate_variable_pairs(
     pair_names = [*pairs.keys()]
 
     # Copy dict to avoid overwriting original
-    interp_pairs = copy.deepcopy(pairs)
+    interp_pairs = copy.deepcopy(dict(pairs))
 
     # Interpolate pdf1's onto common value array
     interp_pdf1s = PDFs.interpolation.interpolate_pdfs(
