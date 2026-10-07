@@ -162,6 +162,7 @@ def compute_slip_rate(
     dv: float = 0.01,
     min_rate: float = 0.0,
     max_rate: float | None = None,
+    epsilon: float = 1e-2,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -185,6 +186,9 @@ def compute_slip_rate(
         Maximum slip rate value to consider.
         If None, the maximum slip rate will be determined automatically
         based on the thickness of the slip rate tail.
+    epsilon : float
+        Fraction of the positive slip rate probability allowed to lie
+        above the maximum automatically determined slip rate.
     name : str, optional
         Name of slip rate PDF.
     variable_type : str, optional
@@ -339,6 +343,7 @@ def compute_slip_rates_analytical(
     dv: float = 0.01,
     min_rate: float = 0.0,
     max_rate: float | None = None,
+    epsilon: float = 1e-2,
     # PDF metadata
     variable_type: str | None = None,
     unit: str | None = None,
@@ -384,6 +389,9 @@ def compute_slip_rates_analytical(
         Maximum slip rate value to consider.
         If None, the maximum slip rate will be determined automatically
         based on the thickness of the slip rate tail.
+    epsilon : float
+        Fraction of the positive slip rate probability allowed to lie
+        above the maximum automatically determined slip rate.
     variable_type : str, optional
         Variable type of slip rate PDF.
     unit : str, optional
