@@ -159,9 +159,9 @@ def compute_slip_rate(
     *,
     # Slip rate
     limit_positive: bool = False,
-    dv: float = 0.01,
     min_rate: float = 0.0,
     max_rate: float | None = None,
+    dv: float | None = None,
     epsilon: float = 1e-2,
     # PDF metadata
     name: str | None = None,
@@ -178,14 +178,16 @@ def compute_slip_rate(
         Displacement-age pair used to calculate slip rate.
     limit_positive : bool, optional
         Enforce condition that slip rate is >= 0.0.
-    dv : float, optional
-        Rate step.
     min_rate : float, optional
         Minimum slip rate value to consider.
     max_rate : float, optional
         Maximum slip rate value to consider.
         If None, the maximum slip rate will be determined automatically
         based on the thickness of the slip rate tail.
+    dv : float, optional
+        Rate step.
+        If None, 1000 points will be automatically generated based on the
+        natural range of slip rate values.
     epsilon : float
         Fraction of the positive slip rate probability allowed to lie
         above the maximum automatically determined slip rate.
@@ -340,9 +342,9 @@ def compute_slip_rates_analytical(
     # Slip rate
     enforce_ordering: bool = False,
     limit_positive: bool = False,
-    dv: float = 0.01,
     min_rate: float = 0.0,
     max_rate: float | None = None,
+    dv: float | None = None,
     epsilon: float = 1e-2,
     # PDF metadata
     variable_type: str | None = None,
@@ -381,14 +383,16 @@ def compute_slip_rates_analytical(
     limit_positive : bool, optional
         Enforce condition that displacement difference values must be positive.
         Time differences are always positive.
-    dv : float, optional
-        Rate step.
     min_rate : float, optional
         Minimum slip rate value to consider.
     max_rate : float, optional
         Maximum slip rate value to consider.
         If None, the maximum slip rate will be determined automatically
         based on the thickness of the slip rate tail.
+    dv : float, optional
+        Rate step.
+        If None, 1000 points will be automatically generated based on the
+        natural range of slip rate values.
     epsilon : float
         Fraction of the positive slip rate probability allowed to lie
         above the maximum automatically determined slip rate.

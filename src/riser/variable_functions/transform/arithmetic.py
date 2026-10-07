@@ -504,9 +504,9 @@ def divide_variables(
     pdf2: PDFs.PDF,
     *,
     # Quotient distribution
-    dz: float | None = 0.01,
     min_quotient: float | None = None,
     max_quotient: float | None = None,
+    dz: float | None = 0.01,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -559,16 +559,16 @@ def divide_variables(
         Numerator distribution.
     pdf2 : PDF
         Denominator distribution.
-    dz : float or None
-        Quotient sample spacing.
-        If None, 1000 points will be automatically generated based on the
-        natural range of quotient values.
     min_quotient : float, optional
         Minimum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
     max_quotient : float, optional
         Maximum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
+    dz : float or None
+        Quotient sample spacing.
+        If None, 1000 points will be automatically generated based on the
+        natural range of quotient values.
     name : str, optional
         Name of quotient PDF.
     variable_type : str, optional

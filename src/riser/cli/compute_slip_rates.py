@@ -83,8 +83,8 @@ def cmd_parser(iargs=None):
         "--dv",
         dest="dv",
         type=float,
-        default=0.01,
-        help="Slip rate step. [0.01]",
+        default=None,
+        help="Slip rate step. [None]",
     )
 
     reporting_args = parser.add_argument_group("Reporting")
