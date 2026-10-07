@@ -58,7 +58,7 @@ class TestConstrainAbove:
         "name, vartype, unit, name_expected",
         [
             (None, None, None, None),
-            ("X", "age", "y", "X constr"),
+            ("X", "age", "y", "X"),
         ],
     )
     def test_metadata_consistent(self, name, vartype, unit, name_expected):
@@ -105,7 +105,7 @@ class TestConstrainBelow:
         "name, vartype, unit, name_expected",
         [
             (None, None, None, None),
-            ("X", "age", "y", "X constr"),
+            ("X", "age", "y", "X"),
         ],
     )
     def test_metadata_consistent(self, name, vartype, unit, name_expected):

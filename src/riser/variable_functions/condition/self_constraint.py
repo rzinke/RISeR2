@@ -65,8 +65,8 @@ def constrain_above(
     metadata_dict = pdf.metadata.as_dict()
 
     # Formulate default output name
-    default_name = f"{pdf.name} constr" if pdf.name is not None else None
-    metadata_dict["name"] = name if name is not None else default_name
+    if name is not None:
+        metadata_dict["name"] = name
 
     if variable_type is not None:
         metadata_dict["variable_type"] = variable_type
@@ -86,9 +86,6 @@ def constrain_above(
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x > value],
-            name=constrained_pdf.name,
-            variable_type=constrained_pdf.variable_type,
-            unit=constrained_pdf.unit,
         )
 
     return constrained_pdf, area
@@ -139,8 +136,8 @@ def constrain_below(
     metadata_dict = pdf.metadata.as_dict()
 
     # Formulate default output name
-    default_name = f"{pdf.name} constr" if pdf.name is not None else None
-    metadata_dict["name"] = name if name is not None else default_name
+    if name is not None:
+        metadata_dict["name"] = name
 
     if variable_type is not None:
         metadata_dict["variable_type"] = variable_type
@@ -160,9 +157,6 @@ def constrain_below(
         constrained_pdf = PDFs.interpolation.interpolate_pdf(
             pdf=constrained_pdf,
             x=constrained_pdf.x[constrained_pdf.x < value],
-            name=constrained_pdf.name,
-            variable_type=constrained_pdf.variable_type,
-            unit=constrained_pdf.unit,
         )
 
     return constrained_pdf, area

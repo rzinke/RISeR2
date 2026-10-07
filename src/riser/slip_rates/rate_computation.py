@@ -222,9 +222,6 @@ def compute_slip_rate(
         pdf=age,
         value=0.0,
         crop=True,
-        name=age.name,
-        variable_type=age.variable_type,
-        unit=age.unit,
         verbose=verbose,
     )
 
@@ -242,9 +239,6 @@ def compute_slip_rate(
                 pdf=displacement,
                 value=0.0,
                 crop=True,
-                name=displacement.name,
-                variable_type=displacement.variable_type,
-                unit=displacement.unit,
                 verbose=verbose,
             )
         )
@@ -303,8 +297,6 @@ def _forward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
         _, trimmed_pdf, _ = var_fcns.condition.trimming.trim_variables(
             pdf1=trimmed_pdfs[i - 1],
             pdf2=trimmed_pdfs[i],
-            name1=trimmed_pdfs[i - 1].name,
-            name2=trimmed_pdfs[i].name,
         )
 
         # Overwrite list value
@@ -326,8 +318,6 @@ def _backward_trim_pdfs_(pdfs: list[PDFs.PDF], verbose: bool = False):
         trimmed_pdf, _, _ = var_fcns.condition.trimming.trim_variables(
             pdf1=trimmed_pdfs[-i - 1],
             pdf2=trimmed_pdfs[-i],
-            name1=trimmed_pdfs[-i - 1].name,
-            name2=trimmed_pdfs[-i].name,
         )
 
         # Overwrite list value
