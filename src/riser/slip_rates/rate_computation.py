@@ -545,7 +545,7 @@ def compute_slip_rates_mc(
     *,
     # Sampling
     n_samples: int = 1_000_000,
-    hard_stop: int = 1_000_000,
+    hard_stop: int = 100_000,
     # Slip rate
     pdf_method: str = "histogram",
     min_rate: float | None = None,

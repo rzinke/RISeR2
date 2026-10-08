@@ -160,9 +160,9 @@ def sample_monte_carlo(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: SampleCriterion,
     *,
-    n_samples: int = 10_000,
+    n_samples: int = 1_000_000,
     seed_val: int = 0,
-    hard_stop: int = 1_000_000,
+    hard_stop: int = 100_000,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Sample valid possible slip rates using a Monte Carlo method.

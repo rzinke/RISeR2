@@ -26,7 +26,7 @@ from .dated_marker import DatedMarker
 # Probability above which a marker is considered decisively out of order.
 # Markers whose PDFs overlap are expected, and are handled by conditioning
 # the variables on the known order, so this is deliberately high.
-REVERSAL_PROBABILITY_LIMIT = 0.99
+REVERSAL_PROBABILITY_LIMIT = 0.98
 
 
 #################### MARKER ORDER ####################
