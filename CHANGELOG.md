@@ -14,6 +14,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - New function `slip_rates/rate_computation/find_slip_rate_tail_cap` to
   determine maximum slip rate value to consider.
 - Tests for slip rate reporting, see `test_slip_rate_reporting.py`.
+- `variable_pairs/ordering.py` and associated tests.
 ### Changed
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
@@ -45,6 +46,10 @@ and this project uses [Semantic Versioning](https://semver.org/).
   in `compute_slip_rates_mc.py`. `max_rate` is the maximum rate for the PDF
   construction.
 - Default `n_samples` is now 100 000 (ten times higher than previously).
+- **Breaking:** MC sampling `max_samples` now controls the number of sample
+  runs allowed without a valid sample path before `compute_slip_rates_mc`
+  fails with an error.
+- Ordering checks improved for dated marker sets.
 
 ## [1.6.1] - 2026-10-02
 ### Added

@@ -150,37 +150,57 @@ class TestSampleMonteCarlo:
         assert len(recwarn) == 0
         assert 0.0 < success_rate < 1.0
 
-    def test_less_than_desired_samples_warns(self, recwarn):
+    def test_less_than_desired_samples_warns(self):
+        """Sampling stops when `hard_stop` trials in a row fail."""
         criterion = sampling.mc_sampling.get_sample_criterion(
-            "PassNonnegative"
-        )()
+            "PassNonnegativeBounded"
+        )(max_sample_rate=1.0)
+
+        n_samples = 100_000
+
+        with pytest.warns(UserWarning, match="Increase `hard_stop`"):
+            (age_picks, disp_picks, _) = (
+                sampling.mc_sampling.sample_monte_carlo(
+                    markers=close_markers,
+                    criterion=criterion,
+                    n_samples=n_samples,
+                    hard_stop=20,
+                )
+            )
 
         n_samples = 1_000
+        assert age_picks.shape == disp_picks.shape
+        assert 0 < age_picks.shape[1] < n_samples
 
-        (age_picks, disp_picks, _) = sampling.mc_sampling.sample_monte_carlo(
+    def test_failures_must_be_consecutive(self, recwarn):
+        """Failures between successes do not count toward `hard_stop`."""
+        criterion = sampling.mc_sampling.get_sample_criterion(
+            "PassNonnegativeBounded"
+        )(max_sample_rate=1.0)
+
+        n_samples = 500
+
+        (age_picks, _, _) = sampling.mc_sampling.sample_monte_carlo(
             markers=close_markers,
             criterion=criterion,
             n_samples=n_samples,
-            hard_stop=n_samples,
+            hard_stop=1_000,
         )
 
-        assert age_picks.shape == disp_picks.shape
-        assert age_picks.shape[1] < n_samples
-        assert len(recwarn) > 0
+        assert age_picks.shape[1] == n_samples
+        assert len(recwarn) == 0
 
     def test_no_successes(self):
         criterion = sampling.mc_sampling.get_sample_criterion(
             "PassNonnegativeBounded"
         )(max_sample_rate=0.0)
 
-        n_samples = 1_000
-
-        with pytest.raises(RuntimeError, match="No samples meet"):
+        with pytest.raises(RuntimeError, match="youngest to oldest"):
             sampling.mc_sampling.sample_monte_carlo(
                 markers=close_markers,
                 criterion=criterion,
-                n_samples=n_samples,
-                hard_stop=n_samples,
+                n_samples=1_000,
+                hard_stop=1_000,
             )
 
 

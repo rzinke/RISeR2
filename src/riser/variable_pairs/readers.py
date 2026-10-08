@@ -11,11 +11,11 @@ __all__ = [
 
 # Import modules
 import warnings
-from itertools import pairwise
 
 import toml
 
 from .. import probability_functions as PDFs
+from . import ordering
 from .dated_marker import DatedMarker
 
 
@@ -168,36 +168,8 @@ def read_dated_markers_from_config(
         markers[marker_name] = marker
 
     # Check that markers are ordered youngest/smallest to oldest/largest
-    for ref_marker, marker in pairwise(markers.values()):
-        # Compute reference age/displacement
-        ref_age = PDFs.analytics.pdf_mean(ref_marker.age)
-        ref_disp = PDFs.analytics.pdf_mean(ref_marker.displacement)
-
-        # Compute marker age/displacement
-        marker_age = PDFs.analytics.pdf_mean(marker.age)
-        marker_disp = PDFs.analytics.pdf_mean(marker.displacement)
-
-        # Check that marker is older/larger than previous
-        if marker_age < ref_age:
-            marker_display_name = marker.name
-            ref_marker_display_name = ref_marker.name
-
-            warnings.warn(
-                f"Marker '{marker_display_name}' appears to be younger "
-                f"than '{ref_marker_display_name}'. Confirm marker order.",
-                stacklevel=3,
-            )
-
-        if marker_disp < ref_disp:
-            marker_display_name = marker.name
-            ref_marker_display_name = ref_marker.name
-
-            warnings.warn(
-                f"Marker '{marker_display_name}' appears to be less "
-                f"displaced than '{ref_marker_display_name}'. "
-                f"Confirm marker order.",
-                stacklevel=3,
-            )
+    for violation in ordering.find_ordering_violations(markers, limit=0.5):
+        warnings.warn(f"{violation} Confirm marker order.", stacklevel=3)
 
     return markers
 

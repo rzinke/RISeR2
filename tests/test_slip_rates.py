@@ -656,5 +656,58 @@ class TestAnalyticalMonteCarlo:
 
         assert rate_pdf.x[-1] == pytest.approx(4.0, rel=1e-3)
 
+def _reversed_separated_markers_():
+    """Create markers listed from oldest to youngest with little overlap."""
+    ages = PDFs.value_arrays.precise_array(0.0, 40.0, 0.01)
+    disps = PDFs.value_arrays.precise_array(0.0, 80.0, 0.01)
+
+    def marker(name, age, disp):
+        return variable_pairs.DatedMarker(
+            age=PDFs.PDF(
+                x=ages,
+                px=PDFs.parametric_functions.gaussian(ages, age, 1.0),
+                variable_type="age",
+                unit="y",
+            ),
+            displacement=PDFs.PDF(
+                x=disps,
+                px=PDFs.parametric_functions.gaussian(disps, disp, 1.0),
+                variable_type="displacement",
+                unit="m",
+            ),
+            name=name,
+        )
+
+    return {
+        "old": marker("old", 25.0, 40.0),
+        "middle": marker("middle", 15.0, 20.0),
+        "young": marker("young", 5.0, 10.0),
+    }
+
+
+class TestMarkerOrderCheck:
+    """Reversed markers are rejected before any computation."""
+
+    def test_analytical_raises_for_reversed_markers(self):
+        markers = _reversed_separated_markers_()
+
+        with pytest.raises(ValueError, match="youngest"):
+            slip_rates.rate_computation.compute_slip_rates_analytical(
+                markers=markers,
+            )
+
+    def test_monte_carlo_raises_before_sampling(self):
+        markers = _reversed_separated_markers_()
+        criterion = sampling.mc_sampling.get_sample_criterion(
+            "PassNonnegative"
+        )()
+
+        with pytest.raises(ValueError, match="youngest"):
+            slip_rates.rate_computation.compute_slip_rates_mc(
+                markers=markers,
+                criterion=criterion,
+                n_samples=100,
+            )
+
 
 # end of file

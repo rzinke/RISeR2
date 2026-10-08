@@ -403,6 +403,9 @@ def compute_slip_rates_analytical(
             f"computation, got {n_markers}"
         )
 
+    # Check that markers are ordered youngest to oldest
+    variable_pairs.ordering.check_marker_order(markers)
+
     # Number of slip rates
     n_rates = n_markers - 1
 
@@ -542,7 +545,7 @@ def compute_slip_rates_mc(
     *,
     # Sampling
     n_samples: int = 1_000_000,
-    hard_stop: int = 1_000_000_000,
+    hard_stop: int = 1_000_000,
     # Slip rate
     pdf_method: str = "histogram",
     min_rate: float | None = None,
@@ -568,8 +571,9 @@ def compute_slip_rates_mc(
         Criterion by which to evaluate validity of samples.
     n_samples : int, optional
         Number of valid samples to achieve.
-    hard_stop : float, optional
-        Maximum number of trials, regardless of success.
+    hard_stop : int, optional
+        Number of consecutive trials that may fail the sample criterion
+        before sampling stops.
     pdf_method : str, optional
         PDF formation method.
     min_rate : float, optional
@@ -604,6 +608,9 @@ def compute_slip_rates_mc(
     # Marker parameters
     n_markers = len(markers)
     marker_names = [*markers.keys()]
+
+    # Check that markers are ordered youngest to oldest
+    variable_pairs.ordering.check_marker_order(markers)
 
     # Number of slip rates
     n_rates = n_markers - 1
