@@ -637,7 +637,7 @@ def compute_slip_rates_mc(
         verbose=verbose,
     )
 
-    # Compute incremental differences between picks for rate = delta_u / delta_t
+    # Compute incremental differences between picks
     age_diffs = np.diff(age_picks, axis=0)
     disp_diffs = np.diff(disp_picks, axis=0)
 

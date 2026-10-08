@@ -41,7 +41,7 @@ def constrain_above(
     pdf : PDF
         PDF to constrain.
     value : float
-        Value above which all probability densities will be zero.
+        Value at and below which all probability densities will be zero.
     crop : bool, optional
         Crop the output PDF to the range above the specified value.
     name : str, optional
@@ -105,14 +105,14 @@ def constrain_below(
 ) -> tuple[PDFs.PDF, float]:
     """Allow non-zero probability density only below the specified value.
 
-    I.e., enforce all-zero probability density below and at the value.
+    I.e., enforce all-zero probability density above and at the value.
 
     Parameters
     ----------
     pdf : PDF
         PDF to constrain.
     value : float
-        Value below which all probability densities will be zero.
+        Value at and above which all probability densities will be zero.
     crop : bool, optional
         Crop the output PDF to the range below the specified value.
     name : str, optional
