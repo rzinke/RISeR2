@@ -249,14 +249,17 @@ def main() -> None:
     )
 
     # Check if slip rate conditioning applied
-    conditions = ", ".join(
-        name
-        for name, condition in [
-            ("enforce ordering", inps.enforce_ordering),
-            ("limit positive", inps.limit_positive),
-        ]
-        if condition
-    ) or None
+    conditions = (
+        ", ".join(
+            name
+            for name, condition in [
+                ("enforce ordering", inps.enforce_ordering),
+                ("limit positive", inps.limit_positive),
+            ]
+            if condition
+        )
+        or None
+    )
 
     # Save slip rate report to file
     reporting.write_slip_rates_report(
