@@ -689,13 +689,9 @@ def compute_slip_rates_mc(
                 verbose=verbose,
             )
 
-        # Report if requested
+        # Report slip rate statistics
         if verbose:
             print(slip_rate)
-            print(
-                f"Mean: {np.mean(rate_picks[i, :]):.3f} "
-                f"+- {np.std(rate_picks[i, :]):.3f}"
-            )
 
         # Record to slip rate dictionary
         slip_rates[rate_name] = slip_rate

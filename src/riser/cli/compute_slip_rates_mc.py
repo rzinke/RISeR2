@@ -80,14 +80,14 @@ def cmd_parser(iargs=None):
         dest="min_rate",
         type=float,
         default=0.0,
-        help="Minimum slip rate to consider. [0]",
+        help="Minimum slip rate to consider. [0.0]",
     )
     rate_args.add_argument(
         "--max-rate",
         dest="max_rate",
         type=float,
         default=None,
-        help="Maximum slip rate to consider. [100]",
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
