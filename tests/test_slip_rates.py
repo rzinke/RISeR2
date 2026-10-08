@@ -591,7 +591,8 @@ class TestAnalyticalMonteCarlo:
         incr_rates_mc, *_ = slip_rates.rate_computation.compute_slip_rates_mc(
             markers=markers,
             criterion=mc_criterion,
-            n_samples=10_000,
+            n_samples=100_000,
+            max_rate=max_rate,
         )
 
         # The analytical maximum rate must match the Monte Carlo criterion

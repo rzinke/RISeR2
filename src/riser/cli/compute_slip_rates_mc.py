@@ -8,6 +8,7 @@
 import argparse
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from riser import (
     constants,
@@ -62,8 +63,8 @@ def cmd_parser(iargs=None):
         "--n-samples",
         dest="n_samples",
         type=int,
-        default=10_000,
-        help="Desired number of successful sample combinations. [10 000]",
+        default=100_000,
+        help="Desired number of successful sample combinations. [100 000]",
     )
     sampling_args.add_argument(
         "--max-sample-rate",

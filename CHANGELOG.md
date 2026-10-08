@@ -44,6 +44,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - **Breaking:** `max_sample_rate` now controls maximum-possible slip rate pick
   in `compute_slip_rates_mc.py`. `max_rate` is the maximum rate for the PDF
   construction.
+- Default `n_samples` is now 100 000 (ten times higher than previously).
 
 ## [1.6.1] - 2026-10-02
 ### Added

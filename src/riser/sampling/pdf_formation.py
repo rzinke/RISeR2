@@ -39,15 +39,13 @@ def samples_to_pdf_histogram(
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
 
-    Note: The number of histogram values will be 1 less than the number of bin
-    edges, leaving the question of what value is represented by each probability
-    density.
-
-    Here, the probability densities are set to correspond to the left edge of
-    each bin and the final bin is set to zero. This is because, for slip rate
-    estimates, the smaller values should be preserved and the larger values
-    trail toward zero. The bins are defined as half-open, [), where the left
-    value is included.
+    The histogram has one fewer values than bin edges, so the probability
+    density is assigned to the bin edges as follows. Each interior bin edge
+    takes the mean of the densities of the two bins it separates, and the first
+    and last edges take the density of their adjacent bin. This conserves the
+    probability mass of the histogram, and, unlike assigning each density to
+    one edge of its bin, does not shift the PDF by half a bin. The first edge
+    is placed at `xmin` so that the smallest values are preserved.
 
     Parameters
     ----------
@@ -59,8 +57,8 @@ def samples_to_pdf_histogram(
         Maximum value to consider.
     dx : float, optional
         Value array step.
-        If `None`, the number of bins will be computed using
-        `np.histogram_bin_edges`.
+        If `None`, the number of bins is computed from the samples within
+        `xmin` and `xmax` using `np.histogram_bin_edges` with `bins="auto"`.
     name : str, optional
         Brief descriptive identifier for output PDF.
     variable_type : str, optional
@@ -90,7 +88,7 @@ def samples_to_pdf_histogram(
         # Number of bins based on bin edges
         n_bins = len(bin_edges) - 1
 
-        # PDF spacing 
+        # PDF spacing
         dx = (xmax - xmin) / n_bins
 
     # Create histogram value array
@@ -99,8 +97,9 @@ def samples_to_pdf_histogram(
     # Bin points in histogram
     px, _ = np.histogram(samples, bins=x, density=True)
 
-    # Handle edge cases
-    px = np.pad(px, (0, 1), "constant")
+    # Assign bin densities to bin edges
+    interior_densities = (px[:-1] + px[1:]) / 2
+    px = np.concatenate([[px[0]], interior_densities, [px[-1]]])
 
     # Form histogram data into PDF
     pdf = PDFs.PDF(

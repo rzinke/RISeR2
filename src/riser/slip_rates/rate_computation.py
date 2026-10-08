@@ -660,9 +660,10 @@ def compute_slip_rates_mc(
         rate_name = f"{marker_names[i + 1]}-{marker_names[i]}"
 
         # Determine maximum slip rate to consider
+        max_incr_rate: float
         if max_rate is None:
             # Use a high percentile of the slip rate picks
-            max_incr_rate = np.quantile(rate_picks[i, :], 1 - epsilon)
+            max_incr_rate = float(np.quantile(rate_picks[i, :], 1 - epsilon))
         else:
             max_incr_rate = max_rate
 
