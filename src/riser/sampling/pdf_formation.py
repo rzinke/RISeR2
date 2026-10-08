@@ -22,6 +22,10 @@ import scipy as sp
 from .. import probability_functions as PDFs
 
 
+# Value array points per kernel bandwidth
+KDE_POINTS_PER_BANDWIDTH = 4
+
+
 #################### FORMATION METHODS ####################
 def samples_to_pdf_histogram(
     samples: np.ndarray,
@@ -145,6 +149,8 @@ def samples_to_pdf_kde(
         Maximum value to consider.
     dx : float, optional
         Value array step.
+        If `None`, the step is set to a fraction of the kernel bandwidth,
+        so the number of points does not depend on the value unit.
     name : str, optional
         Brief descriptive identifier for output PDF.
     variable_type : str, optional
@@ -155,7 +161,7 @@ def samples_to_pdf_kde(
     Returns
     -------
     pdf : PDF
-        Empirical PDF based on samples.
+        Empirical PDF based on samples within `xmin` and `xmax`.
     """
     if verbose:
         print("Converting samples to PDF using KDE")
@@ -164,15 +170,16 @@ def samples_to_pdf_kde(
     xmin = np.min(samples) if xmin is None else xmin
     xmax = np.max(samples) if xmax is None else xmax
 
-    # Determine bin sizes
-    n_samples = len(samples)
-    dx = 1 / np.sqrt(n_samples) if dx is None else dx
+    # Fit the kernel density estimate to the samples within the value limits
+    kde = sp.stats.gaussian_kde(samples[(samples >= xmin) & (samples <= xmax)])
 
-    # Create histogram value array
+    # Determine value array step from the kernel bandwidth (standard deviation)
+    if dx is None:
+        bandwidth = np.sqrt(kde.covariance[0, 0])
+        dx = bandwidth / KDE_POINTS_PER_BANDWIDTH
+
+    # Create value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
-
-    # Compute KDE
-    kde = sp.stats.gaussian_kde(samples)
 
     # Interpolate along value array
     px = kde.pdf(x)
