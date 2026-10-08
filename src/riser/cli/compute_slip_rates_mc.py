@@ -307,7 +307,8 @@ def main() -> None:
     # Save slip rate report to file
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
-        formulation="analytical",
+        formulation="Monte Carlo",
+        conditions=str(criterion),
         slip_rates=slip_rates,
         sample_statistics=sample_stats,
         pdf_statistics=pdf_stats,

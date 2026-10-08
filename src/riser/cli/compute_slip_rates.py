@@ -248,11 +248,22 @@ def main() -> None:
         inps.output_prefix, rate_fig, verbose=inps.verbose
     )
 
+    # Check if slip rate conditioning applied
+    conditions = ", ".join(
+        name
+        for name, condition in [
+            ("enforce ordering", inps.enforce_ordering),
+            ("limit positive", inps.limit_positive),
+        ]
+        if condition
+    ) or None
+
     # Save slip rate report to file
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
         formulation="analytical",
         slip_rates=slip_rates,
+        conditions=conditions,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,
         verbose=inps.verbose,

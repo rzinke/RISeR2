@@ -47,6 +47,9 @@ class SampleCriterion:
             "check_pass_fail not implemented. Override with child class."
         )
 
+    def __str__(self) -> str:
+        return "sample criterion"
+
 
 class PassAll(SampleCriterion):
     def __init__(self, **kwargs) -> None:
@@ -61,6 +64,9 @@ class PassAll(SampleCriterion):
         (Allows negative slip rates).
         """
         return True
+
+    def __str__(self) -> str:
+        return "pass all"
 
 
 class PassNonnegative(SampleCriterion):
@@ -79,6 +85,9 @@ class PassNonnegative(SampleCriterion):
 
         # Check condition
         return age_diffs.min() > 0 and disp_diffs.min() >= 0
+
+    def __str__(self) -> str:
+        return "pass non-negative"
 
 
 class PassNonnegativeBounded(SampleCriterion):
@@ -109,6 +118,9 @@ class PassNonnegativeBounded(SampleCriterion):
             and disp_diffs.min() >= 0
             and slip_rates.max() <= self.max_sample_rate
         )
+
+    def __str__(self) -> str:
+        return f"pass non-negative (bounded {self.max_sample_rate})"
 
 
 SAMPLE_CRITERIA = {

@@ -243,7 +243,7 @@ def compute_slip_rate(
             )
         )
 
-        # Report area of age PDF retained
+        # Report area of displacement PDF retained
         if verbose and displacement_area < 1.0:
             print(
                 f"Limiting to positive displacements only. "
