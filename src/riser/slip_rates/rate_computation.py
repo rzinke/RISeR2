@@ -548,6 +548,7 @@ def compute_slip_rates_mc(
     min_rate: float | None = None,
     max_rate: float | None = None,
     dv: float | None = None,
+    epsilon: float = 1e-2,
     smoothing_type: str | None = None,
     smoothing_width: int | None = None,
     # PDF metadata
@@ -577,6 +578,9 @@ def compute_slip_rates_mc(
         Maximum value to consider.
     dv : float, optional
         Value array step.
+    epsilon : float
+        Fraction of the positive slip rate probability allowed to lie
+        above the maximum automatically determined slip rate.
     smoothing_type : str, optional
         Smoothing filter type.
     smoothing_width : int, optional
@@ -655,11 +659,18 @@ def compute_slip_rates_mc(
         # Formulate incremental slip rate name
         rate_name = f"{marker_names[i + 1]}-{marker_names[i]}"
 
+        # Determine maximum slip rate to consider
+        if max_rate is None:
+            # Use a high percentile of the slip rate picks
+            max_incr_rate = np.quantile(rate_picks[i, :], 1 - epsilon)
+        else:
+            max_incr_rate = max_rate
+
         # Form incremental slip rate samples into PDFs
         slip_rate = pdf_fcn(
             samples=rate_picks[i, :],
             xmin=min_rate,
-            xmax=max_rate,
+            xmax=max_incr_rate,
             dx=dv,
             name=rate_name,
             variable_type=variable_type,

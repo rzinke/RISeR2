@@ -26,12 +26,15 @@ from .. import probability_functions as PDFs
 def samples_to_pdf_histogram(
     samples: np.ndarray,
     *,
+    # Domain
     xmin: float | None = None,
     xmax: float | None = None,
     dx: float | None = None,
+    # Metadata
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
@@ -56,6 +59,8 @@ def samples_to_pdf_histogram(
         Maximum value to consider.
     dx : float, optional
         Value array step.
+        If `None`, the number of bins will be computed using
+        `np.histogram_bin_edges`.
     name : str, optional
         Brief descriptive identifier for output PDF.
     variable_type : str, optional
@@ -75,9 +80,18 @@ def samples_to_pdf_histogram(
     xmin = np.min(samples) if xmin is None else xmin
     xmax = np.max(samples) if xmax is None else xmax
 
-    # Determine bin sizes
-    n_samples = len(samples)
-    dx = 1 / np.sqrt(n_samples) if dx is None else dx
+    # Determine PDF domain array spacing from histogram bin sizes
+    if dx is None:
+        # Determine histogram bin edges based on samples and x-range
+        bin_edges = np.histogram_bin_edges(
+            samples, range=(xmin, xmax), bins="auto"
+        )
+
+        # Number of bins based on bin edges
+        n_bins = len(bin_edges) - 1
+
+        # PDF spacing 
+        dx = (xmax - xmin) / n_bins
 
     # Create histogram value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
@@ -103,12 +117,15 @@ def samples_to_pdf_histogram(
 def samples_to_pdf_kde(
     samples: np.ndarray,
     *,
+    # Domain
     xmin: float | None = None,
     xmax: float | None = None,
     dx: float | None = None,
+    # Metadata
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)

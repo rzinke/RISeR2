@@ -41,6 +41,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - **Breaking:** Changed default output unit of `calyr_to_age.py`
   from `ky` to `y`.
 - Conditions are now reported in slip rate report files.
+- **Breaking:** `max_sample_rate` now controls maximum-possible slip rate pick
+  in `compute_slip_rates_mc.py`. `max_rate` is the maximum rate for the PDF
+  construction.
 
 ## [1.6.1] - 2026-10-02
 ### Added

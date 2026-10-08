@@ -65,6 +65,13 @@ def cmd_parser(iargs=None):
         default=10_000,
         help="Desired number of successful sample combinations. [10 000]",
     )
+    sampling_args.add_argument(
+        "--max-sample-rate",
+        dest="max_sample_rate",
+        type=float,
+        default=np.inf,
+        help="Maximum allowable slip rate sample. [Inf]",
+    )
 
     rate_args = parser.add_argument_group("Slip rates")
     rate_args.add_argument(
@@ -78,7 +85,7 @@ def cmd_parser(iargs=None):
         "--max-rate",
         dest="max_rate",
         type=float,
-        default=100.0,
+        default=None,
         help="Maximum slip rate to consider. [100]",
     )
     rate_args.add_argument(
@@ -222,7 +229,7 @@ def main() -> None:
     )
 
     # Define valid sample criterion
-    kwargs = {"max_sample_rate": inps.max_rate}
+    kwargs = {"max_sample_rate": inps.max_sample_rate}
     criterion = mc_sampling.get_sample_criterion("PassNonnegativeBounded")(
         **kwargs
     )
