@@ -184,4 +184,31 @@ class TestSampleMonteCarlo:
             )
 
 
+class TestSampleCriterionStr:
+    @pytest.mark.parametrize(
+        "criterion_name, kwargs, expected",
+        [
+            ("PassAll", {}, "pass all"),
+            ("PassNonnegative", {}, "pass non-negative"),
+            (
+                "PassNonnegativeBounded",
+                {"max_sample_rate": 10.0},
+                "pass non-negative (bounded 10.0)",
+            ),
+        ],
+    )
+    def test_description_used_in_reports(
+        self, criterion_name, kwargs, expected
+    ):
+        """
+        The text description of a criterion is written to the slip rate
+        report, so it should state the condition that is applied.
+        """
+        criterion = sampling.mc_sampling.get_sample_criterion(criterion_name)(
+            **kwargs
+        )
+
+        assert str(criterion) == expected
+
+
 # end of file

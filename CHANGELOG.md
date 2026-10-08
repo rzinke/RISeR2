@@ -13,6 +13,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `pyproject.toml` `[project.urls]`
 - New function `slip_rates/rate_computation/find_slip_rate_tail_cap` to
   determine maximum slip rate value to consider.
+- Tests for slip rate reporting, see `test_slip_rate_reporting.py`.
 ### Changed
 - `compute_slip_rates_analytical` can now take the full stack of ages and
   displacements into consideration when calculating incremental slip rates
@@ -39,6 +40,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   `trim_variables`, `constrain_above`, `constrain_below`.
 - **Breaking:** Changed default output unit of `calyr_to_age.py`
   from `ky` to `y`.
+- Conditions are now reported in slip rate report files.
 
 ## [1.6.1] - 2026-10-02
 ### Added
