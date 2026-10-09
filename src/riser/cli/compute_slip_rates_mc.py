@@ -79,7 +79,7 @@ def cmd_parser(iargs=None):
         type=int,
         default=100_000,
         help="Maximum number of consecutive trials that may fail the sample "
-        "criterion before sampling stops.",
+        "criterion before sampling stops. [100 000]",
     )
 
     rate_args = parser.add_argument_group("Slip rates")
