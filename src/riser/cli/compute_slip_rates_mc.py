@@ -327,6 +327,7 @@ def main() -> None:
         formulation="Monte Carlo",
         conditions=str(criterion),
         slip_rates=slip_rates,
+        n_successful_samples=rate_picks.shape[1],
         sample_statistics=sample_stats,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,

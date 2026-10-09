@@ -167,6 +167,7 @@ def write_slip_rates_report(
     confidence_ranges: (
         dict[str, PDFs.analytics.ConfidenceRange] | None
     ) = None,
+    n_successful_samples: int | None = None,
     sample_statistics: (
         dict[str, sampling.sample_statistics.SampleStatistics] | None
     ) = None,
@@ -242,6 +243,12 @@ def write_slip_rates_report(
         # Write conditions if provided
         if conditions is not None:
             outfile.write(f"Conditions: {conditions}\n")
+
+        # Record number of successful samples if applicable
+        if n_successful_samples is not None:
+            outfile.write(
+                f"Number of successful samples: {n_successful_samples}\n"
+            )
 
         # Loop through incremental slip rates based on marker pairs
         for marker_pair in slip_rates:
