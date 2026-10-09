@@ -63,7 +63,7 @@ def cmd_parser(iargs=None):
         "--n-samples",
         dest="n_samples",
         type=int,
-        default=100_000,
+        default=1_000_000,
         help="Desired number of successful sample combinations. [100 000]",
     )
     sampling_args.add_argument(
@@ -72,6 +72,14 @@ def cmd_parser(iargs=None):
         type=float,
         default=np.inf,
         help="Maximum allowable slip rate sample. [Inf]",
+    )
+    sampling_args.add_argument(
+        "--hard-stop",
+        dest="hard_stop",
+        type=int,
+        default=100_000,
+        help="Maximum number of consecutive trials that may fail the sample "
+        "criterion before sampling stops.",
     )
 
     rate_args = parser.add_argument_group("Slip rates")
@@ -241,6 +249,7 @@ def main() -> None:
             markers=markers,
             criterion=criterion,
             n_samples=inps.n_samples,
+            hard_stop=inps.hard_stop,
             min_rate=inps.min_rate,
             max_rate=inps.max_rate,
             dv=inps.dv,
