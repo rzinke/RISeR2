@@ -38,6 +38,11 @@ To compute a set of incremental slip rates (between several sets of markers) usi
 riser-compute-slip-rates <marker config>.toml -o <output folder>/<output name>
 ```
 
+> [!NOTE]
+> The markers must be entered in order of *youngest to oldest*.
+
+One may pass the `--enforce-ordering` flag for additional Bayesian constraint on the slip rate estimates. This trims the marker ages and displacements on the condition that the markers are provided in strict sequential ordering, similar to the Monte Carlo sampling condition `pass non-negative`.
+
 ## Incremental slip rate computation (Monte Carlo approach)
 
 To compute a set of incremental slip rates using the Monte Carlo method, use:
@@ -45,3 +50,8 @@ To compute a set of incremental slip rates using the Monte Carlo method, use:
 ```bash
 riser-compute-slip-rates-mc <marker config>.toml -o <output folder>/<output name>
 ```
+
+Every sample draw must pass the condition `pass non-negative`, which requires every marker to be older and more displaced than the one before it such that all incremental rates are non-negative. Draws that fail are rejected as a whole, which conditions all incremental rates on the full stack of markers.
+
+> [!WARNING]
+> If the markers are clearly out of order, both commands stop with an error naming the markers. If sampling fails to find the requested number of valid samples, Monte Carlo stops with a warning (or the error “No valid samples were found” if there are none). Check the marker order, or increase hard_stop.

@@ -12,6 +12,22 @@ riser.variable\_pairs.dated\_marker module
    :show-inheritance:
    :undoc-members:
 
+riser.variable\_pairs.interpolation module
+------------------------------------------
+
+.. automodule:: riser.variable_pairs.interpolation
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+riser.variable\_pairs.ordering module
+-------------------------------------
+
+.. automodule:: riser.variable_pairs.ordering
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 riser.variable\_pairs.readers module
 ------------------------------------
 

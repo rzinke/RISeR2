@@ -656,6 +656,7 @@ class TestAnalyticalMonteCarlo:
 
         assert rate_pdf.x[-1] == pytest.approx(4.0, rel=1e-3)
 
+
 def _reversed_separated_markers_():
     """Create markers listed from oldest to youngest with little overlap."""
     ages = PDFs.value_arrays.precise_array(0.0, 40.0, 0.01)
