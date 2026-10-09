@@ -105,12 +105,7 @@ class TestReadPDF:
 
     def test_user_metadata_overrides_file_metadata(self, tmp_path):
         fname = tmp_path / "test.txt"
-        fname.write_text(
-            "# name: from_file\n"
-            "0.0,0.0\n"
-            "1.0,1.0\n"
-            "2.0,0.0\n"
-        )
+        fname.write_text("# name: from_file\n0.0,0.0\n1.0,1.0\n2.0,0.0\n")
         with pytest.warns(UserWarning, match="differs from metadata in file"):
             pdf = PDFs.readers.read_pdf(str(fname), name="from_user")
         assert pdf.name == "from_user"
@@ -138,11 +133,7 @@ class TestReadCalendarFile:
     def test_read_calendar_file_basic(self, tmp_path):
         fname = tmp_path / "test.txt"
         fname.write_text(
-            "# name: cal file\n"
-            "# unit: y\n"
-            "1950,0.1\n"
-            "1960,5.0\n"
-            "1970,0.1\n"
+            "# name: cal file\n# unit: y\n1950,0.1\n1960,5.0\n1970,0.1\n"
         )
         calyr, calpx, metadata = PDFs.readers.read_calendar_file(str(fname))
         np.testing.assert_allclose(calyr, [1950.0, 1960.0, 1970.0])
@@ -169,8 +160,7 @@ class TestReadPdfs:
 
         fname2 = tmp_path / "second.txt"
         fname2.write_text(
-            "# name: second\n"
-            "0.0,0.0\n1.0,0.5\n2.0,1.0\n3.0,0.5\n4.0,0.0\n"
+            "# name: second\n0.0,0.0\n1.0,0.5\n2.0,1.0\n3.0,0.5\n4.0,0.0\n"
         )
 
         pdfs = PDFs.readers.read_pdfs([str(fname1), str(fname2)])

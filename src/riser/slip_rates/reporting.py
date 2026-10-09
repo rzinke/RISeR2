@@ -162,10 +162,12 @@ def write_slip_rates_report(
     formulation: str,
     slip_rates: dict[str, PDFs.PDF],
     *,
+    conditions: str | None = None,
     pdf_statistics: (dict[str, PDFs.analytics.PDFstatistics] | None) = None,
     confidence_ranges: (
         dict[str, PDFs.analytics.ConfidenceRange] | None
     ) = None,
+    n_successful_samples: int | None = None,
     sample_statistics: (
         dict[str, sampling.sample_statistics.SampleStatistics] | None
     ) = None,
@@ -189,6 +191,8 @@ def write_slip_rates_report(
         Slip rates computation description.
     slip_rates : dict[str, PDF]
         Incremental slip rate PDFs.
+    conditions: str, optional
+        Conditions applied to slip rate computation, provided as single string.
     pdf_statistics : dict[str, PDFstatistics], optional
         Slip rate PDF statistics.
     confidence_ranges : dict[str, ConfidenceRange], optional
@@ -196,6 +200,13 @@ def write_slip_rates_report(
     sample_statistics : dict[str, SampleStatistics], optional
         Slip rate sample statistics.
     """
+    # Check slip rate conditions provided as a single string
+    if conditions is not None and not isinstance(conditions, str):
+        raise ValueError(
+            f"Slip rate conditions must be provided as single string, "
+            f"got {type(conditions).__name__}"
+        )
+
     # Check that slip rate statistical products pertain to same pairs
     if sample_statistics is not None and (
         sample_statistics.keys() != slip_rates.keys()
@@ -226,12 +237,22 @@ def write_slip_rates_report(
         # Overall header
         now = datetime.now(UTC).strftime("%Y %m %d:%H %M %S")
         outfile.write(
-            f"Incremental slip rates from {formulation} formulation ({now})"
+            f"Incremental slip rates from {formulation} formulation ({now})\n"
         )
+
+        # Write conditions if provided
+        if conditions is not None:
+            outfile.write(f"Conditions: {conditions}\n")
+
+        # Record number of successful samples if applicable
+        if n_successful_samples is not None:
+            outfile.write(
+                f"Number of successful samples: {n_successful_samples}\n"
+            )
 
         # Loop through incremental slip rates based on marker pairs
         for marker_pair in slip_rates:
-            outfile.write("\n\n")
+            outfile.write("\n")
 
             # Write sample statistics
             if sample_statistics is not None:

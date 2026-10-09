@@ -293,6 +293,129 @@ class TestSubtractVariables:
         assert len(recwarn) == 0
         assert pdf_diff.name == "X12"
 
+    @staticmethod
+    def _two_gaussians_():
+        """Two Gaussian displacement PDFs, 12 +/- 2 m and 10 +/- 2 m, whose
+        difference is Gaussian with a mean of 2.0 and a standard deviation of
+        sqrt(8), so that about 24 % of the difference lies below zero.
+        """
+        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
+
+        pdf1 = PDFs.PDF(
+            x=x,
+            px=PDFs.parametric_functions.gaussian(x, mu=12.0, sigma=2.0),
+            name="X1",
+            variable_type="displacement",
+            unit="m",
+        )
+        pdf2 = PDFs.PDF(
+            x=x,
+            px=PDFs.parametric_functions.gaussian(x, mu=10.0, sigma=2.0),
+            name="X2",
+            variable_type="displacement",
+            unit="m",
+        )
+
+        return pdf1, pdf2
+
+    def test_limit_positive_crops_axis_and_normalizes(self):
+        """Limiting to positive values should drop all non-positive values
+        from the output axis and renormalize the remaining density to an area
+        of 1.0.
+        """
+        pdf1, pdf2 = self._two_gaussians_()
+
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1, pdf2, limit_positive=True
+        )
+
+        assert np.all(pdf_diff.x > 0.0)
+        assert np.all(pdf_diff.px >= 0.0)
+        assert np.trapezoid(pdf_diff.px, pdf_diff.x) == pytest.approx(1.0)
+
+    def test_limit_positive_matches_truncated_gaussian(self):
+        """The difference of two Gaussians limited to positive values should
+        follow a Gaussian truncated at zero.
+        """
+        pdf1, pdf2 = self._two_gaussians_()
+        mu = 2.0
+        sigma = np.sqrt(8.0)
+        truncated = sp.stats.truncnorm(-mu / sigma, np.inf, loc=mu, scale=sigma)
+
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1, pdf2, limit_positive=True
+        )
+
+        assert PDFs.analytics.pdf_mean(pdf_diff) == pytest.approx(
+            truncated.mean(), rel=5e-3
+        )
+        assert np.sqrt(PDFs.analytics.pdf_variance(pdf_diff)) == pytest.approx(
+            truncated.std(), rel=5e-3
+        )
+
+    def test_limit_positive_is_cropped_and_rescaled_unconstrained(self):
+        """Limiting to positive values should be equivalent to keeping the
+        positive part of the unconstrained difference and rescaling it by the
+        probability that the difference is positive.
+        """
+        pdf1, pdf2 = self._two_gaussians_()
+
+        pdf_free = var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
+        pdf_pos = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1, pdf2, limit_positive=True
+        )
+
+        positive = pdf_free.x > 0.0
+        np.testing.assert_allclose(pdf_pos.x, pdf_free.x[positive])
+        area_positive = np.trapezoid(
+            pdf_free.px[positive], pdf_free.x[positive]
+        )
+        np.testing.assert_allclose(
+            pdf_pos.px, pdf_free.px[positive] / area_positive, rtol=1e-3
+        )
+
+    def test_default_keeps_full_axis(self):
+        """Without `limit_positive`, the output should retain its full
+        (including negative) range.
+        """
+        pdf1, pdf2 = self._two_gaussians_()
+
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(pdf1, pdf2)
+
+        assert pdf_diff.x[0] == pytest.approx(-40.0)
+        assert pdf_diff.x[-1] == pytest.approx(40.0)
+
+    def test_limit_positive_metadata(self):
+        """Limiting to positive values should not alter the metadata, and an
+        explicitly passed name should still be used.
+        """
+        pdf1, pdf2 = self._two_gaussians_()
+
+        pdf_diff = var_fcns.transform.arithmetic.subtract_variables(
+            pdf1, pdf2, limit_positive=True, name="X12"
+        )
+
+        assert pdf_diff.name == "X12"
+        assert pdf_diff.variable_type == "displacement"
+        assert pdf_diff.unit == "m"
+
+    def test_limit_positive_all_negative_raises(self):
+        """If every possible difference is negative, there is nothing to
+        retain and the function should raise.
+        """
+        x = PDFs.value_arrays.precise_array(-20.0, 20.0, 0.01)
+        pdf1 = PDFs.PDF(
+            x=x, px=PDFs.parametric_functions.gaussian(x, mu=-12.0, sigma=1.0)
+        )
+        pdf2 = PDFs.PDF(
+            x=x, px=PDFs.parametric_functions.gaussian(x, mu=10.0, sigma=1.0)
+        )
+
+        with pytest.raises(ValueError, match="too close to 0.0"):
+            var_fcns.transform.arithmetic.subtract_variables(
+                pdf1, pdf2, limit_positive=True
+            )
+
 
 class TestMultiplyVariables:
     def test_uniform_product_closed_form(self):
@@ -356,7 +479,7 @@ class TestDivideVariables:
 
     def test_too_coarse_dz_raises(self):
         """For small quotient ranges (large denominator relative to numerator),
-        the default `dz` value may be too coarse and the resulting `pz` values 
+        the default `dz` value may be too coarse and the resulting `pz` values
         - though correct - will be too scarce to produce a valid PDF.
 
         Test that a too-coarse `dz` value, whether user-specified or default,
@@ -403,6 +526,70 @@ class TestDivideVariables:
         var_fcns.transform.arithmetic.divide_variables(
             disp_pdf, age_pdf, dz=None
         )
+
+    @pytest.mark.parametrize(
+        "limits",
+        [
+            pytest.param({"min_quotient": 1.0}, id="min above natural max"),
+            pytest.param({"max_quotient": 1e-5}, id="max below natural min"),
+            pytest.param(
+                {"min_quotient": 1e-3, "max_quotient": 1e-3},
+                id="min equals max",
+            ),
+            pytest.param(
+                {"min_quotient": 2e-3, "max_quotient": 1e-3}, id="min above max"
+            ),
+        ],
+    )
+    def test_empty_quotient_range_raises(self, limits):
+        """User-specified limits can only narrow the natural quotient range.
+        If they leave no values (zero or negative range), raise a clear error
+        rather than failing deep inside the array construction.
+        """
+        # Age in yBP
+        age_axis = PDFs.value_arrays.precise_array(15_000, 25_000, 10)
+        age_density = PDFs.parametric_functions.gaussian(
+            age_axis, mu=20_000, sigma=1_000
+        )
+        age_pdf = PDFs.PDF(age_axis, age_density)
+
+        # Displacement in meters
+        disp_axis = PDFs.value_arrays.precise_array(15.0, 25.0, 0.01)
+        disp_density = PDFs.parametric_functions.triangular(
+            disp_axis, a=15.0, c=20.0, b=25.0
+        )
+        disp_pdf = PDFs.PDF(disp_axis, disp_density)
+
+        with pytest.raises(ValueError, match="No quotient values remain"):
+            var_fcns.transform.arithmetic.divide_variables(
+                disp_pdf, age_pdf, dz=None, **limits
+            )
+
+    def test_empty_range_with_denominator_straddling_zero_raises(self):
+        """When the denominator range includes zero the user must provide the
+        limits. Equal limits leave an empty range and should raise too.
+        """
+        # Denominator spans zero
+        denom_axis = PDFs.value_arrays.precise_array(-1.0, 1.0, 0.01)
+        denom_density = PDFs.parametric_functions.gaussian(
+            denom_axis, mu=0.0, sigma=0.2
+        )
+        denom_pdf = PDFs.PDF(denom_axis, denom_density)
+
+        numer_axis = PDFs.value_arrays.precise_array(1.0, 3.0, 0.01)
+        numer_density = PDFs.parametric_functions.gaussian(
+            numer_axis, mu=2.0, sigma=0.2
+        )
+        numer_pdf = PDFs.PDF(numer_axis, numer_density)
+
+        with pytest.raises(ValueError, match="No quotient values remain"):
+            var_fcns.transform.arithmetic.divide_variables(
+                numer_pdf,
+                denom_pdf,
+                min_quotient=5.0,
+                max_quotient=5.0,
+                dz=None,
+            )
 
 
 # end of file

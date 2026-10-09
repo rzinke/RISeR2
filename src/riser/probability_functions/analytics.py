@@ -145,10 +145,9 @@ def compute_standardized_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
     mu = expected_value(x, px)
 
     # Compute central moment
-    mu_std_n = (
-        integration.integrate(x=x, px=((x - mu)**n) * px)
-        / integration.integrate(x=x, px=((x - mu) ** 2) * px) ** (n/2)
-    )
+    mu_std_n = integration.integrate(
+        x=x, px=((x - mu) ** n) * px
+    ) / integration.integrate(x=x, px=((x - mu) ** 2) * px) ** (n / 2)
 
     return mu_std_n
 
@@ -495,7 +494,7 @@ def compute_highest_posterior_density(
     P_sort = np.cumsum(p_i_sort)
 
     # Find last index at which summed probability is <= the desired confidence
-    conf_ndxs = (P_sort <= confidence)
+    conf_ndxs = P_sort <= confidence
     k_star = np.sum(conf_ndxs) - 1
 
     # Find exact probability density value corresponding to desired confidence

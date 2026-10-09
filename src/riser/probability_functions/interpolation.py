@@ -71,6 +71,7 @@ def interpolate_pdf(
     # Format metadata
     metadata_dict = pdf.metadata.as_dict()
 
+    # Apply user-specified metadata values
     if name is not None:
         metadata_dict["name"] = name
 

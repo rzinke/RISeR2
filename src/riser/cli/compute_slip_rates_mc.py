@@ -8,6 +8,7 @@
 import argparse
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from riser import (
     constants,
@@ -62,8 +63,23 @@ def cmd_parser(iargs=None):
         "--n-samples",
         dest="n_samples",
         type=int,
-        default=10_000,
-        help="Desired number of successful sample combinations. [10 000]",
+        default=1_000_000,
+        help="Desired number of successful sample combinations. [1 000 000]",
+    )
+    sampling_args.add_argument(
+        "--max-sample-rate",
+        dest="max_sample_rate",
+        type=float,
+        default=np.inf,
+        help="Maximum allowable slip rate sample. [Inf]",
+    )
+    sampling_args.add_argument(
+        "--hard-stop",
+        dest="hard_stop",
+        type=int,
+        default=100_000,
+        help="Maximum number of consecutive trials that may fail the sample "
+        "criterion before sampling stops. [100 000]",
     )
 
     rate_args = parser.add_argument_group("Slip rates")
@@ -72,14 +88,14 @@ def cmd_parser(iargs=None):
         dest="min_rate",
         type=float,
         default=0.0,
-        help="Minimum slip rate to consider. [0]",
+        help="Minimum slip rate to consider. [0.0]",
     )
     rate_args.add_argument(
         "--max-rate",
         dest="max_rate",
         type=float,
-        default=100.0,
-        help="Maximum slip rate to consider. [100]",
+        default=None,
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
@@ -222,7 +238,7 @@ def main() -> None:
     )
 
     # Define valid sample criterion
-    kwargs = {"max_sample_rate": inps.max_rate}
+    kwargs = {"max_sample_rate": inps.max_sample_rate}
     criterion = mc_sampling.get_sample_criterion("PassNonnegativeBounded")(
         **kwargs
     )
@@ -233,9 +249,10 @@ def main() -> None:
             markers=markers,
             criterion=criterion,
             n_samples=inps.n_samples,
-            pdf_xmin=inps.min_rate,
-            pdf_xmax=inps.max_rate,
-            pdf_dx=inps.dv,
+            hard_stop=inps.hard_stop,
+            min_rate=inps.min_rate,
+            max_rate=inps.max_rate,
+            dv=inps.dv,
             smoothing_type=inps.smoothing_type,
             smoothing_width=inps.smoothing_width,
             verbose=inps.verbose,
@@ -307,8 +324,10 @@ def main() -> None:
     # Save slip rate report to file
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
-        formulation="analytical",
+        formulation="Monte Carlo",
+        conditions=str(criterion),
         slip_rates=slip_rates,
+        n_successful_samples=rate_picks.shape[1],
         sample_statistics=sample_stats,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,

@@ -9,7 +9,11 @@ of observations, e.g., the displacement and age of a geologic feature.
 """
 
 # Import modules
-from . import readers
+from . import (
+    interpolation,
+    ordering,
+    readers,
+)
 from .dated_marker import DatedMarker
 from .variable_pair import VariablePair
 
@@ -18,6 +22,8 @@ from .variable_pair import VariablePair
 __all__ = (
     "VariablePair",
     "DatedMarker",
+    "interpolation",
+    "ordering",
     "readers",
 )
 

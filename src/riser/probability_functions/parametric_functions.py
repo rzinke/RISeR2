@@ -42,10 +42,10 @@ def check_mass_against_value_range(
         Theoretical maximum value of significance to check against value array.
     """
     # Check for probability density below x domain
-    mass_below = (xmin < x.min() - 10**-precision.RISER_PRECISION)
+    mass_below = xmin < x.min() - 10**-precision.RISER_PRECISION
 
     # Check for probability density above x domain
-    mass_above = (xmax > x.max() + 10**-precision.RISER_PRECISION)
+    mass_above = xmax > x.max() + 10**-precision.RISER_PRECISION
 
     if mass_below and not mass_above:
         warnings.warn(
@@ -135,7 +135,7 @@ def triangular(x: np.ndarray, a: float, c: float, b: float) -> np.ndarray:
     px[left_ndx] = 2 * (x[left_ndx] - a) / ((b - a) * (c - a))
 
     # Peak
-    peak_ndx = (x == c)
+    peak_ndx = x == c
     px[peak_ndx] = 2 / (b - a)
 
     # Right side
@@ -214,6 +214,7 @@ def _gaussian_limits_(mu, sigma) -> tuple[float, float]:
     # Target domain limits
     return xmin, xmax
 
+
 def gaussian(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Gaussian function.
 
@@ -256,6 +257,7 @@ def _exponential_limits_(scale) -> tuple[float, float]:
 
     return xmin, xmax
 
+
 def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     """Exponential function.
 
@@ -280,7 +282,7 @@ def exponential(x: np.ndarray, scale: float) -> np.ndarray:
     px = np.zeros(n)
 
     # Indices over which function is non-zero
-    nonnegative_ndx = (x >= 0)
+    nonnegative_ndx = x >= 0
 
     # Distribution components
     a = 1 / scale
@@ -303,6 +305,7 @@ def _lognormal_limits_(mu, sigma) -> tuple[float, float]:
     xmax = np.exp(mu + sp.stats.norm.ppf(target_coverage) * sigma)
 
     return xmin, xmax
+
 
 def lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     """Log-normal function.
@@ -355,6 +358,7 @@ def _students_t_limits_(dof, mu, scale) -> tuple[float, float]:
 
     # Target domain limits
     return xmin, xmax
+
 
 def students_t(
     x: np.ndarray, dof: float, mu: float, scale: float
@@ -627,7 +631,7 @@ def cumulative_triangular(
     Px[right_ndx] = 1 - (b - x[right_ndx]) ** 2 / ((b - a) * (b - c))
 
     # Far right
-    far_ndx = (b <= x)
+    far_ndx = b <= x
     Px[far_ndx] = 1.0
 
     return Px
@@ -683,7 +687,7 @@ def cumulative_trapezoidal(
     Px[right_ndx] = 1 - coef / (d - c) * (d - x[right_ndx]) ** 2
 
     # Far right
-    far_ndx = (x > d)
+    far_ndx = x > d
     Px[far_ndx] = 1.0
 
     return Px

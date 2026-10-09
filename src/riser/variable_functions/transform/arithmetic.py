@@ -9,7 +9,7 @@ These functions carry out arithmetic between variables:
   - multiplication (product distribution), i.e., X1 * X2
   - division (ratio distribution), i.e., X1 / X2
 
-and a function to negate (i.e., -1 * X1) a variable.
+and a function to negate (i.e., -1 · X1) a variable.
 
 This module also includes bespoke convolution functions that explicitly show
 the mechanics of how convolution is implemented.
@@ -34,6 +34,7 @@ from ... import (
     precision,
     probability_functions as PDFs,
 )
+from .. import condition
 
 
 #################### GENERIC FUNCTIONS ####################
@@ -177,9 +178,9 @@ def add_variables(
     function of values. This is exactly convolution, and is mathematically best
     expressed from the "output side".
 
-        P(Z = z) = sum(P(X = k).P(Y = z - k))
+        P(Z = z) = sum(P(X = k) · P(Y = z - k))
         or
-        fZ(z) = integral(fX(x).fY(z - x) dx)
+        fZ(z) = integral(fX(x) · fY(z - x) · dx)
 
     Machinery:
     This function takes two PDFs that will be sampled on the same value axis.
@@ -258,6 +259,8 @@ def subtract_variables(
     pdf1: PDFs.PDF,
     pdf2: PDFs.PDF,
     *,
+    # Conditioning
+    limit_positive: bool = False,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -277,7 +280,7 @@ def subtract_variables(
     A random variable can be negated by flipping the PDF of the variable.
     Addition is carried out by convolution, as above, i.e.,
 
-        P(Z = z) = sum(P(X = k).P(flipped_Y = z - k))
+        P(Z = z) = sum(P(X = k) · P(flipped_Y = z - k))
 
     Machinery:
     This function takes two PDFs that will be sampled on the same
@@ -295,6 +298,9 @@ def subtract_variables(
         PDF from which to subtract pdf2.
     pdf2 : PDF
         PDF to subtract from pdf1.
+    limit_positive : bool, optional
+        Enforce condition that values must be positive.
+        Doing so will limit the output domain to positive values only.
     name : str, optional
         Name of differenced PDF.
     variable_type : str, optional
@@ -350,6 +356,21 @@ def subtract_variables(
     # Form results into PDF
     diff_pdf = PDFs.PDF(x=z, px=pz, **metadata_dict)
 
+    # Limit to positive values only
+    if limit_positive:
+        # Nullify values smaller than zero
+        diff_pdf, area = condition.self_constraint.constrain_above(
+            pdf=diff_pdf,
+            value=0.0,
+            crop=True,
+            **metadata_dict,
+            verbose=verbose,
+        )
+
+        # Report area retained
+        if verbose:
+            print(f"Fraction of difference retained: {area:.3f}")
+
     return diff_pdf
 
 
@@ -375,7 +396,7 @@ def multiply_variables(
     The equation for multiplication of PDFs is similar to that for division:
     It is a weighted convolution of X and Y, with the scaling factor 1/x:
 
-        fZ(z) = integral(fX(x).fY(z/x) 1/abs(x) dx)
+        fZ(z) = integral(fX(x) · fY(z/x) 1/abs(x) · dx)
 
     In the ideal case, the area of the product function will be 1.0,
     indicating that the entire probability space is captured.
@@ -433,7 +454,7 @@ def multiply_variables(
     x1_abs = np.abs(pdf1.x)
 
     # Non-zero index
-    nonzero_ndx = (x1_abs > 10**-precision.RISER_PRECISION)
+    nonzero_ndx = x1_abs > 10**-precision.RISER_PRECISION
 
     # Non-zero values and probability densities of pdf1
     x1_nonzero = pdf1.x[nonzero_ndx]
@@ -459,11 +480,7 @@ def multiply_variables(
         print(f"Area of product, pre-normalization: {prod.area:.4f}")
 
     # Determine product unit
-    if (
-        unit is None
-        and pdf1.unit is not None
-        and pdf2.unit is not None
-    ):
+    if unit is None and pdf1.unit is not None and pdf2.unit is not None:
         unit = f"{pdf1.unit}.{pdf2.unit}"
 
     # Format metadata
@@ -484,9 +501,9 @@ def divide_variables(
     pdf2: PDFs.PDF,
     *,
     # Quotient distribution
-    dz: float | None = 0.01,
     min_quotient: float | None = None,
     max_quotient: float | None = None,
+    dz: float | None = None,
     # PDF metadata
     name: str | None = None,
     variable_type: str | None = None,
@@ -500,7 +517,7 @@ def divide_variables(
     The equation for division of PDFs comes from Bird (2007) and later from
     Zechar and Frankel (2009):
 
-        fV(v) = integral(fT(t).fX(x=vt).t dt)
+        fV(v) = integral(fT(t) · fX(x=vt) · t · dt)
 
     where v is velocity, T is time, and X is distance.
     This equation follows the same intuition for using output-side convolution
@@ -539,16 +556,16 @@ def divide_variables(
         Numerator distribution.
     pdf2 : PDF
         Denominator distribution.
-    dz : float or None
-        Quotient sample spacing.
-        If None, 1000 points will be automatically generated based on the
-        natural range of quotient values.
     min_quotient : float, optional
         Minimum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
     max_quotient : float, optional
         Maximum-allowable quotient to consider. Required if pdf2's
         range straddles zero.
+    dz : float or None
+        Quotient sample spacing.
+        If None, 1000 points will be automatically generated based on the
+        natural range of quotient values.
     name : str, optional
         Name of quotient PDF.
     variable_type : str, optional
@@ -567,7 +584,7 @@ def divide_variables(
         print("Dividing variables")
 
     # Check whether pdf2's range straddles (or touches) zero
-    denom_straddles_zero = (pdf2.x[0] <= 0.0 <= pdf2.x[-1])
+    denom_straddles_zero = pdf2.x[0] <= 0.0 <= pdf2.x[-1]
 
     if denom_straddles_zero:
         # No finite natural bound exists: numer/denom -> +/-inf as
@@ -604,6 +621,16 @@ def divide_variables(
     # Quotient range
     quotient_range = quot_max - quot_min
 
+    # Ensure that a non-empty range of quotient values remains
+    if quotient_range <= 0.0:
+        raise ValueError(
+            f"No quotient values remain: "
+            f"the allowed range is empty ({quot_min:.3f} to {quot_max:.3f}). "
+            f"Check `min_quotient` ({min_quotient}) and "
+            f"`max_quotient` ({max_quotient}) against the natural range "
+            f"of the quotient."
+        )
+
     # Quotient array spacing
     if dz is None:
         # Auto-generate quotient array spacing
@@ -613,11 +640,11 @@ def divide_variables(
         if quotient_range / dz < 3:
             raise ValueError(
                 f"Output array spacing `dz` ({dz}) is too coarse for a "
-                f"quotient range of {quotient_range:.3g}: "
+                f"quotient range of {quotient_range:.3f}. "
                 f"it will only produce {quotient_range / dz} points. "
-                f"Try setting `dz` to something smaller (e.g., "
-                f"{quotient_range / 100:.3g}) or None to auto-generate `dz` "
-                f"for 1,000 points."
+                f"Try setting `dz` to something smaller "
+                f"(e.g., {quotient_range / 100:.3f}) or None "
+                f"to auto-generate `dz` for 1,000 points."
             )
 
     # Create quotient value array
@@ -649,11 +676,7 @@ def divide_variables(
         print(f"Area of quotient, pre-normalization: {quot.area:.4f}")
 
     # Determine quotient unit
-    if (
-        unit is None
-        and pdf1.unit is not None
-        and pdf2.unit is not None
-    ):
+    if unit is None and pdf1.unit is not None and pdf2.unit is not None:
         unit = f"{pdf1.unit}/{pdf2.unit}"
 
     # Format metadata

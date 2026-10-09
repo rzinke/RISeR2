@@ -53,24 +53,38 @@ def cmd_parser(iargs=None):
 
     rate_args = parser.add_argument_group("Slip rates")
     rate_args.add_argument(
+        "--enforce-ordering",
+        dest="enforce_ordering",
+        action="store_true",
+        help="Trim the marker ages and displacements on the condition that the "
+        "markers are provided in strict ordering",
+    )
+    rate_args.add_argument(
         "--limit-positive",
         dest="limit_positive",
         action="store_true",
         help="Enforce the condition that values are >= to 0.",
     )
     rate_args.add_argument(
+        "--min-rate",
+        dest="min_rate",
+        type=float,
+        default=0.0,
+        help="Minimum slip rate to consider. [0.0]",
+    )
+    rate_args.add_argument(
         "--max-rate",
         dest="max_rate",
         type=float,
-        default=100,
-        help="Maximum slip rate to consider. [100]",
+        default=None,
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
         dest="dv",
         type=float,
-        default=0.01,
-        help="Slip rate step. [0.01]",
+        default=None,
+        help="Slip rate step. [None]",
     )
 
     reporting_args = parser.add_argument_group("Reporting")
@@ -193,7 +207,9 @@ def main() -> None:
     # Compute slip rates
     slip_rates = rate_computation.compute_slip_rates_analytical(
         markers=markers,
+        enforce_ordering=inps.enforce_ordering,
         limit_positive=inps.limit_positive,
+        min_rate=inps.min_rate,
         max_rate=inps.max_rate,
         dv=inps.dv,
         verbose=inps.verbose,
@@ -232,11 +248,25 @@ def main() -> None:
         inps.output_prefix, rate_fig, verbose=inps.verbose
     )
 
+    # Check if slip rate conditioning applied
+    conditions = (
+        ", ".join(
+            name
+            for name, condition in [
+                ("enforce ordering", inps.enforce_ordering),
+                ("limit positive", inps.limit_positive),
+            ]
+            if condition
+        )
+        or None
+    )
+
     # Save slip rate report to file
     reporting.write_slip_rates_report(
         output_prefix=inps.output_prefix,
         formulation="analytical",
         slip_rates=slip_rates,
+        conditions=conditions,
         pdf_statistics=pdf_stats,
         confidence_ranges=conf_ranges,
         verbose=inps.verbose,

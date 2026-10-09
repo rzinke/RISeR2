@@ -47,6 +47,9 @@ class SampleCriterion:
             "check_pass_fail not implemented. Override with child class."
         )
 
+    def __str__(self) -> str:
+        return "sample criterion"
+
 
 class PassAll(SampleCriterion):
     def __init__(self, **kwargs) -> None:
@@ -61,6 +64,9 @@ class PassAll(SampleCriterion):
         (Allows negative slip rates).
         """
         return True
+
+    def __str__(self) -> str:
+        return "pass all"
 
 
 class PassNonnegative(SampleCriterion):
@@ -79,6 +85,9 @@ class PassNonnegative(SampleCriterion):
 
         # Check condition
         return age_diffs.min() > 0 and disp_diffs.min() >= 0
+
+    def __str__(self) -> str:
+        return "pass non-negative"
 
 
 class PassNonnegativeBounded(SampleCriterion):
@@ -109,6 +118,9 @@ class PassNonnegativeBounded(SampleCriterion):
             and disp_diffs.min() >= 0
             and slip_rates.max() <= self.max_sample_rate
         )
+
+    def __str__(self) -> str:
+        return f"pass non-negative (bounded {self.max_sample_rate})"
 
 
 SAMPLE_CRITERIA = {
@@ -148,9 +160,9 @@ def sample_monte_carlo(
     markers: dict[str, variable_pairs.DatedMarker],
     criterion: SampleCriterion,
     *,
-    n_samples: int = 10_000,
+    n_samples: int = 1_000_000,
     seed_val: int = 0,
-    hard_stop: int = 1_000_000_000,
+    hard_stop: int = 100_000,
     verbose: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Sample valid possible slip rates using a Monte Carlo method.
@@ -160,11 +172,13 @@ def sample_monte_carlo(
     The random samples are checked against a criterion, e.g., "no negative
     slip rates".
 
-    If no valid picks are found after the hard limit of trials is reached,
-    an error is raised.
-    A warning will be raised if the desired number of picks is not fully
-    reached, but some valid picks are found. In that case, all valid picks
-    will be returned.
+    Sampling continues until the desired number of valid picks is found.
+    It stops early if `hard_stop` trials in a row fail the criterion.
+    If no valid picks were found at that point, an error is raised, because
+    the criterion is probably unsatisfiable, e.g., the markers are listed
+    out of order.
+    If some valid picks were found, a warning is raised and all valid picks
+    are returned.
 
     The proportion of valid samples to total samples is stored and returned
     as a measure of how much area was rejected during the sampling process.
@@ -180,7 +194,8 @@ def sample_monte_carlo(
     seed_val : int
         Random number generator seed value.
     hard_stop : int
-        Maximum slip rate to consider.
+        Number of consecutive trials that may fail the criterion before
+        sampling stops.
 
     Returns
     -------
@@ -208,15 +223,16 @@ def sample_monte_carlo(
     # Seed random number generator
     np.random.seed(seed_val)
 
-    # Initialize counter
+    # Initialize counters
     successes = 0
     tossed = 0
+    consecutive_fails = 0
 
     # Initialize progress bar
     pbar = tqdm(total=n_samples)
 
-    # Loop through samples until enough successess collected
-    for i in range(hard_stop):
+    # Sample until enough successes collected or the criterion stops passing
+    while successes < n_samples and consecutive_fails < hard_stop:
         # Generate random numbers over interval [0.0, 1.0)
         r_ages = np.random.rand(m_markers)
         r_disps = np.random.rand(m_markers)
@@ -232,18 +248,17 @@ def sample_monte_carlo(
             age_picks[:, successes] = age_samps
             disp_picks[:, successes] = disp_samps
 
-            # Update counter
+            # Update counters
             successes += 1
+            consecutive_fails = 0
 
             # Update progress bar
             pbar.update()
 
-            # Break loop if desired successes achieved
-            if successes == n_samples:
-                break
         else:
             # Condition not met
             tossed += 1
+            consecutive_fails += 1
 
     # Close progress bar
     pbar.close()
@@ -263,13 +278,21 @@ def sample_monte_carlo(
     # Raise error if no valid samples found
     if successes == 0:
         raise RuntimeError(
-            f"No samples meet the specified criteria after {hard_stop} trials"
+            f"No valid samples were found in {hard_stop:,} consecutive "
+            f"trials (criterion: {criterion}). Check that the markers are "
+            f"listed from youngest to oldest, and that their ages and "
+            f"displacements are consistent with the criterion. If you "
+            f"expect valid samples to be extremely rare, increase "
+            f"`hard_stop` to keep sampling."
         )
 
     # Warn desired number of successful samples not found before hard stop
     if successes < n_samples:
         warnings.warn(
-            f"Only {successes} valid samples found before reaching trial limit"
+            f"Only {successes} valid samples found before {hard_stop:,} "
+            f"consecutive trials failed the criterion. "
+            f"Increase `hard_stop` to keep sampling.",
+            stacklevel=2,
         )
 
     # Determine success rate

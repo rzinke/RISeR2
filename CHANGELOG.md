@@ -7,6 +7,57 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-09
+### Added
+- Introduced `variable_pairs.interpolation` module for interpolating variable
+  pair PDFs (e.g., age, displacement) onto common axes.
+- Created test module for `variable_pairs.interpolation`.
+- `pyproject.toml` `[project.urls]`
+- New function `slip_rates/rate_computation/find_slip_rate_tail_cap` to
+  determine maximum slip rate value to consider.
+- Tests for slip rate reporting, see `test_slip_rate_reporting.py`.
+- `variable_pairs/ordering.py` and associated tests.
+### Changed
+- `compute_slip_rates_analytical` can now take the full stack of ages and
+  displacements into consideration when calculating incremental slip rates
+  when the `enforce_ordering` flag is passed.
+- `--enforce-ordering` flag introduced for `compute_slip_rates_analytical`
+  command line entry point.
+- `--min-rate` / `min_rate` set to default floor of 0.0.
+- **Breaking:** `dv` now defaults to `None`, triggering `divide_variables`
+  to use 1000 samples across the natural rate.
+- **Breaking:** `subtract_variables` can now enforce `limit_positive`.
+  Output axis is now cropped to positive values. Enforced by tests.
+- Slip rate functions now take `None` sentinel for `max_rate`,
+  and determines maximum slip rate to consider based on the
+  `find_slip_rate_tail_cap` function. Tests integrated.
+- `epsilon` parameter introduced to determine fraction of the positive
+  slip rate probability allowed to lie above v_max, control for
+  `find_slip_rate_tail_cap`.
+- `constrain_above/below` can now crop the output PDF to the constrained range.
+- Added tests for `constrain_above/below`.
+- **Breaking:** changed `compute_slip_rates_mc` input parameters:
+  `pdf_xmin` to `min_rate`; `pdf_xmax` to `max_rate`; `pdf_dx` to `dv` to
+  match other slip rate computation functions.
+- **Breaking:** Keep original PDF names where variable stays the same:
+  `trim_variables`, `constrain_above`, `constrain_below`.
+- **Breaking:** Changed default output unit of `calyr_to_age.py`
+  from `ky` to `y`.
+- Conditions are now reported in slip rate report files.
+- **Breaking:** `max_sample_rate` now controls maximum-possible slip rate pick
+  in `compute_slip_rates_mc.py`. `max_rate` is the maximum rate for the PDF
+  construction.
+- Default `n_samples` is now 1 000 000 (one hundred times higher than
+  previously).
+- **Breaking:** MC sampling `hard_stop` now controls the number of sample
+  runs allowed without a valid sample path before `compute_slip_rates_mc`
+  fails with an error.
+- Ordering checks improved for dated marker sets.
+- **Breaking:** Reversed markers now raise a ValueError (the limit is 0.98)
+  in both compute functions, where before they only warned.
+- MC histogram PDFs now use edge-averaged densities and an automatic bin count,
+  and the KDE fits samples within `[xmin, xmax]` with a bandwidth-based step.
+
 ## [1.6.1] - 2026-10-02
 ### Added
 - Documentation on Read the Docs (getting started, input formats, CLI guide).

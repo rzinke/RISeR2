@@ -315,7 +315,7 @@ def plot_pdf_confidence_range(
             color=color,
             zorder=zorder,
             alpha=0.5,
-            label=label
+            label=label,
         )
 
 

@@ -84,7 +84,7 @@ def cmd_parser(iargs=None):
         "--output-unit",
         dest="output_unit",
         type=str,
-        default="ky",
+        default="y",
         help="Unit of output data. [ky]",
     )
 

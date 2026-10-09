@@ -22,29 +22,34 @@ import scipy as sp
 from .. import probability_functions as PDFs
 
 
+# Value array points per kernel bandwidth
+KDE_POINTS_PER_BANDWIDTH = 4
+
+
 #################### FORMATION METHODS ####################
 def samples_to_pdf_histogram(
     samples: np.ndarray,
     *,
+    # Domain
     xmin: float | None = None,
     xmax: float | None = None,
     dx: float | None = None,
+    # Metadata
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF by binning them into a histogram.
 
-    Note: The number of histogram values will be 1 less than the number of bin
-    edges, leaving the question of what value is represented by each probability
-    density.
-
-    Here, the probability densities are set to correspond to the left edge of
-    each bin and the final bin is set to zero. This is because, for slip rate
-    estimates, the smaller values should be preserved and the larger values
-    trail toward zero. The bins are defined as half-open, [), where the left
-    value is included.
+    The histogram has one fewer values than bin edges, so the probability
+    density is assigned to the bin edges as follows. Each interior bin edge
+    takes the mean of the densities of the two bins it separates, and the first
+    and last edges take the density of their adjacent bin. This conserves the
+    probability mass of the histogram, and, unlike assigning each density to
+    one edge of its bin, does not shift the PDF by half a bin. The first edge
+    is placed at `xmin` so that the smallest values are preserved.
 
     Parameters
     ----------
@@ -56,6 +61,8 @@ def samples_to_pdf_histogram(
         Maximum value to consider.
     dx : float, optional
         Value array step.
+        If `None`, the number of bins is computed from the samples within
+        `xmin` and `xmax` using `np.histogram_bin_edges` with `bins="auto"`.
     name : str, optional
         Brief descriptive identifier for output PDF.
     variable_type : str, optional
@@ -75,9 +82,18 @@ def samples_to_pdf_histogram(
     xmin = np.min(samples) if xmin is None else xmin
     xmax = np.max(samples) if xmax is None else xmax
 
-    # Determine bin sizes
-    n_samples = len(samples)
-    dx = 1 / np.sqrt(n_samples) if dx is None else dx
+    # Determine PDF domain array spacing from histogram bin sizes
+    if dx is None:
+        # Determine histogram bin edges based on samples and x-range
+        bin_edges = np.histogram_bin_edges(
+            samples, range=(xmin, xmax), bins="auto"
+        )
+
+        # Number of bins based on bin edges
+        n_bins = len(bin_edges) - 1
+
+        # PDF spacing
+        dx = (xmax - xmin) / n_bins
 
     # Create histogram value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
@@ -85,8 +101,9 @@ def samples_to_pdf_histogram(
     # Bin points in histogram
     px, _ = np.histogram(samples, bins=x, density=True)
 
-    # Handle edge cases
-    px = np.pad(px, (0, 1), "constant")
+    # Assign bin densities to bin edges
+    interior_densities = (px[:-1] + px[1:]) / 2
+    px = np.concatenate([[px[0]], interior_densities, [px[-1]]])
 
     # Form histogram data into PDF
     pdf = PDFs.PDF(
@@ -103,12 +120,15 @@ def samples_to_pdf_histogram(
 def samples_to_pdf_kde(
     samples: np.ndarray,
     *,
+    # Domain
     xmin: float | None = None,
     xmax: float | None = None,
     dx: float | None = None,
+    # Metadata
     name: str | None = None,
     variable_type: str | None = None,
     unit: str | None = None,
+    # Misc
     verbose: bool = False,
 ) -> PDFs.PDF:
     """Form discrete samples into a PDF using kernel density estimation (KDE)
@@ -129,6 +149,8 @@ def samples_to_pdf_kde(
         Maximum value to consider.
     dx : float, optional
         Value array step.
+        If `None`, the step is set to a fraction of the kernel bandwidth,
+        so the number of points does not depend on the value unit.
     name : str, optional
         Brief descriptive identifier for output PDF.
     variable_type : str, optional
@@ -139,7 +161,7 @@ def samples_to_pdf_kde(
     Returns
     -------
     pdf : PDF
-        Empirical PDF based on samples.
+        Empirical PDF based on samples within `xmin` and `xmax`.
     """
     if verbose:
         print("Converting samples to PDF using KDE")
@@ -148,15 +170,16 @@ def samples_to_pdf_kde(
     xmin = np.min(samples) if xmin is None else xmin
     xmax = np.max(samples) if xmax is None else xmax
 
-    # Determine bin sizes
-    n_samples = len(samples)
-    dx = 1 / np.sqrt(n_samples) if dx is None else dx
+    # Fit the kernel density estimate to the samples within the value limits
+    kde = sp.stats.gaussian_kde(samples[(samples >= xmin) & (samples <= xmax)])
 
-    # Create histogram value array
+    # Determine value array step from the kernel bandwidth (standard deviation)
+    if dx is None:
+        bandwidth = np.sqrt(kde.covariance[0, 0])
+        dx = bandwidth / KDE_POINTS_PER_BANDWIDTH
+
+    # Create value array
     x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
-
-    # Compute KDE
-    kde = sp.stats.gaussian_kde(samples)
 
     # Interpolate along value array
     px = kde.pdf(x)

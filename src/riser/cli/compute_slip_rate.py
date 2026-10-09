@@ -74,17 +74,24 @@ def cmd_parser(iargs=None):
         help="Enforce the condition that values are >= to 0.",
     )
     rate_args.add_argument(
+        "--min-rate",
+        type=float,
+        default=0.0,
+        help="Minimum slip rate to consider. [0.0]",
+    )
+    rate_args.add_argument(
         "--max-rate",
         dest="max_rate",
         type=float,
-        help="Maximum slip rate to consider.",
+        default=None,
+        help="Maximum slip rate to consider. [None]",
     )
     rate_args.add_argument(
         "--dv",
         dest="dv",
         type=float,
-        default=0.01,
-        help="Slip rate step. [0.01]",
+        default=None,
+        help="Slip rate step. [None]",
     )
 
     output_args = parser.add_argument_group("Outputs")
@@ -284,9 +291,10 @@ def main() -> None:
     # Compute slip rate
     slip_rate = rate_computation.compute_slip_rate(
         marker=marker,
-        dv=inps.dv,
         limit_positive=inps.limit_positive,
+        min_rate=inps.min_rate,
         max_rate=inps.max_rate,
+        dv=inps.dv,
         name=name,
         variable_type=variable_type,
         unit=unit,

@@ -43,7 +43,7 @@ class TestTrimVariables:
         "name1, name2, vartype, unit, name1_expected, name2_expected",
         [
             (None, None, None, None, None, None),
-            ("X1", "X2", "age", "y", "X1 trimmed", "X2 trimmed"),
+            ("X1", "X2", "age", "y", "X1", "X2"),
         ],
     )
     def test_metadata_consistent(
