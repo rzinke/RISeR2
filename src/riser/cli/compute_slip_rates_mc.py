@@ -64,7 +64,7 @@ def cmd_parser(iargs=None):
         dest="n_samples",
         type=int,
         default=1_000_000,
-        help="Desired number of successful sample combinations. [100 000]",
+        help="Desired number of successful sample combinations. [1 000 000]",
     )
     sampling_args.add_argument(
         "--max-sample-rate",

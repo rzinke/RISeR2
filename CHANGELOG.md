@@ -45,11 +45,16 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - **Breaking:** `max_sample_rate` now controls maximum-possible slip rate pick
   in `compute_slip_rates_mc.py`. `max_rate` is the maximum rate for the PDF
   construction.
-- Default `n_samples` is now 100 000 (ten times higher than previously).
-- **Breaking:** MC sampling `max_samples` now controls the number of sample
+- Default `n_samples` is now 1 000 000 (one hundred times higher than
+  previously).
+- **Breaking:** MC sampling `hard_stop` now controls the number of sample
   runs allowed without a valid sample path before `compute_slip_rates_mc`
   fails with an error.
 - Ordering checks improved for dated marker sets.
+- **Breaking:** Reversed markers now raise a ValueError (the limit is 0.98)
+  in both compute functions, where before they only warned.
+- MC histogram PDFs now use edge-averaged densities and an automatic bin count,
+  and the KDE fits samples within `[xmin, xmax]` with a bandwidth-based step.
 
 ## [1.6.1] - 2026-10-02
 ### Added
