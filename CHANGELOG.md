@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- `trim_variable_sequence` function for trimming arbitrarily many PDFs based
+  on the given ordering.
+  Added corresponding tests in `test_variable_trimming.py`.
+### Changed
+- Replaced various signs for multiplication in docstrings with middle dot.
+- Replaced various signs for integration in docstrings with integral sign.
 
 ## [2.0.0] - 2026-10-09
 ### Added

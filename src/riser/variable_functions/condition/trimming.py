@@ -9,13 +9,17 @@ Condition variables based on a prior ordering relationships.
 # Public API
 __all__ = [
     "trim_variables",
+    "trim_variable_sequence",
 ]
 
 
 # Import modules
 import copy
 
-from ... import probability_functions as PDFs
+from ... import (
+    integration,
+    probability_functions as PDFs,
+)
 from . import core
 
 
@@ -40,8 +44,8 @@ def trim_variables(
     Given a known ordering constraint (pdf1 < pdf2), each variable's own
     distribution can be reshaped by conditioning on the other's CDF:
 
-        trimmed_pdf1(x) ~ pdf1(x) . (1 - CDF2(x))
-        trimmed_pdf2(x) ~ pdf2(x) . CDF1(x)
+        trimmed_pdf1(x) ~ pdf1(x) · (1 - CDF2(x))
+        trimmed_pdf2(x) ~ pdf2(x) · CDF1(x)
 
     The areas of the two trimming results will be the same, because
 
@@ -129,6 +133,101 @@ def trim_variables(
     )
 
     return trimmed_pdf1, trimmed_pdf2, area
+
+
+def trim_variable_sequence(
+    pdfs: list[PDFs.PDF],
+    *,
+    # Metadata
+    variable_type: str | None = None,
+    unit: str | None = None,
+    # Misc
+    verbose: bool = False,
+) -> list[PDFs.PDF]:
+    """Trim an arbitrary number of PDFs based on the given ordering, using
+    a recursive extension of the pairwise case.
+
+    Parameters
+    ----------
+    pdfs : list[PDF]
+        PDFs to trim relative to one another based on their ordering.
+        Order must be smallest to largest (X_1 < ... < X_n).
+    variable_type : str, optional
+        Variable type of trimmed PDF.
+        Default will assume variable_type of original PDF.
+    unit : str, optional
+        Unit of trimmed PDF.
+        Default will assume unit of original PDF.
+
+    Returns
+    -------
+    trimmed_pdfs : list[PDF]
+        Trimmed PDFs.
+    """
+    # Parameters
+    n_pdfs = len(pdfs)
+
+    if verbose:
+        print(f"Trimming {n_pdfs} PDFs based on ordering")
+
+    # Check for consistent sampling
+    PDFs.value_arrays.check_pdfs_sampling(pdfs)
+
+    # Build common x-axis
+    x = PDFs.value_arrays.precise_array(
+        *PDFs.value_arrays.value_array_params_from_pdfs(pdfs)
+    )
+
+    # Warn of metadata mismatches
+    PDFs.metadata.check_physical_properties([pdf.metadata for pdf in pdfs])
+
+    # Calculate weighting arrays based on preceding variables
+    forward_weights = [
+        PDFs.weight_functions.flat_weight(x) for _ in range(n_pdfs)
+    ]
+    for k in range(1, n_pdfs):
+        weight_k = integration.integrate_cumulative(
+            x=x,
+            px=pdfs[k - 1].px * forward_weights[k - 1].wx,
+        )
+
+        forward_weights[k] = PDFs.weight_functions.WeightFunction(
+            x=x, wx=weight_k
+        )
+
+    # Calculate weighting arrays based on following variables
+    backward_weights = [
+        PDFs.weight_functions.flat_weight(x) for _ in range(n_pdfs)
+    ]
+    for k in range(n_pdfs - 2, -1, -1):
+        # Integrate from x to the upper end by reversing the axis, so that small
+        # tail values keep their relative precision
+        weight_k = integration.integrate_cumulative(
+            x=-x[::-1],
+            px=(pdfs[k + 1].px * backward_weights[k + 1].wx)[::-1],
+        )[::-1]
+
+        backward_weights[k] = PDFs.weight_functions.WeightFunction(
+            x=x, wx=weight_k
+        )
+
+    # Compute trimmed PDFs
+    trimmed_pdfs = []
+    for k in range(n_pdfs):
+        trimmed_pdfs.append(
+            PDFs.PDF(
+                x=x,
+                px=pdfs[k].px * forward_weights[k].wx * backward_weights[k].wx,
+                name=pdfs[k].name,
+                variable_type=(
+                    variable_type if variable_type is not None
+                    else pdfs[k].variable_type
+                ),
+                unit=unit if unit is not None else pdfs[k].unit,
+            )
+        )
+
+    return trimmed_pdfs
 
 
 # end of file
