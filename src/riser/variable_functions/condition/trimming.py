@@ -45,8 +45,8 @@ def trim_variables(
 
     The areas of the two trimming results will be the same, because
 
-        area1 = integral(pdf1(x) . (1 - CDF2(x)) dx) = P(X1 < X2)
-        area2 = integral(pdf2(x) . CDF1(x) dx) = P(X2 > X1)
+        area1 = ∫ pdf1(x) · (1 - CDF2(x)) dx = P(X1 < X2)
+        area2 = ∫ pdf2(x) · CDF1(x) dx = P(X2 > X1)
 
     which are equivalent statements.
 
@@ -119,7 +119,9 @@ def trim_variables(
     )
 
     # Trim second variable relative to first
-    weight_smaller = PDFs.weight_functions.WeightFunction(x=pdf1.x, wx=pdf1.Px)
+    weight_smaller = PDFs.weight_functions.WeightFunction(
+        x=pdf1.x, wx=pdf1.Px
+    )
     trimmed_pdf2, _ = core.condition(
         pdf2,
         weight_smaller,

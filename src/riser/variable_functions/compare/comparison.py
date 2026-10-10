@@ -32,7 +32,7 @@ def cosine_similarity(
 ) -> float:
     """Compute the cosine similarity index
 
-        r = sum[f1 f2] / sqrt[sum(f1 ^ 2) . sum(f2 ^ 2)]
+        r = sum[f1 f2] / sqrt[sum(f1 ^ 2) · sum(f2 ^ 2)]
 
     This is essentially a normalized dot product, and is analogous to the
     Pearson coefficient without mean-centering.
@@ -149,11 +149,11 @@ def overlap_index(
 
     Pastore and Calcagni (2019)
 
-        n(A, B) = integral(min[fA(x), fB(x)] dx)
+        n(A, B) = ∫ min[fA(x), fB(x)] dx
 
     An alternative formulation is
 
-        n(A, B) = 1 - (1/2 integral[ abs(fA(x) - fB(x)) dx])
+        n(A, B) = 1 - 1/2 ∫ abs(fA(x) - fB(x)) dx]
 
     Parameters
     ----------
