@@ -52,7 +52,7 @@ RISeR2 uses probability density functions (PDFs) as both inputs (*age*, *displac
 riser-make-pdf gaussian --mu 5.0 --sigma 1.0 --variable-type age --unit ky -o age.txt -v -p
 ```
 
-The function `riser-make-pdf` facilitates the user in creating a RISeR2-style PDF. Passing the `-h` option raises the help menu. The `-d` flag specifies the distribution type (use `-h` for list of available functions). The function parameters (in this case `mu` and `sigma`) are supplied following the `-s` flag. The output name must be explicitly specified via the `-o` flag, and the output PDF filename should end in `.txt`. It is good practice and highly recommended to specify the `variable-type` and `unit`, but not strictly necessary. The `-v` and `-p` flags are entirely optional; `-v` (`--verbose`) triggers the routines to print their operations and PDF statistics to screen, and `-p` (`--plot`) plots the results.
+The function `riser-make-pdf` facilitates the user in creating a RISeR2-style PDF. Passing the `-h` option raises the help menu. Pass the function type, e.g., `gaussian`, etc., as the first argument (use `-h` for list of available functions). Then pass the function parameters as keywords (in this case `--mu` and `--sigma`). The output name must be explicitly specified via the `-o` flag, and the output PDF filename should end in `.txt`. It is good practice and highly recommended to specify the `variable-type` and `unit`, but not strictly necessary. The `-v` and `-p` flags are entirely optional; `-v` (`--verbose`) triggers the routines to print their operations and PDF statistics to screen, and `-p` (`--plot`) plots the results.
 
 ![Quick start example age PDF](getting_started-age.png)
 
