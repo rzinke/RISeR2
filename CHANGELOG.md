@@ -7,6 +7,11 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-12
+### Added
+- "Rate" units (distance over time) now handled properly.
+- Corresponding tests added.
+
 ## [3.0.0] - 2026-10-12
 ### Added
 - `trim_variable_sequence` function for trimming arbitrarily many PDFs based

@@ -43,7 +43,7 @@ class TestParseUnit:
         assert scale == expected_scale
         assert base == expected_base
 
-    @pytest.mark.parametrize("compound_unit", ["m/y", "m2", "m.m"])
+    @pytest.mark.parametrize("compound_unit", ["m2", "m.m"])
     def test_compound_unit_raises(self, compound_unit):
         with pytest.raises(ValueError):
             units.parse_unit(compound_unit)
@@ -69,6 +69,46 @@ class TestParseUnit:
         assert scale == expected_scale
 
 
+class TestParseRateUnit:
+    @pytest.mark.parametrize(
+        "unit, expected_scale",
+        [
+            ("m/y", 1.0),
+            ("mm/y", 1e-3),
+            ("cm/y", 1e-2),
+            ("m/ky", 1e-3),
+            ("km/My", 1e-3),
+        ],
+    )
+    def test_rate_unit_scales(self, unit, expected_scale):
+        scale, base = units.parse_unit(unit)
+        assert scale == pytest.approx(expected_scale)
+        assert base == "m/y"
+
+    def test_equivalent_rate_units_are_identical(self):
+        """1 mm/y is exactly 1 m/ky."""
+        assert units.parse_unit("mm/y") == units.parse_unit("m/ky")
+
+    @pytest.mark.parametrize(
+        "rate_unit, message",
+        [
+            ("y/m", "length/time"),
+            ("m/m", "length/time"),
+            ("mm/s", "Base unit"),
+            ("mm/qy", "Unit prefix"),
+            ("m/y/y", "form"),
+            ("mm/", "form"),
+            ("/y", "form"),
+            ("m^2/y", "Compound"),
+            ("m.y/y", "Compound"),
+            ("m2/y", "Compound"),
+        ],
+    )
+    def test_invalid_rate_unit_raises(self, rate_unit, message):
+        with pytest.raises(ValueError, match=message):
+            units.parse_unit(rate_unit)
+
+
 class TestScaleValuesByUnits:
     @pytest.mark.parametrize(
         "unit_in, unit_out",
@@ -81,9 +121,17 @@ class TestScaleValuesByUnits:
         with pytest.raises(ValueError, match="Neither input unit"):
             units.scale_values_by_units(1.0, unit_in, unit_out)
 
-    def test_different_bases_raise(self):
+    @pytest.mark.parametrize(
+        "unit_in, unit_out",
+        [
+            ("y", "m"),
+            ("mm/y", "mm"),
+            ("m", "m/y"),
+        ],
+    )
+    def test_different_bases_raise(self, unit_in, unit_out):
         with pytest.raises(ValueError, match="Units do not match"):
-            units.scale_values_by_units(1.0, "y", "m")
+            units.scale_values_by_units(1.0, unit_in, unit_out)
 
     @pytest.mark.parametrize(
         "values, unit_in, unit_out, expected_values",
@@ -91,6 +139,10 @@ class TestScaleValuesByUnits:
             (1.0, "y", "y", 1.0),
             (2.0, "ky", "y", 2_000.0),
             (np.arange(4), "km", "m", 1000 * np.arange(4)),
+            (2.0, "mm/y", "m/ky", 2.0),
+            (2.0, "mm/y", "m/y", 0.002),
+            (2.0, "m/ky", "cm/y", 0.2),
+            (np.arange(4), "m/y", "mm/y", 1000 * np.arange(4)),
         ],
     )
     def test_unit_scaling(self, values, unit_in, unit_out, expected_values):

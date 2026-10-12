@@ -125,6 +125,60 @@ def check_base_unit_supported(base_unit: str | None) -> None:
 
 
 #################### UNIT PARSING ####################
+def _parse_rate_unit_(unit: str, verbose: bool = False) -> tuple[float, str]:
+    """Determine the components of a rate unit of the form <unit>/<unit>.
+
+    The numerator must be a (prefixed) length unit, e.g., 'mm', 'm', and the
+    denominator must be a (prefixed) time unit, e.g., 'y', 'ky'.
+
+    The scale is the number of base units (m/y) per unit, so that
+    'mm/y' and 'm/ky' have the same scale.
+
+    Parameters
+    ----------
+    unit : str
+        Rate unit to parse (cannot be `None`).
+
+    Returns
+    -------
+    scale : float
+        Unit scale relative to m/y.
+    base : str
+        Unit base, 'm/y'.
+    """
+    # Check overall form
+    if unit.count("/") != 1:
+        raise ValueError(
+            f"Rate unit must have the form <unit>/<unit>, got '{unit}'"
+        )
+
+    numerator, denominator = unit.split("/")
+
+    if not numerator or not denominator:
+        raise ValueError(
+            f"Rate unit must have the form <unit>/<unit>, got '{unit}'"
+        )
+
+    # Parse each side as a simple unit
+    numer_scale, numer_base = parse_unit(numerator)
+    denom_scale, denom_base = parse_unit(denominator)
+
+    # Check bases are length per time
+    if (numer_base, denom_base) != ("m", "y"):
+        raise ValueError(
+            f"Rate unit must be length/time (m/y), got "
+            f"'{numer_base}/{denom_base}'"
+        )
+
+    scale = numer_scale / denom_scale
+
+    # Report if requested
+    if verbose:
+        print(f"Unit: {scale:E} {numer_base}/{denom_base}")
+
+    return scale, f"{numer_base}/{denom_base}"
+
+
 def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     """Determine the components of a unit.
 
@@ -133,7 +187,7 @@ def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     Determine the base unit.
 
     Currently only works with simple units (e.g., m, y) and not compound units
-    (e.g., m/y).
+    (e.g., kg.m/s^2).
 
     Parameters
     ----------
@@ -147,6 +201,10 @@ def parse_unit(unit: str, verbose: bool = False) -> tuple[float, str]:
     base : str
         Unit base.
     """
+    # Rate units, e.g., mm/y
+    if "/" in unit:
+        return _parse_rate_unit_(unit, verbose=verbose)
+
     # Check overall unit validity
     _check_against_compound_unit_(unit)
 
