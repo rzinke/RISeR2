@@ -134,6 +134,23 @@ class TestSampleMonteCarlo:
         assert age_picks.shape[1] == disp_picks.shape[1] == n_samples
         assert success_rate == 1.0
 
+    @pytest.mark.parametrize("not_an_instance", ["PassAll", None])
+    def test_criterion_class_or_wrong_type_raises(self, not_an_instance):
+        """Passing the class (forgotten parentheses) gives a clear error."""
+        if not_an_instance is not None:
+            criterion = sampling.mc_sampling.get_sample_criterion(
+                not_an_instance
+            )
+        else:
+            criterion = None
+
+        with pytest.raises(TypeError, match="SampleCriterion instance"):
+            sampling.mc_sampling.sample_monte_carlo(
+                markers=close_markers,
+                criterion=criterion,
+                n_samples=10,
+            )
+
     def test_partial_success(self, recwarn):
         criterion = sampling.mc_sampling.get_sample_criterion(
             "PassNonnegative"
