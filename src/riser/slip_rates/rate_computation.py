@@ -30,7 +30,6 @@ import numpy as np
 
 from .. import (
     probability_functions as PDFs,
-    sampling,
     variable_functions as var_fcns,
     variable_pairs,
 )
@@ -615,14 +614,6 @@ def compute_slip_rates_mc(
 
     # Number of slip rates
     n_rates = n_markers - 1
-
-    # Check that the criterion is an instance, not a class
-    if not isinstance(criterion, sampling.mc_sampling.SampleCriterion):
-        raise TypeError(
-            f"`criterion` must be a SampleCriterion instance, "
-            f"got {criterion!r}. "
-            f"Did you forget the parentheses, e.g., PassNonnegative()?"
-        )
 
     if verbose:
         print(f"Computing {n_rates} incremental slip rates")

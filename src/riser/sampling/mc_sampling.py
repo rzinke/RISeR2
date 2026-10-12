@@ -209,6 +209,14 @@ def sample_monte_carlo(
     if verbose:
         print(f"Initializing MC sampling for {n_samples} samples")
 
+    # Check that the criterion is an instance, not a class
+    if not isinstance(criterion, SampleCriterion):
+        raise TypeError(
+            f"`criterion` must be a SampleCriterion instance, "
+            f"got {criterion!r}. "
+            f"Did you forget the parentheses, e.g., PassNonnegative()?"
+        )
+
     # Number of markers
     m_markers = len(markers)
 
