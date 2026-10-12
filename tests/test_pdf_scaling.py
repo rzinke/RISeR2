@@ -36,6 +36,9 @@ class TestDetermineIfScalingAppropriate:
             ("ky", "m", False),
             ("ky", "ky", False),
             ("ky", "y", True),
+            ("mm/y", "m/ky", False),
+            ("mm/y", "m/y", True),
+            ("mm/y", "mm", False),
         ],
     )
     def test_scaling_appropriateness_decision_table(
@@ -52,9 +55,9 @@ class TestDetermineIfScalingAppropriate:
 
 class TestScalePdfByUnits:
     """
-    inappropriate scaling returns a distinct-but-equal-content copy
+    Inappropriate scaling returns a distinct-but-equal-content copy.
 
-    appropriate scaling produces correctly-scaled
+    Appropriate scaling produces correctly-scaled.
     """
 
     def test_inappropriate_scaling(self):
@@ -72,6 +75,12 @@ class TestScalePdfByUnits:
         np.testing.assert_allclose(
             scaled_pdf.x, np.array([0_000.0, 1_000.0, 2_000.0])
         )
+
+    def test_appropriate_rate_scaling(self):
+      pdf = PDFs.PDF(x=x, px=px, unit="mm/y")
+      scaled_pdf = PDFs.scaling.scale_pdf_by_units(pdf=pdf, unit_out="m/y")
+      assert scaled_pdf.unit == "m/y"
+      np.testing.assert_allclose(scaled_pdf.x, np.array([0.0, 1e-3, 2e-3]))
 
 
 # end of file
