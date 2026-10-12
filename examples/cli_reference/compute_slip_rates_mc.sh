@@ -11,7 +11,7 @@ riser-make-pdf triangular --a 7.5 --c 9.5 --b 11.0 --dx 0.01 \
     -o $U1name
 
 A1name="tmp/age1.txt"
-riser-make-pdf gaussian --mu 4.0  --sigma 1.0 --dx 0.01 \
+riser-make-pdf gaussian --mu 4.0 --sigma 1.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A1name
 
@@ -33,7 +33,7 @@ riser-make-pdf triangular --a 17.0 --c 18.5 --b 20.0 --dx 0.01 \
     -o $U3name
 
 A3name="tmp/age3.txt"
-riser-make-pdf gaussian --mu 6.3  --sigma 1.2 --dx 0.01 \
+riser-make-pdf gaussian --mu 6.3 --sigma 1.2 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A3name
 
@@ -44,7 +44,7 @@ riser-make-pdf trapezoidal --a 39.5 --b 41.5 --c 44.0 --d 45.5 --dx 0.01 \
     -o $U4name
 
 A4name="tmp/age4.txt"
-riser-make-pdf gaussian --mu 7.7  --sigma 0.5 --dx 0.01 \
+riser-make-pdf gaussian --mu 7.7 --sigma 0.5 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A4name
 
