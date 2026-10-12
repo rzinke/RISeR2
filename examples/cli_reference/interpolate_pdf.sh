@@ -11,7 +11,7 @@ riser-make-pdf gaussian --mu 6.0 --sigma 1.0 --dx 0.1 \
 # Interpolate PDF
 echo ""
 echo "Interpolating PDF"
-outname="interpolated.txt"
+outname="tmp/interpolated.txt"
 riser-interpolate-pdf $X1name -o $outname \
     --xmin 0 --dx 0.01 \
     -v -p

@@ -17,7 +17,7 @@ riser-make-pdf gaussian --mu 4.0 --sigma 1.0 --dx 0.01 \
 
 
 U2name="tmp/displacement2.txt"
-riser-make-pdf triangular --a 17. --c0 18.--b 5 20.0 --dx 0.01 \
+riser-make-pdf triangular --a 17.0 --c 18.5 --b 20.0 --dx 0.01 \
     --name "disp 2" --variable-type "displacement" --unit "m" \
     -o $U2name
 
