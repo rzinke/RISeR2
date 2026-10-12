@@ -6,6 +6,7 @@
 
 # Import modules
 import argparse
+import inspect
 import warnings
 
 import matplotlib.pyplot as plt
@@ -173,7 +174,7 @@ def main() -> None:
 
     # Check required inputs
     PDFs.parametric_functions.check_number_inputs(
-        inps.function, inps.values
+        inps.function_name, inps.values
     )
 
     # Check optional variable type input
@@ -200,7 +201,7 @@ def main() -> None:
     # Determine suggested min/max values based on function shape
     (suggested_xmin, suggested_xmax) = (
         PDFs.parametric_functions.determine_min_max_limits(
-            function=inps.function,
+            function=inps.function_name,
             values=inps.values,
             limit_positive=inps.limit_positive,
             verbose=inps.verbose,
@@ -225,11 +226,13 @@ def main() -> None:
         x = x[x > 0.0]
 
     # Retrieve parameteric function
-    para_fcn = PDFs.parametric_functions.get_function_by_name(inps.function)
+    para_fcn = PDFs.parametric_functions.get_function_by_name(
+        inps.function_name
+    )
 
     # Create PDF
     if inps.verbose:
-        print(f"Creating {inps.function} function")
+        print(f"Creating {inps.function_name} function")
 
     px = para_fcn(x, *inps.values)
 

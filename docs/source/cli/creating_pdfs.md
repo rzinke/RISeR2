@@ -10,7 +10,7 @@ RISeR2 provides support for creating PDFs from parametric functions -- functions
 The following command can be used to make a PDF from a parametric function:
 
 ```bash
-riser-make-pdf -d <function name> -s <function parameters> -o <output name>.txt
+riser-make-pdf <function name> <function parameters> -o <output name>.txt
 ```
 
 

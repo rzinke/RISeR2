@@ -4,11 +4,11 @@ mkdir -p tmp
 
 # Create marginal distributions
 X1name="tmp/pdf1.txt"
-riser-make-pdf -d gaussian -s 6.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 6.0 --sigma 1.0 --dx 0.01 \
     --name "pdf1" --variable-type "age" --unit "ky" -o $X1name
 
 X2name="tmp/pdf2.txt"
-riser-make-pdf -d gaussian -s 4.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 4.0 --sigma 1.0 --dx 0.01 \
     --name "pdf2" --variable-type "age" --unit "ky" -o $X2name
 
 

@@ -3,11 +3,11 @@
 # Create marginal distributions
 echo "Creating PDFs"
 X1name="tmp/uniform.txt"
-riser-make-pdf -d uniform -s 4.0 5.0 \
+riser-make-pdf uniform --a 4.0 --b 5.0 \
     --name "uniform" --variable-type "displacement" --unit "m" -o $X1name
 
 X2name="tmp/trapezoidal.txt"
-riser-make-pdf -d trapezoidal -s 4.0 4.5 6.0 7.0 \
+riser-make-pdf trapezoidal --a 4.0 --b 4.5 --c 6.0 --d 7.0 \
     --name "trapezoidal" --variable-type "displacement" --unit "m" -o $X2name
 
 

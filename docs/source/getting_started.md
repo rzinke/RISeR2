@@ -49,7 +49,7 @@ If you have any issues with setup, post them to the [Issues](https://github.com/
 RISeR2 uses probability density functions (PDFs) as both inputs (*age*, *displacement*) and outputs (*slip rate*) for slip rate calculations. The simplest way to get started is to generate PDFs representing age and displacement measurements and uncertainties as parametric functions. Let's say we know the age of a displaced geomorphic feature to approximately 5.0 ka, with a 1-*sigma* uncertainty of 1.0 ky. We can create a Gaussian function as follows
 
 ```bash
-riser-make-pdf -d gaussian -s 5.0 1.0 --variable-type age --unit ky -o age.txt -v -p
+riser-make-pdf gaussian --mu 5.0 --sigma 1.0 --variable-type age --unit ky -o age.txt -v -p
 ```
 
 The function `riser-make-pdf` facilitates the user in creating a RISeR2-style PDF. Passing the `-h` option raises the help menu. The `-d` flag specifies the distribution type (use `-h` for list of available functions). The function parameters (in this case `mu` and `sigma`) are supplied following the `-s` flag. The output name must be explicitly specified via the `-o` flag, and the output PDF filename should end in `.txt`. It is good practice and highly recommended to specify the `variable-type` and `unit`, but not strictly necessary. The `-v` and `-p` flags are entirely optional; `-v` (`--verbose`) triggers the routines to print their operations and PDF statistics to screen, and `-p` (`--plot`) plots the results.
@@ -59,7 +59,7 @@ The function `riser-make-pdf` facilitates the user in creating a RISeR2-style PD
 We can make a PDF describing the displacement as well. We will use a simple example in which the geologists report the minimum- and maximum-sedimentologically plausible bounds of 22.5 m and 28.7 m, as well as a preferred offset estimate of 25.0 m. These parameters can be represented using a triangular distribution
 
 ```bash
-riser-make-pdf -d triangular -s 22.5 25.0 28.7 --variable-type displacement --unit m -o disp.txt -v -p
+riser-make-pdf triangular --a 22.5 --c 25.0 --b 28.7 --variable-type displacement --unit m -o disp.txt -v -p
 ```
 
 ![Quick start example displacement PDF](getting_started-disp.png)

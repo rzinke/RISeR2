@@ -6,45 +6,45 @@ mkdir -p tmp
 echo "Creating PDFs"
 
 U1name="tmp/displacement1.txt"
-riser-make-pdf -d triangular -s 7.5 9.5 11.0 -dx 0.01 \
+riser-make-pdf triangular --a 7.5 --c 9.5 --b 11.0 --dx 0.01 \
     --name "disp 1" --variable-type "displacement" --unit "m" \
     -o $U1name
 
 A1name="tmp/age1.txt"
-riser-make-pdf -d gaussian -s 4.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 4.0 --sigma 1.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A1name
 
 
 U2name="tmp/displacement2.txt"
-riser-make-pdf -d triangular -s 17.0 18.5 20.0 -dx 0.01 \
+riser-make-pdf triangular --a 17. --c0 18.--b 5 20.0 --dx 0.01 \
     --name "disp 2" --variable-type "displacement" --unit "m" \
     -o $U2name
 
 A2name="tmp/age2.txt"
-riser-make-pdf -d gaussian -s 6.3 1.2 -dx 0.01 \
+riser-make-pdf gaussian --mu 6.3 --sigma 1.2 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A2name
 
 
 U3name="tmp/displacement3.txt"
-riser-make-pdf -d trapezoidal -s 39.5 41.5 44.0 45.5 -dx 0.01 \
+riser-make-pdf trapezoidal --a 39.5 --b 41.5 --c 44.0 --d 45.5 --dx 0.01 \
     --name "disp 3" --variable-type "displacement" --unit "m" \
     -o $U3name
 
 A3name="tmp/age3.txt"
-riser-make-pdf -d gaussian -s 7.7 0.5 -dx 0.01 \
+riser-make-pdf gaussian --mu 7.7 --sigma 0.5 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A3name
 
 
 U4name="tmp/displacement4.txt"
-riser-make-pdf -d triangular -s 45.0 50.0 55.0 -dx 0.01 \
+riser-make-pdf triangular --a 45.0 --c 50.0 --b 55.0 --dx 0.01 \
     --name "disp 4" --variable-type "displacement" --unit "m" \
     -o $U4name
 
 A4name="tmp/age4.txt"
-riser-make-pdf -d triangular -s 7.0 9.0 11.0 -dx 0.01 \
+riser-make-pdf triangular --a 7.0 --c 9.0 --b 11.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A4name
 
