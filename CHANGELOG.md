@@ -15,6 +15,11 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ### Changed
 - Replaced various signs for multiplication in docstrings with middle dot.
 - Replaced various signs for integration in docstrings with integral sign.
+- Removed the print message for when input and output scaling are the same
+  (nothing happens) in `probability_functions/scaling`.
+### Fixed
+- Update `view_displacement_age_history` call in
+  `examples/case_studies/simple_incremental_slip_rates`.
 
 ## [2.0.0] - 2026-10-09
 ### Added
