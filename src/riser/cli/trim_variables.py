@@ -23,8 +23,8 @@ description = (
 )
 
 examples = """Examples:
-riser-combine-variables pdf1.txt pdf2.txt -o combined_pdf.txt
-riser-combine-variables pdf1.txt pdf2.txt pdf3.txt -o combined_pdf.txt
+riser-trim-variables younger.txt older.txt -o trimmed
+riser-trim-variables pdf1.txt pdf2.txt pdf3.txt -o tr
 """
 
 
@@ -58,16 +58,13 @@ def cmd_parser(iargs=None):
 
     metadata_args = parser.add_argument_group("Metadata")
     metadata_args.add_argument(
-        "--name", dest="name", type=str, help="Name of combined PDF."
-    )
-    metadata_args.add_argument(
         "--variable-type",
         dest="variable_type",
         type=str,
-        help="Variable type of combined PDF.",
+        help="Override variable type of trimmed PDFs.",
     )
     metadata_args.add_argument(
-        "--unit", dest="unit", type=str, help="Unit of combined PDF."
+        "--unit", dest="unit", type=str, help="Override unit of trimmed PDFs."
     )
 
     diagnostic_args = parser.add_argument_group("Diagnostics")
