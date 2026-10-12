@@ -46,16 +46,20 @@ def cmd_parser(iargs=None):
         "--value",
         dest="value",
         type=float,
+        required=True,
         help="Value above/below which to constrain the PDF.",
     )
-    constraint_args.add_argument(
+    constraint_direction_args = constraint_args.add_mutually_exclusive_group(
+        required=True
+    )
+    constraint_direction_args.add_argument(
         "--above",
         dest="above",
         action="store_true",
         help="Allow non-zero probability density only above the specified "
         "value.",
     )
-    constraint_args.add_argument(
+    constraint_direction_args.add_argument(
         "--below",
         dest="below",
         action="store_true",
@@ -124,23 +128,16 @@ def main() -> None:
     inps = cmd_parser()
 
     # Read PDF from file
-    pdf, _ = PDFs.readers.read_pdf(inps.fname, verbose=inps.verbose)
-
-    # Check that only above/below is specified
-    if inps.above and inps.below:
-        raise ValueError("Specify only --above or --below")
-
-    if not inps.above and not inps.below:
-        raise ValueError("Specify --above or --below")
+    pdf = PDFs.readers.read_pdf(inps.fname, verbose=inps.verbose)
 
     # Retrieve variable constraint function
     if inps.above:
         constraint_fcn = var_fcns.condition.self_constraint.constrain_above
-    elif inps.below:
+    else:
         constraint_fcn = var_fcns.condition.self_constraint.constrain_below
 
     # Constrain variable
-    constrained_pdf = constraint_fcn(
+    constrained_pdf, _ = constraint_fcn(
         pdf=pdf,
         value=inps.value,
         crop=inps.crop,

@@ -153,7 +153,7 @@ def overlap_index(
 
     An alternative formulation is
 
-        n(A, B) = 1 - 1/2 ∫ abs(fA(x) - fB(x)) dx]
+        n(A, B) = 1 - 1/2 ∫ abs(fA(x) - fB(x)) dx
 
     Parameters
     ----------

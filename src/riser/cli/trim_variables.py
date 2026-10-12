@@ -97,7 +97,7 @@ def main():
     # Sample PDFs on same axis
     pdfs = PDFs.interpolation.interpolate_pdfs(pdfs, verbose=inps.verbose)
 
-    # Compute joint PDF
+    # Compute trimmed PDFs
     trimmed_pdfs = var_fcns.condition.trimming.trim_variable_sequence(
         pdfs,
         variable_type=inps.variable_type,
@@ -112,7 +112,7 @@ def main():
             trimmed_outname, trimmed_pdf, verbose=inps.verbose
         )
 
-    # Plot combined PDF
+    # Plot trimmed PDFs
     if inps.plot:
         # Initialize figure and axis
         fig, (inpt_ax, comb_ax) = plt.subplots(nrows=2)

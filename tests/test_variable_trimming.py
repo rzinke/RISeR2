@@ -4,6 +4,7 @@
 
 # Import modules
 import math
+
 import numpy as np
 import pytest
 import scipy as sp
@@ -112,22 +113,6 @@ class TestTrimVariables:
         assert pdf2_trimmed.name == "X2 trimmed"
         assert pdf2_trimmed.variable_type == vartype
         assert pdf2_trimmed.unit == unit
-
-
-# Helper functions
-def _gaussian_pdfs_(means, sigma, xmin, xmax, dx, **metadata):
-    """Create Gaussian PDFs with a common value array."""
-    x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
-
-    return [
-        PDFs.PDF(
-            x,
-            PDFs.parametric_functions.gaussian(x, mean, sigma),
-            name=f"X{k + 1}",
-            **metadata,
-        )
-        for k, mean in enumerate(means)
-    ]
 
 
 class TestTrimVariableSequence:
