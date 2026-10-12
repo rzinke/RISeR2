@@ -180,7 +180,7 @@ def add_variables(
 
         P(Z = z) = sum(P(X = k) · P(Y = z - k))
         or
-        fZ(z) = integral(fX(x) · fY(z - x) · dx)
+        fZ(z) = ∫ fX(x) · fY(z - x) dx
 
     Machinery:
     This function takes two PDFs that will be sampled on the same value axis.
@@ -396,7 +396,7 @@ def multiply_variables(
     The equation for multiplication of PDFs is similar to that for division:
     It is a weighted convolution of X and Y, with the scaling factor 1/x:
 
-        fZ(z) = integral(fX(x) · fY(z/x) 1/abs(x) · dx)
+        fZ(z) = ∫ fX(x) · fY(z/x) 1/abs(x) dx
 
     In the ideal case, the area of the product function will be 1.0,
     indicating that the entire probability space is captured.
@@ -517,7 +517,7 @@ def divide_variables(
     The equation for division of PDFs comes from Bird (2007) and later from
     Zechar and Frankel (2009):
 
-        fV(v) = integral(fT(t) · fX(x=vt) · t · dt)
+        fV(v) = ∫ fT(t) · fX(x=vt) · t dt
 
     where v is velocity, T is time, and X is distance.
     This equation follows the same intuition for using output-side convolution

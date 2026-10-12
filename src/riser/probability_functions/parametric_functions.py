@@ -407,12 +407,12 @@ PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
 }
 
 
-def get_function_by_name(distribution: str) -> Callable[..., Any]:
+def get_function_by_name(function: str) -> Callable[..., Any]:
     """Retrieve one of the parametric functions defined above by name.
 
     Parameters
     ----------
-    distribution : str
+    function : str
         Parametric function name.
 
     Returns
@@ -421,24 +421,24 @@ def get_function_by_name(distribution: str) -> Callable[..., Any]:
         Parameteric function.
     """
     # Check that the desired function is defined here
-    if distribution not in PARAMETRIC_FUNCTIONS:
+    if function not in PARAMETRIC_FUNCTIONS:
         raise ValueError(
-            f"Function '{distribution}' is not defined. "
+            f"Function '{function}' is not defined. "
             f"Use one of {', '.join(PARAMETRIC_FUNCTIONS.keys())}"
         )
 
     # Return function
-    return PARAMETRIC_FUNCTIONS[distribution]
+    return PARAMETRIC_FUNCTIONS[function]
 
 
 #################### CHECKS ####################
-def check_number_inputs(distribution: str, variables: list[float]) -> None:
+def check_number_inputs(function: str, variables: list[float]) -> None:
     """Check that the appropriate number of inputs are provided for the given
-    distribution.
+    function.
 
     Parameters
     ----------
-    distribution : str
+    function : str
         Parametric function name.
     variables : list[float]
         Parameter values.
@@ -449,7 +449,7 @@ def check_number_inputs(distribution: str, variables: list[float]) -> None:
         True if correct number of inputs provided.
     """
     # Retrieve required arguments from function signature
-    fcn_sig = inspect.signature(PARAMETRIC_FUNCTIONS[distribution])
+    fcn_sig = inspect.signature(PARAMETRIC_FUNCTIONS[function])
     reqd_args = [
         param.name
         for param in fcn_sig.parameters.values()
@@ -470,12 +470,12 @@ def check_number_inputs(distribution: str, variables: list[float]) -> None:
     if n_vars_specd != n_vars_reqd:
         raise ValueError(
             f"{n_vars_reqd} values must be specified for a "
-            f"{distribution} distribution, got {n_vars_specd}"
+            f"{function} function, got {n_vars_specd}"
         )
 
 
 def determine_min_max_limits(
-    distribution: str,
+    function: str,
     values: list[float],
     *,
     limit_positive: bool = False,
@@ -485,7 +485,7 @@ def determine_min_max_limits(
 
     Parameters
     ----------
-    distribution : str
+    function : str
         Parametric function.
     values : list[float]
         Parameter values.
@@ -500,12 +500,12 @@ def determine_min_max_limits(
         Maximum value.
     """
     # Behave based on function type
-    if distribution in ["uniform", "triangular", "trapezoidal"]:
+    if function in ["uniform", "triangular", "trapezoidal"]:
         # Use first and last values
         xmin = values[0]
         xmax = values[-1]
 
-    elif distribution in ["gaussian"]:
+    elif function in ["gaussian"]:
         # Parse values
         mu, sigma = values
 
@@ -522,7 +522,7 @@ def determine_min_max_limits(
         # Max value
         xmax = mu + sigma_lim
 
-    elif distribution in ["exponential"]:
+    elif function in ["exponential"]:
         # Parse values
         scale = values[0]
 
@@ -532,7 +532,7 @@ def determine_min_max_limits(
         # Max value
         xmax = 10 * scale
 
-    elif distribution in ["lognormal"]:
+    elif function in ["lognormal"]:
         # Parse values
         mu, sigma = values
 
@@ -544,7 +544,7 @@ def determine_min_max_limits(
 
     else:
         raise ValueError(
-            f"Min/max limits for distribution '{distribution}' not supported"
+            f"Min/max limits for function '{function}' not supported"
         )
 
     # Report if requested
@@ -752,12 +752,12 @@ CUMULATIVE_PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
 }
 
 
-def get_cumulative_function_by_name(distribution: str) -> Callable[..., Any]:
+def get_cumulative_function_by_name(function: str) -> Callable[..., Any]:
     """Retrieve one of the cumulative parametric functions by name.
 
     Parameters
     ----------
-    distribution : str
+    function : str
         Parametric function name.
 
     Returns
@@ -766,14 +766,14 @@ def get_cumulative_function_by_name(distribution: str) -> Callable[..., Any]:
         Cumulative parametric function.
     """
     # Check that the desired function is defined here
-    if distribution not in CUMULATIVE_PARAMETRIC_FUNCTIONS:
+    if function not in CUMULATIVE_PARAMETRIC_FUNCTIONS:
         raise ValueError(
-            f"Cumulative function '{distribution}' is not defined. "
+            f"Cumulative function '{function}' is not defined. "
             f"Use one of {', '.join(CUMULATIVE_PARAMETRIC_FUNCTIONS.keys())}"
         )
 
     # Return function
-    return CUMULATIVE_PARAMETRIC_FUNCTIONS[distribution]
+    return CUMULATIVE_PARAMETRIC_FUNCTIONS[function]
 
 
 # end of file

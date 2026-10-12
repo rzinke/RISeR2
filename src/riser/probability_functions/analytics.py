@@ -43,7 +43,7 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 def expected_value(x: np.ndarray, px: np.ndarray) -> float:
     """Compute the expected value of a random variable X.
 
-        E = integral(x . f(x) dx)
+        E = ∫ x · f(x) dx
 
     Parameters
     ----------
@@ -65,7 +65,7 @@ def compute_raw_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
 
     A raw moment is defined as:
 
-    theta_n = integral(x^n . f(x) dx)
+        theta_n = ∫ x^n · f(x) dx
 
     This is typically only used to compute the mean, mu, for which n = 1,
     i.e., the expected value.
@@ -94,7 +94,7 @@ def compute_central_moment(x: np.ndarray, px: np.ndarray, n: int) -> float:
 
     A central moment is computed about the function mean, mu:
 
-    mu_n = integral((x - mu)^n . f(x) dx) = E[(X - mu)^n]
+    mu_n = ∫ (x - mu)^n · f(x) dx = E[(X - mu)^n]
 
     Parameters
     ----------
@@ -161,7 +161,7 @@ def pdf_mean(pdf: PDF) -> float:
     This is the expected value E[X] of a random variable,
     and the first raw moment of a PDF.
 
-    mu = E[X] = integral(x * f(x) * dx)
+    mu = E[X] = ∫ x · f(x) dx
 
     Parameters
     ----------
@@ -182,7 +182,7 @@ def pdf_mean(pdf: PDF) -> float:
 def pdf_variance(pdf: PDF) -> float:
     """Compute the variance of a PDF.
 
-    sigma2 = E[(X - mu)^2] = integral((x - mu)^2 . f(x) dx)
+    sigma2 = ∫ (x - mu)^2 · f(x) dx = E[(X - mu)^2]
 
     Parameters
     ----------

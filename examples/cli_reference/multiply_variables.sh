@@ -6,11 +6,11 @@ mkdir -p tmp
 echo "Creating PDFs"
 
 X1name="tmp/sliprate.txt"
-riser-make-pdf -d gaussian -s 2.0 0.2 -dx 0.001 \
+riser-make-pdf gaussian --mu 2.0 --sigma 0.2 --dx 0.001 \
     --name "slip rate" --variable-type "slip rate" -o $X1name
 
 X2name="tmp/age.txt"
-riser-make-pdf -d gaussian -s 8.0 0.5 -dx 0.001 \
+riser-make-pdf gaussian --mu 8.0 --sigma 0.5 --dx 0.001 \
     --name "age" --variable-type "age" --unit "ky" -o $X2name
 
 

@@ -6,34 +6,34 @@ mkdir -p tmp
 echo "Creating PDFs"
 
 U1name="tmp/displacement1.txt"
-riser-make-pdf -d gaussian -s 21.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 21.0 --sigma 1.0 --dx 0.01 \
     --name "marker 1" --variable-type "displacement" --unit "m" \
     -o $U1name
 
 A1name="tmp/age1.txt"
-riser-make-pdf -d gaussian -s 7.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 7.0 --sigma 1.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A1name
 
 
 U2name="tmp/displacement2.txt"
-riser-make-pdf -d gaussian -s 30.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 30.0 --sigma 1.0 --dx 0.01 \
     --name "marker 2" --variable-type "displacement" --unit "m" \
     -o $U2name
 
 A2name="tmp/age2.txt"
-riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 10.0 --sigma 1.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A2name
 
 
 U3name="tmp/displacement3.txt"
-riser-make-pdf -d gaussian -s 45.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 45.0 --sigma 1.0 --dx 0.01 \
     --name "marker 3" --variable-type "displacement" --unit "m" \
     -o $U3name
 
 A3name="tmp/age3.txt"
-riser-make-pdf -d gaussian -s 15.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 15.0 --sigma 1.0 --dx 0.01 \
     --name "age" --variable-type "age" --unit "ky" \
     -o $A3name
 

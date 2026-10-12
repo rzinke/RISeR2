@@ -4,13 +4,13 @@ mkdir -p tmp
 
 # Create age and displacement PDFs
 Aname="tmp/age.txt"
-riser-make-pdf -d gaussian -s 10.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 10.0 --sigma 1.0 --dx 0.01 \
     --name "C14-01" --variable-type "age" --unit "ky" \
     -o $Aname
 
 echo "Creating PDFs"
 Uname="tmp/displacement.txt"
-riser-make-pdf -d gaussian -s 30.0 1.0 -dx 0.01 \
+riser-make-pdf gaussian --mu 30.0 --sigma 1.0 --dx 0.01 \
     --name "marker 1" --variable-type "displacement" --unit "m" \
     -o $Uname
 

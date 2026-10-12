@@ -70,13 +70,6 @@ def determine_if_scaling_appropriate(
 
     # Check scales are different
     if out_scale == pdf_scale:
-        if verbose:
-            print(
-                f"PDF scaling not necessary: "
-                f"Input scale ({pdf_scale}) is equivalent to "
-                f"output scale ({out_scale})"
-            )
-
         return False
 
     # Report scaling

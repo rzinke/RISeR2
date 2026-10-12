@@ -34,7 +34,7 @@ def compute_reversal_probability(pdf: PDFs.PDF, ref_pdf: PDFs.PDF) -> float:
     """Compute the probability that a variable is smaller than a reference
     variable, assuming the two are independent.
 
-    P(X < X_ref) = integral(f(x) * (1 - F_ref(x)) dx)
+    P(X < X_ref) = ∫ f(x) · (1 - F_ref(x)) dx
 
     Parameters
     ----------
