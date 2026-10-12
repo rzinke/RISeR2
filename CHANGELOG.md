@@ -10,6 +10,8 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `trim_variable_sequence` function for trimming arbitrarily many PDFs based
   on the given ordering.
   Added corresponding tests in `test_variable_trimming.py`.
+- `trim_variables` CLI script.
+- `constrain_variable` CLI script.
 ### Changed
 - Replaced various signs for multiplication in docstrings with middle dot.
 - Replaced various signs for integration in docstrings with integral sign.
