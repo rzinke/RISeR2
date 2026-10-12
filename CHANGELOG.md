@@ -7,6 +7,10 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-10-12
+### Added
+- Check MC criterion is an instance and not a class.
+
 ## [3.1.0] - 2026-10-12
 ### Added
 - "Rate" units (distance over time) now handled properly.
