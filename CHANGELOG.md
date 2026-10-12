@@ -12,6 +12,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
   Added corresponding tests in `test_variable_trimming.py`.
 - `trim_variables` CLI script.
 - `constrain_variable` CLI script.
+- Examples to `docs/source/cli/creating_pdfs.md`.
 ### Changed
 - **Breaking:** `make_pdf.py` now uses subcommands for function parameters.
   No longer requires/accepts `-d` argument.
