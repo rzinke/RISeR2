@@ -13,6 +13,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 - `trim_variables` CLI script.
 - `constrain_variable` CLI script.
 ### Changed
+- **Breaking:** `make_pdf.py` now uses subcommands for function parameters.
+  No longer requires/accepts `-d` argument.
+- **Breaking:** Variable name `distribution` switched to `function`.
 - Replaced various signs for multiplication in docstrings with middle dot.
 - Replaced various signs for integration in docstrings with integral sign.
 - Removed the print message for when input and output scaling are the same

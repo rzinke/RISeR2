@@ -355,7 +355,7 @@ class TestDetermineMinMaxLimits:
         )
         assert (xmin, xmax) == pytest.approx((0.0, 9.0))
 
-    def test_unsupported_distribution_raises(self):
+    def test_unsupported_function_raises(self):
         with pytest.raises(ValueError, match="not supported"):
             PDFs.parametric_functions.determine_min_max_limits(
                 "students_t", [10.0, 0.0, 1.0]

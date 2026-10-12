@@ -21,50 +21,24 @@ from riser import (
 
 #################### ARGUMENT PARSER ####################
 description = (
-    "Make a PDF for a random variable based on a parametric distribution."
+    "Make a PDF for a random variable based on a parametric function."
 )
 
 examples = """Examples:
-riser-make-pdf -d triangular -s 9.0 11.0 12.5 -o T1.txt
-riser-make-pdf -d trapezoidal -s 3.5 4.0 5.0 6.0 -dx 0.01 -o T2.txt
-riser-make-pdf -d gaussian -s 11.3 1.2 -dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
+riser-make-pdf triangular --a 9.0 --c 11.0 --b 12.5 -o T1.txt
+riser-make-pdf trapezoidal --a 3.5 --b 4.0 --c 5.0 --d 6.0 --dx 0.01 -o T2.txt
+riser-make-pdf gaussian --mu 11.3 --sigma 1.2 --dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
+
+Use `riser-make-pdf <function> -h` to list the parameters of a function.
+Options common to all functions must follow the function name.
 """
 
 
-def create_parser():
-    parser = argparse.ArgumentParser(
-        description=description,
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog=examples,
-    )
+def create_common_parser():
+    """Create a parent parser holding the options common to all functions."""
+    common = argparse.ArgumentParser(add_help=False)
 
-    return parser
-
-
-def cmd_parser(iargs=None):
-    parser = create_parser()
-
-    input_args = parser.add_argument_group("Inputs")
-    input_args.add_argument(
-        "-d",
-        "--distribution",
-        dest="distribution",
-        type=str,
-        choices=PDFs.parametric_functions.PARAMETRIC_FUNCTIONS,
-        required=True,
-        help="Parametric function.",
-    )
-    input_args.add_argument(
-        "-s",
-        "--values",
-        dest="values",
-        type=float,
-        nargs="+",
-        required=True,
-        help="Parameter values.",
-    )
-
-    domain_args = parser.add_argument_group("Domain")
+    domain_args = common.add_argument_group("Domain")
     domain_args.add_argument(
         "-dx",
         "--dx",
@@ -85,7 +59,7 @@ def cmd_parser(iargs=None):
         help="Enforce the condition that values are > 0.",
     )
 
-    output_args = parser.add_argument_group("Outputs")
+    output_args = common.add_argument_group("Outputs")
     output_args.add_argument(
         "-o",
         "--outname",
@@ -95,7 +69,7 @@ def cmd_parser(iargs=None):
         help="Output file name.",
     )
 
-    metadata_args = parser.add_argument_group("Metadata")
+    metadata_args = common.add_argument_group("Metadata")
     metadata_args.add_argument(
         "--name", dest="name", type=str, help="PDF descriptive name. [None]"
     )
@@ -114,7 +88,7 @@ def cmd_parser(iargs=None):
         help="Value unit (e.g., 'y'; 'm'. [None]",
     )
 
-    diagnostic_args = parser.add_argument_group("Diagnostics")
+    diagnostic_args = common.add_argument_group("Diagnostics")
     diagnostic_args.add_argument(
         "-v",
         "--verbose",
@@ -130,7 +104,66 @@ def cmd_parser(iargs=None):
         help="Plot distribution.",
     )
 
-    return parser.parse_args(args=iargs)
+    return common
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=examples,
+    )
+
+    common = create_common_parser()
+    common_dests = {action.dest for action in common._actions}
+
+    # One subcommand per parametric function
+    subparsers = parser.add_subparsers(
+        title="Functions",
+        dest="function_name",
+        metavar="FUNCTION",
+        required=True,
+    )
+    for (
+        function_name,
+        function,
+    ) in PDFs.parametric_functions.PARAMETRIC_FUNCTIONS.items():
+        subparser = subparsers.add_parser(
+            function_name,
+            parents=[common],
+            formatter_class=argparse.RawTextHelpFormatter,
+            help=f"{function_name} function",
+        )
+
+        # Function parameters, in the order of the function signature
+        param_names = [
+            name
+            for name in inspect.signature(function).parameters
+            if name != "x"
+        ]
+        assert not common_dests.intersection(param_names), function_name
+
+        param_args = subparser.add_argument_group("Function parameters")
+        for param_name in param_names:
+            param_args.add_argument(
+                f"--{param_name}",
+                dest=param_name,
+                type=float,
+                required=True,
+                help=f"{function_name} parameter '{param_name}'.",
+            )
+        subparser.set_defaults(param_names=param_names)
+
+    return parser
+
+
+def cmd_parser(iargs=None):
+    inps = create_parser().parse_args(args=iargs)
+
+    # Collect parameter values in the order of the function signature
+    inps.values = [getattr(inps, name) for name in inps.param_names]
+
+    return inps
 
 
 #################### MAIN ####################
@@ -140,7 +173,7 @@ def main() -> None:
 
     # Check required inputs
     PDFs.parametric_functions.check_number_inputs(
-        inps.distribution, inps.values
+        inps.function, inps.values
     )
 
     # Check optional variable type input
@@ -167,7 +200,7 @@ def main() -> None:
     # Determine suggested min/max values based on function shape
     (suggested_xmin, suggested_xmax) = (
         PDFs.parametric_functions.determine_min_max_limits(
-            distribution=inps.distribution,
+            function=inps.function,
             values=inps.values,
             limit_positive=inps.limit_positive,
             verbose=inps.verbose,
@@ -192,11 +225,11 @@ def main() -> None:
         x = x[x > 0.0]
 
     # Retrieve parameteric function
-    para_fcn = PDFs.parametric_functions.get_function_by_name(inps.distribution)
+    para_fcn = PDFs.parametric_functions.get_function_by_name(inps.function)
 
     # Create PDF
     if inps.verbose:
-        print(f"Creating {inps.distribution} distribution")
+        print(f"Creating {inps.function} function")
 
     px = para_fcn(x, *inps.values)
 
