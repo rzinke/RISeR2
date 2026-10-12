@@ -77,10 +77,10 @@ class TestScalePdfByUnits:
         )
 
     def test_appropriate_rate_scaling(self):
-      pdf = PDFs.PDF(x=x, px=px, unit="mm/y")
-      scaled_pdf = PDFs.scaling.scale_pdf_by_units(pdf=pdf, unit_out="m/y")
-      assert scaled_pdf.unit == "m/y"
-      np.testing.assert_allclose(scaled_pdf.x, np.array([0.0, 1e-3, 2e-3]))
+        pdf = PDFs.PDF(x=x, px=px, unit="mm/y")
+        scaled_pdf = PDFs.scaling.scale_pdf_by_units(pdf=pdf, unit_out="m/y")
+        assert scaled_pdf.unit == "m/y"
+        np.testing.assert_allclose(scaled_pdf.x, np.array([0.0, 1e-3, 2e-3]))
 
 
 # end of file
