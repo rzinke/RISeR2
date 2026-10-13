@@ -325,6 +325,7 @@ def plot_pdf_stack(
     pdfs: dict[str, PDFs.PDF],
     height: float = 0.9,
     colors: dict[str, str] | None = None,
+    alphas: dict[str, float] | None = None,
     conf_ranges: dict[str, PDFs.analytics.ConfidenceRange] | None = None,
     priors: dict[str, PDFs.PDF] | None = None,
     same_height: bool | None = False,
@@ -344,6 +345,8 @@ def plot_pdf_stack(
         Height of hightest PDF peak relative to line spacing.
     colors : dict[str, str], optional
         PDF colors.
+    alphas : dict[str, float], optional
+        PDF alphas.
     conf_ranges : dict[str, ConfidenceRange], optional
         Confidence ranges stored by PDF name.
     priors : dict[str, PDF], optional
@@ -354,6 +357,9 @@ def plot_pdf_stack(
     # Set defaults
     if colors is None:
         colors = {}
+
+    if alphas is None:
+        alphas = {}
 
     if conf_ranges is None:
         conf_ranges = {}
@@ -377,11 +383,11 @@ def plot_pdf_stack(
 
         # Plot prior if available
         if priors.get(name) is not None:
-            plot_pdf_line(
+            plot_pdf_filled(
                 ax,
                 priors[name],
                 color="darkgrey",
-                zorder=3,
+                zorder=1,
                 offset=i,
                 scale=scale,
             )
@@ -391,6 +397,7 @@ def plot_pdf_stack(
             ax,
             pdf,
             color=colors.get(name, "black"),
+            alpha=alphas.get(name, 0.3),
             zorder=2,
             offset=i,
             scale=scale,
@@ -402,7 +409,7 @@ def plot_pdf_stack(
                 ax,
                 pdf,
                 conf_range=conf_ranges[name],
-                zorder=1,
+                zorder=3,
                 offset=i,
                 scale=scale,
             )

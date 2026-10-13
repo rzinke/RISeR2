@@ -89,6 +89,7 @@ def main() -> None:
     # Empty dictionaries to store PDFs and metadata
     pdfs = {}
     colors = {}
+    alphas = {}
     priors = {}
 
     # Loop through PDFs in config file
@@ -110,6 +111,9 @@ def main() -> None:
         # Read color if specified
         colors[pdf_name] = pdf_spec.get("color", "black")
 
+        # Read alpha if specified
+        alphas[pdf_name] = pdf_spec.get("alpha", 0.3)
+
         # Read prior if specified
         if pdf_spec.get("prior") is not None:
             prior = PDFs.readers.read_pdf(
@@ -129,6 +133,7 @@ def main() -> None:
         ax,
         pdfs,
         colors=colors,
+        alphas=alphas,
         priors=priors,
         same_height=inps.same_height,
     )
