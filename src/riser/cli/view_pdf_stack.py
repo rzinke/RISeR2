@@ -145,7 +145,7 @@ def main() -> None:
     )
 
     # Format axis
-    ax.set_xlim([inps.xmin, inps.xmax])
+    ax.set_xlim((inps.xmin, inps.xmax))
 
     # Save figure to file
     if inps.outname is not None:
