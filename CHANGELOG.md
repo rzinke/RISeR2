@@ -8,6 +8,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 ### Added
 - `alpha` option for PDF stack plotting.
+- `xmin`, `xmax` for PDF stack plotting via `view_pdf_stack.py`.
+### Fixed
+- Default output unit for `calyr_to_age.py` is `y` instead of `ky`.
 
 ## [3.1.1] - 2026-10-12
 ### Added

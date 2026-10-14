@@ -53,6 +53,12 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Plot all PDFs with the same height.",
     )
+    plot_args.add_argument(
+        "--xmin", dest="xmin", type=float, help="Minimum x-axis value. [None]"
+    )
+    plot_args.add_argument(
+        "--xmax", dest="xmax", type=float, help="Maximum x-axis value. [None]"
+    )
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument(
@@ -137,6 +143,9 @@ def main() -> None:
         priors=priors,
         same_height=inps.same_height,
     )
+
+    # Format axis
+    ax.set_xlim([inps.xmin, inps.xmax])
 
     # Save figure to file
     if inps.outname is not None:
