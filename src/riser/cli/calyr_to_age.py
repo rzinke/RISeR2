@@ -85,7 +85,7 @@ def cmd_parser(iargs=None):
         dest="output_unit",
         type=str,
         default="y",
-        help="Unit of output data. [ky]",
+        help="Unit of output data. [y]",
     )
 
     smoothing_args = parser.add_argument_group("Smoothing")

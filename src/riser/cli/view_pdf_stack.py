@@ -53,6 +53,12 @@ def cmd_parser(iargs=None):
         action="store_true",
         help="Plot all PDFs with the same height.",
     )
+    plot_args.add_argument(
+        "--xmin", dest="xmin", type=float, help="Minimum x-axis value. [None]"
+    )
+    plot_args.add_argument(
+        "--xmax", dest="xmax", type=float, help="Maximum x-axis value. [None]"
+    )
 
     output_args = parser.add_argument_group("Outputs")
     output_args.add_argument(
@@ -89,6 +95,7 @@ def main() -> None:
     # Empty dictionaries to store PDFs and metadata
     pdfs = {}
     colors = {}
+    alphas = {}
     priors = {}
 
     # Loop through PDFs in config file
@@ -110,6 +117,9 @@ def main() -> None:
         # Read color if specified
         colors[pdf_name] = pdf_spec.get("color", "black")
 
+        # Read alpha if specified
+        alphas[pdf_name] = pdf_spec.get("alpha", 0.3)
+
         # Read prior if specified
         if pdf_spec.get("prior") is not None:
             prior = PDFs.readers.read_pdf(
@@ -129,9 +139,13 @@ def main() -> None:
         ax,
         pdfs,
         colors=colors,
+        alphas=alphas,
         priors=priors,
         same_height=inps.same_height,
     )
+
+    # Format axis
+    ax.set_xlim((inps.xmin, inps.xmax))
 
     # Save figure to file
     if inps.outname is not None:
