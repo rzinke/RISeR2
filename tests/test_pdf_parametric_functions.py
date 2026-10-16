@@ -419,16 +419,6 @@ class TestGetFunctionByName:
         fcn = PDFs.parametric_functions.get_function_by_name("uniform")
         assert fcn is PDFs.parametric_functions.uniform
 
-    def test_delta(self):
-        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
-            "delta", [5.0], dx=0.01
-        )
-        assert (xmin, xmax) == pytest.approx((4.99, 5.01))
-
-    def test_delta_requires_dx(self):
-        with pytest.raises(ValueError, match="must be specified"):
-            PDFs.parametric_functions.determine_min_max_limits("delta", [5.0])
-
     def test_unknown_name_raises(self):
         with pytest.raises(ValueError, match="is not defined"):
             PDFs.parametric_functions.get_function_by_name("not_real")
@@ -461,6 +451,17 @@ class TestDetermineMinMaxLimits:
             "gaussian", [1.0, 2.0], limit_positive=True
         )
         assert (xmin, xmax) == pytest.approx((0.0, 9.0))
+
+    def test_delta(self):
+        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+            "delta", [5.0], dx=0.01
+        )
+        assert (xmin, xmax) == pytest.approx((4.99, 5.01))
+
+    def test_delta_requires_dx(self):
+        with pytest.raises(ValueError, match="must be specified"):
+            PDFs.parametric_functions.determine_min_max_limits("delta", [5.0])
+
 
     def test_unsupported_function_raises(self):
         with pytest.raises(ValueError, match="not supported"):
