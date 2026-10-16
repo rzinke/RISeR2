@@ -23,6 +23,7 @@ import numpy as np
 import scipy as sp
 
 from .. import precision
+from . import value_arrays
 
 
 #################### SUPPORT FUNCTIONS ####################
@@ -396,6 +397,53 @@ def students_t(
     return px
 
 
+def _delta_limits_(x0, dx):
+    xmin = x0 - dx
+    xmax = x0 + dx
+
+    # Target domain limits
+    return xmin, xmax
+
+
+def delta(x: np.ndarray, x0: float) -> np.ndarray:
+    """Delta function with single spike at which all the probability resides.
+
+    In theory, the delta function (or distribution) has infinite probability
+    density at `x0`. However, this is not possible to define using array-based
+    PDFs.
+    Here, we define the probability density among as few values as possible
+    (at most two) based on the spike position `x0` and the sample spacing `dx`.
+    The defining property is that the CDF of the delta PDF is a step
+    function from 0.0 to 1.0 at `x0`.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    x0 : float
+        Value at which event occurred.
+    """
+    # Grid spacing from x-axis
+    dx = value_arrays.sample_spacing_from_value_array(x)
+
+    # Checks
+    xmin, xmax = _delta_limits_(x0, dx)
+    check_mass_against_value_range(x, xmin, xmax)
+
+    # Initialize px array
+    px = np.zeros(len(x))
+
+    # Find samples bracketing x0 to the left and right
+    xl = x[x < x0][-1]
+    xr = x[x >= x0][0]
+
+    # Determine weights of sample values
+    pxl = (xr - x0) / dx
+    pxr = (x0 - xl) / dx
+
+    return px
+
+
 PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
     "uniform": uniform,
     "triangular": triangular,
@@ -404,6 +452,7 @@ PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
     "exponential": exponential,
     "lognormal": lognormal,
     "students_t": students_t,
+    "delta": delta,
 }
 
 
@@ -541,6 +590,16 @@ def determine_min_max_limits(
 
         # Max value
         xmax = np.exp(mu + 4 * sigma)
+
+    elif function in ["delta"]:
+        # Parse values
+        x0, dx = values
+
+        # Min value
+        xmin = x0 - dx
+
+        # Max value
+        xmax = x0 + dx
 
     else:
         raise ValueError(

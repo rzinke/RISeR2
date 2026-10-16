@@ -6,8 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- Delta function capabilities.
+- `sample_spacing_from_value_array` to determine sample spacing `dx` from an
+  array rather than a full PDF.
+### Changed
+- `sample_spacing_from_pdf` now wraps `sample_spacing_from_value_array`
 
-## [3.2.0] - 2026-10-12
+## [3.2.0] - 2026-10-15
 ### Added
 - `alpha` option for PDF stack plotting.
 - `xmin`, `xmax` for PDF stack plotting via `view_pdf_stack.py`.
