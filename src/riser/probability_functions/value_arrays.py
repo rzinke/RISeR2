@@ -79,7 +79,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
     dx : float
         Sample spacing (single value).
     """
-    return sample_spacing_from_value_array(pdf.x)
+    return sample_spacing_from_value_array(pdf.x, verbose=verbose)
 
 
 def sample_spacing_array_from_pdf(

@@ -30,6 +30,11 @@ class TestSampleSpacingFromValueArray:
         assert dx == pytest.approx(np.median(np.diff(x)))
         assert dx != pytest.approx(np.mean(np.diff(x)), abs=0.01)
 
+    def test_verbose_reports_spacing(self, capsys):
+        x = np.linspace(0, 2, 3)
+        PDFs.value_arrays.sample_spacing_from_value_array(x, verbose=True)
+        assert "Sample spacing" in capsys.readouterr().out
+
 
 class TestSampleSpacingFromPDF:
     """This function wraps `sample_spacing_from_value_array` so the tests
@@ -59,6 +64,12 @@ class TestSampleSpacingFromPDF:
             dx = PDFs.value_arrays.sample_spacing_from_pdf(pdf)
         assert dx == pytest.approx(np.median(np.diff(x)))
         assert dx != pytest.approx(np.mean(np.diff(x)), abs=0.01)
+
+    def test_verbose_reports_spacing(self, capsys):
+        x = np.linspace(0, 2, 3)
+        pdf = PDFs.PDF(x, np.array([0.0, 1.0, 0.0]))
+        PDFs.value_arrays.sample_spacing_from_pdf(pdf, verbose=True)
+        assert "Sample spacing" in capsys.readouterr().out
 
 
 class TestSampleSpacingArrayFromPDF:

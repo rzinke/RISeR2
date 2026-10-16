@@ -7,9 +7,9 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Delta function capabilities.
+- Delta function capabilities, and tests.
 - `sample_spacing_from_value_array` to determine sample spacing `dx` from an
-  array rather than a full PDF.
+  array rather than a full PDF. Added corresponding tests.
 ### Changed
 - `sample_spacing_from_pdf` now wraps `sample_spacing_from_value_array`
 

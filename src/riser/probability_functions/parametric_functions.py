@@ -397,7 +397,7 @@ def students_t(
     return px
 
 
-def _delta_limits_(x0, dx):
+def _delta_limits_(x0, dx) -> tuple[float, float]:
     xmin = x0 - dx
     xmax = x0 + dx
 
@@ -416,30 +416,52 @@ def delta(x: np.ndarray, x0: float) -> np.ndarray:
     The defining property is that the CDF of the delta PDF is a step
     function from 0.0 to 1.0 at `x0`.
 
+    The probability is split between the two samples bracketing `x0` in
+    proportion to their proximity to `x0`, which preserves the mean of the
+    function at exactly `x0` even if `x0` does not coincide with a sample.
+
     Parameters
     ----------
     x : np.ndarray
         Value array over which to define the function.
     x0 : float
         Value at which event occurred.
+
+    Returns
+    -------
+    px : np.ndarray
+        Probability density values.
     """
     # Grid spacing from x-axis
     dx = value_arrays.sample_spacing_from_value_array(x)
 
-    # Checks
+    # Check spike lies at least one sample inside domain
     xmin, xmax = _delta_limits_(x0, dx)
-    check_mass_against_value_range(x, xmin, xmax)
+
+    tolerance = 10**-precision.RISER_PRECISION
+    if xmin < x.min() - tolerance or xmax > x.max() + tolerance:
+        raise ValueError(
+            f"x0 ({x0}) must lie at least one sample spacing ({dx}) inside "
+            f"the domain ({x.min()}, {x.max()})"
+        )
 
     # Initialize px array
     px = np.zeros(len(x))
 
-    # Find samples bracketing x0 to the left and right
-    xl = x[x < x0][-1]
-    xr = x[x >= x0][0]
+    # Indices bracketing x0 to the left and right
+    right_ndx = np.searchsorted(x, x0, side="left")
+    left_ndx = right_ndx - 1
 
-    # Determine weights of sample values
-    pxl = (xr - x0) / dx
-    pxr = (x0 - xl) / dx
+    # Domain values bracketing x0 to the left and right
+    x_left = x[left_ndx]
+    x_right = x[right_ndx]
+    spacing = x_right - x_left
+
+    # Probability density
+    # Weights of the bracketing samples (sum to 1) divided by spacing so
+    # PDF has unit area
+    px[left_ndx] = (x_right - x0) / spacing**2
+    px[right_ndx] = (x0 - x_left) / spacing**2
 
     return px
 
@@ -528,6 +550,7 @@ def determine_min_max_limits(
     values: list[float],
     *,
     limit_positive: bool = False,
+    dx: float | None = None,
     verbose: bool = False,
 ) -> tuple[float, float]:
     """Determine the minimum and maximum values of the PDF domain.
@@ -540,6 +563,8 @@ def determine_min_max_limits(
         Parameter values.
     limit_positive : bool, optional
         Limit the function limits to positive values only.
+    dx : float, optional
+        Sample spacing.
 
     Returns
     -------
@@ -593,13 +618,14 @@ def determine_min_max_limits(
 
     elif function in ["delta"]:
         # Parse values
-        x0, dx = values
+        (x0,) = values
 
-        # Min value
-        xmin = x0 - dx
+        # Sample spacing is needed to define the domain
+        if dx is None:
+            raise ValueError("`dx` must be specified for a delta function")
 
-        # Max value
-        xmax = x0 + dx
+        # Min and max values
+        xmin, xmax = _delta_limits_(x0, dx)
 
     else:
         raise ValueError(
@@ -802,12 +828,40 @@ def cumulative_lognormal(x: np.ndarray, mu: float, sigma: float) -> np.ndarray:
     return Px
 
 
+def cumulative_delta(x: np.ndarray, x0: float) -> np.ndarray:
+    """Cumulative delta function.
+
+    This is a step function analogous to a Heaviside function.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Value array over which to define the function.
+    x0 : float
+        Value at which event occurred.
+
+    Returns
+    -------
+    Px : np.ndarray
+        Cumulative probability values.
+    """
+    # Initialize cumulative probability values
+    n = len(x)
+    Px = np.zeros(n)
+
+    # Step function for non-zero probability values
+    Px[x >= x0] = 1.0
+
+    return Px
+
+
 CUMULATIVE_PARAMETRIC_FUNCTIONS: dict[str, Callable[..., Any]] = {
     "uniform": cumulative_uniform,
     "triangular": cumulative_triangular,
     "trapezoidal": cumulative_trapezoidal,
     "gaussian": cumulative_gaussian,
     "lognormal": cumulative_lognormal,
+    "delta": cumulative_delta,
 }
 
 

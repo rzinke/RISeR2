@@ -159,10 +159,18 @@ def create_parser():
 
 
 def cmd_parser(iargs=None):
-    inps = create_parser().parse_args(args=iargs)
+    parser = create_parser()
+    inps = parser.parse_args(args=iargs)
 
     # Collect parameter values in the order of the function signature
     inps.values = [getattr(inps, name) for name in inps.param_names]
+
+    # Check sample spacing specification for delta function
+    if inps.function_name == "delta" and inps.dx is None:
+        parser.error(
+            "Sample spacing must be specified to build a delta function. "
+            "Specify using the `--dx` flag."
+        )
 
     return inps
 
@@ -204,6 +212,7 @@ def main() -> None:
             function=inps.function_name,
             values=inps.values,
             limit_positive=inps.limit_positive,
+            dx=inps.dx,
             verbose=inps.verbose,
         )
     )
