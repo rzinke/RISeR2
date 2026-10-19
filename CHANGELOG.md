@@ -17,6 +17,7 @@ and this project uses [Semantic Versioning](https://semver.org/).
  array rather than a full PDF. Added corresponding tests.
 - Complete set of examples for all functions in `make_pdf.py` examples.
 ### Changed
+- **Breaking:** `epsilon` in `find_slip_rate_tail_cap` from `1e-2` to `1e-3`.
 - `sample_spacing_from_pdf` now wraps `sample_spacing_from_value_array`.
 - `exponential` suggested limit.
 - `limit_positive` can now be applied to all distributions.
