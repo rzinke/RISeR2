@@ -6,7 +6,6 @@
 
 # Import modules
 import argparse
-import inspect
 import warnings
 
 import matplotlib.pyplot as plt
