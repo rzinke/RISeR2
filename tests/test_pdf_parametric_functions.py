@@ -469,4 +469,102 @@ class TestDetermineMinMaxLimits:
             )
 
 
+## Test all parametric functions
+# Valid example parameters for every registered parametric function
+VALID_PARAMETERS = {
+    "uniform": [4.0, 5.0],
+    "triangular": [9.0, 11.0, 12.5],
+    "gaussian": [11.3, 1.2],
+    "trapezoidal": [3.5, 4.0, 5.0, 6.0],
+    "exponential": [2.0],
+    "lognormal": [1.0, 0.5],
+    "students_t": [5.0, 11.3, 0.5],
+    "delta": [0.128],
+}
+
+SAMPLE_SPACING = 0.01
+
+CUMULATIVE_NAMES = [
+    name
+    for name, fcn in PDFs.parametric_functions.PARAMETRIC_FUNCTIONS.items()
+    if fcn.cumulative_function is not None
+]
+
+
+def _suggested_x(name):
+    """Build the value array the way `riser-make-pdf` does."""
+    xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+        name, VALID_PARAMETERS[name], dx=SAMPLE_SPACING
+    )
+    return PDFs.value_arrays.precise_array(xmin, xmax, SAMPLE_SPACING)
+
+
+class TestAllParametricFunctions:
+    def test_valid_parameters_cover_all_functions(self):
+        # Adding a function to the registry requires adding valid parameters
+        assert set(VALID_PARAMETERS) == set(
+            PDFs.parametric_functions.PARAMETRIC_FUNCTIONS
+        )
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_number_inputs(self, name):
+        values = VALID_PARAMETERS[name]
+        fcn = PDFs.parametric_functions.PARAMETRIC_FUNCTIONS[name]
+
+        assert len(fcn.reqd_args) == len(values)
+        PDFs.parametric_functions.check_number_inputs(name, values)
+
+        with pytest.raises(ValueError, match="values must be specified"):
+            PDFs.parametric_functions.check_number_inputs(name, values[:-1])
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_suggested_limits(self, name):
+        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+            name, VALID_PARAMETERS[name], dx=SAMPLE_SPACING
+        )
+
+        assert np.isfinite(xmin)
+        assert np.isfinite(xmax)
+        assert xmin < xmax
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_pdf_on_suggested_limits(self, name, recwarn):
+        x = _suggested_x(name)
+        fcn = PDFs.parametric_functions.get_function_by_name(name)
+
+        px = fcn(x, *VALID_PARAMETERS[name])
+
+        # Suggested limits capture the probability mass without warning
+        assert len(recwarn) == 0
+
+        assert np.all(px >= 0.0)
+        assert integration.integrate(x=x, px=px) == pytest.approx(1.0, abs=1e-3)
+
+    @pytest.mark.parametrize("name", CUMULATIVE_NAMES)
+    def test_cumulative_function(self, name):
+        x = _suggested_x(name)
+        cfcn = PDFs.parametric_functions.get_cumulative_function_by_name(name)
+
+        Px = cfcn(x, *VALID_PARAMETERS[name])
+
+        assert Px[0] == pytest.approx(0.0, abs=1e-3)
+        assert Px[-1] == pytest.approx(1.0, abs=1e-3)
+        assert np.all(np.diff(Px) >= -1e-12)
+
+    @pytest.mark.parametrize(
+        "name", [name for name in CUMULATIVE_NAMES if name != "delta"]
+    )
+    def test_cumulative_matches_pdf(self, name):
+        x = _suggested_x(name)
+        fcn = PDFs.parametric_functions.get_function_by_name(name)
+        cfcn = PDFs.parametric_functions.get_cumulative_function_by_name(name)
+
+        px = fcn(x, *VALID_PARAMETERS[name])
+        Px = cfcn(x, *VALID_PARAMETERS[name])
+
+        # Numerical integral of the PDF reproduces the analytical CDF
+        Px_numerical = integration.integrate_cumulative(x=x, px=px)
+        assert Px_numerical == pytest.approx(Px, abs=1e-2)
+
+
 # end of file
