@@ -7,7 +7,11 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [4.0.0]
+## [4.0.1] - 2026-10-19
+### Changed
+- Update to v4.0.1.
+
+## [4.0.0] - 2026-10-19
 ### Added
 - `delta` parametric function (and `cumulative_delta`) for exactly known
  values, e.g., dated historic events. Probability is split between the two
