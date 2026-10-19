@@ -120,7 +120,7 @@ class DatedMarker(VariablePair):
         # Report age
         print_str += (
             f"\n\tage: {self.age.name} "
-            f"{PDFs.analytics.pdf_mean(self.age)} "
+            f"{PDFs.analytics.pdf_mean(self.age):.2f} "
             f"+- {PDFs.analytics.pdf_std(self.age):.2f} "
             f"{self.age.unit}"
         )
@@ -128,7 +128,7 @@ class DatedMarker(VariablePair):
         # Report displacement
         print_str += (
             f"\n\tdisplacement: {self.displacement.name} "
-            f"{PDFs.analytics.pdf_mean(self.displacement)} "
+            f"{PDFs.analytics.pdf_mean(self.displacement):.2f} "
             f"+- {PDFs.analytics.pdf_std(self.displacement):.2f} "
             f"{self.displacement.unit}"
         )
