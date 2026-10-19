@@ -26,13 +26,13 @@ description = (
 )
 
 examples = """Examples:
+riser-make-pdf uniform --a 4.0 --b 5.0 -o T0.txt
 riser-make-pdf triangular --a 9.0 --c 11.0 --b 12.5 -o T1.txt
 riser-make-pdf trapezoidal --a 3.5 --b 4.0 --c 5.0 --d 6.0 --dx 0.01 -o T2.txt
 riser-make-pdf gaussian --mu 11.3 --sigma 1.2 --dx 0.1 --name T3 --variable-type age --unit ky -o T3.txt
 riser-make-pdf delta --x0 0.128 --dx 0.01 --name EQ --variable-type age --unit y -o EQ.txt
 
 Use `riser-make-pdf <function> -h` to list the parameters of a function.
-Options common to all functions must follow the function name.
 """
 
 
@@ -138,11 +138,7 @@ def create_parser():
         )
 
         # Function parameters, in the order of the function signature
-        param_names = [
-            name
-            for name in inspect.signature(function).parameters
-            if name != "x"
-        ]
+        param_names = function.reqd_args
         assert not common_dests.intersection(param_names), function_name
 
         param_args = subparser.add_argument_group("Function parameters")

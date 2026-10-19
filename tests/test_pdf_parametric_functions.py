@@ -462,11 +462,10 @@ class TestDetermineMinMaxLimits:
         with pytest.raises(ValueError, match="must be specified"):
             PDFs.parametric_functions.determine_min_max_limits("delta", [5.0])
 
-
     def test_unsupported_function_raises(self):
-        with pytest.raises(ValueError, match="not supported"):
+        with pytest.raises(ValueError, match="is not defined"):
             PDFs.parametric_functions.determine_min_max_limits(
-                "students_t", [10.0, 0.0, 1.0]
+                "foo", [10.0, 0.0, 1.0]
             )
 
 
