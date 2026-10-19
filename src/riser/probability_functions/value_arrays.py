@@ -8,6 +8,7 @@ These functions enforce consistency in PDF value array (x-axis) formatting.
 
 # Public API
 __all__ = [
+    "sample_spacing_from_value_array",
     "sample_spacing_from_pdf",
     "sample_spacing_array_from_pdf",
     "value_array_params_from_pdfs",
@@ -26,13 +27,15 @@ from .probability_density_function import ProbabilityDensityFunction as PDF
 
 
 #################### SAMPLING LIMITS AND RATE ####################
-def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
-    """Determine the average change in x (dx) for a discrete PDF.
+def sample_spacing_from_value_array(
+    x: np.ndarray, verbose: bool = False
+) -> float:
+    """Determine the average change in x (dx) for a value array.
 
     Parameters
     ----------
-    pdf : PDF
-        PDF from which to determine sample spacing.
+    x : np.ndarray
+        Value array.
 
     Returns
     -------
@@ -40,7 +43,7 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
         Sample spacing (single value).
     """
     # Deteremine threshold for regular sampling based on CoV
-    diff_x = np.diff(pdf.x)
+    diff_x = np.diff(x)
     diff_x_std = np.std(diff_x)
     diff_x_cv = diff_x_std / np.abs(np.mean(diff_x))
 
@@ -59,6 +62,24 @@ def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
         print(f"Sample spacing {dx}")
 
     return dx
+
+
+def sample_spacing_from_pdf(pdf: PDF, verbose: bool = False) -> float:
+    """Determine the average change in x (dx) for a discrete PDF.
+
+    Thin wrapper for `sample_spacing_from_value_array`.
+
+    Parameters
+    ----------
+    pdf : PDF
+        PDF from which to determine sample spacing.
+
+    Returns
+    -------
+    dx : float
+        Sample spacing (single value).
+    """
+    return sample_spacing_from_value_array(pdf.x, verbose=verbose)
 
 
 def sample_spacing_array_from_pdf(

@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import scipy.stats as st
 
-from riser import probability_functions as PDFs
+from riser import integration, probability_functions as PDFs
 
 
 # Tests
@@ -317,6 +317,103 @@ class TestStudentsT:
             PDFs.parametric_functions.students_t(x, dof=-1.0, mu=0.0, scale=1.0)
 
 
+class TestDelta:
+    def test_on_grid_puts_all_density_on_one_sample(self):
+        x = PDFs.value_arrays.precise_array(4.0, 6.0, 0.5)
+        px = PDFs.parametric_functions.delta(x, 5.0)
+
+        assert np.count_nonzero(px) == 1
+        assert px[x == 5.0] == pytest.approx(1 / 0.5)
+
+    def test_off_grid_splits_density_by_proximity(self):
+        """The closer sample receives the larger share of the probability."""
+        x = np.linspace(0.0, 4.0, 5)
+        px = PDFs.parametric_functions.delta(x, 2.25)
+
+        np.testing.assert_allclose(px, [0.0, 0.0, 0.75, 0.25, 0.0])
+
+    @pytest.mark.parametrize("x0", [5.0, 5.1, 5.25, 5.4999, 7.3])
+    def test_unit_area_and_mean(self, x0):
+        """The mean is `x0` whether or not `x0` lies on the grid."""
+        x = PDFs.value_arrays.precise_array(2.0, 10.0, 0.5)
+        px = PDFs.parametric_functions.delta(x, x0)
+
+        assert np.count_nonzero(px) <= 2
+        mean = integration.integrate(x=x, px=x * px)
+        assert integration.integrate(x=x, px=px) == pytest.approx(1.0)
+        assert mean == pytest.approx(x0, abs=1e-9)
+
+        pdf = PDFs.PDF(x, px)
+        assert PDFs.analytics.pdf_mean(pdf) == pytest.approx(x0, abs=1e-9)
+
+    def test_spread_within_one_sample_spacing(self):
+        x = PDFs.value_arrays.precise_array(2.0, 10.0, 0.5)
+        pdf = PDFs.PDF(x, PDFs.parametric_functions.delta(x, 5.2))
+
+        assert PDFs.analytics.pdf_std(pdf) < 0.5
+
+    def test_resampled_pdf_keeps_mean(self):
+        """Resampling onto a finer common grid does not shift the spike."""
+        x = PDFs.value_arrays.precise_array(119.0, 121.0, 0.05)
+        pdf = PDFs.PDF(x, PDFs.parametric_functions.delta(x, 119.63))
+
+        x_fine = PDFs.value_arrays.precise_array(100.0, 140.0, 0.01)
+        broad_pdf = PDFs.PDF(
+            x_fine, PDFs.parametric_functions.gaussian(x_fine, 120.0, 5.0)
+        )
+
+        resampled, _ = PDFs.interpolation.interpolate_pdfs([pdf, broad_pdf])
+
+        assert PDFs.analytics.pdf_mean(resampled) == pytest.approx(
+            119.63, abs=1e-3
+        )
+
+    @pytest.mark.parametrize(
+        "x0, dx", [(0.3, 0.1), (2.3, 0.1), (2.3, 1.0), (119.6, 0.01)]
+    )
+    def test_suggested_limits_grid_accepted(self, x0, dx):
+        """Rounding of the value array must not fail the domain check."""
+        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+            "delta", [x0], dx=dx
+        )
+        x = PDFs.value_arrays.precise_array(xmin, xmax, dx)
+
+        px = PDFs.parametric_functions.delta(x, x0)
+
+        assert len(x) == 3
+        assert np.count_nonzero(px) == 1
+
+    @pytest.mark.parametrize("x0", [-1.0, 0.0, 0.25, 10.0, 11.0])
+    def test_too_close_to_domain_edge_raises(self, x0):
+        x = PDFs.value_arrays.precise_array(0.0, 10.0, 0.5)
+
+        with pytest.raises(ValueError, match="inside the domain"):
+            PDFs.parametric_functions.delta(x, x0)
+
+    @pytest.mark.parametrize("x0", [0.5, 9.5])
+    def test_one_sample_inside_domain_allowed(self, x0):
+        x = PDFs.value_arrays.precise_array(0.0, 10.0, 0.5)
+
+        px = PDFs.parametric_functions.delta(x, x0)
+
+        assert integration.integrate(x=x, px=x * px) == pytest.approx(x0)
+
+
+class TestCumulativeDelta:
+    def test_step_at_x0(self):
+        x = np.linspace(0.0, 10.0, 11)
+        Px = PDFs.parametric_functions.cumulative_delta(x, 4.0)
+
+        np.testing.assert_array_equal(Px[x < 4.0], 0.0)
+        np.testing.assert_array_equal(Px[x >= 4.0], 1.0)
+
+    def test_off_grid_step(self):
+        x = np.linspace(0.0, 10.0, 11)
+        Px = PDFs.parametric_functions.cumulative_delta(x, 4.5)
+
+        np.testing.assert_array_equal(Px, [0.0] * 5 + [1.0] * 6)
+
+
 class TestGetFunctionByName:
     def test_returns_correct_function(self):
         fcn = PDFs.parametric_functions.get_function_by_name("uniform")
@@ -355,11 +452,119 @@ class TestDetermineMinMaxLimits:
         )
         assert (xmin, xmax) == pytest.approx((0.0, 9.0))
 
+    def test_delta(self):
+        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+            "delta", [5.0], dx=0.01
+        )
+        assert (xmin, xmax) == pytest.approx((4.99, 5.01))
+
+    def test_delta_requires_dx(self):
+        with pytest.raises(ValueError, match="must be specified"):
+            PDFs.parametric_functions.determine_min_max_limits("delta", [5.0])
+
     def test_unsupported_function_raises(self):
-        with pytest.raises(ValueError, match="not supported"):
+        with pytest.raises(ValueError, match="is not defined"):
             PDFs.parametric_functions.determine_min_max_limits(
-                "students_t", [10.0, 0.0, 1.0]
+                "foo", [10.0, 0.0, 1.0]
             )
+
+
+## Test all parametric functions
+# Valid example parameters for every registered parametric function
+VALID_PARAMETERS = {
+    "uniform": [4.0, 5.0],
+    "triangular": [9.0, 11.0, 12.5],
+    "gaussian": [11.3, 1.2],
+    "trapezoidal": [3.5, 4.0, 5.0, 6.0],
+    "exponential": [2.0],
+    "lognormal": [1.0, 0.5],
+    "students_t": [5.0, 11.3, 0.5],
+    "delta": [0.128],
+}
+
+SAMPLE_SPACING = 0.01
+
+CUMULATIVE_NAMES = [
+    name
+    for name, fcn in PDFs.parametric_functions.PARAMETRIC_FUNCTIONS.items()
+    if fcn.cumulative_function is not None
+]
+
+
+def _suggested_x(name):
+    """Build the value array the way `riser-make-pdf` does."""
+    xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+        name, VALID_PARAMETERS[name], dx=SAMPLE_SPACING
+    )
+    return PDFs.value_arrays.precise_array(xmin, xmax, SAMPLE_SPACING)
+
+
+class TestAllParametricFunctions:
+    def test_valid_parameters_cover_all_functions(self):
+        # Adding a function to the registry requires adding valid parameters
+        assert set(VALID_PARAMETERS) == set(
+            PDFs.parametric_functions.PARAMETRIC_FUNCTIONS
+        )
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_number_inputs(self, name):
+        values = VALID_PARAMETERS[name]
+        fcn = PDFs.parametric_functions.PARAMETRIC_FUNCTIONS[name]
+
+        assert len(fcn.reqd_args) == len(values)
+        PDFs.parametric_functions.check_number_inputs(name, values)
+
+        with pytest.raises(ValueError, match="values must be specified"):
+            PDFs.parametric_functions.check_number_inputs(name, values[:-1])
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_suggested_limits(self, name):
+        xmin, xmax = PDFs.parametric_functions.determine_min_max_limits(
+            name, VALID_PARAMETERS[name], dx=SAMPLE_SPACING
+        )
+
+        assert np.isfinite(xmin)
+        assert np.isfinite(xmax)
+        assert xmin < xmax
+
+    @pytest.mark.parametrize("name", VALID_PARAMETERS)
+    def test_pdf_on_suggested_limits(self, name, recwarn):
+        x = _suggested_x(name)
+        fcn = PDFs.parametric_functions.get_function_by_name(name)
+
+        px = fcn(x, *VALID_PARAMETERS[name])
+
+        # Suggested limits capture the probability mass without warning
+        assert len(recwarn) == 0
+
+        assert np.all(px >= 0.0)
+        assert integration.integrate(x=x, px=px) == pytest.approx(1.0, abs=1e-3)
+
+    @pytest.mark.parametrize("name", CUMULATIVE_NAMES)
+    def test_cumulative_function(self, name):
+        x = _suggested_x(name)
+        cfcn = PDFs.parametric_functions.get_cumulative_function_by_name(name)
+
+        Px = cfcn(x, *VALID_PARAMETERS[name])
+
+        assert Px[0] == pytest.approx(0.0, abs=1e-3)
+        assert Px[-1] == pytest.approx(1.0, abs=1e-3)
+        assert np.all(np.diff(Px) >= -1e-12)
+
+    @pytest.mark.parametrize(
+        "name", [name for name in CUMULATIVE_NAMES if name != "delta"]
+    )
+    def test_cumulative_matches_pdf(self, name):
+        x = _suggested_x(name)
+        fcn = PDFs.parametric_functions.get_function_by_name(name)
+        cfcn = PDFs.parametric_functions.get_cumulative_function_by_name(name)
+
+        px = fcn(x, *VALID_PARAMETERS[name])
+        Px = cfcn(x, *VALID_PARAMETERS[name])
+
+        # Numerical integral of the PDF reproduces the analytical CDF
+        Px_numerical = integration.integrate_cumulative(x=x, px=px)
+        assert Px_numerical == pytest.approx(Px, abs=1e-2)
 
 
 # end of file

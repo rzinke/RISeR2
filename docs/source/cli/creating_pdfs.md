@@ -27,6 +27,12 @@ riser-make-pdf triangular --a 8.0 --c 10.0 --b 12.0 -o X.txt
 riser-make-pdf trapezoidal --a 8.0 --b 9.0 --c 10.0 --d 11.0 -o X.txt
 ```
 
+```bash
+riser-make-pdf delta --x0 0.128 --dx 0.1 -o X.txt
+```
+
+Note that the `delta` distribution should only be used for values known more precisely than the grid sample spacing (e.g., historical earthquakes with known date/time versus geochronologic data). The sample spacing `dx` should be chosen to match the other PDFs (e.g., years, fractions of kilo-years). Also note that `--limit-positive` does not work for `x0 = 0`.
+
 
 ## Convert PDF from a calendar date to an age
 

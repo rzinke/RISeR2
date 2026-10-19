@@ -7,7 +7,25 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [3.2.0] - 2026-10-12
+## [4.0.0]
+### Added
+- `delta` parametric function (and `cumulative_delta`) for exactly known
+ values, e.g., dated historic events. Probability is split between the two
+ samples bracketing `x0` so that the mean is exactly `x0`.
+ `riser-make-pdf delta --x0 ... --dx ...` requires `--dx`.
+- `delta`, `students_t` limits implemented.
+- `dx` option for `determine_min_max_limits`, used by `delta`.
+- `sample_spacing_from_value_array` to determine sample spacing `dx` from an
+ array rather than a full PDF. Added corresponding tests.
+- Complete set of examples for all functions in `make_pdf.py` examples.
+### Changed
+- **Breaking:** `epsilon` in `find_slip_rate_tail_cap` from `1e-2` to `1e-3`.
+- `sample_spacing_from_pdf` now wraps `sample_spacing_from_value_array`.
+- `exponential` suggested limit.
+- `limit_positive` can now be applied to all distributions.
+- `CUMULATIVE_PARAMETRIC_FUNCTIONS` removed.
+
+## [3.2.0] - 2026-10-15
 ### Added
 - `alpha` option for PDF stack plotting.
 - `xmin`, `xmax` for PDF stack plotting via `view_pdf_stack.py`.
