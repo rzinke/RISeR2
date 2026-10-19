@@ -40,7 +40,7 @@ from ..sampling import filtering, mc_sampling, pdf_formation
 def find_slip_rate_tail_cap(
     displacement: PDFs.PDF,
     age: PDFs.PDF,
-    epsilon: float = 1e-2,
+    epsilon: float = 1e-3,
     verbose: bool = False,
 ) -> float:
     """Find the maximum slip rate value to consider based on the thickness
