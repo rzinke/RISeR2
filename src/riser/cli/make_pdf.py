@@ -32,6 +32,7 @@ riser-make-pdf gaussian --mu 11.3 --sigma 1.2 --dx 0.1 --name T3 --variable-type
 riser-make-pdf delta --x0 0.128 --dx 0.01 --name EQ --variable-type age --unit y -o EQ.txt
 
 Use `riser-make-pdf <function> -h` to list the parameters of a function.
+Options common to all functions must follow the function name.
 """
 
 
