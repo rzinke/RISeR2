@@ -150,7 +150,7 @@ def cumulative_uniform(x: np.ndarray, a: float, b: float) -> np.ndarray:
     return Px
 
 
-def _triangular_limits_(a, b):
+def _triangular_limits_(a, c, b):
     # Limits are defined by left and right bases of triangle
     return a, b
 
@@ -181,7 +181,7 @@ def triangular(x: np.ndarray, a: float, c: float, b: float) -> np.ndarray:
         )
 
     # Checks
-    xmin, xmax = _triangular_limits_(a, b)
+    xmin, xmax = _triangular_limits_(a, c, b)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
@@ -251,7 +251,7 @@ def cumulative_triangular(
     return Px
 
 
-def _trapezoidal_limits_(a, d):
+def _trapezoidal_limits_(a, b, c, d):
     # Limits are defined by left and right bases of trapezoid
     return a, d
 
@@ -287,7 +287,7 @@ def trapezoidal(
         )
 
     # Checks
-    xmin, xmax = _trapezoidal_limits_(a, d)
+    xmin, xmax = _trapezoidal_limits_(a, b, c, d)
     check_mass_against_value_range(x, xmin, xmax)
 
     # Initialize probability density values
