@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [4.0.0]
 ### Added
 - `delta` parametric function (and `cumulative_delta`) for exactly known
  values, e.g., dated historic events. Probability is split between the two
