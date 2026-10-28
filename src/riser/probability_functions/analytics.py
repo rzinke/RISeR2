@@ -502,29 +502,33 @@ def compute_highest_posterior_density(
     t = (confidence - P_sort[k_star]) / (P_sort[k_star + 1] - P_sort[k_star])
     h = px_sort[k_star] + t * (px_sort[k_star + 1] - px_sort[k_star])
 
-    # Find every place px changes across threshold h, sign changes are
-    # cluster edges
-    thresh = np.where(pdf.px >= h, 1.0, -1.0)
-    thresh_diff = np.diff(thresh, append=-1.0)
+    # Mark samples at or above the threshold h. Pad with "below" on both
+    # sides so a cluster touching the domain edge still has a start and end
+    above = np.concatenate(([False], pdf.px >= h, [False]))
+    edges = np.diff(above.astype(int))  # +1 = cluster start, -1 = cluster end
 
     cluster_starts = []
     cluster_ends = []
-    for i in range(len(pdf) - 1):
-        if thresh_diff[i] != 0.0:
-            # Interpolate the exact crossing location at each edge
+    for j in np.flatnonzero(edges):
+        if j == 0:
+            # Cluster begins at the first sample of the domain
+            x_star = pdf.x[0]
+        elif j == len(pdf):
+            # Cluster ends at the last sample of the domain
+            x_star = pdf.x[-1]
+        else:
+            # Interpolate the exact crossing between samples j-1 and j
+            i = j - 1
             t = (h - pdf.px[i]) / (pdf.px[i + 1] - pdf.px[i])
             x_star = pdf.x[i] + t * (pdf.x[i + 1] - pdf.x[i])
 
-            if thresh_diff[i] == 2.0:
-                cluster_starts.append(x_star)
-            else:
-                cluster_ends.append(x_star)
+        if edges[j] == 1:
+            cluster_starts.append(x_star)
+        else:
+            cluster_ends.append(x_star)
 
-    clusters = [
-        # Pair consecutive edges
-        (cluster_start, cluster_end)
-        for cluster_start, cluster_end in zip(cluster_starts, cluster_ends)
-    ]
+    # Pair consecutive edges
+    clusters = list(zip(cluster_starts, cluster_ends))
 
     # Format values into ConfidenceRange object
     conf_range = ConfidenceRange(
