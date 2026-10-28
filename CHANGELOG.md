@@ -7,6 +7,10 @@ and this project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-10-28
+### Fixed
+- HPD function now works for monotonic functions
+
 ## [4.0.1] - 2026-10-19
 ### Changed
 - Update to v4.0.1.
